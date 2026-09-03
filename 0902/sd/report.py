@@ -19,6 +19,16 @@ _framework = config.load_framework()
 from framework import canonical as _canonical  # noqa: E402
 from framework import catalog as _catalog      # noqa: E402
 
+# 성과 지표가 이 열들에서 완전히 같으면 "지표가 동일한 계약"으로 묶는다.
+# 같다는 것은 재생이 같은 사건 집합을 골랐다는 **증거**이지 증명은 아니다 —
+# 우연히 같을 수도 있다. 그래서 결과를 "같은 진입식"이 아니라 "지표가 동일한
+# 계약"이라고만 부른다 (F2 리뷰).
+DUPLICATE_METRIC_COLUMNS: tuple[str, ...] = (
+    "total_net_bps", "scorable", "fills", "unfilled", "censored",
+    "cohort_NET_RECOVERY", "cohort_EARLY_RECOVERY_LATE_REVERSAL",
+    "cohort_COST_INSUFFICIENT", "cohort_PERSISTENT_ADVERSE",
+)
+
 
 def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
                grid: Sequence[float], attempts: int, bottleneck: int) -> dict:
@@ -42,21 +52,52 @@ def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
     }
 
 
+def duplicate_signal_groups(ranked: pd.DataFrame) -> list[list[str]]:
+    """`DUPLICATE_METRIC_COLUMNS` 이 완전히 같은 계약 ID 를 묶는다.
+
+    빈 그룹은 없다 — 계약마다 정확히 하나의 그룹에 속한다. 그룹 수가 곧
+    "지표 기준 실질 독립 계약 수"다 (F2 리뷰). 크기 1인 그룹은 중복이 없다는
+    뜻이고, 크기 2 이상인 그룹이 중복이다.
+    """
+    if ranked.empty:
+        return []
+    columns = [c for c in DUPLICATE_METRIC_COLUMNS if c in ranked.columns]
+    if not columns:
+        return [[cid] for cid in ranked.index]
+    groups: dict[tuple, list[str]] = {}
+    for contract_id, row in ranked[columns].iterrows():
+        key = tuple(row.tolist())
+        groups.setdefault(key, []).append(str(contract_id))
+    return [sorted(ids) for ids in groups.values()]
+
+
 def write(run_dir: Path, universe: dict, candidates: list, compiled: list,
           failures: list, ranked: pd.DataFrame, prov: dict) -> Path:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    groups = duplicate_signal_groups(ranked)
+    independent_contract_count = len(groups)
+    duplicate_groups = [g for g in groups if len(g) > 1]
+
+    prov_written = dict(prov)
+    prov_written["independent_contract_count"] = independent_contract_count
+    prov_written["independent_contract_count_of"] = len(ranked)
+    prov_written["duplicate_metric_groups"] = duplicate_groups
+
     _json(run_dir / "universe.json", universe)
-    _json(run_dir / "provenance.json", prov)
+    _json(run_dir / "provenance.json", prov_written)
     _json(run_dir / "candidates.json", [
         {"expr": str(c.expr), "complexity": c.complexity,
          "in_sample_score": c.in_sample_score, "backend": c.backend, "seed": c.seed}
         for c in candidates])
+
+    merged_duplicates = len(candidates) - len(compiled) - len(failures)
     _json(run_dir / "compile_report.json", {
         "attempted": len(candidates),
         "succeeded": len(compiled),
         "failed": len(failures),
+        "merged_duplicates": merged_duplicates,
         "success_rate": (len(compiled) / len(candidates)) if candidates else 0.0,
         "failures": [{"expr": str(f.candidate.expr), "stage": f.stage, "reason": f.reason}
                      for f in failures],
@@ -73,7 +114,9 @@ def write(run_dir: Path, universe: dict, candidates: list, compiled: list,
         })
 
     path = run_dir / "report.md"
-    path.write_text(_markdown(universe, candidates, compiled, failures, ranked, prov),
+    path.write_text(_markdown(universe, candidates, compiled, failures, ranked, prov,
+                              merged_duplicates, independent_contract_count,
+                              duplicate_groups),
                     encoding="utf-8")
     return path
 
@@ -83,7 +126,9 @@ def _json(path: Path, payload) -> None:
                     encoding="utf-8")
 
 
-def _markdown(universe, candidates, compiled, failures, ranked, prov) -> str:
+def _markdown(universe, candidates, compiled, failures, ranked, prov,
+             merged_duplicates: int, independent_contract_count: int,
+             duplicate_groups: list[list[str]]) -> str:
     warning = ""
     if prov["sr_backend"] == "naive":
         warning = (
@@ -107,12 +152,22 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov) -> str:
         f"| 병목 차원 | {prov['bottleneck']} |",
         f"| 분위 격자 | {prov['quantile_grid']} |",
         f"| **재생 시도 횟수 N** | **{prov['attempts']}** |",
+        f"| 지표 기준 실질 독립 계약 수 | {independent_contract_count} / {len(ranked)} |",
         f"| 시드 | {prov['seed']} |", "",
         "## 컴파일", "",
         f"- 후보 {len(candidates)}개 중 **{len(compiled)}개 성공** "
-        f"(성공률 {success_rate:.0%}), {len(failures)}개 탈락",
+        f"(성공률 {success_rate:.0%}), {len(failures)}개 탈락, **{merged_duplicates}개 병합**",
+        f"  ({len(candidates)} = {len(compiled)} + {len(failures)} + {merged_duplicates}) "
+        "— 병합은 실패가 아니다: 단조 껍질을 벗긴 정규형이 같은 후보끼리는 "
+        "점수가 가장 높은 것만 남고 나머지는 `succeeded` 에도 `failed` 에도 들어가지 "
+        "않는다 (계획서 §3 단조 흡수 · `compile/pipeline.py`).",
         "",
     ]
+    if merged_duplicates < 0:
+        lines.append(
+            "> ⚠️ **`merged_duplicates` 가 음수다 — `attempted = succeeded + failed + "
+            "merged_duplicates` 산술이 깨졌다.** 컴파일 파이프라인 버그 신호이니 "
+            "이 리포트의 다른 숫자도 재검증해야 한다.\n")
     if failures:
         lines += ["| 단계 | 사유 | 수식 |", "| --- | --- | --- |"]
         for failure in failures[:20]:
@@ -131,5 +186,18 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov) -> str:
         lines += ["", "### 손실 코호트", ""]
         cohort_columns = [c for c in ranked.columns if c.startswith("cohort_")]
         lines.append(ranked[cohort_columns].to_markdown())
+
+        lines += ["", "### 지표 중복 계약", ""]
+        lines.append(
+            f"`{', '.join(DUPLICATE_METRIC_COLUMNS)}` 이 완전히 같은 계약을 묶으면 "
+            f"{len(ranked)}개 계약이 **{independent_contract_count}개 그룹**으로 나뉜다. "
+            "지표가 같다는 것은 재생이 같은 사건 집합을 골랐다는 **증거**이지 증명은 "
+            "아니다 — \"지표가 동일한 계약\"이지 \"같은 진입식\"이 아니다.")
+        if duplicate_groups:
+            lines.append("")
+            for group in duplicate_groups:
+                lines.append(f"- {', '.join(group)}")
+        else:
+            lines.append("- 지표가 동일한 계약 쌍 없음 — 모든 계약이 서로 다른 지표를 낸다.")
     lines.append("")
     return "\n".join(lines)
