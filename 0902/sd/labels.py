@@ -94,8 +94,8 @@ def _fill_label(arrays: dict[str, np.ndarray], time_s: np.ndarray,
     체결 데이터가 없으면 전부 0 — 없는 관측을 지어내지 않는다.
 
     `last` 배열은 여기서 numpy 로 벡터화해 미리 계산한다. 이중 루프 본체만
-    `_fill_label_inner` (njit) 로 뺀다 — 005930 은 호가틱이 48만이라 순수
-    파이썬 이중 루프는 종목당 수 분이 걸린다.
+    `_fill_label_inner` (njit) 로 뺀다 — 005930 은 (정규장 필터 후) 틱이
+    193,602개라 순수 파이썬 이중 루프는 종목당 수 분이 걸린다.
     """
     n = len(time_s)
     sell_min = arrays.get("sell_min_price")

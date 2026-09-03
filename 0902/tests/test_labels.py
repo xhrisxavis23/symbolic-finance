@@ -130,7 +130,8 @@ def test_fill_label_horizon_matches_clock_and_tick_bound():
 
 @pytest.mark.slow
 def test_fill_label_perf_on_005930():
-    """njit 전환 후 005930 (48만 틱) 에서 _fill_label 이 수 초 안에 끝나야 한다."""
+    """njit 전환 후 005930 (정규장 필터 후 193,602틱) 에서 _fill_label 이 수 초
+    안에 끝나야 한다."""
     from sd import ticks
     arrays = ticks.load_arrays("005930", config.DATE)
     n = len(arrays["time_s"])
