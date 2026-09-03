@@ -19,11 +19,15 @@ class TranslationError(ValueError):
 
 
 def translate(expr: sympy.Expr) -> dict:
-    """numeric 을 내는 Catalog AST. boolean 으로 감싸는 것은 threshold 단계가 한다."""
-    return _walk(sympy.sympify(expr))
+    """numeric 을 내는 Catalog AST. boolean 으로 감싸는 것은 threshold 단계가 한다.
+
+    진입점이 **최외곽**이다 — `_walk` 에 `outermost=True` 로 들어간다. 최외곽인지
+    깊이인지에 따라 상수 곱의 취급이 갈린다 (F1 리뷰, 아래 `_walk` 의 `Mul` 분기).
+    """
+    return _walk(sympy.sympify(expr), outermost=True)
 
 
-def _walk(node: sympy.Expr) -> dict:
+def _walk(node: sympy.Expr, outermost: bool = False) -> dict:
     if isinstance(node, sympy.Symbol):
         name = _catalog.resolve(str(node))
         if name not in _catalog.FEATURES:
@@ -45,10 +49,30 @@ def _walk(node: sympy.Expr) -> dict:
         inner = _fold("multiply", "left", "right", [_walk(a) for a in rest])
         if not constants:
             return inner
-        # 상수 배율의 **크기**는 분위 임계 아래에서 뜻이 없다.
+        product = sympy.Mul(*constants)
+        if not outermost and abs(product) != 1:
+            # q분위(c·u) = c·q분위(u) (c>0) 이므로 [c·u > q(c·u)] ≡ [u > q(u)] 는
+            # **최외곽** 부등식에만 적용된다 — 안쪽 상수는 함수의 모양 자체를
+            # 바꾼다 (tanh(2·u) 의 포화 스케일은 tanh(u) 와 다르다: tanh(2)=0.964,
+            # tanh(1)=0.762). Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가
+            # 없다 — `raw` 는 field 를 요구하고 `primitive` 는 feature 만 받는다.
+            # 흡수할 곳이 없으므로 조용히 크기를 버리는 대신 번역을 거부한다.
+            #
+            # |c| == 1 (즉 부호만 있는 -1) 은 예외다 — `negate` 가 `-1·u` 를
+            # **손실 없이 정확하게** 표현하므로 깊이든 어디든 항상 안전하다.
+            # 이게 없으면 `book_imbalance - queue_imbalance_best`
+            # (= `Add(bi, Mul(-1, qi))`, `-qi` 가 Add 의 항이라 깊이) 같은
+            # 평범한 뺄셈까지 거부돼 버린다 — 실제로 F1 수정 직후 이 회귀를
+            # 기존 산출물 재검증(9/12 파이프라인 회귀 확인)에서 잡았다.
+            raise TranslationError(
+                f"깊이(최외곽이 아닌 곳)의 상수배 {product} 는 옮길 수 없다: "
+                "Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없다 "
+                f"({product}·{sympy.Mul(*rest) if len(rest) > 1 else rest[0]} 같은 "
+                "깊이의 계수는 최외곽 분위 임계로 흡수되지 않는다)")
+        # 상수 배율의 **크기**는 (최외곽에서만) 분위 임계 아래에서 뜻이 없다.
         #   q 분위(c·u) = c · q 분위(u)  (c > 0) 이므로 [c·u > q(c·u)] ≡ [u > q(u)]
         # 따라서 크기는 버리고 **부호만** 남긴다. 부호는 부등호 방향을 바꾼다.
-        if sympy.Mul(*constants).is_negative:
+        if product.is_negative:
             return {"op": "negate", "input": inner}
         return inner
 

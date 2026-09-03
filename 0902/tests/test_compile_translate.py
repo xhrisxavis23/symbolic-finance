@@ -117,7 +117,17 @@ def test_tanh_becomes_tanh_node():
 def test_positive_constant_scale_drops_magnitude_and_stays_unwrapped():
     """q 분위(c·u) = c·q 분위(u) (c>0) 이므로 [c·u > q(c·u)] ≡ [u > q(u)] —
     크기는 선택 집합을 바꾸지 않으므로 버려도 되고, 부호가 양수면 부등호
-    방향도 바뀌지 않으므로 negate 로 감싸지 않는다."""
+    방향도 바뀌지 않으므로 negate 로 감싸지 않는다.
+
+    **주의 (F1 리뷰):** 이 등식은 `translate()` 의 **최외곽**에서만 성립한다.
+    `translate(3 * bi)` 는 `3*bi` 가 진입식 전체이므로 최외곽 Mul 이고, 이
+    테스트는 그 경로를 직접 부른다. 파이프라인(`strip_monotone` → `translate`)
+    은 실제로 이 경로를 거의 타지 않는다 — `strip_monotone` 이 최외곽 양수
+    상수배를 먼저 "scale" 껍질로 벗겨 버리기 때문이다. 그래도 `translate` 를
+    직접 부르는 경로(예: 이 테스트, 또는 향후 다른 호출자)가 있을 수 있으므로
+    최외곽 동작 자체는 유지한다. 깊이의 상수배(최외곽이 아닌 곳)는 이 등식이
+    성립하지 않아 전혀 다르게 취급된다 — 아래 `test_depth_constant_scale_*`
+    를 보라."""
     node = to_catalog.translate(3 * bi)
     assert node == {"op": "primitive", "primitive_id": "book_imbalance"}
 
@@ -129,6 +139,63 @@ def test_negative_constant_scale_preserves_sign_via_negate():
     node = to_catalog.translate(-3 * bi)
     assert node == {"op": "negate",
                      "input": {"op": "primitive", "primitive_id": "book_imbalance"}}
+
+
+# ---- F1 (최종 전체 리뷰): 깊이의 상수배는 최외곽과 다르다.
+#
+# `q분위(c·u) = c·q분위(u)` (c>0) 는 **진입식 전체**에 대한 부등식에서만
+# 성립한다. 안쪽 상수는 함수의 모양을 바꾼다 — `tanh(2*x)` 의 포화 스케일은
+# `tanh(x)` 와 다르다(`tanh(2)=0.964` vs `tanh(1)=0.762`, 포화점이 이동한다).
+# Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없다(`raw` 는 field 를
+# 요구하고 `primitive` 는 feature 만 받는다) — 그러니 깊이의 상수는 흡수할
+# 곳이 없다. 유일하게 옳은 선택은 `TranslationError` 로 거부하는 것이다.
+#
+# 지금(NaiveBackend)은 이 경로가 발동하지 않는다 — 템플릿에 수치 계수가
+# 없기 때문이다. PySR 로 바꾸면 거의 모든 후보에서 발동한다.
+
+sa = sympy.Symbol("signed_aggr_flow_20")
+
+
+def test_depth_constant_scale_inside_tanh_is_rejected():
+    """`sa * tanh(2*bi)` — `tanh` 안의 `2` 는 최외곽이 아니다. 크기를 버리면
+    `tanh(2*bi)` 와 `tanh(bi)` 가 같은 AST 로 번역되는데, 이 둘은 실제로는
+    포화 스케일이 다른 서로 다른 함수다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(sa * sympy.tanh(2 * bi))
+    message = str(excinfo.value)
+    assert "2" in message
+    assert "수치 리터럴" in message
+
+
+def test_depth_constant_scale_inside_add_term_is_rejected():
+    """`2*bi + 3*sa` — 최외곽은 Add 이지 Mul 이 아니다. 각 항의 상수배는
+    깊이에 있으므로 거부돼야 한다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(2 * bi + 3 * sa)
+    assert "수치 리터럴" in str(excinfo.value)
+
+
+def test_depth_constant_division_inside_add_term_is_rejected():
+    """`bi/2 + sa` — `bi/2` 는 sympy 에서 `Mul(1/2, bi)` 이고 Add 의 항이라
+    깊이다. 나눗셈으로 쓴 상수 계수도 곱과 같은 이유로 거부돼야 한다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(bi / 2 + sa)
+    assert "수치 리터럴" in str(excinfo.value)
+
+
+def test_depth_sign_flip_via_subtraction_is_still_translatable():
+    """`bi - qi` 는 sympy 에서 `Add(bi, Mul(-1, qi))` — `-qi` 의 상수는 깊이(Add
+    의 항)에 있지만 `|c| = 1` 이라 정보 손실 없이 `negate` 로 정확히 옮길 수
+    있다. 깊이 상수를 무조건 거부하면 평범한 뺄셈까지 깨진다 — 실제로 F1
+    수정 직후 기존 산출물 재검증에서 `book_imbalance - queue_imbalance_best`
+    가 이 경로로 잘못 거부되는 회귀가 났었다."""
+    node = to_catalog.translate(bi - qi)
+    assert node == {
+        "op": "add",
+        "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "right": {"op": "negate",
+                  "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
+    }
 
 
 def test_unknown_function_is_rejected():
