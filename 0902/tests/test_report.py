@@ -208,3 +208,16 @@ def test_report_states_explicitly_when_no_duplicates_found(tmp_path):
                                grid=(0.85,), attempts=2, bottleneck=2))
     text = path.read_text(encoding="utf-8")
     assert "지표가 동일한 계약 쌍 없음" in text
+
+
+def test_duplicate_signal_groups_treats_missing_metric_columns_as_all_distinct():
+    """방어 경로: `DUPLICATE_METRIC_COLUMNS` 가 하나도 없는(구버전) `ranked` 가
+    들어오면 비교할 지표가 없으니 모든 계약을 별개 그룹으로 본다 — 안전한 방향
+    (과소 병합)으로 fail 한다. 열이 있는데 값을 안 읽는 회귀도 이 테스트가 잡는다:
+    조용히 하나로 뭉뚱그리면(과대 병합) 아래 assert 가 깨진다."""
+    ranked = pd.DataFrame(
+        {"unrelated_column": [1, 2, 3]},
+        index=pd.Index(["e000:q0.85", "e001:q0.85", "e002:q0.85"], name="contract_id"))
+    groups = report.duplicate_signal_groups(ranked)
+    assert len(groups) == 3
+    assert sorted(g[0] for g in groups) == ["e000:q0.85", "e001:q0.85", "e002:q0.85"]
