@@ -7,7 +7,6 @@ MK01~MK07 을 쓰지 않는 이유는 DESIGN.md D6 에 있다 — 그 명단은 
 
 from __future__ import annotations
 
-import glob
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -34,6 +33,24 @@ def _date_dir(date: str) -> Path:
     return config.TICK_ROOT / str(date)
 
 
+def _scan_symbol_paths(date: str) -> dict[str, Path]:
+    """이 날짜 폴더를 한 번만 스캔해 `{6자리코드: 유일 parquet 경로}` 맵을 만든다.
+
+    `stock_symbols`·`liquidity_stats` 가 종목마다 따로 `glob` 을 부르면 호출마다
+    폴더 전체(이 날짜 기준 3,726개 파일)를 `fnmatch` 로 훑는 O(N×M) 비용이 든다.
+    정본 `modules/common_stock_cache.py` 도 같은 경고를 남겨 뒀다. 이 함수는 폴더를
+    한 번만 순회해 두 호출부가 공유하는 맵을 만든다 — 파일이 정확히 1개인 코드만
+    담는다 (0개나 2개 이상은 "선택 불가"이지 여기서 감출 값이 아니다).
+    """
+    folder = _date_dir(date)
+    matches: dict[str, list[Path]] = {}
+    for path in folder.glob("*.parquet"):
+        match = re.fullmatch(r"([0-9]{6})_.*\.parquet", path.name)
+        if match:
+            matches.setdefault(match.group(1), []).append(path)
+    return {symbol: paths[0] for symbol, paths in matches.items() if len(paths) == 1}
+
+
 def stock_symbols(date: str) -> tuple[str, ...]:
     """선택 사다리 3단계까지. ST ∩ 6자리 숫자 ∩ 틱 parquet 정확히 1개.
 
@@ -47,21 +64,17 @@ def stock_symbols(date: str) -> tuple[str, ...]:
         str(code) for code, asset in zip(batch.issue_code, batch.asset_type)
         if str(asset) == "ST" and re.fullmatch(r"[0-9]{6}", str(code))
     }
-    counts: dict[str, int] = {}
-    for path in folder.glob("*.parquet"):
-        match = re.fullmatch(r"([0-9]{6})_.*\.parquet", path.name)
-        if match:
-            counts[match.group(1)] = counts.get(match.group(1), 0) + 1
-    available = {symbol for symbol, count in counts.items() if count == 1}
+    available = set(_scan_symbol_paths(date))
     return tuple(sorted(selected & available))
 
 
-def _one_symbol_stats(symbol: str, date: str) -> dict | None:
-    """한 종목의 3축 통계. 유효 호가틱이 모자라면 None — 부재이지 실패가 아니다."""
-    matches = glob.glob(str(_date_dir(date) / f"{symbol}_*.parquet"))
-    if len(matches) != 1:
-        return None
-    table = pq.read_table(matches[0], columns=list(STAT_COLUMNS))
+def _one_symbol_stats(symbol: str, path: Path) -> dict | None:
+    """한 종목의 3축 통계. 유효 호가틱이 모자라면 None — 부재이지 실패가 아니다.
+
+    `path` 는 호출부(`liquidity_stats`)가 이미 스캔해 둔 유일 경로를 넘긴다 —
+    이 함수 안에서 다시 glob 하지 않는다.
+    """
+    table = pq.read_table(path, columns=list(STAT_COLUMNS))
     data_type = table["data_type"].combine_chunks().to_numpy()
     local_time = table["local_time"].combine_chunks().to_numpy()
     keep = (data_type == QUOTE_ROW) & (local_time >= SESSION_START) & (local_time <= SESSION_END)
@@ -85,9 +98,19 @@ def _one_symbol_stats(symbol: str, date: str) -> dict | None:
 
 
 def liquidity_stats(symbols: Sequence[str], date: str, workers: int = 32) -> pd.DataFrame:
-    """종목별 (스프레드, ASK1 잔량, 20틱 변화) 중앙값. 미래 라벨을 쓰지 않는다."""
+    """종목별 (스프레드, ASK1 잔량, 20틱 변화) 중앙값. 미래 라벨을 쓰지 않는다.
+
+    경로 맵은 여기서 한 번만 만들고 각 워커에는 이미 찾은 경로를 넘긴다 — 종목별
+    반복 glob (O(N×M) 디렉터리 스캔) 을 없앤다.
+    """
+    paths = _scan_symbol_paths(date)
+
+    def _compute(symbol: str) -> dict | None:
+        path = paths.get(symbol)
+        return None if path is None else _one_symbol_stats(symbol, path)
+
     with ThreadPoolExecutor(max_workers=int(workers)) as pool:
-        rows = list(pool.map(lambda s: _one_symbol_stats(s, date), symbols))
+        rows = list(pool.map(_compute, symbols))
     frame = pd.DataFrame([r for r in rows if r is not None])
     return frame.set_index("symbol").sort_index()
 
