@@ -48,6 +48,18 @@ def run(entries: Sequence[EntryExpression], symbols: Sequence[str], date: str,
         identifiers = tuple(contract_id(prefix, q) for q in grid)
         template = contract_template(entry.ast, PARAMETER)
         for identifier in identifiers:
+            if identifier in contracts:
+                # F6 리뷰: `contract_id` 는 분위를 소수 2자리로 포맷한다. 임의
+                # 격자에서 두 분위가 같은 문자열이 되면 이 대입이 계약 하나를
+                # 조용히 덮어쓰는데, `attempt_count` 는 `len(entries)*len(grid)`
+                # 를 그대로 돌려주므로 보고되는 시도 횟수 N 이 실제보다 커진다
+                # — N 은 계획서가 "미보고 시 성과 주장 무효"로 못 박은 값이다.
+                raise ValueError(
+                    f"계약 ID 충돌: '{identifier}' 가 이미 있다. 분위 격자 {grid} "
+                    "에서 서로 다른 분위가 `contract_id` (소수 2자리 포맷) 로는 "
+                    "같은 문자열이 됐다 — 격자를 조정하거나 포맷 정밀도를 높여야 "
+                    "한다. 조용히 덮어쓰면 계약이 사라지고 attempt_count 가 실제 "
+                    "재생 시도보다 크게 보고된다.")
             contracts[identifier] = template
             members[identifier] = tuple(symbols)
         table.update(parameter_table(identifiers, symbols, date, PARAMETER, grid))
