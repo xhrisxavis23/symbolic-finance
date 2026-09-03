@@ -41,6 +41,40 @@ def test_weights_are_normalised_and_positive():
     assert sel.weight.sum() == pytest.approx(len(sel.index), rel=1e-9)
 
 
+# -- F5 (최종 전체 리뷰): `WEIGHT_CLIP` 은 죽은 상수였다 — `ranks ∈ [0,1]` 이라
+# `1.0 + 4.0*ranks` 의 자연 상한이 이미 5.0 이고, `WEIGHT_CLIP=10.0` 은 그보다
+# 커서 절대 발동하지 않았다. 그것을 검사하던 `sel.weight.max() <= WEIGHT_CLIP
+# + 1e-9` 도 상수를 100 으로 바꾸거나 클립을 통째로 지워도 통과하는 판별력
+# 없는 단언이었다. 상수와 단언을 함께 지우고(F5 (b), 더 단순한 쪽), 대신
+# `_tail_weight` 공식 자체가 `[1, 5]` 를 내는지 직접 확인한다. `select()` 가
+# 반환하는 `sel.weight` 는 마지막에 `sum() == len(index)` 로 재정규화돼
+# 스케일이 바뀌므로 (`picked_weight / picked_weight.sum() * len(chosen)`) 이
+# 경계를 더는 보여주지 않는다 — 그래서 공식을 직접 테스트해야 한다.
+
+def test_tail_weight_formula_is_bounded_to_one_to_five():
+    """`ranks` 는 항상 `[0, 1]` 이므로 `_tail_weight` 는 항상 정확히 `[1, 5]`
+    를 낸다. 계수(4.0)나 절편(1.0)이 바뀌면 이 경계도 따라 바뀌어야 한다 —
+    이 테스트는 그 변화를 직접 잡는다."""
+    ranks = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
+    weight = manifold._tail_weight(ranks)
+    assert weight.min() == pytest.approx(1.0)
+    assert weight.max() == pytest.approx(5.0)
+    np.testing.assert_allclose(weight, [1.0, 2.0, 3.0, 4.0, 5.0])
+
+
+def test_select_end_to_end_weight_before_renormalisation_stays_within_one_to_five():
+    """`select()` 전체를 거쳐도 재정규화 **이전** 가중치가 공식이 보장하는
+    `[1, 5]` 를 벗어나지 않는지, `ranks` 를 직접 재현해 확인한다."""
+    X = _blob(n=800, seed=11)
+    mask = np.ones(len(X), dtype=bool)
+    distance = manifold._mahalanobis(X)
+    ranks = distance.argsort().argsort() / max(len(distance) - 1, 1)
+    weight = manifold._tail_weight(ranks)
+    assert weight.min() == pytest.approx(1.0)
+    assert weight.max() == pytest.approx(5.0)
+    assert np.all((weight >= 1.0) & (weight <= 5.0))
+
+
 def test_selection_is_reproducible_under_same_seed():
     X = _blob()
     mask = np.ones(len(X), dtype=bool)
@@ -115,7 +149,6 @@ def test_select_end_to_end_is_stable_on_affinely_dependent_columns():
 
     sel = manifold.select(X, mask, max_samples=len(X), seed=0)
     assert np.all(np.isfinite(sel.weight))
-    assert sel.weight.max() <= manifold.WEIGHT_CLIP + 1e-9
 
 
 @pytest.mark.slow

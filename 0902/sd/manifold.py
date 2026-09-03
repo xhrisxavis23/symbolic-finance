@@ -14,7 +14,6 @@ from dataclasses import dataclass
 import numpy as np
 
 TRUST_QUANTILE = 0.99      # 마할라노비스 거리 이 분위 안이면 on-manifold
-WEIGHT_CLIP = 10.0         # 꼬리 가중치 상한. 한 점이 손실을 지배하지 않게
 
 
 @dataclass(frozen=True)
@@ -51,6 +50,23 @@ def _mahalanobis(X: np.ndarray) -> np.ndarray:
     return np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", centered, inverse, centered), 0.0))
 
 
+def _tail_weight(ranks: np.ndarray) -> np.ndarray:
+    """밀도 순위(`ranks`)에서 꼬리 가중치. 공식만으로 범위가 정해진다 (F5 리뷰).
+
+    `ranks` 는 `argsort().argsort() / max(n-1, 1)` 로 만들어지므로 언제나
+    닫힌구간 `[0, 1]` 이다 — 최솟값 0(가장 밀집)과 최댓값 1(가장 희박)이 n>1
+    이면 항상 실제로 나온다(정수 순위를 정수 상한으로 나누므로). 그러므로 이
+    공식은 **항상** 정확히 `[1, 5]` 를 낸다: 별도의 `np.clip` 상한이 필요
+    없다. 예전 `WEIGHT_CLIP = 10.0` 은 이 자연 상한 5.0 보다 커서 절대
+    발동하지 않는 죽은 상수였고, 그것을 검사하던
+    `sel.weight.max() <= WEIGHT_CLIP + 1e-9` 도 상수를 100 으로 바꾸거나
+    클립을 통째로 지워도 통과하는 판별력 없는 단언이었다. 상수·단언을 함께
+    지우고, 이 함수를 직접 테스트해 공식에서 `[1, 5]` 를 확인한다
+    (`tests/test_manifold.py::test_tail_weight_formula_is_bounded_to_one_to_five`).
+    """
+    return 1.0 + 4.0 * ranks
+
+
 def select(X: np.ndarray, mask: np.ndarray, max_samples: int, seed: int) -> Selection:
     """학습에 쓸 행과 가중치.
 
@@ -66,9 +82,9 @@ def select(X: np.ndarray, mask: np.ndarray, max_samples: int, seed: int) -> Sele
     radius = float(np.quantile(distance, TRUST_QUANTILE))
     on_manifold = distance <= radius
 
-    # 층화 가중치: 밀도가 낮은 곳(거리 상위)에 더 큰 가중치. 상한으로 자른다.
+    # 층화 가중치: 밀도가 낮은 곳(거리 상위)에 더 큰 가중치.
     ranks = distance.argsort().argsort() / max(len(distance) - 1, 1)
-    weight = np.clip(1.0 + 4.0 * ranks, 1.0, WEIGHT_CLIP)
+    weight = _tail_weight(ranks)
 
     if usable.size > max_samples:
         rng = np.random.default_rng(int(seed))
