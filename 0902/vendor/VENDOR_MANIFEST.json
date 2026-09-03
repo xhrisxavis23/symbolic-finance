@@ -1,7 +1,7 @@
 {
   "schema": "vendor_manifest.v1",
   "source": "/home/dgu/tick/proj_claude_tick_finance/Sandbox_12/framework",
-  "copied_at": "2026-09-03T04:11:09.284465+00:00",
+  "copied_at": "2026-09-03T04:21:07.148910+00:00",
   "file_count": 122,
   "source_sha256": {
     "FeatureProfile/ExtractLabel/__init__.py": "9be76df9660b7843290822e2112c06dabcffd68415c6d9ccdbd4fa8472d1ba38",
@@ -126,5 +126,6 @@
     "workflows/free_research_campaign.py": "068b3f3da6a7dde8410363adfb5a60912b841c1050e4a4c8a0f9a2354a86f5d2",
     "workflows/pre_validation.py": "9666d8691d793246df0da7f2ebfba9ddb1a2900238d5693472ca51d02b66cebb",
     "workflows/research.py": "8a11a340b07ed13c7bf8f411a421a4a5bf95305235935138a0e9393bbb382ada"
-  }
+  },
+  "patched_sha256": {}
 }
