@@ -221,3 +221,66 @@ def test_duplicate_signal_groups_treats_missing_metric_columns_as_all_distinct()
     groups = report.duplicate_signal_groups(ranked)
     assert len(groups) == 3
     assert sorted(g[0] for g in groups) == ["e000:q0.85", "e001:q0.85", "e002:q0.85"]
+
+
+# -- Task 16: S1 게이트 기록. 브리핑(Step 5·6)은 이 기록을 만드는 코드만 주고
+# 그것을 지키는 테스트는 주지 않았다. 뮤테이션 자기검토로 실제로 확인했다:
+# `_markdown` 에서 `if prov.get("s1_gate_ignored"):` 경고 삽입, `provenance()` 의
+# 두 필드, 실행 정체성 표의 "S1 게이트" 행을 통째로 지워도 브리핑이 준
+# 테스트만으로는(F2 이전까지의 전체 test_report.py 포함) 아무것도 실패하지
+# 않는다. 그 빈틈을 아래 테스트로 메운다.
+
+def test_provenance_defaults_to_gate_passed_and_not_ignored():
+    """`gate_passed`·`gate_ignored` 를 안 주면(기존 호출부와의 하위호환) 정상
+    통과로 취급해야 한다 — 그래야 이 인자를 몰랐던 기존 호출이 조용히 '불통과'
+    로 뒤집히지 않는다."""
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                               grid=(0.85,), attempts=1, bottleneck=2)
+    assert record["s1_gate_passed"] is True
+    assert record["s1_gate_ignored"] is False
+
+
+def test_provenance_records_gate_failure_and_ignore_flag():
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                               grid=(0.85,), attempts=1, bottleneck=2,
+                               gate_passed=False, gate_ignored=True)
+    assert record["s1_gate_passed"] is False
+    assert record["s1_gate_ignored"] is True
+
+
+def test_report_warns_visibly_when_gate_was_ignored(tmp_path):
+    """`--ignore-gate` 로 돌린 run 은 report.md 와 provenance.json 양쪽에 그 사실이
+    남아야 한다 — 산출물만 보고도 오염된 교사에서 증류했을 위험을 알 수 있어야
+    한다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="pysr",
+                             grid=(0.85,), attempts=1, bottleneck=2,
+                             gate_passed=False, gate_ignored=True)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "⚠️" in text
+    assert "무시" in text
+    assert "**불통과**" in text
+    written_prov = json.loads((run_dir / "provenance.json").read_text(encoding="utf-8"))
+    assert written_prov["s1_gate_passed"] is False
+    assert written_prov["s1_gate_ignored"] is True
+
+
+def test_report_omits_gate_warning_when_gate_passed_normally(tmp_path):
+    """뮤테이션 자기검토: `if prov.get("s1_gate_ignored"):` 를 `if True:` 로 바꿔도
+    위 테스트(`gate_ignored=True`)는 여전히 통과한다 — 그 테스트는 무시한 경우만
+    보기 때문이다. 게이트를 정상 통과한 run 에서는 경고도 '불통과' 표시도 없어야
+    한다는 것을 이 테스트가 메운다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="pysr",
+                             grid=(0.85,), attempts=1, bottleneck=2,
+                             gate_passed=True, gate_ignored=False)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "무시하고 돌린 run" not in text
+    assert "**불통과**" not in text
+    assert "| S1 게이트 | 통과 |" in text

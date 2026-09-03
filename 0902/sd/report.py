@@ -31,7 +31,8 @@ DUPLICATE_METRIC_COLUMNS: tuple[str, ...] = (
 
 
 def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
-               grid: Sequence[float], attempts: int, bottleneck: int) -> dict:
+               grid: Sequence[float], attempts: int, bottleneck: int,
+               gate_passed: bool = True, gate_ignored: bool = False) -> dict:
     manifest_path = config.VENDOR_ROOT / "VENDOR_MANIFEST.json"
     return {
         "schema": "sd_provenance.v1",
@@ -49,6 +50,8 @@ def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
         "bottleneck": int(bottleneck),
         "quantile_grid": [float(q) for q in grid],
         "attempts": int(attempts),
+        "s1_gate_passed": bool(gate_passed),
+        "s1_gate_ignored": bool(gate_ignored),
     }
 
 
@@ -136,6 +139,9 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
             "심볼릭 회귀가 아니다.**\n"
             "> 아래 성과 숫자는 **어떤 가설 판정에도 쓸 수 없다.** 이 run 이 검증하는 "
             "것은 배관이지 알파가 아니다 (DESIGN.md D3·D4).\n\n")
+    if prov.get("s1_gate_ignored"):
+        warning += ("> ⚠️ **S1 교사 검증 게이트를 무시하고 돌린 run 이다** "
+                    "(`--ignore-gate`). 교사 오염이 수식으로 고정됐을 수 있다.\n\n")
 
     success_rate = (len(compiled) / len(candidates)) if candidates else 0.0
     lines = [
@@ -153,6 +159,8 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
         f"| 분위 격자 | {prov['quantile_grid']} |",
         f"| **재생 시도 횟수 N** | **{prov['attempts']}** |",
         f"| 지표 기준 실질 독립 계약 수 | {independent_contract_count} / {len(ranked)} |",
+        f"| S1 게이트 | {'통과' if prov.get('s1_gate_passed') else '**불통과**'}"
+        f"{' · **무시하고 진행**' if prov.get('s1_gate_ignored') else ''} |",
         f"| 시드 | {prov['seed']} |", "",
         "## 컴파일", "",
         f"- 후보 {len(candidates)}개 중 **{len(compiled)}개 성공** "

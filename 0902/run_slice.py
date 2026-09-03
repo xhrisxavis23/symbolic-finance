@@ -19,6 +19,7 @@ import pandas as pd
 from sd import config, dimensionless, labels, manifold, replay, report, select, ticks, universe
 from sd.compile import compile_candidates
 from sd.sr.naive import NaiveBackend
+from sd.teacher.gate import evaluate as evaluate_gate
 from sd.teacher.shallow import ShallowMLP
 
 
@@ -30,6 +31,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bottleneck", type=int, default=2)
     parser.add_argument("--seed", type=int, default=config.SEED)
     parser.add_argument("--workers", type=int, default=config.REPLAY_WORKERS)
+    parser.add_argument("--ignore-gate", action="store_true",
+                        help="S1 게이트 불통과를 무시한다. provenance 에 기록된다")
     return parser.parse_args()
 
 
@@ -108,6 +111,17 @@ def main() -> int:
         X[fit_rows], y_path[fit_rows], y_fill[fit_rows], fit_weight, epochs=args.epochs)
     print(f"[S1] 교사 학습 완료 (병목 {args.bottleneck})")
 
+    gate_result = evaluate_gate(teacher, X[fit_rows], y_path[fit_rows],
+                                y_fill[fit_rows], np.ones(len(fit_rows), dtype=bool))
+    for name, check in gate_result.checks.items():
+        print(f"[S1] {'통과' if check['passed'] else '실패'}  {name}: "
+              + ", ".join(f"{k}={v}" for k, v in check.items()
+                          if k not in {"passed", "curve", "why"}))
+    if not gate_result.passed and not args.ignore_gate:
+        raise SystemExit(
+            "S1 교사 검증 게이트 불통과. 오염된 교사에서 증류하면 그 오염을 수식으로 "
+            "고정할 뿐이다. 무시하려면 --ignore-gate 를 준다 (그 사실이 산출물에 남는다)")
+
     # S3 SR — feature 공간에서 교사 출력을 근사한다 (DESIGN.md D13)
     target = teacher.predict_path(X[fit_rows])
     candidates = NaiveBackend(seed=args.seed).fit(
@@ -135,7 +149,9 @@ def main() -> int:
 
     prov = report.provenance(symbols=symbols, seed=args.seed,
                              sr_backend=NaiveBackend.name, grid=config.QUANTILE_GRID,
-                             attempts=result.attempts, bottleneck=args.bottleneck)
+                             attempts=result.attempts, bottleneck=args.bottleneck,
+                             gate_passed=gate_result.passed,
+                             gate_ignored=bool(args.ignore_gate))
     summary.to_parquet(run_dir / "summary.parquet")
     path = report.write(run_dir, universe_record, candidates, compiled, failures,
                         ranked, prov)
