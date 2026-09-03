@@ -70,6 +70,45 @@ def test_inner_sqrt_becomes_sqrt_node():
     assert catalog.infer_expression_type(node).value_type == "numeric"
 
 
+# ---- Pow 분기의 지원 지수(1/2, 2)와 미지원 지수(그 외) 경계.
+#
+# `_walk` 의 `Pow` 처리는 `exp == Rational(1, 2)` 는 `sqrt`, `exp == 2` 는
+# 자기 자신과의 `multiply` 로 옮기고, 그 외 지수는 명시적으로 거부한다
+# (`raise TranslationError(f"지원하지 않는 지수: {node.exp}. ...")`). 이
+# 거부 분기 자체가 없으면 홀수 지수(`x**3`)가 조용히 `x**2` 취급돼 부호
+# 정보가 사라진다 — `book_imbalance**3` 이 항상 양수인 `book_imbalance**2`
+# 와 같은 것으로 번역되면 진입식이 반대 구간을 고르는데 예외도 경고도
+# 없다. 지원 지수 둘이 여전히 통과하는지도 함께 확인해 거부가 과하게
+# 넓어지지 않았는지 본다.
+
+def test_sqrt_exponent_becomes_sqrt_node_directly():
+    node = to_catalog.translate(sympy.sqrt(sympy.Abs(bi)))
+    assert node == {"op": "sqrt",
+                     "input": {"op": "absolute",
+                                "input": {"op": "primitive", "primitive_id": "book_imbalance"}}}
+
+
+def test_square_exponent_becomes_self_multiply():
+    node = to_catalog.translate(bi**2)
+    primitive = {"op": "primitive", "primitive_id": "book_imbalance"}
+    assert node == {"op": "multiply", "left": primitive, "right": primitive}
+
+
+def test_odd_exponent_is_rejected():
+    """`x**3` 은 `sqrt`(1/2)도 `multiply(x,x)`(2)도 아니다 — 명시적으로
+    거부해야 한다. 거부 대신 `x**2` 로 눙치면 부호가 소실된다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(bi**3)
+    assert "3" in str(excinfo.value)
+
+
+def test_negative_exponent_is_rejected():
+    """역수(`x**-1`)는 `ratio`/`divide` 로 명시해야 분모 0 정책이 붙는다 —
+    `Pow` 로 몰래 넘기면 그 정책을 우회한다."""
+    with pytest.raises(to_catalog.TranslationError):
+        to_catalog.translate(bi**-1)
+
+
 def test_tanh_becomes_tanh_node():
     node = to_catalog.translate(sympy.tanh(bi))
     assert node["op"] == "tanh"
