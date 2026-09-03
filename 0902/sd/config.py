@@ -16,6 +16,10 @@ DATE = "20260316"
 # 정본 실행 프로필. Catalog 확장으로 바뀌지 않음을 실측 확인했다.
 PROFILE_HASH = "d0b91a03541c0cec"
 
+# Catalog 어휘 해시. sqrt·tanh 추가 후 값이며 실험 종료까지 동결한다.
+# 원본(패치 전) 값은 448d4a81d9341432 였다.
+CATALOG_HASH = "73344500dc6b2d7f"
+
 # 슬라이스 전용 값 (DESIGN.md D7·D8).
 QUANTILE_GRID = (0.70, 0.85, 0.95)
 SLICE_PER_STRATUM = 5          # 6개 층 × 5 = 30종목

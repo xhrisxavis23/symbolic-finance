@@ -1029,6 +1029,22 @@ def _same_or_derived(kids: Mapping[str, TypeInfo], node: Mapping[str, Any]) -> T
     return left if left.dimension == right.dimension else DERIVED_NUMERIC
 
 
+def _sqrt_type(kids: Mapping[str, TypeInfo], node: Mapping[str, Any]) -> TypeInfo:
+    """제곱근은 차원을 반으로 나눈다. 이 차원계에는 반차원이 없으므로 무차원만 받는다."""
+    value = kids["input"]
+    if value.dimension != "dimensionless":
+        raise ValueError(f"sqrt 는 무차원 입력만 받는다. 받은 차원: {value.dimension}")
+    return TypeInfo("numeric", "dimensionless", "sqrt")
+
+
+def _tanh_type(kids: Mapping[str, TypeInfo], node: Mapping[str, Any]) -> TypeInfo:
+    """포화 함수의 인수는 무차원이어야 한다. 물리와 같은 규칙이다."""
+    value = kids["input"]
+    if value.dimension != "dimensionless":
+        raise ValueError(f"tanh 는 무차원 입력만 받는다. 받은 차원: {value.dimension}")
+    return TypeInfo("numeric", "dimensionless", "ratio")
+
+
 OPERATORS: dict[str, Operator] = {op.op: op for op in (
     Operator("primitive", ("primitive_id",),
              output=lambda kids, node: FEATURES[resolve(str(node["primitive_id"]))].type_info,
@@ -1073,6 +1089,13 @@ OPERATORS: dict[str, Operator] = {op.op: op for op in (
              output=lambda kids, node: kids["input"], output_doc="numeric", doc="부호 반전"),
     Operator("log1p", ("input",), inputs={"input": "numeric"},
              output=lambda kids, node: DERIVED_NUMERIC, output_doc="numeric", doc="log(1+x)"),
+    Operator("sqrt", ("input",), inputs={"input": "numeric"},
+             output=_sqrt_type, output_doc="dimensionless",
+             doc="제곱근. **무차원 입력만** 받는다 — 차원 있는 값은 ratio 나 "
+                 "rolling_zscore 를 먼저 거쳐야 한다"),
+    Operator("tanh", ("input",), inputs={"input": "numeric"},
+             output=_tanh_type, output_doc="dimensionless [-1, 1]",
+             doc="포화 함수. **무차원 입력만** 받는다. 유동성 유한성의 표현"),
     Operator("difference", ("input", "lag", "time_basis"),
              inputs={"input": "numeric"},
              output=lambda kids, node: kids["input"],

@@ -127,5 +127,8 @@
     "workflows/pre_validation.py": "9666d8691d793246df0da7f2ebfba9ddb1a2900238d5693472ca51d02b66cebb",
     "workflows/research.py": "8a11a340b07ed13c7bf8f411a421a4a5bf95305235935138a0e9393bbb382ada"
   },
-  "patched_sha256": {}
+  "patched_sha256": {
+    "catalog.py": "8b06ab9727a02f74c5711d19801a9ce8b9e8f9bb4c89c90b44d0524d51fde395",
+    "contract.py": "db8e94245eca680f24b71808f459c78058ae4d9f16a93b6faff4a29a56956cd6"
+  }
 }

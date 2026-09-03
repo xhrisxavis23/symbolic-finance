@@ -162,6 +162,20 @@ class ExpressionRuntime:
         out[valid] = np.log1p(values[valid])
         return out
 
+    def _op_sqrt(self, node):
+        values = np.asarray(self.evaluate(node["input"]), dtype=float)
+        out = np.full(self.n, np.nan)
+        valid = np.isfinite(values) & (values >= 0.0)
+        out[valid] = np.sqrt(values[valid])
+        return out
+
+    def _op_tanh(self, node):
+        values = np.asarray(self.evaluate(node["input"]), dtype=float)
+        out = np.full(self.n, np.nan)
+        valid = np.isfinite(values)
+        out[valid] = np.tanh(values[valid])
+        return out
+
     def _op_difference(self, node):
         source = np.asarray(self.evaluate(node["input"]), dtype=float)
         lag = int(node["lag"])

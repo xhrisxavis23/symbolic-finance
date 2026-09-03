@@ -34,6 +34,21 @@ def test_vendor_manifest_exists_and_is_nonempty():
     assert manifest["file_count"] > 50
 
 
+def test_catalog_patch_hashes_are_frozen_in_manifest():
+    """Task 2 회귀 방지: PATCHES.md 에 등재만 하고 patched_sha256 를 비워두면
+    catalog.py·contract.py 는 존재 확인만 하는 약한 모드로 남는다 (check() 의
+    patched_sha256 분기 참고). 여기서는 두 파일이 실제로 patched_sha256 에
+    담겨 있고, 그 값이 현재 파일의 sha256 과 일치하는지를 확인한다."""
+    manifest = json.loads((config.VENDOR_ROOT / "VENDOR_MANIFEST.json").read_text(encoding="utf-8"))
+    patched = manifest["patched_sha256"]
+
+    for rel in ("catalog.py", "contract.py"):
+        assert rel in patched, f"{rel} 가 patched_sha256 에 없다 — 존재 확인만 하는 약한 모드다"
+        local = config.VENDOR_ROOT / "framework" / rel
+        assert vendor_sync.sha256(local) == patched[rel], (
+            f"{rel} 의 patched_sha256 이 현재 파일 내용과 다르다")
+
+
 def test_vendor_matches_source_except_patches():
     result = subprocess.run(
         [sys.executable, str(REPO / "tools" / "vendor_sync.py"), "--check"],
