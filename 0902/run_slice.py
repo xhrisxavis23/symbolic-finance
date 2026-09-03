@@ -151,7 +151,8 @@ def main() -> int:
                              sr_backend=NaiveBackend.name, grid=config.QUANTILE_GRID,
                              attempts=result.attempts, bottleneck=args.bottleneck,
                              gate_passed=gate_result.passed,
-                             gate_ignored=bool(args.ignore_gate))
+                             gate_ignored=bool(args.ignore_gate),
+                             gate_checks=gate_result.checks)
     summary.to_parquet(run_dir / "summary.parquet")
     path = report.write(run_dir, universe_record, candidates, compiled, failures,
                         ranked, prov)

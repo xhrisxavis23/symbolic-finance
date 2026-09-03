@@ -268,6 +268,106 @@ def test_report_warns_visibly_when_gate_was_ignored(tmp_path):
     assert written_prov["s1_gate_ignored"] is True
 
 
+# -- F2 (최종 전체 리뷰): 컴파일 성공률이 F7 판정에 쓰일 수 없다는 사실을
+# `naive` 백엔드일 때만 report.md 에 명시해야 한다. `naive` 는 계수 없는
+# 템플릿 후보라 성공률이 구조적으로 대표성이 없다(F1) — 그런데 경고 없이
+# 성공률만 보이면 독자가 "F7 위험은 걷혔다"로 잘못 읽는다.
+
+def test_report_warns_naive_compile_rate_cannot_be_used_for_f7(tmp_path):
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                             grid=(0.85,), attempts=1, bottleneck=2)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "F7" in text
+    assert "수치 리터럴" in text
+
+
+def test_report_omits_naive_compile_rate_warning_for_a_real_sr_backend(tmp_path):
+    """뮤테이션 자기검토: 경고를 `sr_backend` 조건 없이 항상 붙이면 위 테스트는
+    여전히 통과한다 — `naive` 를 준 경우만 보기 때문이다. 이 테스트가 그
+    빈틈을 메운다: `naive` 가 아닌 백엔드에서는 이 경고가 없어야 한다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="pysr",
+                             grid=(0.85,), attempts=1, bottleneck=2)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "F7" not in text
+    assert "수치 리터럴" not in text
+
+
+# -- F4 (최종 전체 리뷰): S1 게이트 세 검사의 근거 숫자(correlation·max_abs_gap·
+# top_decile_mean_y_path) 를 provenance.json 에 영속화하고 report.md 에도 표로
+# 보인다. 불리언 통과/불통과만 남으면 나중에 "왜 통과했는가"를 감사에서 복구할
+# 수 없다 — 지금까지는 stdout 에만 있었다.
+
+_GATE_CHECKS = {
+    "beats_constant": {"passed": True, "correlation": 0.1988, "threshold": 0.05},
+    "fill_calibration": {"passed": True, "max_abs_gap": 0.0341, "threshold": 0.25,
+                         "curve": [{"bucket": 0, "predicted": 0.1, "actual": 0.12}]},
+    "adverse_selection_sign": {"passed": True, "top_decile_mean_y_path": -1.0532,
+                               "top_decile_size": 123,
+                               "why": "양수면 큐 모델 낙관 또는 라벨 누수를 의심한다"},
+}
+
+
+def test_provenance_records_gate_check_numbers():
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                               grid=(0.85,), attempts=1, bottleneck=2,
+                               gate_checks=_GATE_CHECKS)
+    checks = record["s1_gate_checks"]
+    assert checks["beats_constant"]["correlation"] == pytest.approx(0.1988)
+    assert checks["fill_calibration"]["max_abs_gap"] == pytest.approx(0.0341)
+    assert checks["adverse_selection_sign"]["top_decile_mean_y_path"] == pytest.approx(-1.0532)
+
+
+def test_provenance_defaults_gate_checks_to_empty_dict_for_backward_compatibility():
+    """`gate_checks` 를 안 주는 기존 호출부가 깨지지 않아야 한다."""
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                               grid=(0.85,), attempts=1, bottleneck=2)
+    assert record["s1_gate_checks"] == {}
+
+
+def test_report_persists_gate_check_numbers_to_provenance_json_and_report_md(tmp_path):
+    """`provenance.json` 에는 `curve` 포함 전체가 그대로 남고, `report.md` 에는
+    세 검사의 핵심 숫자가 표로 나와야 한다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                             grid=(0.85,), attempts=1, bottleneck=2,
+                             gate_checks=_GATE_CHECKS)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    written_prov = json.loads((run_dir / "provenance.json").read_text(encoding="utf-8"))
+    written_checks = written_prov["s1_gate_checks"]
+    assert written_checks["beats_constant"]["correlation"] == pytest.approx(0.1988)
+    assert written_checks["fill_calibration"]["curve"] == _GATE_CHECKS["fill_calibration"]["curve"]
+
+    text = path.read_text(encoding="utf-8")
+    assert "S1 게이트 검사" in text
+    assert "0.1988" in text
+    assert "0.0341" in text
+    assert "-1.0532" in text
+
+
+def test_report_omits_gate_check_table_when_no_checks_given(tmp_path):
+    """`gate_checks` 를 안 준 (기본값) run 에서는 표 자체가 없어야 한다 —
+    빈 표를 억지로 그리면 "검사를 안 했다"와 "검사했더니 값이 없다"가
+    구분되지 않는다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                             grid=(0.85,), attempts=1, bottleneck=2)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "S1 게이트 검사" not in text
+
+
 def test_report_omits_gate_warning_when_gate_passed_normally(tmp_path):
     """뮤테이션 자기검토: `if prov.get("s1_gate_ignored"):` 를 `if True:` 로 바꿔도
     위 테스트(`gate_ignored=True`)는 여전히 통과한다 — 그 테스트는 무시한 경우만

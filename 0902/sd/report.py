@@ -32,7 +32,15 @@ DUPLICATE_METRIC_COLUMNS: tuple[str, ...] = (
 
 def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
                grid: Sequence[float], attempts: int, bottleneck: int,
-               gate_passed: bool = True, gate_ignored: bool = False) -> dict:
+               gate_passed: bool = True, gate_ignored: bool = False,
+               gate_checks: dict[str, dict] | None = None) -> dict:
+    """`gate_checks` 는 `teacher.gate.GateResult.checks` 를 그대로 받는다 (F4 리뷰).
+
+    통과/불통과 불리언만으로는 나중에 "왜 통과했는가"(correlation·max_abs_gap·
+    top_decile_mean_y_path 같은 근거 숫자)를 감사에서 복구할 수 없다 — stdout
+    에만 있던 숫자를 여기서 산출물로 영속화한다. 기본값 `None` 은 기존 호출부가
+    깨지지 않게 하기 위함이고, 빈 dict 로 정규화해 기록한다.
+    """
     manifest_path = config.VENDOR_ROOT / "VENDOR_MANIFEST.json"
     return {
         "schema": "sd_provenance.v1",
@@ -52,6 +60,7 @@ def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
         "attempts": int(attempts),
         "s1_gate_passed": bool(gate_passed),
         "s1_gate_ignored": bool(gate_ignored),
+        "s1_gate_checks": dict(gate_checks) if gate_checks else {},
     }
 
 
@@ -129,6 +138,32 @@ def _json(path: Path, payload) -> None:
                     encoding="utf-8")
 
 
+def _gate_check_lines(checks: dict[str, dict] | None) -> list[str]:
+    """S1 게이트 세 검사의 통과/실패와 핵심 숫자를 표로 만든다 (F4 리뷰).
+
+    `checks` 는 `teacher.gate.GateResult.checks` 그대로다. `curve` 는 십분위
+    전체 목록이라 표에 넣기엔 크므로 뺀다 — `provenance.json` 에는 (curve
+    포함) 전체가 그대로 남으므로 감사할 때는 거기서 복구한다.
+    """
+    if not checks:
+        return []
+    lines = ["### S1 게이트 검사", "",
+             "| 검사 | 통과 | 핵심 숫자 |", "| --- | --- | --- |"]
+    for name, check in checks.items():
+        passed = "통과" if check.get("passed") else "**불통과**"
+        detail = ", ".join(f"{k}={_format_gate_value(v)}" for k, v in check.items()
+                           if k not in {"passed", "curve"})
+        lines.append(f"| `{name}` | {passed} | {detail} |")
+    lines.append("")
+    return lines
+
+
+def _format_gate_value(value) -> str:
+    if isinstance(value, float):
+        return f"{value:.4f}"
+    return str(value)
+
+
 def _markdown(universe, candidates, compiled, failures, ranked, prov,
              merged_duplicates: int, independent_contract_count: int,
              duplicate_groups: list[list[str]]) -> str:
@@ -162,6 +197,9 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
         f"| S1 게이트 | {'통과' if prov.get('s1_gate_passed') else '**불통과**'}"
         f"{' · **무시하고 진행**' if prov.get('s1_gate_ignored') else ''} |",
         f"| 시드 | {prov['seed']} |", "",
+    ]
+    lines += _gate_check_lines(prov.get("s1_gate_checks"))
+    lines += [
         "## 컴파일", "",
         f"- 후보 {len(candidates)}개 중 **{len(compiled)}개 성공** "
         f"(성공률 {success_rate:.0%}), {len(failures)}개 탈락, **{merged_duplicates}개 병합**",
@@ -171,6 +209,13 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
         "않는다 (계획서 §3 단조 흡수 · `compile/pipeline.py`).",
         "",
     ]
+    if prov["sr_backend"] == "naive":
+        lines.append(
+            "> ⚠️ **이 성공률은 F7(컴파일 성공률 20% 미만이면 중단) 판정에 쓸 수 "
+            "없다.** 계수 없는 템플릿 후보에서 잰 값이라 구조적으로 대표성이 "
+            "없다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없으므로 "
+            "(`raw` 는 field 를 요구하고 `primitive` 는 feature 만 받는다), "
+            "계수를 뱉는 백엔드(PySR 등)의 컴파일 성공률은 이 값과 무관하다.\n")
     if merged_duplicates < 0:
         lines.append(
             "> ⚠️ **`merged_duplicates` 가 음수다 — `attempted = succeeded + failed + "
