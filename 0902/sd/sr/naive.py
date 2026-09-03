@@ -73,15 +73,34 @@ class NaiveBackend:
 
     # -- 내부 ---------------------------------------------------------------
     def _rank_features(self, X, y, w, names) -> tuple[str, ...]:
-        """단변량 가중 상관 절댓값 상위. 결정론적이다."""
+        """단변량 가중 상관 절댓값 상위. 결정론적이다.
+
+        F1 수정 (Task 9 리뷰): 계획서 §3 S2 ③ 이 가중치를 SR 손실에 명시적으로
+        넘기라고 못 박았는데, 이전 구현은 채점(`weighted_r2`, `_score`)에는
+        `w` 를 썼지만 이 feature 선택 단계에서는 `np.corrcoef`(비가중)를 써
+        탐색의 첫 관문에서 그 원칙이 무너졌다. on-manifold 표집이 만든
+        [1, 5] 범위 가중치를 여기서도 반영해야, 꼬리에서만 신호를 내는
+        feature 가 상위 4개에서 부당하게 탈락하지 않는다.
+        """
         scores = []
         for j, name in enumerate(names):
             column = X[:, j]
-            valid = np.isfinite(column) & np.isfinite(y)
+            valid = np.isfinite(column) & np.isfinite(y) & np.isfinite(w)
             if valid.sum() < 10 or np.std(column[valid]) == 0:
                 scores.append((0.0, name))
                 continue
-            scores.append((abs(float(np.corrcoef(column[valid], y[valid])[0, 1])), name))
+            x = column[valid]
+            yy = y[valid]
+            ww = w[valid]
+            mx = np.average(x, weights=ww)
+            my = np.average(yy, weights=ww)
+            cov = np.average((x - mx) * (yy - my), weights=ww)
+            sx = np.sqrt(np.average((x - mx) ** 2, weights=ww))
+            sy = np.sqrt(np.average((yy - my) ** 2, weights=ww))
+            if sx == 0 or sy == 0:
+                scores.append((0.0, name))
+                continue
+            scores.append((abs(float(cov / (sx * sy))), name))
         scores.sort(key=lambda item: (-item[0], item[1]))
         return tuple(name for _score, name in scores[: self.top_features])
 

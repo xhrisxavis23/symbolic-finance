@@ -136,3 +136,43 @@ def test_complexity_of_counts_actual_ast_nodes_not_a_constant():
     assert complexity_of(a + b) == 3
     assert complexity_of(a * b + a) == 5
     assert complexity_of(a) < complexity_of(a + b) < complexity_of(a * b + a)
+
+
+def test_rank_features_uses_weighted_correlation_not_plain_corrcoef():
+    """F1 (Task 9 리뷰): `_rank_features` 가 `w` 를 받고도 `np.corrcoef`(비가중)만
+    써서 계획서 §3 S2 ③("가중치를 SR 손실에 명시적으로 넘긴다")이 feature 선택
+    단계에서 무너지던 결함을 고친 뒤의 판별 테스트다. 균일 가중치 테스트만으로는
+    가중 상관과 비가중 상관이 우연히 같은 순서를 내므로 이 결함을 잡을 수 없다
+    — 그래서 순서가 실제로 뒤집히는 상황을 만든다.
+
+    `tail_only_feature`: 표본 대부분(95%)에서 `y`와 무관하고, 꼬리 5%에서만
+    강하게(계수 3) 정렬된다. `weak_broad_feature`: 전체에서 약하지만(계수
+    0.15) 고르게 상관된다. 비가중 상관에서는 다수인 무관 구간이 신호를
+    희석해 `weak_broad_feature`가 이긴다. 꼬리에 `manifold.select`의 실제
+    상한([1, 5])과 맞춘 가중치 5.0 을 주면, 가중 상관에서는 `tail_only_feature`
+    가 이겨야 한다 — on-manifold 표집이 꼬리에 준 가중치가 feature 선택
+    단계에서도 실제로 반영된다는 뜻이다."""
+    rng = np.random.default_rng(0)
+    n = 2000
+    tail = n - 100  # 마지막 100행(5%)이 꼬리
+
+    y = rng.normal(size=n)
+
+    tail_only = rng.normal(scale=1.0, size=n)
+    tail_only[tail:] = y[tail:] * 3.0 + rng.normal(scale=0.05, size=n - tail)
+
+    weak_broad = 0.15 * y + rng.normal(scale=1.0, size=n)
+
+    names = ("tail_only_feature", "weak_broad_feature")
+    X = np.column_stack([tail_only, weak_broad])
+
+    w_uniform = np.ones(n)
+    w_tail = np.ones(n)
+    w_tail[tail:] = 5.0  # manifold.select 의 실제 가중치 상한
+
+    backend = NaiveBackend(seed=0, top_features=4)
+    unweighted_ranked = backend._rank_features(X, y, w_uniform, names)
+    weighted_ranked = backend._rank_features(X, y, w_tail, names)
+
+    assert unweighted_ranked[0] == "weak_broad_feature"
+    assert weighted_ranked[0] == "tail_only_feature"
