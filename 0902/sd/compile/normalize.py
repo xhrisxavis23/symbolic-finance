@@ -15,7 +15,17 @@ import sympy
 
 # 정의역 전체에서 순증가인 단항 **클래스**만. `sympy.sqrt` 는 클래스가 아니라
 # 함수라서 `isinstance` 에 넣을 수 없다 — 제곱근은 `Pow(x, 1/2)` 로 잡는다.
-MONOTONE_UNARY = {sympy.tanh: "tanh", sympy.atan: "atan", sympy.log: "log"}
+#
+# `sympy.log` 는 일부러 뺐다. `tanh`·`atan` 은 정의역 전체(실수 전 범위)에서
+# 순증가라 안전하지만, `log` 는 u<=0 에서 미정의다. `to_catalog.translate`
+# 가 최외곽 `log` 를 명시적으로 거부하도록 설계돼 있는데(계획서 Task 11 —
+# "log 는 log1p 로 바꿔 쓴다, 인수 양수성이 보장되지 않는다"), 여기서 최외곽
+# log 를 먼저 벗겨 버리면 그 거부 로직에 도달하기 전에 사라져서 우회된다.
+# 벗긴 뒤 u 전체 분포로 분위수를 새로 매기면, 원래 u<=0 에서 log 가
+# 미정의라 자동 배제되던 행이 다시 선택 후보에 섞여 들어온다 — 예외도
+# 경고도 없이 진입식이 달라진다. "순증가인데 왜 여기 없지" 하며 되돌리지
+# 말 것.
+MONOTONE_UNARY = {sympy.tanh: "tanh", sympy.atan: "atan"}
 
 
 def strip_monotone(expr: sympy.Expr) -> tuple[sympy.Expr, list[str]]:
