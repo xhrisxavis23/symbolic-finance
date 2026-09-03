@@ -39,7 +39,9 @@ _[`../symbolic-distillation-for-market-microstructure.md`](../symbolic-distillat
 | **대안** | ① 읽기전용 import + 런타임 확장 ② 상위 폴더 직접 수정 ③ 최소 재구현 |
 | **근거** | 세 가지. (1) 작업 범위가 `~/tick/symbolic` 안으로 제한되어 상위 폴더를 수정할 수 없다. (2) `Sandbox_12` 는 어제도 파일이 바뀐 **활성 저장소**라, 라이브 import 는 실험 도중 코드 해시를 움직여 계획서 §5 재현성 요구와 충돌한다. (3) 계획서 P0 이 요구하는 `sqrt`·`tanh` 추가를 사본에서 하면 "P0 이전 1회, 이후 동결" 규칙이 자연스럽게 지켜진다 |
 | **버리는 것** | 상위 저장소가 개선되어도 자동으로 따라가지 않는다. `make vendor-diff` 로 수동 확인한다 |
-| **불변식** | `VENDOR_MANIFEST.json` 이 원본 경로·복사 시각·파일별 sha256 을 기록한다. 원본과의 차이는 `PATCHES.md` 에 적힌 것뿐이어야 하고, 테스트가 그것을 검사한다 |
+| **불변식** | `VENDOR_MANIFEST.json` 이 원본 경로·복사 시각·파일별 sha256 을 기록한다. `tools/vendor_sync.py --check` 는 사본을 **그 매니페스트 스냅샷**과 대조한다 — **상위 원본과 대조하는 것이 아니다** |
+
+> ⚠️ **정정 (최종 전체 리뷰).** 이 항목은 원래 "원본과의 차이는 PATCHES.md 에 적힌 것뿐이어야 하고, 테스트가 그것을 검사한다" 로 적혀 있었다. 실제로 검사하는 것은 **복사 시점의 스냅샷과의 차이**다. 상위가 그 뒤 움직여도 `--check` 는 통과한다 — 그리고 실제로 움직였다(§8 드리프트 조사). **그것이 D2 가 의도한 동작이다**(동결). 문구만 틀렸다. `vendor_sync.py` 의 성공 메시지와 `README.md` 도 같은 정정이 필요하다.
 
 ### D3 — 컴파일러 우선 (접근 B)
 
@@ -159,7 +161,29 @@ book_imbalance − (2 × queue_imbalance_best − 1)  →  최대 절대오차 1
 | S2 마할라노비스 거리 | 공분산이 특이해 `inv` 가 못 쓰인다. 유사역행렬로 물러나야 한다 |
 | S3 SR 탐색 | 중복 차원을 하나 더 뒤진다. 다만 둘의 아핀 결합은 **단조 흡수**(S3)가 임계로 걷어내므로 진입식 수준에서는 새 구조가 되지 않는다 |
 
-**지금 고치지 않는다.** `dimensionless.py` 는 Catalog 의 `dimension` 만 보는 얇은 필터이고, 어느 feature 가 다른 것의 아핀 변환인가는 Catalog 가 말해 주지 않는다. 그것을 여기서 판단하려면 feature 간 관계표를 새로 만들어야 하는데, 그 표가 곧 두 번째 진실 원천이 된다. **대신 거리 계산이 rank 결손에 견디게 만들고(S2), 이 사실을 기록해 SR 단계가 알고 있게 한다.**
+> ⚠️ **정정 (최종 전체 리뷰).** 이 문단은 원래 이렇게 적혀 있었다 — *"어느 feature 가 다른 것의 아핀 변환인가는 Catalog 가 말해 주지 않는다. 그것을 여기서 판단하려면 feature 간 관계표를 새로 만들어야 하는데, 그 표가 곧 두 번째 진실 원천이 된다."* **틀렸다. Catalog 는 말해 준다.**
+
+```python
+catalog.feature_use_policy('queue_imbalance_best').threshold_kinds
+# → ('derived_duplicate',)        duplicate_of = 'book_imbalance'
+
+catalog.condition_problem('queue_imbalance_best')
+# → "queue_imbalance_best 는 임계 조건의 대상이 될 수 없다 (derived_duplicate).
+#    대신 book_imbalance 를 쓴다. …"
+
+catalog.quantile_state_key('queue_imbalance_best', 'above')
+# → ('book_imbalance', 'above')   ← 프레임워크가 이미 같은 축으로 묶는다
+```
+
+`FEATURE_USE_POLICIES` 가 바로 그 관계표이고, `duplicate_of="book_imbalance"` 라고 이름까지 적혀 있다. `condition_problem` 의 docstring 은 **우리와 같은 실측치**를 담고 있다 — *"005930 / 20260316 / 193,602틱: queue_imbalance_best 는 book_imbalance 와 Spearman 1.000000"*.
+
+새 표를 만들 필요가 없었다. **함수 호출 하나였다.** "두 번째 진실 원천이 된다" 는 우려는 정확히 거꾸로였다 — 정본이 가진 표를 **안 보는 쪽**이 두 번째 원천을 만든다.
+
+**대가를 실제로 치렀다.** 엔드투엔드 실행에서 컴파일된 9개 진입식 중 **5개가 동일한 원장**을 냈다 (`e000`·`e001`·`e002`·`e005`·`e008`). 그것은 우연이 아니라 **프레임워크가 미리 금지해 둔 축을 다섯 번 판 결과**다. `e001` 과 `e005` 는 `derived_duplicate` 인 `queue_imbalance_best` 를 임계 조건의 직접 대상으로 썼고, 정본은 그것을 `condition_problem` 으로 거부했을 것이다.
+
+**후속 조치 (이 슬라이스 범위 밖):** `sd/compile/check.py` 의 정적 검사에 `catalog.condition_problem()` 호출을 넣는다. 그것은 파이프라인이 받아들이는 것을 바꾸는 **동작 변경**이므로 별도 태스크와 리뷰가 필요하다 — 지금 끼워 넣으면 이 run 의 결과가 조용히 달라진다.
+
+**거리 계산은 그대로 둔다.** `pinv` 전환(S2)은 rank 결손에 견디게 만든 것이고 그 판단은 유효하다.
 
 **다음 단계에서 무엇을 해야 하나.** `ratio` 와 `rolling_zscore` 로 파생 무차원 열을 만든다. Catalog 가 그 연산자를 이미 갖고 있고 타입 검사가 결과를 `dimensionless` 로 추적한다.
 
@@ -320,7 +344,7 @@ canonical.run_backtest(
     compile/               ★ 이 실험의 유일한 신규 위험 지점
       normalize.py         S5①  정규형 환원 (최외곽 단조 껍질 제거)
       to_catalog.py        S5②  sympy → Catalog AST
-      check.py             S5③  정적 검사 (타입 · 어휘 · 인과성 · 실행결속)
+      check.py             S5③  정적 검사 (타입 · 어휘 · 실행결속). 인과성은 미구현 — §6.2 참조
       threshold.py         S5④  임계 부착 · 분위 격자 전개
     replay.py              S5⑤  run_backtest 래퍼
     select.py              S4    선택 규칙 (분모 하한 포함)
@@ -487,9 +511,13 @@ report.write(...)     # runs/<id>/report.md
 | 안쪽 `sqrt` | 환원하지 않는다. `sqrt` 연산자로 번역 |
 | `all(mid_price, ...)` | 타입 오류로 탈락. 실제 메시지: `$.args[0]: bool 이 필요한데 numeric/price 이다` |
 | Catalog 밖 feature | 어휘 오류로 탈락 |
-| 미래를 보는 feature | 인과성 오류로 탈락 |
+| 미래를 보는 feature | ⚠️ **미구현** — 아래 정정 참조 |
 | 정상 후보 | `infer_expression_type` 이 `boolean` 을 돌려주고, `run_backtest` 가 받는다 |
 | 같은 후보의 단조 변형 여러 개 | **하나로 병합**. `N` 회계가 정확해진다 (계획서 §8 완화 ②) |
+
+> ⚠️ **정정 (최종 전체 리뷰).** 위 표에 **인과성 검사**("미래를 보는 feature → 인과성 오류로 탈락")를 적어 두었으나 **구현되지 않았다.** `check.py` 는 타입·어휘·실행결속 셋만 본다. 현재 Catalog 36개 feature 가 전부 `causal=True` 라 실질 위험은 없지만, **보장한다고 문서에 적힌 것이 보장되지 않는 상태**였다. 계획서 §3 S5 ③ 이 요구한 항목이므로 후속으로 남긴다 — 어휘가 넓어지는 순간(파생 열, PySR) 실제 위험이 된다.
+
+> ⚠️ **함께 발견된 것:** 정본 Catalog 의 **feature 사용 정책**(`feature_use_policy` · `condition_problem` · `guard_axes`)도 `check.py` 가 전혀 보지 않는다. 그 결과 `derived_duplicate` 로 금지된 축을 진입식이 임계 조건의 직접 대상으로 쓸 수 있고, 실제로 그렇게 됐다 — D14 정정 참조.
 
 ---
 
@@ -522,6 +550,9 @@ report.write(...)     # runs/<id>/report.md
 | **1** | §3 S2 클러스터 표, §3 S6 횡단면 분할표·재현성, §5 일치율, §3 S0·S3 의 MK 언급 | MK01~MK07 을 ST 우주의 층으로 썼는데, 그 명단은 ST+ETF 혼합에서 나왔다. ETF 제외 시 **MK05 가 1종목으로 붕괴**하고 MK01 은 절반이 날아간다. core 명단은 508종목뿐이라 2,507 을 덮지도 못한다 | 층화를 day-1 ST 우주에서 직접 계산하는 것으로 교체 (D6). 횡단면 분할을 **L 학습 / M 선택 / H 봉인평가** 로 다시 씀. 정본 클러스터는 교차확인용으로 남기고, 왜 안 쓰는지를 `<details>` 로 기록 | ✅ 반영 |
 | **2** | §3 S−1 ① | "선택 결과 2,570" 은 맞지만 중간 단계가 안 보인다. `stock_batch_symbols` 단독은 **2,661** 이다 | 5단 선택 사다리로 교체. 각 조건이 몇 개를 거르는지 명시 (4,236 → 2,720 → 2,661 → 2,570 → 2,507) | ✅ 반영 |
 | **3** | §8 계산 비용 | 재생 비용이 추정이었다 | 실측으로 대체 — 3종목 116초, 전종목 1회 20~40분, 층화 통계 약 10초 | ✅ 반영 |
+| **4** | §3 S3 단조 흡수 | 계획서가 최외곽 `log` 를 흡수 대상으로 열거했다. 그러나 `log` 는 `u ≤ 0` 에서 미정의라, 벗기면 (a) `to_catalog` 의 `log` 거부가 우회되고 (b) 분위수 모집단이 조용히 바뀐다. 실측: 음수 40% 섞인 표본에서 **12% 의 행이 다르게 선택** | `MONOTONE_UNARY` 에서 `log` 제외. `tanh`·`atan` 은 전체 실수에서 순증가라 유지. **구현이 계획서보다 옳은 케이스다** | ⬜ 계획서 미반영 |
+| **5** | §3 S5 산출물 예시 | 계획서가 `all([방향 조건 둘, 비용 가드])` 3조각을 예시로 들고 "세 조각이 두 헤드에 대응한다" 고 썼다. 실제 컴파일러는 **항상 단일 `compare` 하나**를 낸다 | 결과적으로 **`teacher.predict_fill` 이 진입식에 한 번도 닿지 않는다** — S1 게이트에서만 쓰인다. 두 헤드 설계의 두 번째 헤드가 배관에서 소비되지 않는다 | ⬜ 계획서·설계 미반영 |
+| **6** | §3 S1 게이트 — 큐 헤드 실측 대조 | 계획서는 `p̂_fill` 을 **정본 원장의 실제 `FILLED/(FILLED+UNFILLED)`** 와 대조하라고 했다. 구현은 **우리 자신의 근사 라벨**(`labels._fill_label`, fill 헤드가 BCE 로 학습한 바로 그 타깃)과 대조한다 | 즉 이 검사는 "모델이 자기 학습 라벨을 잘 맞췄는가" 를 인샘플로 묻는다. `max_abs_gap = 0.0341` 은 **자기일관성의 값이지 큐 모델과의 일치도가 아니다.** 계획서가 이 검사를 넣은 목적("큐 낙관" 탐지)은 원장을 참조점으로 써야 달성된다 | ⬜ 미반영 |
 
 ---
 
