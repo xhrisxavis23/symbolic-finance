@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+import numpy as np
 import pytest
 import sympy
 
@@ -11,6 +12,7 @@ from sd.compile import check, normalize, to_catalog  # noqa: E402
 
 config.load_framework()
 from framework import catalog  # noqa: E402
+from framework import contract as _contract  # noqa: E402
 
 bi = sympy.Symbol("book_imbalance")
 qi = sympy.Symbol("queue_imbalance_best")
@@ -196,6 +198,50 @@ def test_depth_sign_flip_via_subtraction_is_still_translatable():
         "right": {"op": "negate",
                   "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
     }
+
+
+# ---- R20 (SDD-LEDGER.md) — 깊이 상수배의 |c|==1 예외가 `sympy.Float` 에서
+# 깨졌었다. `abs(product) != 1` 은 sympy 1.14 에서 `Float.__eq__` 가 파이썬
+# `int` 와 `float` 를 다르게 다뤄 실패한다: 직접 실측하면
+#   abs(sympy.Float(-1.0)) != 1        → True   (틀림)
+#   abs(sympy.Float(-1.0)) - 1 != 0    → False  (맞음)
+# PySR 은 계수를 항상 부동소수로 낸다 — 이 결함이 고쳐지지 않으면 PySR 이 낸
+# 순수 부호반전 계수(정수 -1 이 아니라 -1.0)까지 평범한 뺄셈으로서 오탈락한다.
+
+def test_depth_sign_flip_via_subtraction_with_float_coefficient_is_still_translatable():
+    """`book_imbalance - 1.0*queue_imbalance_best` — 계수가 정수 `-1` 이 아니라
+    `sympy.Float(-1.0)` 이어도 `bi - qi` 와 정확히 같은 AST 로 옮겨져야 한다.
+    옛 비교(`abs(product) != 1`)로 되돌리면 이 테스트가 TranslationError 로
+    떨어진다 — PySR 출력 형태를 그대로 흉내낸 회귀 판별 테스트다."""
+    node = to_catalog.translate(bi - 1.0 * qi)
+    assert node == {
+        "op": "add",
+        "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "right": {"op": "negate",
+                  "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
+    }
+
+
+def test_depth_float_coefficient_of_negative_one_point_zero_is_translatable():
+    """부호가 아니라 `-1.0` 자체를 곱으로 직접 구성해도(뺄셈을 거치지 않고)
+    같은 예외가 적용돼야 한다 — `Mul(sympy.Float(-1.0), qi)` 를 Add 항으로
+    직접 만든 경우."""
+    node = to_catalog.translate(bi + sympy.Float(-1.0) * qi)
+    assert node == {
+        "op": "add",
+        "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "right": {"op": "negate",
+                  "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
+    }
+
+
+def test_depth_float_coefficient_other_than_unit_magnitude_is_still_rejected():
+    """R20 수정이 방향을 반대로 뒤집어 과잉 승인하지 않는지 확인한다 — 부동소수
+    계수라도 `|c| != 1` 이면 여전히 거부돼야 한다. `abs(product) - 1 != 0` 대신
+    항상 `False`를 내는 뮤테이션(검사를 무력화)을 넣으면 이 테스트가 잡는다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(bi + 2.0 * qi)
+    assert "수치 리터럴" in str(excinfo.value)
 
 
 def test_unknown_function_is_rejected():
@@ -487,3 +533,195 @@ def test_translation_error_and_check_error_are_distinct_types():
             check.static_check(bad, allow_unresolved=False)
         except to_catalog.TranslationError:  # pragma: no cover - 잡히면 안 된다
             pytest.fail("정적 검사 실패가 TranslationError 로 위장됐다")
+
+
+# ---- 나눗셈 → `ratio` (사용자 추가 지시). sympy 는 `a/b` 를 `Mul(a, Pow(b,-1))`
+# 로 표현한다. 거부 사유 자체가 해법을 말하고 있었다: Catalog 의 `ratio` 가 이미
+# "분모 0 정책"(`zero_policy`)을 갖고 있는데 `_walk` 에 매핑이 없어 나눗셈
+# 전체가 막혀 있었다. `RATIO_ZERO_POLICY = "nan"` 을 쓴다 — DESIGN.md §7 이 세운
+# "0 으로 채우면 나쁜 거래만 사라진다" 원칙과 같은 이유로 "zero" 를 피하고,
+# 실데이터의 우연한 분모 0/결측 한 틱 때문에 진입식 전체가 죽는 것을 피하려고
+# "reject" 도 피한다. `sd/derived.py` 의 기존 파생 열 전부가 이미 "nan" 을
+# 쓰므로 새 관례가 아니라 기존 관례를 따르는 것이다.
+
+qb = sympy.Symbol("queue_imbalance_best")
+
+
+def test_simple_division_becomes_ratio_node():
+    """`a/b` → `ratio(numerator=a, denominator=b, zero_policy="nan")`."""
+    node = to_catalog.translate(bi / qb)
+    assert node == {
+        "op": "ratio",
+        "numerator": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "denominator": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+        "zero_policy": "nan",
+    }
+    assert catalog.infer_expression_type(node).value_type == "numeric"
+
+
+def test_division_by_a_product_folds_denominator_with_multiply():
+    """`a/(b*c)` — sympy 는 이것을 `Mul(a, Pow(b,-1), Pow(c,-1))` 로, 분모마다
+    별도 `Pow` 노드로 남긴다(하나로 뭉치지 않는다, `sympy.srepr` 로 직접 확인).
+    분모 인자를 전부 모아 `multiply` 로 접어야 한다 — 하나라도 빠뜨리면 분모가
+    틀린다."""
+    node = to_catalog.translate(bi / (qb * sa))
+    assert node["op"] == "ratio"
+    assert node["numerator"] == {"op": "primitive", "primitive_id": "book_imbalance"}
+    assert node["denominator"] == {
+        "op": "multiply",
+        "left": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+        "right": {"op": "primitive", "primitive_id": "signed_aggr_flow_20"},
+    }
+    assert catalog.infer_expression_type(node).value_type == "numeric"
+
+
+def test_product_divided_by_a_symbol_folds_numerator_with_multiply():
+    """`(a*b)/c` — 분자 쪽에 여러 인자가 있으면 `multiply` 로 접어야 한다."""
+    node = to_catalog.translate((bi * qb) / rc)
+    assert node["op"] == "ratio"
+    assert node["numerator"] == {
+        "op": "multiply",
+        "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "right": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+    }
+    assert node["denominator"] == {"op": "primitive",
+                                   "primitive_id": "spread_to_round_trip_cost_ratio"}
+
+
+def test_division_inside_a_larger_sum_still_translates():
+    """`a/b + c` — `ratio` 노드가 `add` 의 자식으로 깊이 있어도 옮겨져야 한다."""
+    node = to_catalog.translate(bi / qb + sa)
+    assert node["op"] == "add"
+    ratio_side = node["left"] if node["left"]["op"] == "ratio" else node["right"]
+    assert ratio_side == {
+        "op": "ratio",
+        "numerator": {"op": "primitive", "primitive_id": "book_imbalance"},
+        "denominator": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+        "zero_policy": "nan",
+    }
+
+
+def test_constant_over_symbol_is_rejected_numerator_is_bare_constant():
+    """`2/a` — 분자가 상수 `2` 뿐이다(다른 feature 와 곱해지지 않았다). Catalog
+    에는 산술 안에 수치 리터럴을 놓을 노드가 없어 옮길 수 없다 — 최외곽에서도
+    (양수 상수배를 버리는 규칙은 "u 가 이미 옮길 수 있을 때"만 뜻이 있다. u 자체가
+    옮길 수 없으면 버릴 크기도 없다)."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(2 / bi)
+    assert "분자" in str(excinfo.value)
+
+
+def test_constant_over_symbol_is_rejected_even_at_depth():
+    """`sa + 2/a` — 같은 거부가 깊이(Add 의 항)에서도 성립해야 한다. 깊이 상수배
+    규칙(F1·R20)과 분모 없음 규칙이 상호작용해도 여전히 명확히 거부돼야 한다 —
+    조용히 다른 값으로 새지 않는지가 핵심이다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(sa + 2 / bi)
+    assert "분자" in str(excinfo.value)
+
+
+def test_bare_reciprocal_without_any_multiplier_is_rejected():
+    """`1/a` — sympy 는 이것을 `Mul` 로 감싸지 않고 `Pow(a,-1)` 을 그대로 최상위에
+    남긴다(`Mul` 분기를 아예 타지 않는다). `Pow` 분기에 별도 처리가 없으면 이
+    경로가 조용히 다른 지수 취급으로 새거나 예외 메시지가 엉뚱해진다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(1 / bi)
+    assert "역수" in str(excinfo.value) or "분자" in str(excinfo.value)
+
+
+def test_bare_reciprocal_inside_add_is_also_rejected():
+    """`sa + 1/a` — `Add(sa, Pow(bi,-1))` 형태로 `Pow` 분기가 Add 의 항으로서
+    직접 불린다."""
+    with pytest.raises(to_catalog.TranslationError):
+        to_catalog.translate(sa + 1 / bi)
+
+
+def test_negative_two_exponent_is_still_rejected_not_silently_treated_as_ratio():
+    """`a**-2` — `-1` 만 `ratio` 로 표현 가능하다. `-2` 를 조용히 받아들이면
+    (예: 분모 두 번 곱하기로 오인) 의미가 완전히 달라진다."""
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(bi**-2)
+    assert "-2" in str(excinfo.value)
+
+
+def test_division_where_denominator_is_negated_still_translates():
+    """`a/(-b)` = `Mul(a, Pow(Mul(-1,b), -1))` — sympy 가 부호를 분모 안으로
+    끌고 들어갈 수도 있다(정확한 내부 표현은 버전에 따라 다를 수 있으니, 여기서는
+    번역이 **성공하고** 부호를 잃지 않는지만 확인한다 — `infer_expression_type`
+    이 통과하고, 실제 배열 평가가 `a/(-b)` 와 일치하는지는 아래 시맨틱 보존
+    테스트가 더 강하게 확인한다)."""
+    node = to_catalog.translate(bi / (-qb))
+    assert catalog.infer_expression_type(node).value_type == "numeric"
+
+
+# ---- 의미 보존: `ExpressionRuntime` 실제 배열 평가를 sympy 평가값과 대조한다.
+#
+# AST 모양만 맞고 실행 결과가 다르면 아무 의미가 없다 — `test_derived.py` 의
+# `_synthetic_book_arrays` 와 같은 방식으로 합성 호가 데이터를 만들고, Catalog
+# feature 값을 직접 얻어 `numerator/denominator` 를 numpy 로 독립적으로 나눈
+# 값과 `ExpressionRuntime.evaluate(ast)` 결과를 비교한다.
+
+def _synthetic_book_arrays(n: int = 300, depth: int = 10, seed: int = 0):
+    rng = np.random.default_rng(seed)
+    tick = 5.0
+    base = 10_000.0 + np.cumsum(rng.normal(0.0, 3.0, size=n))
+    levels = np.arange(depth)
+    bid_price = base[:, None] - tick * (levels[None, :] + 1)
+    ask_price = base[:, None] + tick * (levels[None, :] + 1)
+    bid_qty = rng.integers(1, 200, size=(n, depth)).astype(float)
+    ask_qty = rng.integers(1, 200, size=(n, depth)).astype(float)
+    return {"bid_price": bid_price, "ask_price": ask_price,
+            "bid_qty": bid_qty, "ask_qty": ask_qty}
+
+
+def test_ratio_translation_matches_independently_computed_division():
+    """`book_imbalance / queue_imbalance_best` 를 실제 합성 데이터 위에서
+    평가해, 두 feature 값을 직접 얻어 numpy 로 나눈 값과 일치하는지 확인한다.
+    `numerator`/`denominator` 가 뒤바뀌거나 엉뚱한 feature 를 참조하면 이
+    비교가 어긋난다."""
+    arrays = _synthetic_book_arrays(seed=11)
+    runtime = _contract.ExpressionRuntime(arrays)
+
+    a = np.asarray(runtime.feature("book_imbalance"))
+    b = np.asarray(runtime.feature("queue_imbalance_best"))
+    valid = np.isfinite(a) & np.isfinite(b) & (b != 0)
+    expected = np.full(len(a), np.nan)
+    expected[valid] = a[valid] / b[valid]
+
+    node = to_catalog.translate(bi / qb)
+    got = np.asarray(runtime.evaluate(node))
+
+    np.testing.assert_array_equal(np.isnan(got), np.isnan(expected))
+    np.testing.assert_allclose(got[valid], expected[valid])
+    assert valid.sum() > 100, "표본이 너무 적어 이 검사가 사실상 아무것도 확인하지 않는다"
+
+
+def test_ratio_translation_of_product_over_symbol_matches_independent_computation():
+    """`(book_imbalance * queue_imbalance_best) / spread_to_round_trip_cost_ratio`
+    — 분자가 `multiply` 로 접힌 경우도 값이 맞는지 확인한다."""
+    arrays = _synthetic_book_arrays(seed=12)
+    runtime = _contract.ExpressionRuntime(arrays)
+
+    a = np.asarray(runtime.feature("book_imbalance"))
+    b = np.asarray(runtime.feature("queue_imbalance_best"))
+    c = np.asarray(runtime.feature("spread_to_round_trip_cost_ratio"))
+    valid = np.isfinite(a) & np.isfinite(b) & np.isfinite(c) & (c != 0)
+    expected = np.full(len(a), np.nan)
+    expected[valid] = (a[valid] * b[valid]) / c[valid]
+
+    node = to_catalog.translate((bi * qb) / rc)
+    got = np.asarray(runtime.evaluate(node))
+
+    np.testing.assert_array_equal(np.isnan(got), np.isnan(expected))
+    np.testing.assert_allclose(got[valid], expected[valid])
+    assert valid.sum() > 100
+
+
+def test_ratio_zero_policy_is_nan_not_zero_or_reject():
+    """`RATIO_ZERO_POLICY` 상수 자체가 실제로 "nan" 인지 — 이 값이 나중에 실수로
+    "zero" 나 "reject" 로 바뀌면 이 테스트가 잡는다. 주석의 근거(DESIGN.md §7
+    "0 으로 채우면 나쁜 거래만 사라진다")가 코드에 실제로 반영됐는지의 최소
+    확인이다."""
+    assert to_catalog.RATIO_ZERO_POLICY == "nan"
+    node = to_catalog.translate(bi / qb)
+    assert node["zero_policy"] == to_catalog.RATIO_ZERO_POLICY

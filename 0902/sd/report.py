@@ -33,13 +33,22 @@ DUPLICATE_METRIC_COLUMNS: tuple[str, ...] = (
 def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
                grid: Sequence[float], attempts: int, bottleneck: int,
                gate_passed: bool = True, gate_ignored: bool = False,
-               gate_checks: dict[str, dict] | None = None) -> dict:
+               gate_checks: dict[str, dict] | None = None,
+               sr_deterministic: bool = True) -> dict:
     """`gate_checks` 는 `teacher.gate.GateResult.checks` 를 그대로 받는다 (F4 리뷰).
 
     통과/불통과 불리언만으로는 나중에 "왜 통과했는가"(correlation·max_abs_gap·
     top_decile_mean_y_path 같은 근거 숫자)를 감사에서 복구할 수 없다 — stdout
     에만 있던 숫자를 여기서 산출물로 영속화한다. 기본값 `None` 은 기존 호출부가
     깨지지 않게 하기 위함이고, 빈 dict 로 정규화해 기록한다.
+
+    `sr_deterministic` (ROADMAP.md 2단계): PySR 은 `deterministic=True` 를 쓰려면
+    `parallelism='serial'` 이어야 한다 — 재현성과 병렬성이 상충한다. 계획서가
+    구조 복원율(시드 R 회 중 같은 구조가 나오는 비율)을 1급 선택 기준으로
+    요구하므로 어느 쪽으로 돌았는지가 `Candidate` 자체(두 백엔드가 공유하는
+    5-필드 계약이라 백엔드별 필드를 넣지 않는다)가 아니라 여기 산출물에
+    남아야 한다. 기본값 `True` 는 `NaiveBackend`(항상 결정론적 격자 탐색)와의
+    하위호환이다.
     """
     manifest_path = config.VENDOR_ROOT / "VENDOR_MANIFEST.json"
     return {
@@ -55,6 +64,7 @@ def provenance(symbols: Sequence[str], seed: int, sr_backend: str,
         "symbol_count": len(symbols),
         "seed": int(seed),
         "sr_backend": str(sr_backend),
+        "sr_deterministic": bool(sr_deterministic),
         "bottleneck": int(bottleneck),
         "quantile_grid": [float(q) for q in grid],
         "attempts": int(attempts),
@@ -178,10 +188,23 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
         warning += ("> ⚠️ **S1 교사 검증 게이트를 무시하고 돌린 run 이다** "
                     "(`--ignore-gate`). 교사 오염이 수식으로 고정됐을 수 있다.\n\n")
 
+    # 백엔드와 무관하게 여전히 참인 한계 (ROADMAP.md §2 "왜 아직 실험이 아닌가").
+    # `naive` 경고와 달리 `⚠️` 를 쓰지 않는다 — "이 run 은 어떤 가설 판정에도
+    # 못 쓴다"는 naive 전용 판정과 "SR 을 pysr 로 바꿔도 교사·종목 수 한계는
+    # 안 없어진다"는 이 정보성 참고를 같은 무게로 섞으면 안 된다.
+    limitations = (
+        "> 📌 **SR 백엔드가 무엇이든 이 run 자체는 아직 본 실험이 아니다** "
+        "(ROADMAP.md §2). 교사는 여전히 `ShallowMLP`(Linear-ReLU-Linear, "
+        "`DeepLOBCompact` 로 교체 예정 — ROADMAP.md 4단계)이고, 종목 수는 "
+        f"{prov['symbol_count']}개(전종목 2,570개가 아니다 — 5단계에서 전종목). "
+        "알려진 법칙 재발견 게이트(E0, 3단계)도 아직 돌지 않았다. SR 백엔드를 "
+        "바꾼 것은 이 한계들을 해소하지 않는다.\n\n")
+
     success_rate = (len(compiled) / len(candidates)) if candidates else 0.0
     lines = [
         "# 슬라이스 실행 리포트", "",
         warning,
+        limitations,
         "## 실행 정체성", "",
         "| 항목 | 값 |", "| --- | --- |",
         f"| 날짜 | `{prov['date']}` |",
@@ -190,6 +213,8 @@ def _markdown(universe, candidates, compiled, failures, ranked, prov,
         f"| Catalog 해시 | `{prov['catalog_hash']}` |",
         f"| vendor 매니페스트 | `{prov['vendor_manifest_sha256']}` |",
         f"| SR 백엔드 | **`{prov['sr_backend']}`** |",
+        f"| SR 결정론 | {prov.get('sr_deterministic', True)} "
+        f"({'직렬 · 재현 가능' if prov.get('sr_deterministic', True) else '병렬 · 비결정론'}) |",
         f"| 병목 차원 | {prov['bottleneck']} |",
         f"| 분위 격자 | {prov['quantile_grid']} |",
         f"| **재생 시도 횟수 N** | **{prov['attempts']}** |",

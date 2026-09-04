@@ -2,3 +2,8 @@ runs/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# PySR(SymbolicRegression.jl)이 각 fit() 마다 만드는 체크포인트·명예의 전당
+# CSV — 기본값으로 CWD 아래 `outputs/<timestamp>_<random>/` 에 쓴다. 재현에
+# 필요한 것은 `Candidate`/`runs/` 산출물이지 이 임시 파일이 아니다.
+outputs/

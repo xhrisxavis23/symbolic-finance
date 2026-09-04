@@ -34,7 +34,34 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=config.REPLAY_WORKERS)
     parser.add_argument("--ignore-gate", action="store_true",
                         help="S1 게이트 불통과를 무시한다. provenance 에 기록된다")
+    parser.add_argument("--sr-backend", choices=config.SR_BACKENDS,
+                        default=config.DEFAULT_SR_BACKEND,
+                        help="SR 백엔드 (ROADMAP.md 2단계). 기본값은 `naive` — PySR 은 "
+                             "느리므로(첫 fit 수분, Julia JIT 워밍업 대부분) 빠른 배관 "
+                             "검증 경로를 그대로 유지한다")
+    parser.add_argument("--sr-niterations", type=int, default=40,
+                        help="`--sr-backend pysr` 일 때만 쓴다")
+    parser.add_argument("--sr-maxsize", type=int, default=20,
+                        help="`--sr-backend pysr` 일 때만 쓴다. 계획서 §3 상한은 20")
+    parser.add_argument("--sr-non-deterministic", action="store_true",
+                        help="`--sr-backend pysr` 일 때만 쓴다. 기본값은 결정론적 직렬 "
+                             "탐색(`deterministic=True`, `parallelism='serial'`) — "
+                             "구조 복원율 판정이 요구하는 재현성이다. 이 플래그를 주면 "
+                             "병렬(비결정론) 탐색으로 바뀐다 — 그 사실이 provenance 에 "
+                             "남는다")
     return parser.parse_args()
+
+
+def _build_sr_backend(args: argparse.Namespace):
+    """`--sr-backend` 로 고른 SRBackend 를 만든다. `pysr` 는 여기서만 import 한다 —
+    `naive` 경로는 Julia 를 요구하지 않는다."""
+    if args.sr_backend == "naive":
+        return NaiveBackend(seed=args.seed)
+    if args.sr_backend == "pysr":
+        from sd.sr.pysr_backend import PySRBackend
+        return PySRBackend(seed=args.seed, deterministic=not args.sr_non_deterministic,
+                           niterations=args.sr_niterations, maxsize=args.sr_maxsize)
+    raise ValueError(f"모르는 SR 백엔드: {args.sr_backend}")  # pragma: no cover - argparse 가 막는다
 
 
 def main() -> int:
@@ -129,9 +156,16 @@ def main() -> int:
 
     # S3 SR — feature 공간에서 교사 출력을 근사한다 (DESIGN.md D13)
     target = teacher.predict_path(X[fit_rows])
-    candidates = NaiveBackend(seed=args.seed).fit(
-        X[fit_rows], target, fit_weight, feature_names)
-    print(f"[S3] SR 후보 {len(candidates)}")
+    sr_backend = _build_sr_backend(args)
+    candidates = sr_backend.fit(X[fit_rows], target, fit_weight, feature_names)
+    print(f"[S3] SR 후보 {len(candidates)} (백엔드={sr_backend.name})")
+    diagnostics = getattr(sr_backend, "diagnostics", {})
+    if diagnostics:
+        print(f"[S3] SR 진단: fit_seconds={diagnostics.get('fit_seconds', 'n/a')}, "
+              f"deterministic={diagnostics.get('deterministic', 'n/a')}, "
+              f"free_symbols 탈락={diagnostics.get('n_discarded_free_symbols', 0)}, "
+              f"기타 탈락={diagnostics.get('n_discarded_other', 0)}, "
+              f"complexity 재계산 불일치={len(diagnostics.get('complexity_mismatches', []))}")
 
     # S5 컴파일
     compiled, failures = compile_candidates(candidates)
@@ -153,11 +187,12 @@ def main() -> int:
     print(f"[S4] 자격 통과 {len(ranked)} / {len(summary)}")
 
     prov = report.provenance(symbols=symbols, seed=args.seed,
-                             sr_backend=NaiveBackend.name, grid=config.QUANTILE_GRID,
+                             sr_backend=sr_backend.name, grid=config.QUANTILE_GRID,
                              attempts=result.attempts, bottleneck=args.bottleneck,
                              gate_passed=gate_result.passed,
                              gate_ignored=bool(args.ignore_gate),
-                             gate_checks=gate_result.checks)
+                             gate_checks=gate_result.checks,
+                             sr_deterministic=getattr(sr_backend, "deterministic", True))
     summary.to_parquet(run_dir / "summary.parquet")
     path = report.write(run_dir, universe_record, candidates, compiled, failures,
                         ranked, prov)

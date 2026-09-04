@@ -354,6 +354,54 @@ def test_report_persists_gate_check_numbers_to_provenance_json_and_report_md(tmp
     assert "-1.0532" in text
 
 
+# -- ROADMAP.md 2단계: PySR 결정론 여부를 산출물에 남긴다 · 백엔드 무관 한계 참고.
+
+def test_provenance_defaults_sr_deterministic_to_true_for_backward_compatibility():
+    """`sr_deterministic` 를 안 주는 기존 호출부(naive)가 깨지지 않아야 한다 —
+    `NaiveBackend` 는 항상 결정론적 격자 탐색이다."""
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="naive",
+                               grid=(0.85,), attempts=1, bottleneck=2)
+    assert record["sr_deterministic"] is True
+
+
+def test_provenance_records_sr_deterministic_false_when_pysr_runs_in_parallel():
+    record = report.provenance(symbols=("005930",), seed=0, sr_backend="pysr",
+                               grid=(0.85,), attempts=1, bottleneck=2,
+                               sr_deterministic=False)
+    assert record["sr_deterministic"] is False
+
+
+def test_report_shows_sr_determinism_in_execution_identity_table(tmp_path):
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930",), seed=0, sr_backend="pysr",
+                             grid=(0.85,), attempts=1, bottleneck=2,
+                             sr_deterministic=False)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "SR 결정론" in text
+    assert "False" in text
+
+
+def test_report_states_remaining_limitations_regardless_of_backend(tmp_path):
+    """PySR 로 백엔드를 바꿔도 교사(ShallowMLP)·종목 수 한계는 여전히 참이라는
+    사실을 report.md 가 명시해야 한다 — `naive` 경고가 사라졌다고 해서 이 run 이
+    본 실험이 됐다고 오독하면 안 된다. `⚠️` 가 아니라 별도 기호(📌)를 써야
+    `test_report_omits_naive_warning_for_a_real_sr_backend` 의 '⚠️ 없음' 계약과
+    충돌하지 않는다."""
+    ranked = _ranked_frame({"e000:q0.85": {}})
+    run_dir = tmp_path / "run"
+    prov = report.provenance(symbols=("005930", "000660"), seed=0, sr_backend="pysr",
+                             grid=(0.85,), attempts=1, bottleneck=2)
+    path = report.write(run_dir, universe={}, candidates=[], compiled=[], failures=[],
+                        ranked=ranked, prov=prov)
+    text = path.read_text(encoding="utf-8")
+    assert "ShallowMLP" in text
+    assert "2,570" in text
+    assert "2개" in text          # symbol_count 가 실제로 반영됐다
+
+
 def test_report_omits_gate_check_table_when_no_checks_given(tmp_path):
     """`gate_checks` 를 안 준 (기본값) run 에서는 표 자체가 없어야 한다 —
     빈 표를 억지로 그리면 "검사를 안 했다"와 "검사했더니 값이 없다"가
