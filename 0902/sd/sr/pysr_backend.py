@@ -117,7 +117,17 @@ class PySRBackend:
                  complexity_of_constants: int = 2,
                  verbosity: int = 0, progress: bool = False,
                  output_directory: str | Path | None = None,
+                 binary_operators: Sequence[str] | None = None,
+                 unary_operators: Sequence[str] | None = None,
                  extra_kwargs: dict[str, Any] | None = None) -> None:
+        """`binary_operators`/`unary_operators` — 기본값은 모듈 상수(컴파일러 왕복이
+        확인된 집합)다. E0(ROADMAP.md 3단계)는 진입식으로 컴파일하지 않으므로
+        `to_catalog` 제약을 받지 않는다 — 계획서 §3 S3 원안의 전체 SR 사양
+        (`log`·`sign` 포함, L5 는 `exp` 도)을 그대로 쓸 수 있어야 해서 여기서
+        재정의 가능하게 열어 둔다. 이 백엔드가 낸 sympy 식 자체는 연산자가
+        무엇이든 그대로이므로(`complexity_of`·`weighted_r2` 는 연산자에 무관하다),
+        기본값을 바꾸지 않는 한 기존 호출부·테스트는 전혀 영향받지 않는다.
+        """
         if maxsize > MAXSIZE_CEILING:
             raise ValueError(
                 f"maxsize={maxsize} 가 계획서 §3 상한({MAXSIZE_CEILING})을 넘는다 — "
@@ -131,6 +141,10 @@ class PySRBackend:
         self.verbosity = int(verbosity)
         self.progress = bool(progress)
         self.output_directory = output_directory
+        self.binary_operators = (tuple(binary_operators) if binary_operators is not None
+                                 else BINARY_OPERATORS)
+        self.unary_operators = (tuple(unary_operators) if unary_operators is not None
+                                else UNARY_OPERATORS)
         self.extra_kwargs = dict(extra_kwargs or {})
         # 마지막 fit() 의 진단 기록. 실패/탈락 사유가 여기 남는다 (착수 조건 2).
         self.diagnostics: dict[str, Any] = {}
@@ -162,8 +176,8 @@ class PySRBackend:
 
         model = pysr.PySRRegressor(
             niterations=self.niterations,
-            binary_operators=list(BINARY_OPERATORS),
-            unary_operators=list(UNARY_OPERATORS),
+            binary_operators=list(self.binary_operators),
+            unary_operators=list(self.unary_operators),
             maxsize=self.maxsize,
             complexity_of_constants=self.complexity_of_constants,
             model_selection="best",
@@ -209,8 +223,8 @@ class PySRBackend:
             "niterations": self.niterations,
             "maxsize": self.maxsize,
             "complexity_of_constants": self.complexity_of_constants,
-            "binary_operators": list(BINARY_OPERATORS),
-            "unary_operators": list(UNARY_OPERATORS),
+            "binary_operators": list(self.binary_operators),
+            "unary_operators": list(self.unary_operators),
             "excluded_operators": dict(EXCLUDED_OPERATORS),
             "n_rows_total": int(len(X)),
             "n_rows_valid": n_valid,

@@ -1,0 +1,183 @@
+# 어디까지 했고 어디로 가는가
+
+_0902 심볼릭 증류 슬라이스 — 현황과 남은 길_
+
+| | |
+| --- | --- |
+| **작성** | 2026-09-04 |
+| **한 줄** | **E0 게이트를 처음으로 돌렸다 — 5개 중 1개 복원, 판정 `stop`. 규모를 더 키운 재확인이 다음 세션의 우선순위다** |
+| **관련 문서** | [`DESIGN.md`](./DESIGN.md) 결정 기록 · [`PLAN.md`](./PLAN.md) 구현 계획 · [`SDD-LEDGER.md`](./SDD-LEDGER.md) 실행 원장 · [`.stage3-report.md`](./.stage3-report.md) E0 게이트 실행 보고 · [`../symbolic-distillation-for-market-microstructure.md`](../symbolic-distillation-for-market-microstructure.md) 연구 계획서 |
+
+---
+
+## 1. 지금 상태
+
+```
+커밋 33개 · 테스트 163개 통과 · vendor 무결 · 작업 트리 clean
+```
+
+### 만들어진 것
+
+```
+sd/
+  config.py        경로·상수·해시의 단일 진실 원천
+  universe.py      종목 선택(2,570) · 유동성 3축 층화(6층) · 결정론적 슬라이스
+  ticks.py         틱 적재 + Catalog feature 행렬
+  labels.py        y_path(마찰 정규화 net) · y_fill(체결 근사)
+  dimensionless.py 무차원 좌표 — 차원 있는 feature 를 SR 입력에서 배제
+  manifold.py      신뢰 반경(pinv) · 꼬리 가중치
+  teacher/         Teacher 프로토콜 · ShallowMLP · S1 검증 게이트
+  sr/              SRBackend 프로토콜 · NaiveBackend
+  compile/         normalize(단조 흡수) · to_catalog(번역) · check(정적 검사) · pipeline
+  replay.py        정본 백테스트 재생 래퍼
+  select.py        선택 규칙 + 분모 함정 방어
+  report.py        산출물 생성
+  e0/              ★ 신규 — E0 게이트: targets(5법칙 조립)·teacher(단일헤드)·
+                   criteria(복원 판정)·ablation(균등표집)·runner(오케스트레이션)·report
+run_slice.py       엔드투엔드 (E1 방향)
+run_e0.py          ★ 신규 — E0 게이트 엔드투엔드 (컴파일러·재생 안 탐)
+vendor/framework/  정본 프레임워크 동결 사본 (+ sqrt·tanh 패치)
+```
+
+### 실제로 관통시킨 것
+
+30종목 엔드투엔드 실행 (`runs/20260903T094959Z-7ddbf870/`):
+
+| | |
+| --- | --- |
+| SR 후보 | 12 → 컴파일 **9 (75%)**, 2개 `translate` 탈락, 1개 병합 |
+| 원장 | **143,955행**, `errors: []`, 프로필 해시 `d0b91a03541c0cec` |
+| 자격 | 27/27 계약이 `scorable ≥ 200` 통과 |
+| 성과 | **0/27 net 양수** ← 설계상 예상된 결과 |
+| S1 게이트 | 3검사 통과. correlation 0.199 · gap 0.034 · **역선택 −1.053** |
+
+**이 실행이 증명한 것:** 계획서가 폐기 조건 F7 로 지목한 배관 — SR 수식이 Catalog AST 로 번역돼 정본 백테스트에 들어가는 경로 — 이 실제로 이어진다.
+
+---
+
+## 2. 왜 아직 실험이 아닌가
+
+| | 지금 쓰는 것 | 실험이 요구하는 것 |
+| --- | --- | --- |
+| 교사 | `ShallowMLP` (Linear-ReLU-Linear + 두 헤드) | **DeepLOB 축약판** |
+| SR | 템플릿 12개 격자 (진짜 SR 아님) | **PySR** |
+| 종목 | 6~30 | **2,570** |
+| 어휘 | 무차원 9개 (그중 2개 아핀 중복 → 실효 8) | 파생 포함 |
+| 검증 | 없음 | E0 게이트 5법칙 · 비교군 8종 · 병목 ablation 5종 |
+
+### 어휘가 가장 결정적이다
+
+현재 SR 이 볼 수 있는 9개:
+
+```
+book_imbalance · book_imbalance_velocity · queue_imbalance_best
+ask_depth_concentration · bid_depth_concentration · deep_depth_imbalance_6_10
+signed_aggr_flow_20 · signed_aggr_flow_100 · spread_to_round_trip_cost_ratio
+```
+
+**가격 움직임(`return` 6개)도 OFI(`quantity` 안 3개)도 없다.** 그래서 계획서 §3 S3 이 앞세운 두 무차원 그룹을 **표현조차 할 수 없다**:
+
+- `OFI / Q̄` — L2 법칙(Cont–Kukanov–Stoikov)의 인수
+- `ΔP / s` — 정규화 가격변화
+
+남은 9개로 찾을 수 있는 것은 **호가창 상태 규칙**뿐이고 모멘텀·반전은 원리적으로 불가능하다. 그래서 `0/27 net 양수`는 실패가 아니라 **예상된 결과**이고, 리포트가 맨 위에 그 사실을 찍는다.
+
+---
+
+## 3. 남은 길 — 순서대로
+
+### 1단계 · 어휘 넓히기 ← **여기서 시작**
+
+`ratio` 와 `rolling_zscore` 로 **파생 무차원 열**을 만들어 `OFI / Q̄` 와 `ΔP / s` 를 SR 이 볼 수 있게 한다. Catalog 에 두 연산자가 이미 있다(`ratio`·`rolling_mean`·`rolling_zscore` 전부 확인).
+
+**핵심 제약 — 컴파일러 왕복.** `to_catalog._walk` 는 심볼을 `catalog.FEATURES` 에서만 찾는다. 파생 열 이름이 SR 심볼로 오면 번역이 실패한다:
+
+```
+translate(Symbol("ofi_over_qbar"))  →  TranslationError: Catalog 에 없는 feature
+```
+
+그래서 파생 열은 **수치 계산과 Catalog AST 를 함께** 가져야 한다. 두 정의가 따로 있으면 조용히 갈라진다 — 정본이 `metrics.py` 에서 겪은 사고와 같은 형태다.
+
+**가장 값싸고 효과가 크다.** 이것 없이는 2~5단계가 전부 빈 어휘 위에서 돈다.
+
+### 2단계 · PySR 설치와 교체
+
+**설치 완료 (2026-09-04).** 실측한 사실:
+
+| 항목 | 값 |
+| --- | --- |
+| 버전 | PySR 2.2.1 (juliacall 0.9.35, SymbolicRegression 2.2) |
+| **필수 환경변수** | `PYTHON_JULIAPKG_PROJECT=$HOME/.julia_pysr_env` |
+| 디스크 | `~/.julia` 277M + `~/.julia_pysr_env` 1.1G ≈ **1.4GB** |
+| 첫 `fit` | **118초** (500행 × 3변수 × 5 iteration, serial). 대부분 Julia JIT 워밍업 |
+| 정답 복원 | `y = 2·x0·x1` → `x1 * (x0 * 2.0)`, loss 1.27e-15 ✅ |
+
+> ⚠️ **환경변수가 필수다.** `juliapkg` 의 기본값은 conda 환경 안(`/opt/conda/envs/lab/julia_env`)인데 그 디렉터리가 **쓰기 불가**라 `PermissionError` 로 죽는다. `sd/config.py` 나 `Makefile` 이 이 변수를 설정해야 하고, 안 하면 PySR 백엔드가 import 단계에서 실패한다.
+
+> ⚠️ **재현성과 병렬성이 상충한다.** PySR 은 `deterministic=True` 를 쓰려면 `parallelism="serial"` 이어야 한다. 연구 계획서는 **구조 복원율**(시드 `R` 회 중 같은 구조가 나오는 비율)을 1급 선택 기준으로 요구하므로 결정론이 필요하다. 5단계 규모에서 이것이 벽이 될 수 있다 — 그때 실측해 판단한다.
+
+### ★ F7 의 첫 진짜 측정 (2026-09-04)
+
+지금까지의 컴파일 성공률 75% 는 `NaiveBackend` 템플릿에 **수치 계수가 하나도 없어서** 나온 값이라 대표성이 없었다. PySR 은 계수를 낸다 — 그래서 이것이 처음으로 F7 을 실제로 재는 것이다.
+
+| 조건 | 컴파일 성공률 | 원장 | N |
+| --- | --- | --- | --- |
+| 나눗셈 지원 **전** | **4/15 = 27%** | 10,392행 | 12 |
+| 나눗셈 지원 **후** | **8/15 = 53%** | 21,502행 | 24 |
+
+**둘 다 F7 폐기선(20%)을 넘는다.** 다만 27% 는 여유가 크지 않다.
+
+> ⚠️ **상승의 원인을 잘못 귀속하지 말 것.** 등장한 나눗셈 후보 둘은 `c/x` 형태(상수 분자)라 올바르게 거부됐다. 상승은 `ratio` 가 살아남아서가 아니라 **PySR 이 연산자 하나를 더 받아 탐색을 다르게 했기** 때문이다. 나눗셈의 실질 이득은 이 규모·이 시드에서 **미검증**이다.
+
+> ⚠️ **PySR JIT 비용이 고정으로 붙는다.** `fit()` 한 번에 약 280초. 5단계에서 시드 × 병목 × 비교군으로 곱해지면 지배적 비용이 된다.
+
+> ⚠️ **`torch` → `juliacall` import 순서 위험이 남아 있다.** `PYTHON_JULIACALL_HANDLE_SIGNALS=yes` 를 넣었으나 juliacall 소스 추적 결과 그 경고는 import 순서만으로 무조건 뜨고 이 변수와 무관하다. 3회 실행에서 크래시는 없었다. **고쳐지지 않은 채 남은 위험이다.**
+
+**착수 조건 둘:**
+- `to_catalog` 의 `abs(product) != 1` 을 `abs(product) - 1 != 0` 으로 (Ruling R20 — `sympy.Float` 에서 깨진다)
+- 심볼 제약을 `except Exception` 의 우연한 가드가 아니라 `free_symbols ⊆ allowed` 명시 검증으로
+
+계획서 SR 사양의 `unary_operators` 에서 `log` 를 빼거나 `log1p` 로 바꿀 것 — `to_catalog` 가 거부하므로 탐색 예산 낭비다.
+
+### 3단계 · E0 게이트 — 계획서의 진짜 첫 관문 ★ 실행 완료 (2026-09-04), 판정 `stop`
+
+알려진 법칙 5개를 증류로 재발견할 수 있는지 본다. `sd/e0/`(타깃 조립·단일헤드 과잉용량 교사·복원 판정·ablation·오케스트레이션 6모듈)와 `run_e0.py`를 신규로 만들었다 — 진입식을 만들지 않으므로 `sd/compile/`·`sd/replay.py`는 타지 않는다. 상세는 [`.stage3-report.md`](./.stage3-report.md).
+
+| | 법칙 | 하루 입력에서 | **결과 (36종목, seed=0)** |
+| --- | --- | --- | --- |
+| L1 | 마이크로프라이스 | 원형 그대로 | **실패**(주 트랙) — 그러나 Pareto front 12개 중 8개(67%)는 구조적으로 옳았다. 최고점수 후보만 사소한 대칭파괴 오프셋(`I+0.089`)으로 탈락 |
+| L2 | OFI 선형 | 원형 그대로 | **실패** — 교사가 학습한 관계 자체가 saturating(tanh형)으로 나왔다. **`no_distillation`·`no_dimensionless` ablation 이 본 트랙보다 더 깨끗한 선형 후보를 냈다**(C1·C2 예상과 반대 방향) |
+| L3′ | 집계 임팩트 제곱근 | 프록시로 격하 (메타주문 없음) | **실패** — 지수가 복잡도 2~10에 걸쳐 0.80~0.85로 안정적으로 수렴(목표 0.4~0.7 밖). 거부권 없음 |
+| L4′ | 다중 스케일 RV | 대체 형태 (일봉 없음) | **실패** — 10개 후보 전부 세 스케일을 동시에 못 썼다(`uses_all_three=False`). 거부권 없음 |
+| L5 | Hawkes 커널 | 원형 그대로 | **성공** — 가장 약한 교사(R²=0.023)로 가장 깨끗하게 복원. **`uniform_off_manifold` ablation 만 유일하게 0%로 실패**해 on-manifold 표집의 가치를 직접 보여줬다 |
+
+**5개 중 1개 복원 → `stop`.** L1·L2 동시 실패로 거부권도 별도 발동. `niterations=18`(계획서 원안 200의 1/11)이라는 규모 제약이 이 판정에 얼마나 기여했는지는 이 실행 하나로 확정할 수 없다 — `.stage3-report.md` §11 이 다음 세션의 재확인 계획(같은 시드로 5법칙 전부 더 큰 예산으로 재실행)을 남겨 뒀다. 결과를 보고 실패한 법칙만 골라 재시도하지 않는다(정지 규칙 조작 방지) — 재확인한다면 5법칙 전부를 동시에.
+
+### 4단계 · DeepLOB 교사
+
+**착수 조건 둘:**
+- S1 게이트를 **아웃오브샘플**로 (지금은 학습 표본 위에서 잰다 — 계획서가 겨냥한 "인샘플에서 훌륭한 오염된 교사" 를 원리적으로 못 잡는다)
+- `fill_calibration` 참조점을 우리 라벨에서 **정본 원장의 실제 `FILLED/(FILLED+UNFILLED)`** 로 (지금은 자기 학습 라벨과 대조해 자기일관성만 잰다)
+
+`fit()` 의 `torch.manual_seed` 가 죽은 코드다 — dropout·셔플이 들어오면 재현성이 조용히 깨진다.
+
+### 5단계 · 전종목 본 실험
+
+비교군 8종 · 병목 ablation `d ∈ {1,2,3,8,32}` · 삼중 외삽(횡단면 L→H · 일중 · 익일 봉인).
+
+`20260317` 은 **딱 한 번** 연다. `20260318`~`20260427` 28거래일은 알파 소멸 감사 전용이고 후보 선택에 쓰지 않는다.
+
+---
+
+## 4. 착수 전 정리할 부채
+
+| 항목 | 어디 | 언제 |
+| --- | --- | --- |
+| `check.py` 에 `condition_problem()` 추가 | 9개 중 5개 중복의 원인 차단 | 1단계와 함께 하면 좋다 |
+| 인과성 검사 미구현 | `check.py` (DESIGN §6.2 정정 참조) | 어휘가 넓어지는 1단계에서 실제 위험이 된다 |
+| `sympy.Float` 비교 (R20) | `to_catalog` | 2단계 착수 조건 |
+| 정본 상수 손복제 | `MIN_SCORABLE` · 임계 종류 문자열 · `UNRESOLVED:` 접두어 | 아무 때나 |
+| E0 재확인 — `niterations` 5~10배로 키워 5법칙 동시 재실행 | `run_e0.py` | 4단계(DeepLOB) 착수 전. `.stage3-report.md` §11 |
+| `test_pysr_backend.py` slow 테스트 재확인 | 3단계 세션에서 본 실행과 자원 경합 피하려 생략함 | 다음 세션 시작 시 1회 |
+
+**전체 부채 목록과 각각의 근거는 [`SDD-LEDGER.md`](./SDD-LEDGER.md) 에 있다.** 이 세션에서 내린 판정 20건도 거기 있다.

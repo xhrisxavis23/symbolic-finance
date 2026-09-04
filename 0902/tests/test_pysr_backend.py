@@ -222,6 +222,28 @@ def test_backend_name_and_default_diagnostics():
 
 
 # ---------------------------------------------------------------------------
+# 연산자 재정의 (ROADMAP.md 3단계 — E0 는 to_catalog 컴파일러를 타지 않으므로
+# 계획서 §3 S3 원안 SR 사양(`log`·`sign` 포함)을 그대로 쓸 수 있어야 한다).
+# ---------------------------------------------------------------------------
+
+def test_default_operators_are_unchanged_when_not_overridden():
+    """기본 생성자는 여전히 컴파일러 왕복이 확인된 모듈 상수를 써야 한다 —
+    새 매개변수가 기존 호출부(예: `run_slice.py`)의 동작을 조용히 바꾸면 안 된다."""
+    backend = PySRBackend()
+    assert backend.binary_operators == BINARY_OPERATORS
+    assert backend.unary_operators == UNARY_OPERATORS
+
+
+def test_operator_override_is_stored_verbatim():
+    custom_unary = ("sqrt", "log", "sign")
+    backend = PySRBackend(unary_operators=custom_unary, binary_operators=("+", "*"))
+    assert backend.unary_operators == custom_unary
+    assert backend.binary_operators == ("+", "*")
+    # 모듈 상수 자체는 그대로 — 인스턴스별 재정의가 전역 상태를 건드리지 않는다.
+    assert UNARY_OPERATORS == ("sqrt", "tanh", "abs", "square")
+
+
+# ---------------------------------------------------------------------------
 # `sd.config.ensure_pysr_env` — import pysr 전에 환경변수를 배선한다.
 # ---------------------------------------------------------------------------
 
