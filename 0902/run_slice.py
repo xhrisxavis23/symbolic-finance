@@ -166,6 +166,17 @@ def main() -> int:
               f"free_symbols 탈락={diagnostics.get('n_discarded_free_symbols', 0)}, "
               f"기타 탈락={diagnostics.get('n_discarded_other', 0)}, "
               f"complexity 재계산 불일치={len(diagnostics.get('complexity_mismatches', []))}")
+    # `diagnostics`(fit_seconds·complexity_mismatches·discarded·deterministic/
+    # parallelism 등)는 지금까지 이 print() 한 줄에만 있었다 — run 이 끝나면
+    # 사라지고, F7(컴파일 성공률 20% 미만이면 중단) 감사가 저장소만으로 이
+    # 숫자를 재현할 수 없었다. `provenance.json` 에 `s1_gate_checks` 를 남긴
+    # 것과 같은 방식으로 여기서도 파일로 영속화한다. 아래 `if not compiled:
+    # raise SystemExit(...)` 보다 **먼저** 쓴다 — F7 로 중단되는 바로 그
+    # run 에서도 진단이 남아야 감사가 가능하다. `naive` 백엔드는 `diagnostics`
+    # 속성이 없어 `{}` 가 그대로 남는다 — 없다는 사실 자체가 감사에 유효하다.
+    (run_dir / "sr_diagnostics.json").write_text(
+        json.dumps(diagnostics, ensure_ascii=False, indent=2, default=str) + "\n",
+        encoding="utf-8")
 
     # S5 컴파일
     compiled, failures = compile_candidates(candidates)

@@ -57,6 +57,21 @@ def write(run_dir: Path, results: dict[str, LawResult], *, symbols, args: dict[s
     (run_dir / "e0_results.json").write_text(
         json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
 
+    # `_track_dict` 는 `e0_results.json` 에 넣을 `diagnostics` 에서 `discarded`·
+    # `complexity_mismatches`(표가 커진다)를 뺀다 — 그래서 그 두 필드의 전체
+    # 목록은 지금까지 어떤 산출물에도 안 남았다. `PySRBackend.fit()` 이 만드는
+    # `diagnostics`(fit_seconds·complexity_mismatches·discarded·deterministic/
+    # parallelism 등) 전체를 법칙×트랙별로 그대로 남긴다 — `provenance.json` 에
+    # `s1_gate_checks` 를 남긴 것과 같은 방식. 순수 추가다: `e0_results.json`·
+    # `gate.json`·`report.md` 의 생성 로직은 아래에서 손대지 않는다.
+    diagnostics_payload = {
+        law: {name: dict(track.diagnostics) for name, track in result.tracks.items()}
+        for law, result in results.items()
+    }
+    (run_dir / "sr_diagnostics.json").write_text(
+        json.dumps(diagnostics_payload, ensure_ascii=False, indent=2, default=str) + "\n",
+        encoding="utf-8")
+
     n_recovered = sum(1 for r in results.values() if r.recovered)
     # 계획서 §4 게이트 규칙 — 두 조건은 별개 축이다. 카운트 규칙은 5개 중
     # {0,1,2}(중단) / {3,4,5}(진행) 로 완전히 나뉘어 "중간" 값이 없다 — 세
