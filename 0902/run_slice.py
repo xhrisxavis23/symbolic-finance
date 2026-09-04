@@ -16,7 +16,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from sd import config, dimensionless, labels, manifold, replay, report, select, ticks, universe
+from sd import (config, derived, dimensionless, labels, manifold, replay, report, select,
+                ticks, universe)
 from sd.compile import compile_candidates
 from sd.sr.naive import NaiveBackend
 from sd.teacher.gate import evaluate as evaluate_gate
@@ -77,7 +78,9 @@ def main() -> int:
             print(f"[skip] {symbol}: {type(error).__name__}: {error}")
             continue
         matrix, names = ticks.feature_matrix(arrays)
-        X_symbol, kept, _meta = dimensionless.transform(matrix, names)
+        X_symbol, kept, dim_meta = dimensionless.transform(matrix, names, arrays=arrays)
+        if dim_meta["derived_failed"]:
+            print(f"[S0] {symbol}: 파생 열 계산 실패 {dim_meta['derived_failed']}")
         columns = {name: X_symbol[:, j] for j, name in enumerate(kept)}
         per_symbol.append((columns, labels.build(arrays)))
 
@@ -90,7 +93,9 @@ def main() -> int:
     feature_names = tuple(sorted(common))
     if not feature_names:
         raise SystemExit("모든 종목에 공통인 무차원 feature 가 없다")
+    derived_in_use = sorted(set(feature_names) & set(derived.DERIVED))
     print(f"[S0] 공통 무차원 feature {len(feature_names)}: {', '.join(feature_names)}")
+    print(f"[S0] 그 중 파생 열 {len(derived_in_use)}: {', '.join(derived_in_use) or '(없음)'}")
 
     X = np.vstack([np.column_stack([columns[name] for name in feature_names])
                    for columns, _label in per_symbol])

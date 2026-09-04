@@ -97,3 +97,53 @@ def test_check_failure_routes_to_check_stage(monkeypatch):
     assert len(failed) == 1
     assert failed[0].stage == "check"
     assert "boom-check" in failed[0].reason
+
+
+# ---- 동작 변경 (ROADMAP.md 1단계 · DESIGN.md D14): `condition_problem` 검사가
+# 들어가면서 지난 실행에서 성공했던 후보 일부가 이제는 "check" 단계에서
+# 탈락한다. 이 회귀를 여기서 고정해 둔다 — 지우면 D14 가 지목한 축을 다시
+# 파고도 아무도 모른다.
+
+qi = sympy.Symbol("queue_imbalance_best")
+
+
+def test_bare_derived_duplicate_candidate_now_fails_at_check_stage():
+    """D14 의 e001 이 재현하는 상황: `queue_imbalance_best` 하나만으로 된 후보는
+    1단계 이전에는 컴파일에 성공했으나(실제로 지난 run 의 `entry_expressions/
+    e001.json` 이 이 모양이었다), 이제는 check 단계에서 거부돼야 한다."""
+    ok, failed = pipeline.compile_candidates([_candidate(qi)])
+    assert not ok
+    assert len(failed) == 1
+    assert failed[0].stage == "check"
+    assert "queue_imbalance_best" in failed[0].reason
+
+
+def test_absolute_wrapped_derived_duplicate_candidate_now_fails_at_check_stage():
+    """D14 의 e005 가 재현하는 상황: `sqrt(Abs(queue_imbalance_best))` 는
+    strip_monotone 이 최외곽 sqrt 를 벗겨 `Abs(queue_imbalance_best)` 만
+    남기고, 그것이 `absolute(primitive(...))` 로 번역된다 — 여전히 직접
+    대상이라 거부돼야 한다."""
+    ok, failed = pipeline.compile_candidates(
+        [_candidate(sympy.sqrt(sympy.Abs(qi)))])
+    assert not ok
+    assert len(failed) == 1
+    assert failed[0].stage == "check"
+    assert "queue_imbalance_best" in failed[0].reason
+
+
+def test_derived_duplicate_combined_with_another_feature_still_compiles():
+    """D14 의 e002·e008 이 재현하는 상황: 다른 feature 와 결합되면 "재료"라
+    여전히 컴파일에 성공해야 한다 — `condition_problem` 검사가 과잉 거부하지
+    않는다는 것을 pipeline 수준에서 한 번 더 고정한다."""
+    ok, failed = pipeline.compile_candidates([_candidate(bi + qi)])
+    assert len(ok) == 1 and not failed
+
+
+def test_ofi_over_qbar_candidate_compiles_to_the_full_ratio_ast():
+    """파생 열 자체가 SR 후보로 들어와도 컴파일이 끝까지 간다 — 어휘를 넓힌
+    목적(1단계) 그 자체를 검증한다."""
+    ofi_over_qbar = sympy.Symbol("ofi_over_qbar_5")
+    ok, failed = pipeline.compile_candidates([_candidate(ofi_over_qbar)])
+    assert len(ok) == 1 and not failed
+    assert ok[0].ast["input"]["op"] == "ratio"
+    assert catalog.infer_expression_type(ok[0].ast, allow_unresolved=True).value_type == "boolean"

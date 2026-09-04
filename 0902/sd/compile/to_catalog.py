@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sympy
 
-from .. import config
+from .. import config, derived as _derived
 
 _framework = config.load_framework()
 from framework import catalog as _catalog  # noqa: E402
@@ -30,9 +30,15 @@ def translate(expr: sympy.Expr) -> dict:
 def _walk(node: sympy.Expr, outermost: bool = False) -> dict:
     if isinstance(node, sympy.Symbol):
         name = _catalog.resolve(str(node))
-        if name not in _catalog.FEATURES:
-            raise TranslationError(f"Catalog 에 없는 feature: {node}")
-        return {"op": "primitive", "primitive_id": name}
+        if name in _catalog.FEATURES:
+            return {"op": "primitive", "primitive_id": name}
+        if name in _derived.DERIVED:
+            # 파생 레지스트리 폴백 (ROADMAP.md 1단계). Catalog feature 가 항상
+            # 우선이다 — 위에서 먼저 찾아본다. 두 레지스트리는 이름이 겹치지
+            # 않는다 (`sd/derived.py` 가 import 시점에 그것을 강제한다), 그래도
+            # 순서를 Catalog 우선으로 고정해 둔다.
+            return _derived.get(name)
+        raise TranslationError(f"Catalog 에도 파생 레지스트리에도 없는 feature: {node}")
 
     if node.is_number:
         raise TranslationError(

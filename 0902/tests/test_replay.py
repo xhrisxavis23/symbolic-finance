@@ -23,12 +23,19 @@ def _entries():
 def _two_entries():
     """서로 다른 정규형으로 붕괴되지 않는 두 후보 — attempt_count 가 entries 수에도
     실제로 반응하는지 보려면 entries=1 인 픽스처만으로는 부족하다 (len(grid) 만
-    반환해도 entries=1 일 때는 우연히 같은 값이 나온다)."""
+    반환해도 entries=1 일 때는 우연히 같은 값이 나온다).
+
+    `spread_bps` 대신 `spread_to_round_trip_cost_ratio` 를 쓴다 — 1단계에서
+    `check.static_check` 에 `catalog.condition_problem` 검사가 들어가면서
+    `spread_bps` 는 (`THRESHOLD_DERIVED_INPUT_ONLY` — 절대 원값 조건 금지) 더
+    이상 임계 조건의 직접 대상이 될 수 없다. 이 테스트는 `attempt_count` 의
+    산술만 보는 것이 목적이라, 여전히 직접 조건으로 허용되고 `book_imbalance`
+    와 다른 정규형으로 남는 feature 로 바꾼다."""
     bi = sympy.Symbol("book_imbalance")
-    spread = sympy.Symbol("spread_bps")
+    ratio = sympy.Symbol("spread_to_round_trip_cost_ratio")
     candidates = [
         Candidate(expr=bi, complexity=1, in_sample_score=0.5, backend="naive", seed=0),
-        Candidate(expr=spread, complexity=1, in_sample_score=0.5, backend="naive", seed=0),
+        Candidate(expr=ratio, complexity=1, in_sample_score=0.5, backend="naive", seed=0),
     ]
     ok, _failed = compile_candidates(candidates)
     return ok

@@ -6,7 +6,7 @@ import sympy
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
-from sd import config  # noqa: E402
+from sd import config, derived  # noqa: E402
 from sd.compile import check, normalize, to_catalog  # noqa: E402
 
 config.load_framework()
@@ -210,6 +210,41 @@ def test_unknown_symbol_is_rejected():
     assert "not_a_feature" in str(excinfo.value)
 
 
+# ---- 파생 레지스트리 폴백 (ROADMAP.md 1단계). Catalog 에 없는 심볼은 이제
+# `sd/derived.py` 를 본 뒤에야 포기한다.
+
+def test_derived_symbol_translates_to_its_registered_ast():
+    node = to_catalog.translate(sympy.Symbol("ofi_over_qbar_5"))
+    assert node == derived.DERIVED["ofi_over_qbar_5"]
+    assert node["op"] == "ratio"                      # primitive 가 아니라 완전히 펼쳐진 AST
+
+
+def test_derived_symbol_inside_a_larger_expression_still_translates():
+    node = to_catalog.translate(bi + sympy.Symbol("ofi_over_qbar_5"))
+    assert node["op"] == "add"
+    assert node["right"] == derived.DERIVED["ofi_over_qbar_5"]
+    assert catalog.infer_expression_type(node).dimension == "dimensionless"
+
+
+def test_catalog_feature_wins_over_a_colliding_derived_entry(monkeypatch):
+    """Catalog feature 가 항상 우선이어야 한다 — `_walk` 가 순서를 뒤집으면
+    (파생을 먼저 본다) 이 테스트가 잡는다. 실제로는 `sd/derived.py` 의 import
+    시점 검사가 이름 충돌을 막아 이 상황이 일어날 수 없으므로, 여기서는
+    `to_catalog._derived.DERIVED` 를 직접 몽키패치해 순서 자체를 검사한다."""
+    fake = dict(to_catalog._derived.DERIVED)
+    fake["book_imbalance"] = {"op": "primitive", "primitive_id": "queue_imbalance_best"}
+    monkeypatch.setattr(to_catalog._derived, "DERIVED", fake)
+    node = to_catalog.translate(bi)
+    assert node == {"op": "primitive", "primitive_id": "book_imbalance"}
+
+
+def test_unknown_symbol_error_mentions_both_registries():
+    with pytest.raises(to_catalog.TranslationError) as excinfo:
+        to_catalog.translate(sympy.Symbol("nowhere_at_all"))
+    message = str(excinfo.value)
+    assert "Catalog" in message and "파생" in message
+
+
 def test_static_check_rejects_type_error():
     bad = {"op": "all", "args": [{"op": "primitive", "primitive_id": "mid_price"}]}
     with pytest.raises(check.CheckError) as excinfo:
@@ -276,6 +311,119 @@ def test_static_check_rejects_execution_binding_hidden_inside_a_list():
     with pytest.raises(check.CheckError) as excinfo:
         check.static_check(bad, allow_unresolved=False)
     assert "실행" in str(excinfo.value)
+
+
+# ---- catalog.condition_problem() 검사 (ROADMAP.md 1단계 · DESIGN.md D14 정정).
+#
+# `queue_imbalance_best` 는 `book_imbalance` 의 정확한 아핀 변환이라 Catalog
+# 정책이 `derived_duplicate` 로 임계 조건의 **직접 대상**이 되는 것을 금지한다
+# (재료로 쓰는 것은 허용). 실측(D14): 지난 실행에서 `queue_imbalance_best` 를
+# 직접 대상으로 쓴 진입식은 e001(그대로)과 e005(`sqrt(Abs(...))`에서 sqrt 가
+# 벗겨져 `absolute(primitive(...))`로 남은 것) 둘이었다. 아래 테스트들이 그
+# 정확한 두 AST 모양을 재현한다.
+
+def _compare(input_ast, value=0.5):
+    return {"op": "compare", "input": input_ast, "comparator": ">", "value": value}
+
+
+def test_static_check_rejects_bare_derived_duplicate_as_direct_condition_target():
+    """D14 의 e001: `queue_imbalance_best` 를 그대로 임계 조건에 걸었다."""
+    bad = _compare({"op": "primitive", "primitive_id": "queue_imbalance_best"})
+    with pytest.raises(check.CheckError) as excinfo:
+        check.static_check(bad, allow_unresolved=False)
+    message = str(excinfo.value)
+    assert "queue_imbalance_best" in message
+    assert "book_imbalance" in message          # 대안 힌트
+
+
+def test_static_check_rejects_absolute_wrapped_derived_duplicate_as_direct_target():
+    """D14 의 e005: `sqrt(Abs(queue_imbalance_best))` 에서 최외곽 sqrt 가
+    strip_monotone 에 벗겨지고 `absolute(primitive(...))` 만 남는다. absolute
+    는 부호가 아니라 크기만 바꾸는 wrapper 라 여전히 "같은 축"이다."""
+    bad = _compare({"op": "absolute",
+                    "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"}})
+    with pytest.raises(check.CheckError) as excinfo:
+        check.static_check(bad, allow_unresolved=False)
+    assert "queue_imbalance_best" in str(excinfo.value)
+
+
+def test_static_check_rejects_negate_wrapped_direct_target():
+    """negate wrapper 도 같은 축이다 — `derived_duplicate` 가 아니라
+    `execution_only`(가격 수준) 축으로 한 번 더 확인한다."""
+    bad = _compare({"op": "negate",
+                    "input": {"op": "primitive", "primitive_id": "mid_price"}})
+    with pytest.raises(check.CheckError) as excinfo:
+        check.static_check(bad, allow_unresolved=False)
+    assert "mid_price" in str(excinfo.value)
+
+
+def test_static_check_rejects_banned_target_nested_inside_all():
+    """`all`/`any` 의 `args` 안에 숨은 `compare` 도 잡아야 한다 — forbidden key
+    검사와 같은 재귀 요구사항이다."""
+    bad = {"op": "all", "args": [
+        _compare({"op": "primitive", "primitive_id": "book_imbalance"}),
+        _compare({"op": "primitive", "primitive_id": "queue_imbalance_best"}),
+    ]}
+    with pytest.raises(check.CheckError) as excinfo:
+        check.static_check(bad, allow_unresolved=False)
+    assert "queue_imbalance_best" in str(excinfo.value)
+
+
+def test_static_check_rejects_crossover_on_a_banned_target():
+    """`crossover` 도 `compare` 와 마찬가지로 `input` 을 리터럴 임계와 직접
+    비교하는 노드다 — 같은 규칙이 적용돼야 한다."""
+    bad = {"op": "crossover",
+           "input": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+           "threshold": 0.0, "direction": "above", "equality": "strict"}
+    with pytest.raises(check.CheckError) as excinfo:
+        check.static_check(bad, allow_unresolved=False)
+    assert "queue_imbalance_best" in str(excinfo.value)
+
+
+def test_static_check_allows_banned_feature_used_as_material_not_as_target():
+    """핵심 구분: `book_imbalance + queue_imbalance_best` 처럼 다른 feature 와
+    **결합**되면 그 순간부터 "재료"이지 "직접 대상"이 아니다 — D14 의 e002·e008
+    이 실제로 컴파일에 성공했던 것과 같은 모양이다. 과잉 거부하면 이 테스트가
+    잡는다."""
+    good = _compare({"op": "add",
+                     "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+                     "right": {"op": "primitive", "primitive_id": "queue_imbalance_best"}})
+    check.static_check(good, allow_unresolved=False)   # 예외가 없어야 한다
+
+
+def test_static_check_allows_negated_material_combination():
+    """D14 의 e008 그대로: `book_imbalance - queue_imbalance_best`. 뺄셈은
+    sympy 에서 `Add(bi, Mul(-1, qi))` 이므로 `negate` 가 `add` 의 자식으로
+    깊이 있다 — `add` 가 최외곽이라 여전히 재료다."""
+    good = _compare({"op": "add",
+                     "left": {"op": "primitive", "primitive_id": "book_imbalance"},
+                     "right": {"op": "negate",
+                               "input": {"op": "primitive",
+                                        "primitive_id": "queue_imbalance_best"}}})
+    check.static_check(good, allow_unresolved=False)   # 예외가 없어야 한다
+
+
+def test_static_check_does_not_police_compare_values_targets():
+    """`compare_values` 는 리터럴 임계가 없다 — 두 표현식을 서로 비교할 뿐이다.
+    태스크 범위를 `compare`(와 `crossover`)로 좁힌 의도적 결정이다. 이 테스트가
+    없으면 나중에 누가 "당연히 여기도 막아야지" 하고 조용히 넓혀도 아무도
+    모른다."""
+    ok = {"op": "compare_values",
+          "left": {"op": "primitive", "primitive_id": "queue_imbalance_best"},
+          "right": {"op": "primitive", "primitive_id": "book_imbalance"},
+          "comparator": ">"}
+    check.static_check(ok, allow_unresolved=False)     # 예외가 없어야 한다
+
+
+def test_static_check_allows_direct_condition_on_a_rolling_quantile_only_feature():
+    """`ofi_depth_5` 의 정책은 `rolling_prior_100_ticks_quantile` 만 허용이고
+    `NON_CONDITION_THRESHOLD_KINDS` 와 겹치지 않는다 — `condition_problem` 이
+    `None` 을 돌려주고 직접 대상으로도 허용돼야 한다. 파생 열 그룹(OFI/Q̄)의
+    분자로 쓰는 바로 그 feature 라 이 축이 막히면 파생 열 확장의 의미가
+    없어진다."""
+    assert catalog.condition_problem("ofi_depth_5") is None
+    good = _compare({"op": "primitive", "primitive_id": "ofi_depth_5"})
+    check.static_check(good, allow_unresolved=False)   # 예외가 없어야 한다
 
 
 # ---- 교차 태스크 계약: log 는 strip_monotone → translate 파이프라인을 종단으로
