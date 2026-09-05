@@ -12,15 +12,18 @@ from . import LAW_TITLES, VETO_LAWS
 from .runner import LawResult, TrackResult
 
 
-def _candidate_dict(candidate, judged: dict) -> dict:
+def _candidate_dict(candidate, judged: dict, out_of_sample_score: float | None) -> dict:
     return {"expr": str(candidate.expr), "complexity": candidate.complexity,
-            "in_sample_score": candidate.in_sample_score, "backend": candidate.backend,
-            "seed": candidate.seed, "judged": judged}
+            "in_sample_score": candidate.in_sample_score,
+            "out_of_sample_score": out_of_sample_score,
+            "backend": candidate.backend, "seed": candidate.seed, "judged": judged}
 
 
 def _track_dict(track: TrackResult) -> dict:
+    scores = track.out_of_sample_scores or [None] * len(track.candidates)
     return {
-        "name": track.name, "n_rows": track.n_rows, "fit_seconds": track.fit_seconds,
+        "name": track.name, "n_rows": track.n_rows, "n_select_rows": track.n_select_rows,
+        "fit_seconds": track.fit_seconds,
         "n_candidates": len(track.candidates),
         "primary_index": track.primary_index,
         "primary_verdict": track.primary_verdict,
@@ -30,7 +33,8 @@ def _track_dict(track: TrackResult) -> dict:
         "diagnostics": {k: v for k, v in track.diagnostics.items()
                         if k not in {"discarded", "complexity_mismatches"}},
         "n_discarded": len(track.diagnostics.get("discarded", [])),
-        "candidates": [_candidate_dict(c, j) for c, j in zip(track.candidates, track.judged)],
+        "candidates": [_candidate_dict(c, j, s)
+                       for c, j, s in zip(track.candidates, track.judged, scores)],
     }
 
 
@@ -42,6 +46,11 @@ def law_result_dict(result: LawResult) -> dict:
         "symbols_used": list(result.symbols_used),
         "n_symbols_used": len(result.symbols_used),
         "symbols_skipped": result.symbols_skipped,
+        # v2(PREREG-E0-V2.md §1-1): 적합 종목과는 서로소인 선택 종목 — SR 은
+        # 못 보고, 후보 채점·판정만 이 종목들의 데이터로 한다.
+        "select_symbols_used": list(result.select_symbols_used),
+        "n_select_symbols_used": len(result.select_symbols_used),
+        "select_symbols_skipped": result.select_symbols_skipped,
         "teacher_dimless": result.teacher_dimless_diag,
         "teacher_raw": result.teacher_raw_diag,
         "tracks": {name: _track_dict(track) for name, track in result.tracks.items()},
@@ -49,7 +58,8 @@ def law_result_dict(result: LawResult) -> dict:
     }
 
 
-def write(run_dir: Path, results: dict[str, LawResult], *, symbols, args: dict[str, Any]) -> Path:
+def write(run_dir: Path, results: dict[str, LawResult], *, symbols, args: dict[str, Any],
+         symbol_split: Any = None) -> Path:
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -95,6 +105,11 @@ def write(run_dir: Path, results: dict[str, LawResult], *, symbols, args: dict[s
         "veto_laws_failed": veto_failed,
         "verdict": verdict,
         "symbols": list(symbols), "args": args,
+        "symbol_split": ({
+            "fit": list(symbol_split.fit), "select": list(symbol_split.select),
+            "fit_fraction_requested": symbol_split.fit_fraction_requested,
+            "seed": symbol_split.seed, "per_stratum_counts": symbol_split.per_stratum_counts,
+        } if symbol_split is not None else None),
     }
     (run_dir / "gate.json").write_text(
         json.dumps(gate, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")

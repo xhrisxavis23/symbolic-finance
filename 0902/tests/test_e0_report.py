@@ -23,13 +23,14 @@ def _track(recovered: bool) -> runner.TrackResult:
     judged = {"passed": recovered, "ambiguous": False}
     return runner.TrackResult(name="main", n_rows=10, candidates=[candidate],
                               diagnostics={}, judged=[judged], primary_index=0,
-                              fit_seconds=1.0)
+                              fit_seconds=1.0, out_of_sample_scores=[0.5], n_select_rows=5)
 
 
 def _law_result(law: str, recovered: bool) -> runner.LawResult:
     return runner.LawResult(law=law, n_rows_total=10, symbols_used=("000020",),
                             symbols_skipped={}, teacher_dimless_diag={},
-                            teacher_raw_diag={}, tracks={"main": _track(recovered)})
+                            teacher_raw_diag={}, tracks={"main": _track(recovered)},
+                            select_symbols_used=("000030",), select_symbols_skipped={})
 
 
 def _write_and_load_gate(tmp_path, results):
@@ -94,3 +95,53 @@ def test_all_five_recovered_proceeds(tmp_path):
     assert gate["n_recovered"] == 5
     assert gate["verdict"] == "proceed"
     assert gate["veto_triggered"] is False
+
+
+# ---------------------------------------------------------------------------
+# v2(PREREG-E0-V2.md §1-1) 표본외 분할 산출물 — 선택 종목·선택 데이터
+# 채점값이 실제로 산출물에 남는지.
+# ---------------------------------------------------------------------------
+
+def test_select_symbols_appear_in_e0_results_json(tmp_path):
+    results = {"L1": _law_result("L1", True)}
+    run_dir = tmp_path / "run"
+    e0_report.write(run_dir, results, symbols=["000020", "000030"], args={})
+    payload = json.loads((run_dir / "e0_results.json").read_text())
+    assert payload["L1"]["select_symbols_used"] == ["000030"]
+    assert payload["L1"]["n_select_symbols_used"] == 1
+
+
+def test_candidate_dict_reports_out_of_sample_score_alongside_in_sample_score(tmp_path):
+    results = {"L1": _law_result("L1", True)}
+    run_dir = tmp_path / "run"
+    e0_report.write(run_dir, results, symbols=["000020"], args={})
+    payload = json.loads((run_dir / "e0_results.json").read_text())
+    candidate = payload["L1"]["tracks"]["main"]["candidates"][0]
+    assert candidate["in_sample_score"] == 0.5
+    assert candidate["out_of_sample_score"] == 0.5
+    assert payload["L1"]["tracks"]["main"]["n_select_rows"] == 5
+
+
+def test_gate_json_carries_symbol_split_when_given(tmp_path):
+    from sd.e0 import split as e0_split
+
+    symbol_split = e0_split.SymbolSplit(
+        fit=("000020",), select=("000030",), stratum_of={"000020": "L-shallow",
+                                                          "000030": "L-shallow"},
+        fit_fraction_requested=2.0 / 3.0, seed=0,
+        per_stratum_counts={"L-shallow": {"fit": 1, "select": 1, "n": 2}})
+    results = {"L1": _law_result("L1", True)}
+    run_dir = tmp_path / "run"
+    e0_report.write(run_dir, results, symbols=["000020", "000030"], args={},
+                    symbol_split=symbol_split)
+    gate = json.loads((run_dir / "gate.json").read_text())
+    assert gate["symbol_split"]["fit"] == ["000020"]
+    assert gate["symbol_split"]["select"] == ["000030"]
+    assert gate["symbol_split"]["seed"] == 0
+
+
+def test_gate_json_symbol_split_is_none_when_not_given(tmp_path):
+    """하위 호환 — `symbol_split` 을 안 넘겨도(예: 옛 호출부) 죽지 않는다."""
+    results = {"L1": _law_result("L1", True)}
+    gate = _write_and_load_gate(tmp_path, results)
+    assert gate["symbol_split"] is None

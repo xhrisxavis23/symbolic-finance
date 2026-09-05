@@ -19,9 +19,31 @@ E0 는 진입식을 만들지 않는다(태스크 지시 "스칼라 함수 복�
 
 from __future__ import annotations
 
+from typing import Protocol
+
 import numpy as np
 import torch
 from torch import nn
+
+
+class ScalarTeacherProtocol(Protocol):
+    """`sd.e0.runner.run_law` 의 `teacher_cls` 가 요구하는 계약.
+
+    `sd.teacher.base.Teacher`(D5, `predict_path`/`predict_fill` 두 헤드)와는
+    다른 계약이다 — E0 는 헤드가 하나뿐인 스칼라 회귀만 본다(이 파일 상단
+    docstring). `run_law` 는 이 계약만 지키면 어떤 교사 구현이든(예: 계획된
+    `DeepLOBCompact`, PREREG-E0-V2.md §1-2 — 다른 작업자 담당) 인자로 갈아
+    끼울 수 있다 — 그래서 `ScalarTeacher` 를 여기 직접 박아 넣지 않고
+    `runner.run_law(..., teacher_cls=...)` 로 주입받는다."""
+
+    def __init__(self, n_features: int, bottleneck: int, seed: int = 0) -> None: ...
+
+    def fit(self, X: np.ndarray, y: np.ndarray, weight: np.ndarray,
+            epochs: int = 300) -> "ScalarTeacherProtocol": ...
+
+    def predict(self, X: np.ndarray) -> np.ndarray: ...
+
+    def z(self, X: np.ndarray) -> np.ndarray: ...
 
 
 class ScalarTeacher:
