@@ -17,11 +17,13 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import time
 from datetime import datetime, timezone
 
 from sd import config, universe
 from sd.e0 import LAWS, report as e0_report, runner, split as e0_split
+from sd.e0.teacher import ScalarDeepLOB, ScalarTeacher
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,6 +44,17 @@ def parse_args() -> argparse.Namespace:
                         help="종목 단위 표본외 분할에서 적합 종목 비율(층별로 유지). "
                              "PREREG-E0-V2.md §1-1 — 나머지가 후보 채점·판정에 쓰는 선택 "
                              "종목이다. 기본값 근거는 sd/e0/split.py 모듈 docstring")
+    parser.add_argument("--teacher", choices=("shallow", "deeplob"), default="shallow",
+                        help="증류 교사 선택(PREREG-E0-V2.md §1-2). shallow=ScalarTeacher"
+                             "(사전등록 v2/v2b 기본값, 시간 윈도우 없음). "
+                             "deeplob=ScalarDeepLOB(CNN→Inception→LSTM→병목, "
+                             "sd.teacher.deeplob._DeepLOBEncoder 재사용 — DESIGN.md D5, "
+                             "31e4a22). SR 이 보는 X 는 어느 쪽을 골라도 항상 원본 feature "
+                             "공간이다 — 이 인자는 교사(증류 타깃)에만 영향을 준다.")
+    parser.add_argument("--teacher-window", type=int, default=16,
+                        help="--teacher deeplob 일 때 시간 윈도우 스텝 수"
+                             "(sd.teacher.window.make_causal_windows). --teacher shallow 면 "
+                             "무시된다(내부적으로 1 로 고정 — 윈도우 없음과 동일한 항등 경로).")
     return parser.parse_args()
 
 
@@ -68,6 +81,19 @@ def main() -> int:
           f"적합 {len(symbol_split.fit)}종목 / 선택 {len(symbol_split.select)}종목 "
           f"— 층별 {symbol_split.per_stratum_counts}")
 
+    # 교사 선택 (PREREG-E0-V2.md §1-2). shallow 는 윈도우가 없다 — teacher_window=1
+    # 은 sd.e0.runner._maybe_window 산술상 항등 변환이라 v2/v2b 와 배선이 완전히
+    # 같다. deeplob 은 window 를 --teacher-window 로 묶어(functools.partial)
+    # run_law 호출부는 n_features·bottleneck·seed 만 넘기게 유지한다.
+    if args.teacher == "deeplob":
+        teacher_cls = functools.partial(ScalarDeepLOB, window=args.teacher_window)
+        teacher_window = args.teacher_window
+    else:
+        teacher_cls = ScalarTeacher
+        teacher_window = 1
+    print(f"[e0] 교사={args.teacher}"
+          + (f" (window={teacher_window})" if args.teacher == "deeplob" else ""))
+
     results = {}
     for law in args.laws:
         print(f"[e0] === {law} 시작 ===", flush=True)
@@ -75,7 +101,8 @@ def main() -> int:
         result = runner.run_law(
             law, symbol_split.fit, symbol_split.select, config.DATE, seed=args.seed,
             bottleneck=args.bottleneck, epochs=args.epochs, sr_niterations=args.sr_niterations,
-            sr_maxsize=args.sr_maxsize, max_manifold_samples=args.max_manifold_samples)
+            sr_maxsize=args.sr_maxsize, max_manifold_samples=args.max_manifold_samples,
+            teacher_cls=teacher_cls, teacher_window=teacher_window)
         dt = time.time() - t0
         main = result.tracks.get("main")
         print(f"[e0] {law} 완료 {dt:.1f}s — 적합종목 {len(result.symbols_used)}, "

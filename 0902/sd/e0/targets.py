@@ -75,6 +75,16 @@ class Dataset:
     symbols_used: tuple[str, ...]
     symbols_skipped: dict[str, str]
     n_rows_total: int
+    # 종목 경계 — 행 i 가 몇 번째 종목 블록에 속하는지(0-based, 종목 등장 순서).
+    # `_concat` 이 종목별 연속 블록을 순서대로 쌓으므로 이 배열은 항상
+    # "같은 값이 연속으로 나타나는 런(run)"이다 — `sd.teacher.window.
+    # make_causal_windows` 의 `session_ids` 계약과 정확히 맞는다(PREREG-E0-V2.md
+    # §1-2, DeepLOB 시간 윈도우가 종목 경계를 넘지 않게 하는 용도). 값 자체는
+    # 종목 이름이 아니라 등장 순번일 뿐이다 — 경계 위치만 중요하다.
+    # 기본값 `None`: 이 필드가 생기기 전의 테스트/스텁(`Dataset` 을 직접 만드는
+    # 코드)이 굳이 안 채워도 되게 한다 — 그런 스텁은 애초에 `teacher_window`
+    # 를 쓰지 않는다.
+    symbol_ids: np.ndarray | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -406,6 +416,10 @@ def _assemble_l5(symbols: Sequence[str], date: str) -> Dataset:
 def _concat(law: str, samples: list[LawSample], used: tuple[str, ...],
            skipped: dict[str, str]) -> Dataset:
     first = samples[0]
+    # 종목 i 의 모든 행에 등장 순번 i 를 붙인다 — 종목별 블록이 이미 연속으로
+    # 쌓이므로(아래 concatenate 와 같은 순서) 이건 항상 유효한 "런(run)" 이다.
+    symbol_ids = np.concatenate(
+        [np.full(len(s.mask), i, dtype=np.int64) for i, s in enumerate(samples)])
     return Dataset(
         law=law,
         names_dimless=first.names_dimless,
@@ -419,4 +433,5 @@ def _concat(law: str, samples: list[LawSample], used: tuple[str, ...],
         symbols_used=used,
         symbols_skipped=skipped,
         n_rows_total=sum(len(s.mask) for s in samples),
+        symbol_ids=symbol_ids,
     )

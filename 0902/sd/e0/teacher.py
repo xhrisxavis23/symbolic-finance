@@ -100,3 +100,106 @@ class ScalarTeacher:
     def predict(self, X: np.ndarray) -> np.ndarray:
         with torch.no_grad():
             return self._head(self._latent(X)).squeeze(-1).numpy()
+
+
+class ScalarDeepLOB:
+    """`sd.teacher.deeplob.DeepLOBCompact` 의 인코더(CNN(시간) → Inception-lite
+    → LSTM → 병목)를 재사용하되 헤드가 **하나뿐**인 E0 전용 교사.
+
+    `DeepLOBCompact` 를 그대로 `teacher_cls` 에 꽂지 않는 이유는 `ScalarTeacher`
+    가 `ShallowMLP` 를 그대로 안 쓰는 이유와 정확히 같다(이 파일 상단 모듈
+    docstring) — `DeepLOBCompact.fit` 은 `predict_fill` 용 BCE 타깃을 강제로
+    요구하는데, E0 의 다섯 법칙 중 어느 것도 체결확률 개념이 없다. 억지로
+    채운 `y_fill` 이 공유 인코더에 이 법칙과 무관한 그래디언트를 얹는다.
+
+    새로 짜는 것은 이 파일의 `ScalarTeacher` 와 똑같이 "헤드 하나짜리 학습
+    루프"뿐이다 — CNN/Inception/LSTM 자체는 `sd.teacher.deeplob._DeepLOBEncoder`
+    를 그대로 가져다 쓴다(새 시계열 아키텍처를 다시 짜지 않는다, `deeplob.py`
+    는 한 바이트도 바꾸지 않는다).
+
+    **입력 계약이 `ScalarTeacher` 와 다르다.** `X` 는 이미 `sd.teacher.window.
+    make_causal_windows` 로 만든 `(n, window*n_features)` 평평한 행렬이어야
+    한다 — `DeepLOBCompact` 와 동일(모듈 docstring 참고). 윈도우를 스스로
+    만들지 않는다: 표집(subsample) 이후의 행렬에 씌우면 "시간"이라는 말이
+    거짓이 되기 때문이다(`sd/teacher/window.py` 모듈 docstring) — 그래서 호출자
+    (`sd.e0.runner.run_law`)가 표집 **이전**의 연속 행렬에 윈도우를 씌워서
+    넘겨야 한다."""
+
+    def __init__(self, n_features: int, bottleneck: int, seed: int = 0,
+                 window: int = 16, conv_channels: int = 8,
+                 inception_channels: int = 4, lstm_hidden: int = 16,
+                 l1: float = 1e-4) -> None:
+        from ..teacher.deeplob import _DeepLOBEncoder  # 여기서만 import — CNN/LSTM 코드를 재사용
+
+        self.bottleneck = int(bottleneck)
+        self.window = int(window)
+        self.n_features = int(n_features)          # 한 시점당(윈도우 이전) feature 수
+        self.l1 = float(l1)
+        self._seed = int(seed)
+        torch.manual_seed(self._seed)
+        self._encoder = _DeepLOBEncoder(
+            n_features=self.n_features, bottleneck=self.bottleneck,
+            conv_channels=conv_channels, inception_channels=inception_channels,
+            lstm_hidden=lstm_hidden)
+        self._head = nn.Linear(self.bottleneck, 1)
+        flat_dim = self.window * self.n_features
+        self._mean = np.zeros(flat_dim)
+        self._scale = np.ones(flat_dim)
+
+    def _check_shape(self, X: np.ndarray) -> None:
+        expected = self.window * self.n_features
+        if X.ndim != 2 or X.shape[1] != expected:
+            raise ValueError(
+                f"X 열 수가 window*n_features 와 다르다: got {X.shape}, "
+                f"expected (n, {expected}) (window={self.window}, "
+                f"n_features={self.n_features}). sd.teacher.window."
+                "make_causal_windows 로 먼저 시간 윈도우를 만들었는지 확인하라")
+
+    def fit(self, X: np.ndarray, y: np.ndarray, weight: np.ndarray,
+            epochs: int = 300, lr: float = 1e-2) -> "ScalarDeepLOB":
+        torch.manual_seed(self._seed)
+        X = np.asarray(X, dtype=float)
+        self._check_shape(X)
+        self._mean = X.mean(axis=0)
+        self._scale = np.where(X.std(axis=0) > 0, X.std(axis=0), 1.0)
+
+        inputs = torch.tensor(self._standardise(X), dtype=torch.float32)
+        target = torch.tensor(np.asarray(y, dtype=float), dtype=torch.float32)
+        weights = torch.tensor(np.asarray(weight, dtype=float), dtype=torch.float32)
+
+        parameters = list(self._encoder.parameters()) + list(self._head.parameters())
+        optimiser = torch.optim.Adam(parameters, lr=lr)
+
+        for _ in range(int(epochs)):
+            optimiser.zero_grad()
+            latent = self._encode(inputs)
+            prediction = self._head(latent).squeeze(-1)
+            loss = (weights * (prediction - target) ** 2).mean() + self.l1 * latent.abs().mean()
+            loss.backward()
+            optimiser.step()
+        return self
+
+    def _standardise(self, X: np.ndarray) -> np.ndarray:
+        return (np.asarray(X, dtype=float) - self._mean) / self._scale
+
+    def _encode(self, inputs: torch.Tensor) -> torch.Tensor:
+        batch = inputs.shape[0]
+        # 평평한 (batch, window*F) -> (batch, window, F) -> (batch, F, window) —
+        # make_causal_windows 가 낸 순서(옛것→최신, C-order reshape)와 맞다
+        # (deeplob.py::DeepLOBCompact._encode 와 동일한 배선).
+        x = inputs.view(batch, self.window, self.n_features).permute(0, 2, 1)
+        return self._encoder(x)
+
+    def _latent(self, X: np.ndarray) -> torch.Tensor:
+        X = np.asarray(X, dtype=float)
+        self._check_shape(X)
+        with torch.no_grad():
+            inputs = torch.tensor(self._standardise(X), dtype=torch.float32)
+            return self._encode(inputs)
+
+    def z(self, X: np.ndarray) -> np.ndarray:
+        return self._latent(X).numpy()
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        with torch.no_grad():
+            return self._head(self._latent(X)).squeeze(-1).numpy()

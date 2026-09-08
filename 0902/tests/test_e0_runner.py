@@ -6,6 +6,7 @@
 검증한다 — 여기서는 순수 로직 + 가짜(fake) 백엔드/교사/조립기로 배선만
 본다."""
 
+import functools
 import sys
 from pathlib import Path
 
@@ -338,3 +339,167 @@ def test_run_law_rejects_overlapping_fit_and_select_symbols(monkeypatch):
         runner.run_law("L2", fit_symbols, overlapping_select_symbols, "20260316", seed=0,
                        bottleneck=1, epochs=1, sr_niterations=1, sr_maxsize=5,
                        max_manifold_samples=1000, teacher_cls=_FakeTeacher)
+
+
+# ---------------------------------------------------------------------------
+# 교사 시간 윈도우 배선 (PREREG-E0-V2.md §1-2) — `_maybe_window`·`run_law` 의
+# "표집 전, 종목별 연속 행렬에만 윈도우" 제약이 실제로 지켜지는지 검증.
+# ---------------------------------------------------------------------------
+
+def test_maybe_window_is_identity_when_window_leq_one():
+    """`teacher_window<=1`(기본 `ScalarTeacher` 경로)은 `make_causal_windows`
+    를 아예 타지 않는다 — 호출 자체를 생략하므로 어떤 부작용(forward-fill
+    포함)도 없다는 것을 직접 확인한다."""
+    X = np.array([[1.0, np.nan], [2.0, 3.0], [np.nan, 4.0]])
+    out = runner._maybe_window(X, session_ids=np.array([0, 0, 1]), window=1)
+    assert out is X   # 새로 만들지도 않는다 — 진짜 항등(identity), 복사조차 없다
+
+
+def test_maybe_window_delegates_to_make_causal_windows_when_window_gt_one():
+    X = np.arange(6.0).reshape(3, 2)
+    out = runner._maybe_window(X, session_ids=None, window=2)
+    from sd.teacher.window import make_causal_windows
+    expected = make_causal_windows(X, window=2, session_ids=None)
+    np.testing.assert_array_equal(out, expected)
+
+
+def test_run_law_windows_teacher_input_before_subsample_reorder_and_respects_symbol_boundaries(
+        monkeypatch):
+    """PREREG-E0-V2.md §1-2 의 핵심 제약: DeepLOB 류 교사의 시간 윈도우는
+    **표집(재정렬) 이전**의 연속 행렬에 씌워야 한다 — 표집 후 행렬에 씌우면
+    "시간 윈도우"라는 말 자체가 거짓이 된다(`sd/teacher/window.py` 모듈
+    docstring). `manifold.select` 를 실제처럼(무작위 재정렬) 흉내 낸 가짜로
+    바꿔서(여기서는 결정론적으로 뒤집는다), `run_law` 가 교사에게 실제로
+    넘기는 X 를 각 행의 지문(fingerprint) 값으로 재구성해 확인한다 —
+    재정렬된 이웃의 과거가 아니라 그 행 **자신의** 과거가 들어 있어야 한다.
+    두 종목(길이가 다른 A·B)을 섞어 종목 경계도 같이 확인한다: B 의 초반 행
+    윈도우가 A 의 값을 빌리면 안 된다(세션 시작 반복 패딩이어야 한다).
+
+    이 테스트가 실패하는 방식으로 구체적으로 상상해 볼 것: `run_law` 이
+    윈도우를 `_manifold_pick` **이후**의 `X[fit_rows]` 에 씌우도록 뒤바뀌면
+    (버그), 재정렬 후 이웃한 행들의 지문이 뒤섞여 아래 `expected_window`
+    공식과 어긋난다 — 이 테스트는 그 어긋남을 직접 잡는다."""
+    window = 4
+    lengths = {"A": 20, "B": 15}
+
+    def fake_dataset(symbols, lengths_map):
+        blocks_X, blocks_mask, blocks_sym = [], [], []
+        for s_idx, sym in enumerate(symbols):
+            n = lengths_map[sym]
+            fingerprint = 1000.0 * s_idx + np.arange(n, dtype=float)
+            blocks_X.append(fingerprint.reshape(-1, 1))
+            blocks_mask.append(np.ones(n, dtype=bool))
+            blocks_sym.append(np.full(n, s_idx, dtype=np.int64))
+        X = np.concatenate(blocks_X, axis=0)
+        mask = np.concatenate(blocks_mask, axis=0)
+        symbol_ids = np.concatenate(blocks_sym, axis=0)
+        n_total = len(mask)
+        return targets.Dataset(
+            law="L2", names_dimless=("fp",), X_dimless=X, y_dimless=np.zeros(n_total),
+            names_raw=("fp",), X_raw=X.copy(), y_raw=np.zeros(n_total), mask=mask,
+            y_description="fingerprint", symbols_used=tuple(symbols), symbols_skipped={},
+            n_rows_total=n_total, symbol_ids=symbol_ids)
+
+    def fake_assemble(law, symbols, date):
+        symbols = tuple(symbols)
+        if set(symbols) == {"A", "B"}:
+            return fake_dataset(("A", "B"), lengths)
+        return fake_dataset(("S",), {"S": 40})       # 선택 종목 — MIN_SELECT_ROWS=30 이상
+
+    def fake_manifold_select(X, mask, max_samples, seed):
+        usable = np.flatnonzero(mask)
+        order = usable[::-1]                          # 일부러 재정렬(뒤집기)
+        return runner.manifold.Selection(index=order, weight=np.ones(len(order)),
+                                         on_manifold=np.ones(len(order), dtype=bool))
+
+    class _StubBackend:
+        diagnostics: dict = {}
+
+        def fit(self, X, y, w, names):
+            return [Candidate(expr=sympy.Symbol(names[0]), complexity=1,
+                              in_sample_score=0.0, backend="fake", seed=0)]
+
+    captured_fit_X: list[np.ndarray] = []
+
+    class _WindowRecordingTeacher:
+        def __init__(self, n_features, bottleneck, seed=0, window=1):
+            self.n_features = n_features
+            self.bottleneck = bottleneck
+            self.window = window
+
+        def fit(self, X, y, weight, epochs=300):
+            captured_fit_X.append(np.array(X, dtype=float))
+            return self
+
+        def predict(self, X):
+            return np.zeros(len(X))
+
+        def z(self, X):
+            return np.zeros((len(X), self.bottleneck))
+
+    monkeypatch.setattr(runner.targets, "assemble", fake_assemble)
+    monkeypatch.setattr(runner.manifold, "select", fake_manifold_select)
+    monkeypatch.setattr(runner, "_build_backend",
+                        lambda law, seed, niterations, maxsize: _StubBackend())
+
+    teacher_cls = functools.partial(_WindowRecordingTeacher, window=window)
+    runner.run_law("L2", ("A", "B"), ("S",), "20260316", seed=0, bottleneck=1, epochs=1,
+                   sr_niterations=1, sr_maxsize=5, max_manifold_samples=1000,
+                   teacher_cls=teacher_cls, teacher_window=window)
+
+    assert captured_fit_X, "가짜 교사 fit() 이 한 번도 안 불렸다"
+    fit_X = captured_fit_X[0]                # 무차원 교사(main 트랙이 쓰는 것)의 fit 입력
+    assert fit_X.shape[1] == window          # n_features=1 이므로 열 수 = window
+
+    n_total = sum(lengths.values())
+    expected_order = np.arange(n_total)[::-1]   # fake_manifold_select 가 낸 순서와 동일해야 함
+    for row_i, global_idx in enumerate(expected_order):
+        if global_idx < lengths["A"]:
+            s_idx, p = 0, int(global_idx)
+        else:
+            s_idx, p = 1, int(global_idx - lengths["A"])
+        expected_window = [1000.0 * s_idx + max(p - k, 0) for k in range(window - 1, -1, -1)]
+        np.testing.assert_allclose(
+            fit_X[row_i], expected_window,
+            err_msg=f"row {row_i}(전역 {global_idx}, 종목idx {s_idx}, 종목내위치 {p}) 윈도우 불일치 "
+                    "— 재정렬된 이웃의 과거가 섞였거나 종목 경계를 넘었다")
+
+
+def test_run_law_default_teacher_window_leaves_scalarteacher_input_byte_identical(monkeypatch):
+    """`teacher_window` 를 아예 안 넘기면(기본값 1) 기존 `ScalarTeacher` 경로가
+    이 변경 전과 바이트 단위로 같은 X 를 받아야 한다 — v1/v2/v2b 가 이미 낸
+    숫자가 이번 배선 변경으로 조용히 흔들리면 안 된다."""
+    seen_X: list[np.ndarray] = []
+    fit_symbols = ("F1", "F2")
+    select_symbols = ("S1",)
+    _patch_run_law_fakes(monkeypatch, fit_symbols, seen_X)   # SR 이 보는 X(참고용, 여기선 안 씀)
+
+    captured: list[np.ndarray] = []
+    raw_X_dimless = {}
+
+    class _RecordingScalarTeacher:
+        def __init__(self, n_features, bottleneck, seed=0):
+            self.n_features = n_features
+            self.bottleneck = bottleneck
+
+        def fit(self, X, y, weight, epochs=300):
+            captured.append(np.array(X, dtype=float))
+            return self
+
+        def predict(self, X):
+            return np.zeros(len(X))
+
+        def z(self, X):
+            return np.zeros((len(X), self.bottleneck))
+
+    result = runner.run_law("L2", fit_symbols, select_symbols, "20260316", seed=0, bottleneck=1,
+                            epochs=1, sr_niterations=1, sr_maxsize=5, max_manifold_samples=1000,
+                            teacher_cls=_RecordingScalarTeacher)   # teacher_window 생략 = 기본 1
+
+    # `_patch_run_law_fakes` 의 `fake_manifold_select` 는 index=arange(len(X))
+    # (재정렬 없음)이라 fit_rows == arange(n) — 그래서 교사가 받은 X 는
+    # `fit_dataset.X_dimless`(적합 종목, 오프셋 0.0 근처) 전체와 정확히 같아야
+    # 한다. 값 범위(<10)로 "선택 종목 안 섞임"까지 같이 확인한다.
+    assert captured, "가짜 교사 fit() 이 한 번도 안 불렸다"
+    assert np.all(captured[0] < 10.0)
+    assert result.tracks["main"].n_select_rows > 0

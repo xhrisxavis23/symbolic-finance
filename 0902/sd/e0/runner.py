@@ -23,6 +23,17 @@ v1(ROADMAP.md 3단계)은 `argmax(in_sample_score)` 로 `primary_index` 를 뽑�
 
 바뀌지 않은 것: `sd.e0.criteria` 의 판정 함수·밴드(한 바이트도), 게이트 규칙,
 심사 대상은 `primary` 후보 하나, seed 0, 층화 구조.
+
+## 교사 시간 윈도우 (PREREG-E0-V2.md §1-2, `run_law(..., teacher_window=...)`)
+
+`sd.e0.teacher.ScalarDeepLOB` 처럼 시간 윈도우가 필요한 교사를 주입하면
+`_maybe_window` 가 `sd.teacher.window.make_causal_windows` 를 태운다 — **교사
+입력에만** 적용되고 SR 이 보는 X 는 항상 원본이다. 윈도우는 `_manifold_pick`
+(표집)보다 먼저, 종목별 연속 행렬(`fit_dataset`/`select_dataset` 전체)에
+씌운 뒤 그 결과를 표집이 고른 행 인덱스로 슬라이스한다 — 표집 후 행렬에
+씌우면 "시간 윈도우"라는 말 자체가 거짓이 된다(`sd/teacher/window.py`).
+`teacher_window=1`(기본)은 이 파일 안 `_maybe_window` 산술상 완전한
+항등 변환이라 `ScalarTeacher` 경로의 동작은 이 변경으로 전혀 안 바뀐다.
 """
 
 from __future__ import annotations
@@ -196,6 +207,25 @@ def _fit_track(law: str, name: str, X: np.ndarray, y: np.ndarray, w: np.ndarray,
                             diagnostics=dict(backend.diagnostics))
 
 
+def _maybe_window(X: np.ndarray, session_ids: np.ndarray | None, window: int) -> np.ndarray:
+    """`window<=1` 이면 `X` 를 그대로 돌려준다 — 기본 교사(`ScalarTeacher`,
+    `window=1`)의 산출물이 이 함수가 생기기 전과 바이트 단위로 같아야 한다.
+    이는 우연이 아니라 산술로 보장된다: `mask=True`(선택 후보가 될 수 있는
+    유일한 조건, `sd.manifold.select` 참고)인 행은 정의상 이미 유한하므로
+    `window=1` 에서 켜지는 세션-내 forward-fill(비유한 값 대체)이 그런 행의
+    값을 바꿀 일이 없다 — 바뀌는 값은 애초에 선택될 수 없는(mask=False) 행의
+    값뿐이다.
+
+    `window>1` 일 때만 `sd.teacher.window.make_causal_windows` 를 태운다.
+    **호출자 책임**: 표집(`_manifold_pick`) **이전**의 연속 행렬에 대해서만
+    이 함수를 불러야 한다(PREREG-E0-V2.md §1-2) — `run_law` 는 실제로 그
+    순서를 지킨다(아래에서 `_manifold_pick` 보다 먼저 부른다)."""
+    if window <= 1:
+        return X
+    from ..teacher.window import make_causal_windows  # 필요할 때만 import(window>1 인 실행만 쓴다)
+    return make_causal_windows(X, window=window, session_ids=session_ids)
+
+
 def _manifold_pick(X: np.ndarray, mask: np.ndarray, *, max_samples: int, seed: int,
                    min_rows: int | None = None, what: str = "") -> tuple[np.ndarray, np.ndarray]:
     """`manifold.select` 를 부르고 on-manifold 행·가중치만 돌려준다.
@@ -218,14 +248,28 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
            seed: int = 0, bottleneck: int = 2, epochs: int = 300,
            sr_niterations: int = 25, sr_maxsize: int = 20,
            max_manifold_samples: int = 4000,
-           teacher_cls: Callable[..., ScalarTeacherProtocol] = ScalarTeacher) -> LawResult:
+           teacher_cls: Callable[..., ScalarTeacherProtocol] = ScalarTeacher,
+           teacher_window: int = 1) -> LawResult:
     """`fit_symbols`·`select_symbols` 는 서로소여야 한다(호출부가 보증한다 —
     보통 `sd.e0.split.split_symbols` 의 산출물, 법칙 5개가 모두 같은 분할을
     공유한다: 게이트 판정이 법칙마다 다른 표본외 기준으로 나오면 비교가
     안 선다). `teacher_cls` 는 `sd.e0.teacher.ScalarTeacher` 와 같은 계약
     (`__init__(n_features, bottleneck, seed)` → `.fit(X,y,weight,epochs)` →
     `.predict(X)`)을 지키는 교사 클래스면 무엇이든 받는다 — 여기서 구체
-    교사를 고르지 않는다(PREREG-E0-V2.md 1-2 는 별도 작업)."""
+    교사를 고르지 않는다(PREREG-E0-V2.md 1-2 는 별도 작업).
+
+    `teacher_window`(기본 1) 는 교사에게 넘길 입력에 `sd.teacher.window.
+    make_causal_windows` 를 몇 스텝짜리로 씌울지다. **SR 이 보는 X 는 이 값과
+    무관하게 항상 원본(윈도우 없는) feature 공간이다** — 윈도우는 오직 교사
+    (증류 타깃을 만드는 신경망)의 입력에만 적용된다. `teacher_window=1`(기본,
+    `ScalarTeacher` 용)은 `_maybe_window` 산술상 완전한 항등 변환이라 기존
+    동작을 바이트 단위로 보존한다. `sd.e0.teacher.ScalarDeepLOB` 처럼 시간
+    윈도우가 필요한 교사를 쓰려면 `teacher_window>1` 을 같이 넘겨야 한다 —
+    윈도우는 **표집 전, 종목별 연속 행렬**(`fit_dataset.X_dimless` 전체)에
+    씌운 뒤에야 `_manifold_pick` 이 고른 행 인덱스로 슬라이스한다(아래 코드
+    순서가 그 순서를 그대로 지킨다) — 표집 후 행렬에 씌우면 "시간 윈도우"라는
+    말 자체가 거짓이 된다(`sd/teacher/window.py` 모듈 docstring, PREREG-E0-V2.md
+    §1-2)."""
     if set(fit_symbols) & set(select_symbols):
         raise ValueError("fit_symbols·select_symbols 가 겹친다 — 표본 외 분할이 아니다")
 
@@ -234,24 +278,35 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
     names = fit_dataset.names_dimless
     names_raw = fit_dataset.names_raw
 
+    # 교사 전용 입력 — 표집 **전**, 종목별 연속 행렬에 윈도우를 씌운다(위
+    # docstring 참고). SR 이 쓰는 `fit_dataset.X_dimless`/`X_raw` 자체는 아래에서
+    # 전혀 바뀌지 않는다 — 이 두 변수만 교사 fit/predict 호출에 쓰인다.
+    fit_X_dimless_teacher = _maybe_window(fit_dataset.X_dimless, fit_dataset.symbol_ids,
+                                          teacher_window)
+    fit_X_raw_teacher = _maybe_window(fit_dataset.X_raw, fit_dataset.symbol_ids, teacher_window)
+    select_X_dimless_teacher = _maybe_window(select_dataset.X_dimless, select_dataset.symbol_ids,
+                                             teacher_window)
+    select_X_raw_teacher = _maybe_window(select_dataset.X_raw, select_dataset.symbol_ids,
+                                         teacher_window)
+
     # -- 무차원 트랙 교사 (적합 종목으로만) -----------------------------------
     fit_rows, fit_weight = _manifold_pick(
         fit_dataset.X_dimless, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
         what=f"{law}/적합/dimless")
     teacher = teacher_cls(n_features=fit_dataset.X_dimless.shape[1], bottleneck=bottleneck,
-                          seed=seed).fit(fit_dataset.X_dimless[fit_rows], fit_dataset.y_dimless[fit_rows],
+                          seed=seed).fit(fit_X_dimless_teacher[fit_rows], fit_dataset.y_dimless[fit_rows],
                                         fit_weight, epochs=epochs)
-    teacher_pred = teacher.predict(fit_dataset.X_dimless[fit_rows])
+    teacher_pred = teacher.predict(fit_X_dimless_teacher[fit_rows])
 
     # -- raw 트랙 교사 (ablation "무차원화 없이 증류" 전용, 적합 종목으로만) --
     fit_rows_raw, fit_weight_raw = _manifold_pick(
         fit_dataset.X_raw, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
         what=f"{law}/적합/raw")
     teacher_raw = teacher_cls(n_features=fit_dataset.X_raw.shape[1], bottleneck=bottleneck,
-                              seed=seed).fit(fit_dataset.X_raw[fit_rows_raw],
+                              seed=seed).fit(fit_X_raw_teacher[fit_rows_raw],
                                             fit_dataset.y_raw[fit_rows_raw],
                                             fit_weight_raw, epochs=epochs)
-    teacher_raw_pred = teacher_raw.predict(fit_dataset.X_raw[fit_rows_raw])
+    teacher_raw_pred = teacher_raw.predict(fit_X_raw_teacher[fit_rows_raw])
 
     # -- 선택 종목 데이터: 후보 채점·판정 전용. on-manifold 로 다시 고른다 —
     # 훈련 쪽과 같은 신뢰반경 철학(믿음의 반경 밖 극단치가 percentile 기반
@@ -265,9 +320,11 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
 
     select_X_dimless = select_dataset.X_dimless[select_rows]
     select_y_dimless = select_dataset.y_dimless[select_rows]
-    select_teacher_pred = teacher.predict(select_X_dimless)          # main·uniform_off_manifold 채점용
+    # 교사 입력만 윈도우 버전으로 — SR 채점용 select_X_dimless(위 줄)는 그대로
+    # 원본 feature 공간이다(`names` 열 수와 일치해야 한다).
+    select_teacher_pred = teacher.predict(select_X_dimless_teacher[select_rows])  # main·uniform_off_manifold 채점용
     select_X_raw = select_dataset.X_raw[select_rows_raw]
-    select_teacher_raw_pred = teacher_raw.predict(select_X_raw)      # no_dimensionless 채점용
+    select_teacher_raw_pred = teacher_raw.predict(select_X_raw_teacher[select_rows_raw])  # no_dimensionless 채점용
 
     teacher_diag = {
         "track": "dimless", "n_fit_rows": int(len(fit_rows)),
@@ -323,7 +380,13 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
     # 묻는 것 — "균등 합성으로 적합해도 실제 held-out 종목에서 통하는가").
     synthetic_X = ablation.uniform_box_sample(fit_dataset.X_dimless[fit_rows], n=len(fit_rows),
                                               seed=seed)
-    synthetic_y = teacher.predict(synthetic_X)
+    # 합성 표본은 시간상 이웃이 없다(열마다 독립 균등분포에서 뽑은 점) — 각
+    # 행을 자기 혼자만의 세션으로 취급해 윈도우를 씌운다. 세션 길이가 1이면
+    # `make_causal_windows` 의 패딩 규칙("세션 첫 행을 반복")이 그 행 자신을
+    # window 번 반복하는 것으로 자연히 축약된다 — 다른 합성 행의 값이
+    # 섞여 들어올 길이 없다.
+    synthetic_X_teacher = _maybe_window(synthetic_X, np.arange(len(synthetic_X)), teacher_window)
+    synthetic_y = teacher.predict(synthetic_X_teacher)
     result.tracks["uniform_off_manifold"] = _fit_track(
         law, "uniform_off_manifold", synthetic_X, synthetic_y,
         np.ones(len(synthetic_X)), names, select_X_dimless, select_teacher_pred, select_weight,

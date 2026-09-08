@@ -185,3 +185,31 @@ def test_assemble_raises_when_every_symbol_fails(monkeypatch):
         pass
     else:
         raise AssertionError("모든 종목이 실패했는데 예외가 안 났다")
+
+
+def test_assemble_symbol_ids_mark_contiguous_per_symbol_blocks_in_order(monkeypatch):
+    """`symbol_ids` 는 종목별 연속 블록에 등장 순서대로 번호를 매겨야 한다 —
+    `sd.teacher.window.make_causal_windows` 가 이 배열을 `session_ids` 로 받아
+    DeepLOB 교사의 시간 윈도우가 종목 경계를 넘지 않게 하는 데 쓴다
+    (PREREG-E0-V2.md §1-2, `sd.e0.runner.run_law` 의 `_maybe_window`). 길이가
+    다른 두 종목을 이어붙여 경계가 정확히 그 길이에서 갈리는지 확인한다 —
+    경계가 한 칸이라도 어긋나면 윈도우가 종목을 넘나들며 섞인다."""
+    from sd import ticks as _ticks
+
+    lengths = {"SYMA": 150, "SYMB": 90}
+
+    def fake_load(symbol, date):
+        return _synthetic_arrays(n=lengths[symbol], seed=hash(symbol) % 1000)
+
+    monkeypatch.setattr(_ticks, "load_arrays", fake_load)
+    dataset = targets.assemble("L1", ["SYMA", "SYMB"], "20260316")
+
+    assert dataset.symbol_ids is not None
+    assert dataset.symbol_ids.shape == dataset.mask.shape
+    n_a, n_b = lengths["SYMA"], lengths["SYMB"]
+    assert dataset.X_dimless.shape[0] == n_a + n_b
+    np.testing.assert_array_equal(dataset.symbol_ids[:n_a], np.zeros(n_a, dtype=np.int64))
+    np.testing.assert_array_equal(dataset.symbol_ids[n_a:], np.ones(n_b, dtype=np.int64))
+    # 런(run) 성질 — 값이 바뀌는 자리는 정확히 한 번, 종목 경계에서만.
+    changes = np.flatnonzero(np.diff(dataset.symbol_ids) != 0)
+    assert list(changes) == [n_a - 1]
