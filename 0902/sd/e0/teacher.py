@@ -25,6 +25,29 @@ import numpy as np
 import torch
 from torch import nn
 
+from ..sr.base import weighted_r2
+from ..teacher.early_stopping import run_with_early_stopping, torch_snapshot_functions
+
+# 조기 종료 설계 판단 (A10 / PREREG-T1.md §1 "설계 판단이 필요한 지점" — 결과를
+# 보기 전에 고정한다, PREREG-T1.md §4 "결과를 보고 조정하지 않는다"). 근거는
+# T1-REPORT.md 에 전체를 적는다 — 여기서는 값과 한 줄 이유만.
+#
+#  - EVAL_EVERY=10: 평가는 순전파 한 번이라 비용이 무시할 수준이고(SR 적합이
+#    전체 실행 시간을 지배한다), 실제 실행 예산 epochs=700 기준 70개 평가점
+#    해상도면 A10 이 실측한(수백 epoch 규모) 표본외 붕괴를 놓치지 않는다.
+#  - PATIENCE=10(평가 10회 연속 무개선 = epoch 100개, epochs=700 의 ~14%):
+#    선택 종목 R² 는 `sd.e0.runner.MIN_SELECT_ROWS`(30행) 보다 훨씬 큰
+#    표본(최대 `max_manifold_samples`, 기본 1500행)에서 재는 통계라 잡음이
+#    비교적 작지만, 그래도 patience 를 1~2 평가로 너무 짧게 두면 잡음
+#    하나에 멈춘다. epochs 전체를 patience 로 삼으면(사실상 무한 patience)
+#    조기 종료가 A10 이 관측한 붕괴를 못 막는다 — 이 둘 사이 절충.
+#  - 두 상수는 `--teacher shallow`·`--teacher deeplob` 양쪽에 동일하게
+#    적용한다 — 사전등록 §3 이 "shallow 도 이 수정을 받는다"고 전제한다
+#    (표본내/외 차이가 작다는 게 shallow 쪽 예측의 근거이지, shallow 를
+#    수정에서 뺀다는 뜻이 아니다).
+EVAL_EVERY_DEFAULT = 10
+PATIENCE_DEFAULT = 10
+
 
 class ScalarTeacherProtocol(Protocol):
     """`sd.e0.runner.run_law` 의 `teacher_cls` 가 요구하는 계약.
@@ -34,12 +57,19 @@ class ScalarTeacherProtocol(Protocol):
     docstring). `run_law` 는 이 계약만 지키면 어떤 교사 구현이든(예: 계획된
     `DeepLOBCompact`, PREREG-E0-V2.md §1-2 — 다른 작업자 담당) 인자로 갈아
     끼울 수 있다 — 그래서 `ScalarTeacher` 를 여기 직접 박아 넣지 않고
-    `runner.run_law(..., teacher_cls=...)` 로 주입받는다."""
+    `runner.run_law(..., teacher_cls=...)` 로 주입받는다.
+
+    `X_select`/`y_select`/`weight_select`(전부 키워드 전용, 기본 `None`)는
+    A10/PREREG-T1.md 조기 종료용이다 — `None` 이면(호출부가 select 데이터를
+    안 주면) 조기 종료가 완전히 꺼지고 기존 동작과 바이트 단위로 같다."""
 
     def __init__(self, n_features: int, bottleneck: int, seed: int = 0) -> None: ...
 
     def fit(self, X: np.ndarray, y: np.ndarray, weight: np.ndarray,
-            epochs: int = 300) -> "ScalarTeacherProtocol": ...
+            epochs: int = 300, *, X_select: np.ndarray | None = None,
+            y_select: np.ndarray | None = None, weight_select: np.ndarray | None = None,
+            eval_every: int = EVAL_EVERY_DEFAULT,
+            patience: int = PATIENCE_DEFAULT) -> "ScalarTeacherProtocol": ...
 
     def predict(self, X: np.ndarray) -> np.ndarray: ...
 
@@ -65,7 +95,15 @@ class ScalarTeacher:
         self._scale = np.ones(int(n_features))
 
     def fit(self, X: np.ndarray, y: np.ndarray, weight: np.ndarray,
-            epochs: int = 300, lr: float = 1e-2) -> "ScalarTeacher":
+            epochs: int = 300, lr: float = 1e-2, *,
+            X_select: np.ndarray | None = None, y_select: np.ndarray | None = None,
+            weight_select: np.ndarray | None = None,
+            eval_every: int = EVAL_EVERY_DEFAULT,
+            patience: int = PATIENCE_DEFAULT) -> "ScalarTeacher":
+        """`X_select`/`y_select`/`weight_select` 를 주면(전부 필요) A10 조기
+        종료를 켠다 — `sd.e0.runner.run_law` 가 이미 갖고 있는 선택 종목
+        데이터를 그대로 넘긴다(새 데이터 경로 없음, PREREG-T1.md §1). 안
+        주면(기본) 예전과 완전히 같은 전체-epoch 학습이다."""
         torch.manual_seed(self._seed)
         X = np.asarray(X, dtype=float)
         self._mean = X.mean(axis=0)
@@ -78,13 +116,28 @@ class ScalarTeacher:
         parameters = list(self._encoder.parameters()) + list(self._head.parameters())
         optimiser = torch.optim.Adam(parameters, lr=lr)
 
-        for _ in range(int(epochs)):
+        def train_step() -> None:
             optimiser.zero_grad()
             latent = self._encoder(inputs)
             prediction = self._head(latent).squeeze(-1)
             loss = (weights * (prediction - target) ** 2).mean() + self.l1 * latent.abs().mean()
             loss.backward()
             optimiser.step()
+
+        evaluate = None
+        if X_select is not None:
+            y_select_arr = np.asarray(y_select, dtype=float)
+            weight_select_arr = np.asarray(weight_select, dtype=float)
+            # `self.predict` 를 그대로 재사용한다 — 조기 종료 평가용으로 별도
+            # forward 경로를 새로 만들지 않는다(추론과 완전히 같은 코드).
+            evaluate = lambda: weighted_r2(       # noqa: E731
+                y_select_arr, self.predict(X_select), weight_select_arr)
+
+        get_state, set_state = torch_snapshot_functions(
+            {"encoder": self._encoder, "head": self._head})
+        self.early_stop_history_ = run_with_early_stopping(
+            total_epochs=int(epochs), eval_every=int(eval_every), patience=int(patience),
+            train_step=train_step, evaluate=evaluate, get_state=get_state, set_state=set_state)
         return self
 
     def _standardise(self, X: np.ndarray) -> np.ndarray:
@@ -156,7 +209,14 @@ class ScalarDeepLOB:
                 "make_causal_windows 로 먼저 시간 윈도우를 만들었는지 확인하라")
 
     def fit(self, X: np.ndarray, y: np.ndarray, weight: np.ndarray,
-            epochs: int = 300, lr: float = 1e-2) -> "ScalarDeepLOB":
+            epochs: int = 300, lr: float = 1e-2, *,
+            X_select: np.ndarray | None = None, y_select: np.ndarray | None = None,
+            weight_select: np.ndarray | None = None,
+            eval_every: int = EVAL_EVERY_DEFAULT,
+            patience: int = PATIENCE_DEFAULT) -> "ScalarDeepLOB":
+        """`ScalarTeacher.fit` 과 계약이 같다 — `X_select` 는 이미
+        `window*n_features` 로 펴진 행렬이어야 한다(`sd.e0.runner.run_law` 가
+        `_maybe_window` 로 만들어 넘긴다, `_check_shape` 가 강제한다)."""
         torch.manual_seed(self._seed)
         X = np.asarray(X, dtype=float)
         self._check_shape(X)
@@ -170,13 +230,26 @@ class ScalarDeepLOB:
         parameters = list(self._encoder.parameters()) + list(self._head.parameters())
         optimiser = torch.optim.Adam(parameters, lr=lr)
 
-        for _ in range(int(epochs)):
+        def train_step() -> None:
             optimiser.zero_grad()
             latent = self._encode(inputs)
             prediction = self._head(latent).squeeze(-1)
             loss = (weights * (prediction - target) ** 2).mean() + self.l1 * latent.abs().mean()
             loss.backward()
             optimiser.step()
+
+        evaluate = None
+        if X_select is not None:
+            y_select_arr = np.asarray(y_select, dtype=float)
+            weight_select_arr = np.asarray(weight_select, dtype=float)
+            evaluate = lambda: weighted_r2(       # noqa: E731
+                y_select_arr, self.predict(X_select), weight_select_arr)
+
+        get_state, set_state = torch_snapshot_functions(
+            {"encoder": self._encoder, "head": self._head})
+        self.early_stop_history_ = run_with_early_stopping(
+            total_epochs=int(epochs), eval_every=int(eval_every), patience=int(patience),
+            train_step=train_step, evaluate=evaluate, get_state=get_state, set_state=set_state)
         return self
 
     def _standardise(self, X: np.ndarray) -> np.ndarray:

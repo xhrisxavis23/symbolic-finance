@@ -15,6 +15,7 @@ import numpy as np
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from sd.e0.teacher import ScalarDeepLOB, ScalarTeacher  # noqa: E402
+from sd.sr.base import weighted_r2  # noqa: E402
 from sd.teacher.window import make_causal_windows  # noqa: E402
 
 
@@ -227,3 +228,106 @@ def test_scalar_deeplob_l1_penalty_shrinks_the_bottleneck():
     no_l1_magnitude = float(np.mean(np.abs(no_l1.z(Xw))))
     heavy_l1_magnitude = float(np.mean(np.abs(heavy_l1.z(Xw))))
     assert heavy_l1_magnitude < 0.5 * no_l1_magnitude
+
+
+# ---------------------------------------------------------------------------
+# A10 조기 종료 (PREREG-T1.md §1) — 선택 종목 R² 로 조기 종료하도록 `fit()` 에
+# 추가된 `X_select`/`y_select`/`weight_select` 배선. 스케줄러 자체(최선 시점
+# 추적·되돌리기)의 뮤테이션 자기검토는 `tests/test_teacher_early_stopping.py`
+# 가 담당한다 — 여기서는 "실제로 선택 종목 R² 를 기준으로 쓰는가"(뮤테이션
+# 자기검토 대상 #1: 적합 종목 R² 로 되돌리면 잡는가)와 하위 호환성을 본다.
+# ---------------------------------------------------------------------------
+
+def _adversarial_fit_and_select(n=1500, seed=0):
+    """적합 관계와 선택 관계를 정반대로 만든 데이터쌍. 모델이 적합 데이터에
+    맞춰갈수록(=학습이 진행될수록) 선택 R² 는 나빠져야 한다 — 그래서 "조기
+    종료가 실제로 선택 R² 를 본다면 최선 시점은 학습 초반이어야 한다"는
+    검증 가능한 예측이 나온다. 2026-09-09 실측(같은 seed): 선택 R² 궤적이
+    -0.60(평가1) 에서 시작해 단조에 가깝게 -3.0 근처까지 나빠졌다 — 아래
+    임계값(0.5)은 그 여유를 넉넉히 두고 잡은 값이다."""
+    rng = np.random.default_rng(seed)
+    X = rng.normal(size=(n, 3))
+    y = 2.0 * X[:, 0] - 1.0 * X[:, 1] + 0.05 * rng.normal(size=n)
+    X_select = rng.normal(size=(n, 3))
+    y_select = -(2.0 * X_select[:, 0] - 1.0 * X_select[:, 1]) + 0.05 * rng.normal(size=n)
+    return X, y, X_select, y_select
+
+
+def test_scalar_teacher_early_stopping_picks_epoch_by_select_r2_not_fit_r2():
+    """뮤테이션 자기검토 대상 #1: 조기 종료 기준을 (실수로) 적합 데이터로
+    되돌리면 이 테스트가 실패해야 한다 — 적합 R² 는 학습이 진행될수록
+    계속 좋아지므로(깨끗한 선형 관계) 기준을 적합 데이터로 잘못 재면
+    "최선"이 항상 마지막 평가가 된다. 선택 R² 를 옳게 쓰면 "최선"은
+    학습 초반(첫 평가)이어야 한다(적합-선택 관계가 정반대이므로)."""
+    X, y, X_select, y_select = _adversarial_fit_and_select()
+    weight = np.ones(len(y))
+    weight_select = np.ones(len(y_select))
+
+    model = ScalarTeacher(n_features=3, bottleneck=2, seed=0).fit(
+        X, y, weight, epochs=300, X_select=X_select, y_select=y_select,
+        weight_select=weight_select, eval_every=10, patience=1000)  # patience 크게: 안 멈추고 끝까지 관찰
+
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is True
+    assert len(history.eval_epochs) >= 5
+    assert history.best_epoch == history.eval_epochs[0], (
+        f"최선 시점이 학습 초반이 아니다(궤적: {list(zip(history.eval_epochs, history.eval_scores))}) "
+        "— 조기 종료가 적합 R² 를 보고 있을 가능성이 있다")
+    # 되돌린 최종 모델이 실제로 선택 데이터에서 `best_score` 와 같은 R² 를
+    # 내는지(구현이 진짜로 select 를 썼다는 이중 확인).
+    recomputed = weighted_r2(y_select, model.predict(X_select), weight_select)
+    assert abs(recomputed - history.best_score) < 1e-6
+
+
+def test_scalar_deeplob_early_stopping_picks_epoch_by_select_r2_not_fit_r2():
+    """`ScalarDeepLOB` 판(윈도우 처리된 입력)의 같은 검증 — 2026-09-09 실측:
+    선택 R² 궤적이 -0.07(평가1)에서 시작해 -3.0 근처까지 나빠졌다."""
+    window = 4
+    X, y, X_select, y_select = _adversarial_fit_and_select(n=1200)
+    Xw = make_causal_windows(X, window=window)
+    Xw_select = make_causal_windows(X_select, window=window)
+    weight = np.ones(len(y))
+    weight_select = np.ones(len(y_select))
+
+    model = ScalarDeepLOB(n_features=3, bottleneck=2, window=window, seed=0).fit(
+        Xw, y, weight, epochs=200, X_select=Xw_select, y_select=y_select,
+        weight_select=weight_select, eval_every=10, patience=1000)
+
+    history = model.early_stop_history_
+    assert len(history.eval_epochs) >= 5
+    assert history.best_epoch == history.eval_epochs[0], (
+        f"최선 시점이 학습 초반이 아니다(궤적: {list(zip(history.eval_epochs, history.eval_scores))})")
+    recomputed = weighted_r2(y_select, model.predict(Xw_select), weight_select)
+    assert abs(recomputed - history.best_score) < 1e-6
+
+
+def test_scalar_teacher_fit_without_select_data_is_unchanged():
+    """`X_select` 를 안 주면(기존 모든 호출부) 조기 종료가 완전히 꺼지고
+    `epochs` 를 전부 돈다 — A10 이전 동작과 바이트 단위로 같아야 한다(이미
+    파일 상단의 기존 테스트들이 결과값으로 이걸 확인하지만, 여기서는
+    `early_stop_history_` 플래그로 명시적으로 확인한다)."""
+    X, y = _linear_problem()
+    model = ScalarTeacher(n_features=3, bottleneck=2, seed=0).fit(X, y, np.ones(len(X)), epochs=37)
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is False
+    assert history.stopped_epoch == 37
+    assert history.reverted is False
+
+
+def test_scalar_teacher_early_stopping_can_actually_trigger_and_stop_before_total_epochs():
+    """patience 를 작게 주면 실제로 `epochs` 전부를 돌기 전에 멈춰야 한다 —
+    "조기 종료가 아예 작동하지 않는다"는 뮤테이션(#2)이 이 클래스 수준의
+    배선에서도 살아있는지 이중 확인(스케줄러 자체는
+    `tests/test_teacher_early_stopping.py` 가 이미 확인했다)."""
+    X, y, X_select, y_select = _adversarial_fit_and_select()
+    weight = np.ones(len(y))
+    weight_select = np.ones(len(y_select))
+
+    model = ScalarTeacher(n_features=3, bottleneck=2, seed=0).fit(
+        X, y, weight, epochs=300, X_select=X_select, y_select=y_select,
+        weight_select=weight_select, eval_every=10, patience=3)
+
+    history = model.early_stop_history_
+    assert history.triggered is True
+    assert history.stopped_epoch < 300
+    assert history.best_epoch == history.eval_epochs[0]

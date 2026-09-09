@@ -10,6 +10,19 @@ import numpy as np
 import torch
 from torch import nn
 
+from ..sr.base import weighted_r2
+from .early_stopping import run_with_early_stopping, torch_snapshot_functions
+
+# A10/PREREG-T1.md 조기 종료 기본값 — `sd.e0.teacher` 의 `EVAL_EVERY_DEFAULT`/
+# `PATIENCE_DEFAULT` 와 의도적으로 같은 값(같은 근거, 그 파일 docstring 참고).
+# 이 클래스는 이번 T1 실행(run_e0.py)이 실제로 쓰지 않는다 — S0/S1 파이프라인
+# (`run_slice.py`)용이고, `run_slice.py` 는 아직 select 데이터를 안 넘기므로
+# `X_path_select=None` 기본값 그대로 켜지지 않는다(기존 동작 보존). 그래도
+# PREREG-T1.md §1 이 "구현 위치: ShallowMLP·DeepLOBCompact 공통"이라고 못박아
+# 여기도 같은 능력을 넣는다.
+EVAL_EVERY_DEFAULT = 10
+PATIENCE_DEFAULT = 10
+
 
 class ShallowMLP:
     def __init__(self, n_features: int, bottleneck: int, seed: int = 0,
@@ -28,7 +41,16 @@ class ShallowMLP:
 
     # -- 학습 ---------------------------------------------------------------
     def fit(self, X: np.ndarray, y_path: np.ndarray, y_fill: np.ndarray,
-            weight: np.ndarray, epochs: int = 200, lr: float = 1e-2) -> "ShallowMLP":
+            weight: np.ndarray, epochs: int = 200, lr: float = 1e-2, *,
+            X_path_select: np.ndarray | None = None,
+            y_path_select: np.ndarray | None = None,
+            weight_select: np.ndarray | None = None,
+            eval_every: int = EVAL_EVERY_DEFAULT,
+            patience: int = PATIENCE_DEFAULT) -> "ShallowMLP":
+        """`X_path_select`/`y_path_select`/`weight_select` 를 주면 A10 조기
+        종료를 켠다(경로 헤드 R² 기준 — 체결확률 헤드는 BCE 확률이라 회귀
+        R² 개념이 없다, `ScalarTeacher.fit` 과 같은 자세). 안 주면(기본)
+        예전과 완전히 같은 전체-epoch 학습이다."""
         torch.manual_seed(self._seed)
         X = np.asarray(X, dtype=float)
         self._mean = X.mean(axis=0)
@@ -45,7 +67,7 @@ class ShallowMLP:
         optimiser = torch.optim.Adam(parameters, lr=lr)
         bce = nn.BCEWithLogitsLoss(reduction="none")
 
-        for _ in range(int(epochs)):
+        def train_step() -> None:
             optimiser.zero_grad()
             latent = self._encoder(inputs)
             path = self._head_path(latent).squeeze(-1)
@@ -56,6 +78,20 @@ class ShallowMLP:
             loss = loss_path + loss_fill + self.l1 * latent.abs().mean()
             loss.backward()
             optimiser.step()
+
+        evaluate = None
+        if X_path_select is not None:
+            y_select_arr = np.asarray(y_path_select, dtype=float)
+            weight_select_arr = np.asarray(weight_select, dtype=float)
+            evaluate = lambda: weighted_r2(       # noqa: E731
+                y_select_arr, self.predict_path(X_path_select), weight_select_arr)
+
+        get_state, set_state = torch_snapshot_functions({
+            "encoder": self._encoder, "head_path": self._head_path,
+            "head_fill": self._head_fill})
+        self.early_stop_history_ = run_with_early_stopping(
+            total_epochs=int(epochs), eval_every=int(eval_every), patience=int(patience),
+            train_step=train_step, evaluate=evaluate, get_state=get_state, set_state=set_state)
         return self
 
     # -- 추론 ---------------------------------------------------------------

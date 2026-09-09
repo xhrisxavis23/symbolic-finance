@@ -34,6 +34,47 @@ v1(ROADMAP.md 3단계)은 `argmax(in_sample_score)` 로 `primary_index` 를 뽑�
 씌우면 "시간 윈도우"라는 말 자체가 거짓이 된다(`sd/teacher/window.py`).
 `teacher_window=1`(기본)은 이 파일 안 `_maybe_window` 산술상 완전한
 항등 변환이라 `ScalarTeacher` 경로의 동작은 이 변경으로 전혀 안 바뀐다.
+
+## 교사 조기 종료 (A10, PREREG-T1.md §1)
+
+교사는 예전에 적합 종목에서 정해진 epoch 수만큼 학습하고 끝이었다 — 손실은
+계속 내려가는데 표본외(선택 종목) R² 는 조용히 무너질 수 있었다(DeepLOB
+실측: 표본내 +0.74~+0.95, 표본외 −1.72/−0.40/**−13.86**). 지금은 두 교사
+(`teacher`·`teacher_raw`) 모두 `.fit()` 에 선택 종목 데이터
+(`X_select`/`y_select`/`weight_select`)를 같이 넘겨 매 `eval_every` epoch 마다
+선택 종목 R² 를 재고, `patience` 만큼 개선이 없으면 그 시점 가중치로
+되돌려 멈춘다(`sd.teacher.early_stopping.run_with_early_stopping`, 구체
+스케줄은 `sd.e0.teacher.EVAL_EVERY_DEFAULT`/`PATIENCE_DEFAULT`).
+
+**이 함수가 이미 후보 채점·판정에 쓰던 바로 그 선택 종목 데이터를 그대로
+재사용한다** — 조기 종료 전용 데이터 경로를 새로 만들지 않는다(이 함수의
+`select_rows`/`select_X_dimless`/`select_teacher_pred` 등은 A10 이전과 계산
+방식이 같다, 단 지금은 교사 학습이 끝나기 **전**에 계산해 `.fit()` 에
+넘긴다 — `_manifold_pick` 은 `manifold.select`(seed 로 결정되는 자기완결
+RNG, `sd/manifold.py` 참고)를 그대로 부르므로 호출 순서를 앞당겨도 어떤
+값도 바뀌지 않는다).
+
+**오염(가장 어려운 판단, PREREG-T1.md 명시)**: 선택 종목이 조기 종료와
+후보 채점 둘 다에 쓰이므로 더 이상 완전한 표본외가 아니다 — 교사가 그
+종목들을 간접적으로 "보고" 그 위에서 후보를 채점한다. 셋(적합/조기종료/
+채점)으로 쪼개는 대신 **오염을 감수하고 기록하는 쪽을 골랐다**(옵션 (i)).
+근거: `--per-stratum 9`(이번 실행 인자) 기준 선택 종목은 이미 층당 3개뿐
+(실측, `sd.e0.split.split_symbols` 기본 2:1 비율) — 셋으로 쪼개면 한쪽은
+층당 1개가 되어 "종목 하나의 특이값이 판정 전체를 좌우하지 않게"라는
+`sd/e0/split.py` 자체의 분할 설계 전제가 깨진다. `--per-stratum` 을 이번
+실행과 다르게 올리는 것은 사전등록 §4("설정은 결과를 보기 전에 정한다")
+위반이라 하지 않는다. 조기 종료가 고르는 자유도는 "이 학습에서 어느
+epoch 의 가중치를 쓸까" 하나뿐이다(모델 구조·후보 자체를 고르지 않는다)
+— 후보 primary 선택(여러 SR 후보 중 하나, 훨씬 큰 자유도)이 이미 같은
+선택 종목에 노출돼 있던 것과 비교하면 추가로 얹는 오염은 상대적으로
+작다고 본다. **틀렸을 때 비용**: 이 변경 이후 게이트가 새로 "복원"을
+보고하면 그 복원은 진짜 표본외 일반화가 아니라 선택 종목 특유의 잡음에
+두 층(교사 조기 종료 + 후보 선택)이 동시에 맞춰진 결과일 수 있다 — 그런
+"복원"은 액면 그대로 믿지 말고 별도 홀드아웃(예: 다른 날짜, 지금은
+봉인됨)으로 재확인해야 한다. 반대로 게이트가 안 열리는 결과(음수
+R² 가 사라지는지)는 이 오염으로 설명되지 않는다 — 오염은 지표를 낙관적인
+쪽으로만 밀 수 있지 비관적인 쪽으로 밀 근거가 없다. 전체 근거·틀렸을
+때의 비용은 `0909/T1-REPORT.md` 에 적는다(이 파일 docstring은 요약).
 """
 
 from __future__ import annotations
@@ -85,6 +126,33 @@ MIN_MEANINGFUL_SCORE = 0.0
 # 개별 문턱(대부분 `< 10`)보다 여유를 둔 값 — 표본이 10개를 겨우 넘겨
 # 통과하는 것과 판정이 실제로 안정적인 것은 다르다.
 MIN_SELECT_ROWS = 30
+
+# A10/PREREG-T1.md — 선택 종목이 조기 종료(교사)와 후보 채점(SR) 둘 다에
+# 쓰인다는 사실을 진단에 실어 영속화한다(A9 관례: 진단은 stdout 한 줄로
+# 흘리지 않는다). 모듈 docstring "## 교사 조기 종료"에 전체 근거가 있다.
+SELECT_SET_REUSED_FOR_EARLY_STOP_NOTE = (
+    "선택 종목이 교사 조기 종료와 후보 채점 둘 다에 쓰인다 — 완전한 표본외가 "
+    "아니다(PREREG-T1.md '가장 어려운 판단', 옵션 (i): 오염을 감수하고 기록). "
+    "이 실행 이후 '복원'된 후보는 그 자체로 별도 홀드아웃 재확인이 필요하다.")
+
+
+def _early_stop_diag(teacher: ScalarTeacherProtocol) -> dict[str, Any] | None:
+    """`teacher.early_stop_history_`(있으면)를 JSON 직렬화 가능한 dict 로
+    변환한다 — `sd.e0.report.write` 가 그대로 영속화한다(A9 관례). `teacher_cls`
+    가 이 속성을 안 남기면(예: 테스트용 가짜 교사, `ScalarTeacherProtocol` 이
+    이 속성을 요구하지 않는다) `None` — 조용히 죽지 않는다."""
+    history = getattr(teacher, "early_stop_history_", None)
+    if history is None:
+        return None
+    return {
+        "enabled": history.early_stopping_enabled,
+        "eval_every": history.eval_every, "patience": history.patience,
+        "eval_epochs": list(history.eval_epochs),
+        "eval_select_r2": list(history.eval_scores),
+        "best_epoch": history.best_epoch, "best_select_r2": history.best_score,
+        "stopped_epoch": history.stopped_epoch,
+        "triggered_early_stop": history.triggered, "reverted_to_best": history.reverted,
+    }
 
 
 @dataclass
@@ -289,28 +357,13 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
     select_X_raw_teacher = _maybe_window(select_dataset.X_raw, select_dataset.symbol_ids,
                                          teacher_window)
 
-    # -- 무차원 트랙 교사 (적합 종목으로만) -----------------------------------
-    fit_rows, fit_weight = _manifold_pick(
-        fit_dataset.X_dimless, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
-        what=f"{law}/적합/dimless")
-    teacher = teacher_cls(n_features=fit_dataset.X_dimless.shape[1], bottleneck=bottleneck,
-                          seed=seed).fit(fit_X_dimless_teacher[fit_rows], fit_dataset.y_dimless[fit_rows],
-                                        fit_weight, epochs=epochs)
-    teacher_pred = teacher.predict(fit_X_dimless_teacher[fit_rows])
-
-    # -- raw 트랙 교사 (ablation "무차원화 없이 증류" 전용, 적합 종목으로만) --
-    fit_rows_raw, fit_weight_raw = _manifold_pick(
-        fit_dataset.X_raw, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
-        what=f"{law}/적합/raw")
-    teacher_raw = teacher_cls(n_features=fit_dataset.X_raw.shape[1], bottleneck=bottleneck,
-                              seed=seed).fit(fit_X_raw_teacher[fit_rows_raw],
-                                            fit_dataset.y_raw[fit_rows_raw],
-                                            fit_weight_raw, epochs=epochs)
-    teacher_raw_pred = teacher_raw.predict(fit_X_raw_teacher[fit_rows_raw])
-
-    # -- 선택 종목 데이터: 후보 채점·판정 전용. on-manifold 로 다시 고른다 —
-    # 훈련 쪽과 같은 신뢰반경 철학(믿음의 반경 밖 극단치가 percentile 기반
-    # 판정·R² 를 왜곡하지 않게)을 그대로 적용한다. -----------------------
+    # -- 선택 종목 데이터: A10(PREREG-T1.md) 부터는 조기 종료에도, 후보
+    # 채점·판정에도 쓴다(후자는 원래부터 있던 용도) — on-manifold 로 고른다.
+    # 두 교사(dimless·raw)의 `.fit()` 이 이 값을 받아야 하므로 학습보다
+    # 먼저 계산한다(모듈 docstring "## 교사 조기 종료" 참고 — 호출 순서를
+    # 앞당겨도 `_manifold_pick`/`manifold.select` 의 산출값 자체는 바뀌지
+    # 않는다, seed 로 결정되는 자기완결 RNG). `min_rows=MIN_SELECT_ROWS` 는
+    # 조기 종료·채점 둘 다 같은 표본에 기대므로 여기 한 번만 검사하면 된다.
     select_rows, select_weight = _manifold_pick(
         select_dataset.X_dimless, select_dataset.mask, max_samples=max_manifold_samples,
         seed=seed, min_rows=MIN_SELECT_ROWS, what=f"{law}/선택/dimless")
@@ -320,22 +373,55 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
 
     select_X_dimless = select_dataset.X_dimless[select_rows]
     select_y_dimless = select_dataset.y_dimless[select_rows]
-    # 교사 입력만 윈도우 버전으로 — SR 채점용 select_X_dimless(위 줄)는 그대로
-    # 원본 feature 공간이다(`names` 열 수와 일치해야 한다).
-    select_teacher_pred = teacher.predict(select_X_dimless_teacher[select_rows])  # main·uniform_off_manifold 채점용
     select_X_raw = select_dataset.X_raw[select_rows_raw]
-    select_teacher_raw_pred = teacher_raw.predict(select_X_raw_teacher[select_rows_raw])  # no_dimensionless 채점용
+    select_y_raw = select_dataset.y_raw[select_rows_raw]
+    # 교사 입력만 윈도우 버전으로 — SR 채점용 select_X_dimless/select_X_raw(위)는
+    # 그대로 원본 feature 공간이다(`names`/`names_raw` 열 수와 일치해야 한다).
+    select_X_dimless_for_teacher = select_X_dimless_teacher[select_rows]
+    select_X_raw_for_teacher = select_X_raw_teacher[select_rows_raw]
+
+    # -- 무차원 트랙 교사 (적합 종목으로 학습, 선택 종목 R² 로 조기 종료) -----
+    fit_rows, fit_weight = _manifold_pick(
+        fit_dataset.X_dimless, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
+        what=f"{law}/적합/dimless")
+    teacher = teacher_cls(n_features=fit_dataset.X_dimless.shape[1], bottleneck=bottleneck,
+                          seed=seed).fit(
+        fit_X_dimless_teacher[fit_rows], fit_dataset.y_dimless[fit_rows], fit_weight,
+        epochs=epochs, X_select=select_X_dimless_for_teacher, y_select=select_y_dimless,
+        weight_select=select_weight)
+    teacher_pred = teacher.predict(fit_X_dimless_teacher[fit_rows])
+
+    # -- raw 트랙 교사 (ablation "무차원화 없이 증류" 전용, 같은 방식) --------
+    fit_rows_raw, fit_weight_raw = _manifold_pick(
+        fit_dataset.X_raw, fit_dataset.mask, max_samples=max_manifold_samples, seed=seed,
+        what=f"{law}/적합/raw")
+    teacher_raw = teacher_cls(n_features=fit_dataset.X_raw.shape[1], bottleneck=bottleneck,
+                              seed=seed).fit(
+        fit_X_raw_teacher[fit_rows_raw], fit_dataset.y_raw[fit_rows_raw], fit_weight_raw,
+        epochs=epochs, X_select=select_X_raw_for_teacher, y_select=select_y_raw,
+        weight_select=select_weight_raw)
+    teacher_raw_pred = teacher_raw.predict(fit_X_raw_teacher[fit_rows_raw])
+
+    # 후보 채점·판정용 예측 — 조기 종료 평가에 쓴 것과 정확히 같은 X 를,
+    # 조기 종료로 되돌린 가중치(또는 조기 종료가 안 켜졌으면 마지막 가중치)로
+    # 다시 예측한다(오염 논의는 모듈 docstring "## 교사 조기 종료" 참고).
+    select_teacher_pred = teacher.predict(select_X_dimless_for_teacher)       # main·uniform_off_manifold
+    select_teacher_raw_pred = teacher_raw.predict(select_X_raw_for_teacher)   # no_dimensionless
 
     teacher_diag = {
         "track": "dimless", "n_fit_rows": int(len(fit_rows)),
         "r2_vs_real_y": weighted_r2(fit_dataset.y_dimless[fit_rows], teacher_pred, fit_weight),
         "correlation_vs_real_y": float(np.corrcoef(teacher_pred, fit_dataset.y_dimless[fit_rows])[0, 1])
                                  if np.std(teacher_pred) > 0 else 0.0,
-        # 참고용 — 게이트 어떤 판정에도 쓰지 않는다. 교사 자체가 held-out
-        # 종목에서도 실측 y 를 설명하는지 보여주는 진단일 뿐이다.
+        # A10 이전에는 "참고용, 게이트 어떤 판정에도 쓰지 않는다"였다 — 지금은
+        # 조기 종료 기준 그 자체다(같은 계산, 다른 역할). `contamination_note`
+        # 참고: 후보 채점도 같은 선택 종목을 쓰므로 더 이상 완전한 표본외가
+        # 아니다.
         "n_select_rows": int(len(select_rows)),
         "r2_vs_real_y_select_symbols": weighted_r2(select_y_dimless, select_teacher_pred, select_weight),
         "bottleneck": bottleneck, "epochs": epochs,
+        "early_stop": _early_stop_diag(teacher),
+        "contamination_note": SELECT_SET_REUSED_FOR_EARLY_STOP_NOTE,
     }
     teacher_raw_diag = {
         "track": "raw", "n_fit_rows": int(len(fit_rows_raw)),
@@ -347,6 +433,8 @@ def run_law(law: str, fit_symbols: Sequence[str], select_symbols: Sequence[str],
         "r2_vs_real_y_select_symbols": weighted_r2(select_dataset.y_raw[select_rows_raw],
                                                    select_teacher_raw_pred, select_weight_raw),
         "bottleneck": bottleneck, "epochs": epochs,
+        "early_stop": _early_stop_diag(teacher_raw),
+        "contamination_note": SELECT_SET_REUSED_FOR_EARLY_STOP_NOTE,
     }
 
     result = LawResult(law=law, n_rows_total=fit_dataset.n_rows_total + select_dataset.n_rows_total,

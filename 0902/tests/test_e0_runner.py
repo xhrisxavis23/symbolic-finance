@@ -245,12 +245,20 @@ def test_fit_track_judges_using_select_data_not_fit_data(monkeypatch):
 
 class _FakeTeacher:
     """`sd.e0.teacher.ScalarTeacherProtocol` 계약만 지키는 최소 스텁 — 진짜
-    torch 학습을 피해서 배선 테스트를 빠르고 결정론적으로 만든다."""
+    torch 학습을 피해서 배선 테스트를 빠르고 결정론적으로 만든다.
+
+    `**_early_stop_kwargs` 로 A10(PREREG-T1.md) 조기 종료용 키워드
+    (`X_select`/`y_select`/`weight_select`/`eval_every`/`patience`)를 받아
+    버린다 — 이 스텁은 조기 종료 로직 자체를 검증하지 않는다(그건
+    `tests/test_e0_teacher.py`/`tests/test_teacher_early_stopping.py` 담당),
+    `run_law` 이 이 키워드를 넘긴다는 배선만 다른 테스트(아래
+    `test_run_law_passes_select_data_to_teacher_fit_for_early_stopping`)가
+    확인한다."""
 
     def __init__(self, n_features: int, bottleneck: int, seed: int = 0) -> None:
         self.n_features = n_features
 
-    def fit(self, X, y, weight, epochs: int = 300) -> "_FakeTeacher":
+    def fit(self, X, y, weight, epochs: int = 300, **_early_stop_kwargs) -> "_FakeTeacher":
         return self
 
     def predict(self, X):
@@ -342,6 +350,101 @@ def test_run_law_rejects_overlapping_fit_and_select_symbols(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# 교사 조기 종료 배선 (A10, PREREG-T1.md) — `run_law` 이 실제로 선택 종목
+# 데이터를 `teacher.fit()` 의 조기 종료 키워드로 넘기는지. 조기 종료
+# 스케줄러 자체(어느 epoch 으로 되돌리는가)는
+# `tests/test_teacher_early_stopping.py` 가, `ScalarTeacher`/`ScalarDeepLOB`
+# 수준의 실제 회귀 시나리오는 `tests/test_e0_teacher.py` 가 담당한다 — 여기서는
+# "무엇을 넘기는가"만 본다.
+# ---------------------------------------------------------------------------
+
+def test_run_law_passes_select_data_to_teacher_fit_for_early_stopping(monkeypatch):
+    """뮤테이션 자기검토 대상: `run_law` 이 `X_select`/`y_select` 자리에 fit
+    데이터를 넘기게(A10 이전으로 퇴행) 되거나, 아예 안 넘기게(조기 종료가
+    켜지지 않게) 바뀌면 이 테스트가 잡아야 한다. `_fake_dataset` 관례대로
+    적합 종목 값은 <10, 선택 종목 값은 >=1000 범위다."""
+    seen_kwargs: list[dict] = []
+    fit_symbols = ("F1", "F2")
+    select_symbols = ("S1",)
+
+    class _RecordingEarlyStopTeacher:
+        def __init__(self, n_features, bottleneck, seed=0):
+            pass
+
+        def fit(self, X, y, weight, epochs=300, **kwargs):
+            seen_kwargs.append(kwargs)
+            return self
+
+        def predict(self, X):
+            return np.zeros(len(X))
+
+        def z(self, X):
+            return np.zeros((len(X), 1))
+
+    def fake_assemble(law, symbols, date):
+        offset = 0.0 if set(symbols) == set(fit_symbols) else 1000.0
+        return _fake_dataset(law, symbols, date, offset=offset)
+
+    def fake_manifold_select(X, mask, max_samples, seed):
+        return runner.manifold.Selection(index=np.arange(len(X)), weight=np.ones(len(X)),
+                                         on_manifold=np.ones(len(X), dtype=bool))
+
+    class _StubBackend:
+        diagnostics: dict = {}
+
+        def fit(self, X, y, w, names):
+            return [Candidate(expr=sympy.Symbol(names[0]), complexity=1,
+                              in_sample_score=0.0, backend="fake", seed=0)]
+
+    monkeypatch.setattr(runner.targets, "assemble", fake_assemble)
+    monkeypatch.setattr(runner.manifold, "select", fake_manifold_select)
+    monkeypatch.setattr(runner, "_build_backend",
+                        lambda law, seed, niterations, maxsize: _StubBackend())
+
+    runner.run_law("L2", fit_symbols, select_symbols, "20260316", seed=0, bottleneck=1,
+                   epochs=3, sr_niterations=1, sr_maxsize=5, max_manifold_samples=1000,
+                   teacher_cls=_RecordingEarlyStopTeacher)
+
+    assert len(seen_kwargs) == 2, "dimless·raw 교사 둘 다(fit·raw 트랙) fit() 이 불려야 한다"
+    for kwargs in seen_kwargs:
+        assert kwargs.get("X_select") is not None, "선택 종목 데이터를 안 넘겼다 — 조기 종료가 꺼진다"
+        assert np.all(np.asarray(kwargs["X_select"]) >= 1000.0), (
+            "X_select 값 범위가 선택 종목(>=1000)이 아니다 — 적합 데이터가 섞였다")
+        assert np.all(np.asarray(kwargs["y_select"]) >= 2000.0), (
+            "y_select 값 범위가 선택 종목이 아니다 — 적합 데이터가 섞였다")
+        assert kwargs.get("weight_select") is not None
+
+
+def test_early_stop_diag_returns_none_when_teacher_has_no_history():
+    """`ScalarTeacherProtocol` 은 `early_stop_history_` 를 요구하지 않는다
+    (테스트용 가짜 교사 등) — 그런 경우 조용히 `None` 이어야지 예외로 죽으면
+    안 된다."""
+    class _NoHistoryTeacher:
+        pass
+
+    assert runner._early_stop_diag(_NoHistoryTeacher()) is None
+
+
+def test_early_stop_diag_serializes_history_fields():
+    """`sd.e0.report.write` 가 그대로 저장하는 dict 형태 — A9 관례(진단은
+    stdout 이 아니라 저장소에 남는다)를 조기 종료 이력에도 적용했는지."""
+    from sd.teacher.early_stopping import EarlyStopHistory
+
+    class _WithHistory:
+        early_stop_history_ = EarlyStopHistory(
+            eval_every=10, patience=5, eval_epochs=[10, 20], eval_scores=[0.1, 0.2],
+            best_epoch=20, best_score=0.2, stopped_epoch=20, triggered=True, reverted=True)
+
+    diag = runner._early_stop_diag(_WithHistory())
+    assert diag == {
+        "enabled": True, "eval_every": 10, "patience": 5,
+        "eval_epochs": [10, 20], "eval_select_r2": [0.1, 0.2],
+        "best_epoch": 20, "best_select_r2": 0.2, "stopped_epoch": 20,
+        "triggered_early_stop": True, "reverted_to_best": True,
+    }
+
+
+# ---------------------------------------------------------------------------
 # 교사 시간 윈도우 배선 (PREREG-E0-V2.md §1-2) — `_maybe_window`·`run_law` 의
 # "표집 전, 종목별 연속 행렬에만 윈도우" 제약이 실제로 지켜지는지 검증.
 # ---------------------------------------------------------------------------
@@ -427,7 +530,7 @@ def test_run_law_windows_teacher_input_before_subsample_reorder_and_respects_sym
             self.bottleneck = bottleneck
             self.window = window
 
-        def fit(self, X, y, weight, epochs=300):
+        def fit(self, X, y, weight, epochs=300, **_early_stop_kwargs):
             captured_fit_X.append(np.array(X, dtype=float))
             return self
 
@@ -482,7 +585,7 @@ def test_run_law_default_teacher_window_leaves_scalarteacher_input_byte_identica
             self.n_features = n_features
             self.bottleneck = bottleneck
 
-        def fit(self, X, y, weight, epochs=300):
+        def fit(self, X, y, weight, epochs=300, **_early_stop_kwargs):
             captured.append(np.array(X, dtype=float))
             return self
 

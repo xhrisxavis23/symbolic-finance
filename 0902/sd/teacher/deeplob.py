@@ -61,6 +61,17 @@ import numpy as np
 import torch
 from torch import nn
 
+from ..sr.base import weighted_r2
+from .early_stopping import run_with_early_stopping, torch_snapshot_functions
+
+# A10/PREREG-T1.md 조기 종료 기본값 — `sd.teacher.shallow.ShallowMLP` 와 같은
+# 값·같은 근거(그 파일 docstring 참고). 이 클래스도 이번 T1 실행이 직접 쓰지
+# 않는다(E0 는 `sd.e0.teacher.ScalarDeepLOB` 가 이 파일의 `_DeepLOBEncoder` 만
+# 재사용한다) — PREREG-T1.md §1 "구현 위치: ShallowMLP·DeepLOBCompact 공통"을
+# 그대로 따른다.
+EVAL_EVERY_DEFAULT = 10
+PATIENCE_DEFAULT = 10
+
 
 class _TemporalConvBlock(nn.Module):
     """시간 축 위에서만 컨볼루션한다(레벨 축 컨볼루션 없음 — 모듈 docstring §1)."""
@@ -150,7 +161,14 @@ class DeepLOBCompact:
 
     # -- 학습 ---------------------------------------------------------------
     def fit(self, X: np.ndarray, y_path: np.ndarray, y_fill: np.ndarray,
-            weight: np.ndarray, epochs: int = 200, lr: float = 1e-2) -> "DeepLOBCompact":
+            weight: np.ndarray, epochs: int = 200, lr: float = 1e-2, *,
+            X_path_select: np.ndarray | None = None,
+            y_path_select: np.ndarray | None = None,
+            weight_select: np.ndarray | None = None,
+            eval_every: int = EVAL_EVERY_DEFAULT,
+            patience: int = PATIENCE_DEFAULT) -> "DeepLOBCompact":
+        """`ShallowMLP.fit` 과 계약이 같다(경로 헤드 R² 기준 조기 종료,
+        `X_path_select` 는 이미 윈도우 처리된 `(n, window*n_features)`)."""
         torch.manual_seed(self._seed)
         X = np.asarray(X, dtype=float)
         self._check_shape(X)
@@ -168,7 +186,7 @@ class DeepLOBCompact:
         optimiser = torch.optim.Adam(parameters, lr=lr)
         bce = nn.BCEWithLogitsLoss(reduction="none")
 
-        for _ in range(int(epochs)):
+        def train_step() -> None:
             optimiser.zero_grad()
             latent = self._encode(inputs)
             path = self._head_path(latent).squeeze(-1)
@@ -179,6 +197,20 @@ class DeepLOBCompact:
             loss = loss_path + loss_fill + self.l1 * latent.abs().mean()
             loss.backward()
             optimiser.step()
+
+        evaluate = None
+        if X_path_select is not None:
+            y_select_arr = np.asarray(y_path_select, dtype=float)
+            weight_select_arr = np.asarray(weight_select, dtype=float)
+            evaluate = lambda: weighted_r2(       # noqa: E731
+                y_select_arr, self.predict_path(X_path_select), weight_select_arr)
+
+        get_state, set_state = torch_snapshot_functions({
+            "encoder": self._encoder, "head_path": self._head_path,
+            "head_fill": self._head_fill})
+        self.early_stop_history_ = run_with_early_stopping(
+            total_epochs=int(epochs), eval_every=int(eval_every), patience=int(patience),
+            train_step=train_step, evaluate=evaluate, get_state=get_state, set_state=set_state)
         return self
 
     # -- 추론 ---------------------------------------------------------------

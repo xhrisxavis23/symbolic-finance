@@ -115,6 +115,49 @@ def test_l1_penalty_shrinks_the_bottleneck():
     assert heavy_l1_magnitude < 0.5 * no_l1_magnitude
 
 
+# ---------------------------------------------------------------------------
+# A10 조기 종료 (PREREG-T1.md §1) — `sd.e0.teacher.ScalarTeacher` 와 같은
+# 능력(경로 헤드 R² 기준)이 `ShallowMLP` 에도 있다. 전체 뮤테이션 자기검토는
+# `tests/test_e0_teacher.py`(ScalarTeacher)·`tests/test_teacher_early_stopping.py`
+# (스케줄러 자체)가 담당한다 — 여기서는 하위 호환성과 배선만 확인한다.
+# ---------------------------------------------------------------------------
+
+def test_fit_without_select_data_disables_early_stopping():
+    """`X_path_select` 를 안 주면(기존 모든 호출부, `run_slice.py` 포함)
+    조기 종료가 완전히 꺼지고 `epochs` 를 전부 돈다."""
+    X, y_path, y_fill = _linear_problem()
+    model = ShallowMLP(n_features=4, bottleneck=2, seed=0).fit(
+        X, y_path, y_fill, np.ones(len(X)), epochs=37)
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is False
+    assert history.stopped_epoch == 37
+
+
+def test_fit_with_select_data_tracks_path_head_r2():
+    """경로 헤드가 적합-정반대 선택 관계에서 이른 epoch 을 최선으로 골라야
+    한다(`tests/test_e0_teacher.py` 의 같은 설계, 경로 헤드만 본다 — 체결확률
+    헤드는 이 기준에 관여하지 않는다)."""
+    rng = np.random.default_rng(0)
+    n = 1500
+    X = rng.normal(size=(n, 4))
+    y_path = 2.0 * X[:, 0] - 1.0 * X[:, 1] + 0.05 * rng.normal(size=n)
+    y_fill = (X[:, 2] > 0.0).astype(float)
+    X_select = rng.normal(size=(n, 4))
+    y_path_select = -(2.0 * X_select[:, 0] - 1.0 * X_select[:, 1]) + 0.05 * rng.normal(size=n)
+    weight = np.ones(n)
+
+    model = ShallowMLP(n_features=4, bottleneck=2, seed=0).fit(
+        X, y_path, y_fill, weight, epochs=300,
+        X_path_select=X_select, y_path_select=y_path_select, weight_select=weight,
+        eval_every=10, patience=1000)
+
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is True
+    assert len(history.eval_epochs) >= 5
+    assert history.best_epoch == history.eval_epochs[0], (
+        f"최선 시점이 학습 초반이 아니다(궤적: {list(zip(history.eval_epochs, history.eval_scores))})")
+
+
 def test_predict_fill_stays_in_unit_interval_with_confident_head():
     """`predict_fill` 이 [0,1] 을 벗어날 수 없는지, 그리고 헤드가 실제로
     분리 가능한 신호에서 확신 있는(0 또는 1 근처) 값을 내는지 확인한다.

@@ -216,3 +216,44 @@ def test_predict_fill_stays_in_unit_interval_with_confident_head():
     assert fill.min() >= 0.0 and fill.max() <= 1.0
     assert fill.max() > 0.9
     assert fill.min() < 0.1
+
+
+# ---------------------------------------------------------------------------
+# A10 조기 종료 (PREREG-T1.md §1) — `ShallowMLP`(`tests/test_teacher.py`)와
+# 같은 능력. 전체 뮤테이션 자기검토는 `tests/test_e0_teacher.py`
+# (`ScalarDeepLOB`)·`tests/test_teacher_early_stopping.py`(스케줄러 자체)가
+# 담당한다 — 여기서는 하위 호환성과 배선만.
+# ---------------------------------------------------------------------------
+
+def test_fit_without_select_data_disables_early_stopping():
+    Xw, y_path, y_fill = _linear_problem()
+    model = DeepLOBCompact(**_kwargs()).fit(Xw, y_path, y_fill, np.ones(len(Xw)), epochs=23)
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is False
+    assert history.stopped_epoch == 23
+
+
+def test_fit_with_select_data_tracks_path_head_r2():
+    window = 4
+    rng = np.random.default_rng(0)
+    n = 1200
+    X = rng.normal(size=(n, 3))
+    y_path = 2.0 * X[:, 0] - 1.0 * X[:, 1] + 0.05 * rng.normal(size=n)
+    y_fill = (X[:, 2] > 0.0).astype(float)
+    Xw = make_causal_windows(X, window=window)
+
+    X_select = rng.normal(size=(n, 3))
+    y_path_select = -(2.0 * X_select[:, 0] - 1.0 * X_select[:, 1]) + 0.05 * rng.normal(size=n)
+    Xw_select = make_causal_windows(X_select, window=window)
+    weight = np.ones(n)
+
+    model = DeepLOBCompact(**_kwargs(n_features=3, window=window)).fit(
+        Xw, y_path, y_fill, weight, epochs=200,
+        X_path_select=Xw_select, y_path_select=y_path_select, weight_select=weight,
+        eval_every=10, patience=1000)
+
+    history = model.early_stop_history_
+    assert history.early_stopping_enabled is True
+    assert len(history.eval_epochs) >= 5
+    assert history.best_epoch == history.eval_epochs[0], (
+        f"최선 시점이 학습 초반이 아니다(궤적: {list(zip(history.eval_epochs, history.eval_scores))})")
