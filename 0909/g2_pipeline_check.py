@@ -135,7 +135,9 @@ def _score_on_reference(law: str, ref_symbols: tuple, date: str, *,
     X_D = np.concatenate([fit_ds.X_dimless, select_ds.X_dimless], axis=0)
     y_D = np.concatenate([fit_ds.y_dimless, select_ds.y_dimless], axis=0)
     mask_D = np.concatenate([fit_ds.mask, select_ds.mask], axis=0)
-    pred_baseline = g2_reference.fit_on_all_and_predict(law, X_D, y_D, mask_D, X_R)
+    sid_D = np.concatenate([fit_ds.symbol_ids, select_ds.symbol_ids], axis=0)
+    pred_baseline = g2_reference.fit_on_all_and_predict(law, X_D, y_D, mask_D, X_R,
+                                                        symbol_ids_fit=sid_D, symbol_ids_score=sid_R)
     score_baseline = None
     if pred_baseline is not None:
         r2b = g2_reference.binned_r2(y_R, pred_baseline, on_weight)

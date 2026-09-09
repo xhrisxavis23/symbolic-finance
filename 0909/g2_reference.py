@@ -41,7 +41,13 @@ import l0_measure  # noqa: E402  (측정 정의 재사용 — DEGENERATE_SCALE_M
 
 def fit_l1(X: np.ndarray, y: np.ndarray, *, imbalance_idx: int = 0,
            n_bins: int = l0_measure.N_BINS_L1,
-           min_bin_count: int = l0_measure.MIN_BIN_COUNT_L1) -> dict | None:
+           min_bin_count: int = l0_measure.MIN_BIN_COUNT_L1,
+           symbol_ids: np.ndarray | None = None) -> dict | None:
+    # symbol_ids: 이 법칙엔 안 쓴다 — L4(Ruling R31)만 종목 내 중심화가
+    # 필요해서 생긴 인자다. 다섯 법칙의 fit_fn 호출부(§ repeated_kfold_
+    # ceiling/fit_on_all_and_predict)를 하나의 시그니처로 통일하려고
+    # 받기만 하고 무시한다.
+    del symbol_ids
     x = X[:, imbalance_idx]
     valid = np.isfinite(x) & np.isfinite(y)
     x, y = x[valid], y[valid]
@@ -61,7 +67,8 @@ def fit_l1(X: np.ndarray, y: np.ndarray, *, imbalance_idx: int = 0,
             "imbalance_idx": imbalance_idx}
 
 
-def predict_l1(params: dict, X: np.ndarray) -> np.ndarray:
+def predict_l1(params: dict, X: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> np.ndarray:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일
     x = X[:, params["imbalance_idx"]]
     edges, means, n_bins = params["edges"], params["means"], params["n_bins"]
     bin_idx = np.clip(np.digitize(x, edges) - 1, 0, n_bins - 1)
@@ -79,7 +86,9 @@ def _clip_to_domain(x: np.ndarray, lo, hi) -> np.ndarray:
     return np.clip(x, lo, hi)
 
 
-def fit_l2(X: np.ndarray, y: np.ndarray, *, ofi_idx: int = 0) -> dict | None:
+def fit_l2(X: np.ndarray, y: np.ndarray, *, ofi_idx: int = 0,
+           symbol_ids: np.ndarray | None = None) -> dict | None:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일 (위 fit_l1 주석 참고)
     x = X[:, ofi_idx]
     valid = np.isfinite(x) & np.isfinite(y)
     x, y = x[valid], y[valid]
@@ -90,12 +99,15 @@ def fit_l2(X: np.ndarray, y: np.ndarray, *, ofi_idx: int = 0) -> dict | None:
             "domain_lo": float(np.min(x)), "domain_hi": float(np.max(x))}
 
 
-def predict_l2(params: dict, X: np.ndarray) -> np.ndarray:
+def predict_l2(params: dict, X: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> np.ndarray:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일
     x = _clip_to_domain(X[:, params["ofi_idx"]], params["domain_lo"], params["domain_hi"])
     return params["slope"] * x + params["intercept"]
 
 
-def fit_l3(X: np.ndarray, y: np.ndarray, *, volume_idx: int = 0) -> dict | None:
+def fit_l3(X: np.ndarray, y: np.ndarray, *, volume_idx: int = 0,
+           symbol_ids: np.ndarray | None = None) -> dict | None:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일 (위 fit_l1 주석 참고)
     v = X[:, volume_idx]
     valid = np.isfinite(v) & np.isfinite(y)
     v, yv = v[valid], y[valid]
@@ -116,7 +128,8 @@ def fit_l3(X: np.ndarray, y: np.ndarray, *, volume_idx: int = 0) -> dict | None:
             "domain_lo": float(np.min(xabs[keep])), "domain_hi": float(np.max(xabs[keep]))}
 
 
-def predict_l3(params: dict, X: np.ndarray) -> np.ndarray:
+def predict_l3(params: dict, X: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> np.ndarray:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일
     v = X[:, params["volume_idx"]]
     out = np.full(len(v), np.nan)
     nz = np.isfinite(v) & (v != 0)
@@ -127,24 +140,88 @@ def predict_l3(params: dict, X: np.ndarray) -> np.ndarray:
     return out
 
 
-def fit_l4(X3: np.ndarray, y: np.ndarray) -> dict | None:
-    valid = np.all(np.isfinite(X3), axis=1) & np.isfinite(y)
+def fit_l4(X3: np.ndarray, y: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> dict | None:
+    """**Ruling R31 수정 — 종목 내 중심화(within-symbol demeaning).**
+
+    원래 구현(풀링 다중선형회귀, 종목 구분 없음)은 음성 대조군(permuted y,
+    `within_symbol` 스코프)에서 5/5 허위양성을 냈다
+    (`G2-NEGATIVE-CONTROL-REPORT.md`) — 원인을 종목수준 상관으로 실측
+    확인했다(mean(rv5..100)-mean(y) 상관 0.77~0.84, between-symbol 분산
+    비중 X 29~34%·y 22%). L4 의 세 입력(RV5·RV20·RV100)과 타깃(미래
+    RV20-유사)이 전부 "실현변동성"이라는 같은 종류의 양이라, 종목마다
+    그날의 변동성 레짐이 다르면 종목 간 비교만으로도(틱 단위 인과관계
+    없이) 신호처럼 보인다.
+
+    L4 가 실제로 주장하는 것은 **종목 안에서** 스케일들이 미래 변동성을
+    예측한다는 것이다 — 그래서 종목별 평균(그 종목의 그날 변동성 레짐)을
+    먼저 빼고, 남는 **종목 내 편차**만으로 적합한다(패널 데이터의
+    고정효과 처리와 같다). `symbol_ids` 없이는 중심화를 할 수 없으므로
+    (다른 네 법칙과의 시그니처 호환을 위한 기본값 `None`을 받았을 때)
+    조용히 오염된 방식으로 되돌아가지 않고 실패로 처리한다.
+    """
+    if symbol_ids is None:
+        return None
+    valid = np.all(np.isfinite(X3), axis=1) & np.isfinite(y) & np.isfinite(symbol_ids)
     if valid.sum() < l0_measure.MIN_ROWS_GENERIC:
         return None
-    Xv, yv = X3[valid], y[valid]
-    design = np.column_stack([Xv, np.ones(len(yv))])
-    coef, *_ = np.linalg.lstsq(design, yv, rcond=None)
-    return {"law": "L4", "coef": coef[:-1].tolist(), "intercept": float(coef[-1]),
-            "domain_lo": Xv.min(axis=0).tolist(), "domain_hi": Xv.max(axis=0).tolist()}
+    Xv, yv, sid = X3[valid], y[valid], symbol_ids[valid]
+
+    grand_mean_x = Xv.mean(axis=0)
+    grand_mean_y = float(yv.mean())
+
+    X_within = np.empty_like(Xv)
+    y_within = np.empty_like(yv)
+    for s in np.unique(sid):
+        rows = sid == s
+        X_within[rows] = Xv[rows] - Xv[rows].mean(axis=0)
+        y_within[rows] = yv[rows] - yv[rows].mean()
+
+    # 이미 종목별로 중심화됐으므로(각 종목 안에서 평균 0) 별도 절편 열이
+    # 필요 없다 — 절편을 추가하면 수치상 0 근처로 나올 뿐 아무것도 안
+    # 바꾼다. 계수만 lstsq 로 구한다.
+    coef, *_ = np.linalg.lstsq(X_within, y_within, rcond=None)
+    return {"law": "L4", "coef": coef.tolist(), "grand_mean_x": grand_mean_x.tolist(),
+            "grand_mean_y": grand_mean_y,
+            "domain_lo": X_within.min(axis=0).tolist(), "domain_hi": X_within.max(axis=0).tolist()}
 
 
-def predict_l4(params: dict, X3: np.ndarray) -> np.ndarray:
+def predict_l4(params: dict, X3: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> np.ndarray:
+    """예측 시점엔 held-out 종목 **자신의 y 평균**(고정효과)은 모르지만,
+    그 종목 **자신의 X 평균**은 안다 — X 는 관측된 공변량이고, held-out
+    분할이 그 종목의 행을 여러 개 준다(참조천장의 K-fold 는 종목당
+    수백~수천 행을 남긴다). 그래서 `symbol_ids` 가 주어지면 **그 종목
+    자신의 관측된 X 평균**으로 중심화한다 — train 과 정확히 같은 변환을
+    test 종목에도 적용하는 것이다. `y` 는 여전히 한 번도 안 본다(정보
+    누출이 아니다) — 그저 X 를 그 종목의 X 분포 기준으로 다시 표현할
+    뿐이다.
+
+    **첫 구현은 이걸 몰랐다** — `grand_mean_x`(전체 평균)로만 중심화
+    했는데, 종목 간 X 수준 차이가 종목 내 편차보다 훨씬 크면(합성
+    데이터로 확인: between-symbol sd 3.0 vs within-symbol sd 1.0) 이
+    "벗어난 정도"가 실제로는 거의 전부 종목 수준 차이가 되어 학습한
+    기울기를 완전히 잘못된 양에 곱하는 꼴이 된다(합성 검증에서 R²=-82
+    로 발견 — Ruling R31 구현 중 자체 발견, `G2-DESIGN-NOTES.md` 참고).
+    `symbol_ids` 없이 불리면(단일 행 채점 등, 종목 정보가 없는 호출)
+    `grand_mean_x` 로 물러난다 — 최선이 아니지만 유일하게 쓸 수 있는
+    값이다.
+    """
     coef = np.asarray(params["coef"])
+    grand_mean_x = np.asarray(params["grand_mean_x"])
+    n_features = len(grand_mean_x)
     valid = np.all(np.isfinite(X3), axis=1)
     out = np.full(X3.shape[0], np.nan)
     lo, hi = np.asarray(params["domain_lo"]), np.asarray(params["domain_hi"])
-    X_clipped = np.clip(X3[valid], lo, hi)
-    out[valid] = X_clipped @ coef + params["intercept"]
+
+    center = np.tile(grand_mean_x, (X3.shape[0], 1)).astype(float)
+    if symbol_ids is not None:
+        valid_idx = np.flatnonzero(valid)
+        sid_valid = symbol_ids[valid_idx]
+        for s in np.unique(sid_valid):
+            rows_global = valid_idx[sid_valid == s]
+            center[rows_global] = X3[rows_global].mean(axis=0)
+
+    X_centered = np.clip(X3[valid] - center[valid], lo, hi)
+    out[valid] = params["grand_mean_y"] + X_centered @ coef
     return out
 
 
@@ -180,7 +257,9 @@ def _refit_with_full_params(t: np.ndarray, y: np.ndarray, form: str) -> dict:
 
 def fit_l5(X: np.ndarray, y: np.ndarray, *, dt_idx: int = 0,
            n_bins: int = l0_measure.N_BINS_L5,
-           min_bin_count: int = l0_measure.MIN_BIN_COUNT_L5) -> dict | None:
+           min_bin_count: int = l0_measure.MIN_BIN_COUNT_L5,
+           symbol_ids: np.ndarray | None = None) -> dict | None:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일 (fit_l1 주석 참고)
     dt = X[:, dt_idx]
     valid = np.isfinite(dt) & np.isfinite(y) & (dt > 0)
     dtv, yv = dt[valid], y[valid]
@@ -211,7 +290,8 @@ def fit_l5(X: np.ndarray, y: np.ndarray, *, dt_idx: int = 0,
             "domain_lo": float(lo), "domain_hi": float(hi)}
 
 
-def predict_l5(params: dict, X: np.ndarray) -> np.ndarray:
+def predict_l5(params: dict, X: np.ndarray, *, symbol_ids: np.ndarray | None = None) -> np.ndarray:
+    del symbol_ids  # 안 쓴다 — 시그니처만 L4 와 통일
     """**발견 3(`G2-DESIGN-NOTES.md`)의 수정 지점.** train 범위 밖(특히 0 에
     가까운 `dt`)로 멱함수 항을 그대로 외삽하면 `(dt+eps)^-gamma` 가 발산해
     참조 천장 전체가 무너진다(민감도 확인에서 실측: median R² 가
@@ -288,6 +368,46 @@ def binned_r2(y_true: np.ndarray, y_pred: np.ndarray, weight: np.ndarray, *,
     return weighted_r2(np.array(bin_true), np.array(bin_pred), np.array(bin_w))
 
 
+def permute_y(y: np.ndarray, symbol_ids: np.ndarray, *, scope: str, seed: int) -> np.ndarray:
+    """음성 대조군(Ruling R30) — `y` 를 실제 X 와의 관계에서 떼어낸다.
+
+    **범위 선택 근거.** 두 스코프를 다 지원한다:
+
+    - `"within_symbol"`(기본으로 쓴다) — 종목마다 **그 종목 안에서만**
+      `y` 를 섞는다. 각 종목의 `y` 주변분포(평균·분산 — "이 종목은
+      원래 변동이 크다" 같은 종목 고유 수준)는 그대로 두고, **틱 단위
+      X-y 짝만** 끊는다. 이게 더 엄격한 검사인 이유: 이 설계의 반복
+      K-fold(§3.1)는 **종목 단위**로 학습/평가를 나눈다. 만약 종목마다
+      `y` 수준이 원래 다르고 그 수준이 (우연히든 아니든) 그 종목의 X
+      분포와 얽혀 있다면, 진짜 틱 단위 인과관계가 전혀 없어도 "종목
+      A 는 X 도 크고 y 도 크다"는 **생태학적 상관**만으로 참조천장이
+      허위로 자격을 얻을 수 있다 — 이 스코프가 정확히 그 경로를 막고
+      남겨서, 그것만으로 통과하는지를 시험한다.
+    - `"global"` — 참조 집합 전체에서 종목 구분 없이 섞는다. 종목별
+      주변분포까지 깨는 훨씬 단순하고 약한(=더 쉽게 기각되는) 귀무가설
+      이다 — 표준적인 "무작위로 섞으면 신호가 사라져야 한다" 자기검산과
+      같은 종류다. 이것만으로는 위 생태학적 상관 문제를 못 잡는다.
+
+    **선결 조건(§4.1)은 `within_symbol` 을 요구한다** — 더 엄격한 쪽이
+    참조 측정 코드의 결백을 더 강하게 보증하기 때문이다. `global` 은
+    보조 진단으로 같이 낸다(둘 다 자격 없음이면 이중으로 안심할 수 있고,
+    `global` 만 자격 없음·`within_symbol` 만 자격 있음이면 정확히 위에서
+    설명한 생태학적 상관 문제를 의심해야 한다).
+    """
+    rng = np.random.default_rng(int(seed))
+    y_perm = np.array(y, dtype=float, copy=True)
+    if scope == "global":
+        y_perm = rng.permutation(y_perm)
+    elif scope == "within_symbol":
+        for sid in np.unique(symbol_ids):
+            idx = np.flatnonzero(symbol_ids == sid)
+            if len(idx) > 1:
+                y_perm[idx] = rng.permutation(y_perm[idx])
+    else:
+        raise ValueError(f"모르는 scope: {scope}")
+    return y_perm
+
+
 def repeated_kfold_ceiling(law: str, X: np.ndarray, y: np.ndarray, mask: np.ndarray,
                            symbol_ids: np.ndarray, weight: np.ndarray | None = None, *,
                            k: int = 5, repeats: int = 20, seed: int = 0,
@@ -325,11 +445,11 @@ def repeated_kfold_ceiling(law: str, X: np.ndarray, y: np.ndarray, mask: np.ndar
             train_row = ~test_row
             if train_row.sum() < l0_measure.MIN_ROWS_GENERIC or test_row.sum() == 0:
                 continue
-            params = fit_fn(X[train_row], y[train_row])
+            params = fit_fn(X[train_row], y[train_row], symbol_ids=symbol_ids[train_row])
             if params is None:
                 n_fold_fit_failures += 1
                 continue
-            preds_all[test_row] = predict_fn(params, X[test_row])
+            preds_all[test_row] = predict_fn(params, X[test_row], symbol_ids=symbol_ids[test_row])
             touched[test_row] = True
         valid = touched & np.isfinite(preds_all) & np.isfinite(y)
         if valid.sum() < l0_measure.MIN_ROWS_GENERIC:
@@ -360,15 +480,23 @@ def repeated_kfold_ceiling(law: str, X: np.ndarray, y: np.ndarray, mask: np.ndar
 
 
 def fit_on_all_and_predict(law: str, X_fit: np.ndarray, y_fit: np.ndarray, mask_fit: np.ndarray,
-                           X_score: np.ndarray) -> np.ndarray | None:
+                           X_score: np.ndarray, symbol_ids_fit: np.ndarray | None = None,
+                           symbol_ids_score: np.ndarray | None = None) -> np.ndarray | None:
     """§2.3 의 "단순회귀 기준선" — 증류 집합(D_fit∪D_select) 전체에 참조모델을
-    적합하고, 참조 집합(R)에 예측값을 낸다. 반환값이 None 이면 적합 실패."""
+    적합하고, 참조 집합(R)에 예측값을 낸다. 반환값이 None 이면 적합 실패.
+
+    `symbol_ids_fit`/`symbol_ids_score` — L4(Ruling R31, 종목 내 중심화)에
+    필요하다. `fit` 쪽이 없으면 `fit_l4` 가 (오염된 방식으로 조용히
+    돌아가는 대신) `None` 을 돌려준다. `score` 쪽(R 자신의 종목 식별자)이
+    없으면 `predict_l4` 가 R 의 모집단 평균으로 물러난다(발견, `predict_l4`
+    docstring 참고) — 가능하면 항상 넘겨야 한다."""
     fit_fn, predict_fn = FIT[law], PREDICT[law]
     finite_rows = mask_fit & np.all(np.isfinite(np.atleast_2d(X_fit.T).T), axis=1) & np.isfinite(y_fit)
-    params = fit_fn(X_fit[finite_rows], y_fit[finite_rows])
+    sid_arg = symbol_ids_fit[finite_rows] if symbol_ids_fit is not None else None
+    params = fit_fn(X_fit[finite_rows], y_fit[finite_rows], symbol_ids=sid_arg)
     if params is None:
         return None
-    return predict_fn(params, X_score)
+    return predict_fn(params, X_score, symbol_ids=symbol_ids_score)
 
 
 def score_candidate_binned(candidate, feature_names, X: np.ndarray, y: np.ndarray,
