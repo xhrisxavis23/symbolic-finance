@@ -63,19 +63,28 @@ LAWS = ("L1", "L2", "L3", "L4", "L5")
 VETO_LAW = "L1"                       # 유일한 양성 대조군 (Ruling R30)
 GRADED_LAWS = ("L2", "L3", "L4", "L5")  # E'/K' 분모 후보 (Ruling R30 — L5 포함)
 
-# --- 전체 실행 확정 설정 (PREREG-G2.md §1.3·§3.1, R29/R30/R31 로 검증됨) ----
+# --- 전체 실행 확정 설정 (PREREG-G2.md §1.3·§3.1·§3.4, R29/R30/R31/R33 로 검증됨) --
 N_REF_PER_STRATUM = 20
 N_DISTILL_PER_STRATUM = 24
-MAX_MANIFOLD_SAMPLES_REFERENCE = 20000   # 참조천장·재채점 전용 (증류측과 분리, R29)
-MAX_MANIFOLD_SAMPLES_DISTILL = 4000      # sd.e0.runner 기본값 그대로 (SR 적합 예산)
+MAX_MANIFOLD_SAMPLES_REFERENCE = 20000   # 참조천장·재채점 전용 (증류측과 분리, R29 근거)
+MAX_MANIFOLD_SAMPLES_DISTILL = 4000      # E0 의 1500 이 아니라 4000 — 의도적 차이(R29 근거로
+                                          # 정한 값). "E0 와 동일값"이 아니다 — PREREG-G2.md
+                                          # §3.4 정정 이력(Ruling R33) 참고.
 KFOLD_K = 5
 KFOLD_REPEATS = 20
 N_PERMUTATIONS = 5
-SR_NITERATIONS = 25
-SR_MAXSIZE = 20
+# Ruling R33 정정 — 원래 25/20 이라고 적혀 있었는데 "E0 와 동일값"이라는 주석이
+# 사실과 달랐다(E0 실제 실행 인자는 200/18, sd/e0/runner.py 의 함수 기본값 25/20
+# 을 E0 실행값으로 착각했다). 결과를 보기 전에(T1 대기 중) 코디네이터가 발견해
+# 정정했다 — PREREG-G2.md §3.4 정정 이력 참고.
+SR_NITERATIONS = 200
+SR_MAXSIZE = 18
+# R33 정정 작업 중 자체 발견 — `run_law` 의 `epochs` 기본값(300)도 같은 함정이다.
+# E0 실제 실행 인자는 `--epochs 700`(T1 재실행도 700). 니터레이션/maxsize 와
+# 똑같은 종류의 오류(함수 기본값을 E0 실행값으로 착각)가 세 번째 파라미터에서
+# 또 생길 뻔했다 — 명시적으로 700 으로 맞춘다.
+TEACHER_EPOCHS = 700
 SEED = config.SEED
-
-NO_ADDED_VALUE_NONE = None  # placeholder for clarity in dict literals
 
 
 def _log(msg: str) -> None:
@@ -227,11 +236,11 @@ def phase3_distillation(split: g2_split.ThreeWaySplit) -> dict:
             continue
         t0 = time.time()
         _log(f"  {law}: run_law 시작 (niterations={SR_NITERATIONS}, maxsize={SR_MAXSIZE}, "
-             f"max_manifold_samples={MAX_MANIFOLD_SAMPLES_DISTILL})")
+             f"epochs={TEACHER_EPOCHS}, max_manifold_samples={MAX_MANIFOLD_SAMPLES_DISTILL})")
         try:
             result = runner_mod.run_law(
                 law, split.distill_fit, split.distill_select, DATE, seed=SEED,
-                sr_niterations=SR_NITERATIONS, sr_maxsize=SR_MAXSIZE,
+                epochs=TEACHER_EPOCHS, sr_niterations=SR_NITERATIONS, sr_maxsize=SR_MAXSIZE,
                 max_manifold_samples=MAX_MANIFOLD_SAMPLES_DISTILL)
         except Exception as error:  # noqa: BLE001 — 한 법칙 실패가 전체를 죽이면 안 된다
             elapsed = time.time() - t0
