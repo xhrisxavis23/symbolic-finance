@@ -182,14 +182,30 @@ CPU 경합이 크지 않다 — 그래서 **순차(총 7~8시간)가 아니라 �
 
 ## 4. 실행
 
-전체 회귀(`python3 -m pytest -q`, 0902): **(채운다)**
+전체 회귀(`python3 -m pytest -q`, 0902, 구현 완료 후): **385 passed**
+(1065.17초). 직접 영향받는 파일만 다시 별도 실행: **81 passed**(779.48초,
+`test_teacher_early_stopping.py`·`test_e0_teacher.py`·`test_e0_runner.py`·
+`test_teacher.py`·`test_teacher_deeplob.py`). 뮤테이션 3건은 이 재실행
+전에 이미 주입·확인·복구했다(§2) — 즉 이 통과는 뮤테이션이 전혀 없는
+깨끗한 코드에서 나온 결과다.
 
-시작 시각: **(채운다)**
+구현 커밋: `0902` `9733242`("feat: 교사 조기 종료를 선택 종목 R² 로").
+
+시작 시각: 2026-09-09 07:28 UTC (두 실행 모두, 병렬 기동).
 
 ```
-shallow : PID 파일 runs/e0-shallow700-t1.pid, 로그 runs/e0-shallow700-t1.log
-deeplob : PID 파일 runs/e0-deeplob700-t1.pid, 로그 runs/e0-deeplob700-t1.log
+shallow : run_dir runs/e0-20260909T072818Z, PID 699180
+          PID 파일 runs/e0-shallow700-t1.pid, 로그 runs/e0-shallow700-t1.log
+deeplob : run_dir runs/e0-20260909T072840Z, PID 699797
+          PID 파일 runs/e0-deeplob700-t1.pid, 로그 runs/e0-deeplob700-t1.log
 ```
+
+둘 다 `setsid nohup ... &` 로 새 세션에 분리해 띄웠다(`PPID=1`, `SID`=자기
+PID 로 확인 — 이 대화 세션이 끊겨도 안 죽는다). 첫 시도에서 `setsid` 가
+내부적으로 fork 해 `$!` 가 잘못된(이미 종료한 부모) PID 를 가리키는 문제를
+겪어 중복 프로세스 2개가 떴다 — `pgrep -f`/`ps` 로 실제 살아있는 PID 를
+확인해 죽이고 로그 파일을 지운 뒤 다시 깨끗하게 띄웠다(교훈: `setsid` 뒤
+`$!` 를 그대로 믿지 말고 `pgrep -f`/`ps -o ppid,sid` 로 재확인할 것).
 
 ---
 
