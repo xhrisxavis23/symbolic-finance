@@ -70,6 +70,15 @@ def predict_l1(params: dict, X: np.ndarray) -> np.ndarray:
     return out
 
 
+def _clip_to_domain(x: np.ndarray, lo, hi) -> np.ndarray:
+    """held-out 입력을 **train 이 실제로 관측한 범위**로 자른다 — `sd/manifold.py`
+    의 원칙("넷이 모르는 곳의 답을 수식으로 만들지 않는다")을 참조모델의
+    예측 단계에도 그대로 적용한 것. 발견 3(`G2-DESIGN-NOTES.md`)의 원인이자
+    수정: 이게 없으면 `predict_l5` 의 멱함수 항이 train 범위 밖의 극단
+    `dt`(특히 0 에 가까운 값)에서 발산해 참조 천장이 통째로 무너진다."""
+    return np.clip(x, lo, hi)
+
+
 def fit_l2(X: np.ndarray, y: np.ndarray, *, ofi_idx: int = 0) -> dict | None:
     x = X[:, ofi_idx]
     valid = np.isfinite(x) & np.isfinite(y)
@@ -77,11 +86,12 @@ def fit_l2(X: np.ndarray, y: np.ndarray, *, ofi_idx: int = 0) -> dict | None:
     if valid.sum() < l0_measure.MIN_ROWS_GENERIC or np.std(x) < 1e-12:
         return None
     slope, intercept, *_ = stats.linregress(x, y)
-    return {"law": "L2", "slope": float(slope), "intercept": float(intercept), "ofi_idx": ofi_idx}
+    return {"law": "L2", "slope": float(slope), "intercept": float(intercept), "ofi_idx": ofi_idx,
+            "domain_lo": float(np.min(x)), "domain_hi": float(np.max(x))}
 
 
 def predict_l2(params: dict, X: np.ndarray) -> np.ndarray:
-    x = X[:, params["ofi_idx"]]
+    x = _clip_to_domain(X[:, params["ofi_idx"]], params["domain_lo"], params["domain_hi"])
     return params["slope"] * x + params["intercept"]
 
 
@@ -102,14 +112,16 @@ def fit_l3(X: np.ndarray, y: np.ndarray, *, volume_idx: int = 0) -> dict | None:
     agreement = float(np.mean(sign_v == sign_y))
     sign_rule = 1.0 if agreement >= 0.5 else -1.0
     return {"law": "L3", "slope": float(slope), "intercept": float(intercept),
-            "sign_rule": sign_rule, "sign_agreement": agreement, "volume_idx": volume_idx}
+            "sign_rule": sign_rule, "sign_agreement": agreement, "volume_idx": volume_idx,
+            "domain_lo": float(np.min(xabs[keep])), "domain_hi": float(np.max(xabs[keep]))}
 
 
 def predict_l3(params: dict, X: np.ndarray) -> np.ndarray:
     v = X[:, params["volume_idx"]]
     out = np.full(len(v), np.nan)
     nz = np.isfinite(v) & (v != 0)
-    log_pred = params["slope"] * np.log(np.abs(v[nz])) + params["intercept"]
+    abs_v_clipped = _clip_to_domain(np.abs(v[nz]), params["domain_lo"], params["domain_hi"])
+    log_pred = params["slope"] * np.log(abs_v_clipped) + params["intercept"]
     magnitude = np.exp(log_pred)
     out[nz] = params["sign_rule"] * np.sign(v[nz]) * magnitude
     return out
@@ -122,14 +134,17 @@ def fit_l4(X3: np.ndarray, y: np.ndarray) -> dict | None:
     Xv, yv = X3[valid], y[valid]
     design = np.column_stack([Xv, np.ones(len(yv))])
     coef, *_ = np.linalg.lstsq(design, yv, rcond=None)
-    return {"law": "L4", "coef": coef[:-1].tolist(), "intercept": float(coef[-1])}
+    return {"law": "L4", "coef": coef[:-1].tolist(), "intercept": float(coef[-1]),
+            "domain_lo": Xv.min(axis=0).tolist(), "domain_hi": Xv.max(axis=0).tolist()}
 
 
 def predict_l4(params: dict, X3: np.ndarray) -> np.ndarray:
     coef = np.asarray(params["coef"])
     valid = np.all(np.isfinite(X3), axis=1)
     out = np.full(X3.shape[0], np.nan)
-    out[valid] = X3[valid] @ coef + params["intercept"]
+    lo, hi = np.asarray(params["domain_lo"]), np.asarray(params["domain_hi"])
+    X_clipped = np.clip(X3[valid], lo, hi)
+    out[valid] = X_clipped @ coef + params["intercept"]
     return out
 
 
@@ -192,18 +207,26 @@ def fit_l5(X: np.ndarray, y: np.ndarray, *, dt_idx: int = 0,
         full = _refit_with_full_params(t_arr, y_arr, best_summary["form"])
     except (RuntimeError, ValueError):
         return None
-    return {"law": "L5", "chosen": best_summary["form"], "full": full, "dt_idx": dt_idx}
+    return {"law": "L5", "chosen": best_summary["form"], "full": full, "dt_idx": dt_idx,
+            "domain_lo": float(lo), "domain_hi": float(hi)}
 
 
 def predict_l5(params: dict, X: np.ndarray) -> np.ndarray:
+    """**발견 3(`G2-DESIGN-NOTES.md`)의 수정 지점.** train 범위 밖(특히 0 에
+    가까운 `dt`)로 멱함수 항을 그대로 외삽하면 `(dt+eps)^-gamma` 가 발산해
+    참조 천장 전체가 무너진다(민감도 확인에서 실측: median R² 가
+    -3,110,500까지 나왔다). `_clip_to_domain` 으로 train 이 실제로 본 범위
+    밖의 `dt` 는 가장 가까운 경계값으로 자른 뒤 평가한다 — 지수함수 항은
+    발산하지 않지만(감쇠하므로) 일관성을 위해 같은 자름을 적용한다."""
     dt = X[:, params["dt_idx"]]
     out = np.full(len(dt), np.nan)
     pos = np.isfinite(dt) & (dt > 0)
+    dt_clipped = _clip_to_domain(dt[pos], params["domain_lo"], params["domain_hi"])
     f = params["full"]
     if f["form"] == "exponential":
-        out[pos] = f["c0"] + f["c1"] * np.exp(-f["beta"] * dt[pos])
+        out[pos] = f["c0"] + f["c1"] * np.exp(-f["beta"] * dt_clipped)
     else:
-        out[pos] = f["c0"] + f["c1"] * np.power(dt[pos] + 1e-6, -f["gamma"])
+        out[pos] = f["c0"] + f["c1"] * np.power(dt_clipped + 1e-6, -f["gamma"])
     return out
 
 
