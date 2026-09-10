@@ -1,0 +1,14 @@
+
+=== 2026-09-10 13:05:39 시작: run.stage_curve [] ===
+[13:05:41] [curve] 동결 후보 5개: ['seed0', 'seed1', 'seed2', 'naive', 'null']
+[13:52:03] [curve] L 재생 완료 2771.6s attempts=15
+[13:57:03] [curve] H 재생 완료 288.5s attempts=15
+[13:57:13] [curve] 최종 판정: 성공 주장 불가 — 3개 시드 중 전부가 통과하지 못했다 (R37-1)
+[13:57:13] [curve]   seed0: {'pass': False, 'gate_passed': False, 'H_total_net_bps_positive': False, 'H_scorable_sufficient': True, 'beats_null_on_H': False, 'H_total_net_bps': -93372.29714169691, 'null_H_total_net_bps': -67537.51530239373}
+[13:57:13] [curve]   seed1: {'pass': False, 'gate_passed': False, 'H_total_net_bps_positive': False, 'H_scorable_sufficient': True, 'beats_null_on_H': True, 'H_total_net_bps': -19300.805572035333, 'null_H_total_net_bps': -67537.51530239373}
+[13:57:13] [curve]   seed2: {'pass': False, 'gate_passed': False, 'H_total_net_bps_positive': False, 'H_scorable_sufficient': True, 'beats_null_on_H': True, 'H_total_net_bps': -22015.390943680795, 'null_H_total_net_bps': -67537.51530239373}
+[13:57:13] [curve] 완료 -> /home/dgu/tick/symbolic/0910/run/state/curve.json
+[13:57:13] [git] commit rc=0 [master 70af4c4] E1 실행: L/M/H 저하 곡선 + 최종 판정 완료 — 성공 주장 불가 — 3개 시드 중 전부가 통과하지 못했다 (R37-1)
+ Author: E1 실행 파이프라인 <noreply@anthropic.com>
+ 1 file changed, 306 insertions(+)
+ create mode 100644 run/state/c 

@@ -1,0 +1,20 @@
+
+=== 2026-09-10 10:31:55 시작: run.stage_select [] ===
+[10:32:05] [select] seed=0 gate_passed=False compiled=1
+[10:32:05] [select] seed=1 gate_passed=False compiled=9
+[10:32:05] [select] seed=2 gate_passed=False compiled=8
+[13:01:54] [select] M 재생 완료 8988.4s attempts=60 entries=20
+[13:02:27] [select] seed=0 1순위 e000:q0.95 net_bps=-159976.13 scorable=87486
+[13:02:27] [select] seed=1 1순위 e005:q0.95 net_bps=-47799.75 scorable=83054
+[13:02:27] [select] seed=2 1순위 e017:q0.95 net_bps=-45575.18 scorable=86267
+[13:02:27] [select] 나이브(f) 1순위: e018:q0.95
+[13:02:27] [select] 영점(h) 1순위: 자격없음
+[13:02:27] [select] 완료 -> /home/dgu/tick/symbolic/0910/run/state/select.json
+[13:02:27] [select] 원장 정리 완료 (/home/dgu/tick/symbolic/0910/run/state/replay_select)
+[13:02:27] [git] commit rc=0 [master 2c96c8b] E1 실행: M 선택 완료 (자격 후보 3/3)
+ Author: E1 실행 파이프라인 <noreply@anthropic.com>
+ 1 file changed, 1376 insertions(+)
+ create mode 100644 run/state/select.json 
+
+=== 2026-09-10 13:05:37 시작: run.stage_select [] ===
+[13:05:39] [select] 이미 완료 — 스킵(재개)
