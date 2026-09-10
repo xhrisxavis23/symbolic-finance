@@ -1,0 +1,16 @@
+[pool] symbols=300 rows=3,406,368 maskable=3,401,118 features=19
+[select] max_samples=2000 -> on_manifold rows=1978
+/home/dgu/.local/lib/python3.10/site-packages/juliacall/__init__.py:61: UserWarning: torch was imported before juliacall. This may cause a segfault. To avoid this, import juliacall before importing torch. For updates, see https://github.com/pytorch/pytorch/issues/78829.
+  warnings.warn(
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 11개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] max_samples=2000 n_fit=1978 wall=264.3s internal=246.7s candidates=12
+[select] max_samples=20000 -> on_manifold rows=19787
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 11개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] max_samples=20000 n_fit=19787 wall=172.0s internal=171.9s candidates=14
+[select] max_samples=100000 -> on_manifold rows=99020
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 11개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] max_samples=100000 n_fit=99020 wall=416.9s internal=416.5s candidates=14
+[select] max_samples=200000 -> on_manifold rows=198071
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 14개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] max_samples=200000 n_fit=198071 wall=461.2s internal=460.7s candidates=15
+[saved] /home/dgu/tick/symbolic/0910/scale/data/m3_pysr_scale.json

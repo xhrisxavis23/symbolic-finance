@@ -1,0 +1,39 @@
+{
+  "niterations": 40,
+  "maxsize": 20,
+  "n_symbols_pool": 300,
+  "runs": [
+    {
+      "max_samples_requested": 2000,
+      "n_fit_rows": 1978,
+      "teacher_fit_seconds": 2.5835940837860107,
+      "pysr_fit_seconds_wallclock": 264.29586029052734,
+      "pysr_fit_seconds_internal": 246.6759216785431,
+      "n_candidates": 12
+    },
+    {
+      "max_samples_requested": 20000,
+      "n_fit_rows": 19787,
+      "teacher_fit_seconds": 1.7539560794830322,
+      "pysr_fit_seconds_wallclock": 171.98595571517944,
+      "pysr_fit_seconds_internal": 171.85021257400513,
+      "n_candidates": 14
+    },
+    {
+      "max_samples_requested": 100000,
+      "n_fit_rows": 99020,
+      "teacher_fit_seconds": 1.5376865863800049,
+      "pysr_fit_seconds_wallclock": 416.87261986732483,
+      "pysr_fit_seconds_internal": 416.539653301239,
+      "n_candidates": 14
+    },
+    {
+      "max_samples_requested": 200000,
+      "n_fit_rows": 198071,
+      "teacher_fit_seconds": 16.906370639801025,
+      "pysr_fit_seconds_wallclock": 461.19827151298523,
+      "pysr_fit_seconds_internal": 460.7044880390167,
+      "n_candidates": 15
+    }
+  ]
+}

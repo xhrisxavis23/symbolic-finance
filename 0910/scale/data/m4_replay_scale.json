@@ -1,0 +1,57 @@
+{
+  "workers": 32,
+  "heaviest_symbol": "005930",
+  "grid": [
+    0.85
+  ],
+  "checkpoints": [
+    {
+      "n_symbols_requested": 10,
+      "n_symbols_actual": 10,
+      "heaviest_included": true,
+      "seconds": 101.0603997707367,
+      "ledger_rows": 1744,
+      "attempts": 1
+    },
+    {
+      "n_symbols_requested": 50,
+      "n_symbols_actual": 50,
+      "heaviest_included": true,
+      "seconds": 104.65271878242493,
+      "ledger_rows": 8625,
+      "attempts": 1
+    },
+    {
+      "n_symbols_requested": 200,
+      "n_symbols_actual": 200,
+      "heaviest_included": true,
+      "seconds": 110.51481461524963,
+      "ledger_rows": 34541,
+      "attempts": 1
+    },
+    {
+      "n_symbols_requested": 500,
+      "n_symbols_actual": 500,
+      "heaviest_included": true,
+      "seconds": 151.0283396244049,
+      "ledger_rows": 88325,
+      "attempts": 1
+    },
+    {
+      "n_symbols_requested": 1000,
+      "n_symbols_actual": 1000,
+      "heaviest_included": true,
+      "seconds": 162.47859072685242,
+      "ledger_rows": 173665,
+      "attempts": 1
+    },
+    {
+      "n_symbols_requested": 2570,
+      "n_symbols_actual": 2570,
+      "heaviest_included": true,
+      "seconds": 262.75209188461304,
+      "ledger_rows": 440680,
+      "attempts": 1
+    }
+  ]
+}
