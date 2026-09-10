@@ -499,6 +499,131 @@ def fit_on_all_and_predict(law: str, X_fit: np.ndarray, y_fit: np.ndarray, mask_
     return predict_fn(params, X_score, symbol_ids=symbol_ids_score)
 
 
+# ===========================================================================
+# G3 — 대칭 수정(PREREG-G3.md §2 원칙1·2). `repeated_kfold_ceiling`(위)은
+# R **안**에서 K-fold 를 돌려 R 의 일부를 미리 본다 — 증류 후보는 D 에서
+# 훈련되어 R 을 한 번도 못 보므로 천장에만 홈그라운드 이점이 있었다
+# (G3-REPORT.md §1, PROGRESS.md Ruling R34). 아래 함수들이 그 수정이다:
+# 참조 모델을 **D 에서만 적합**하고 **R 에서만 채점**한다 — 후보와 정확히
+# 같은 경로. `repeated_kfold_ceiling`/`binned_r2` 단독 사용은 지우지 않고
+# 남긴다 — G2 전체 실행 산출물(`results/g2_full_run/`)의 재현성을 위해.
+# ===========================================================================
+
+def ceiling_fit_on_D_score_on_R(law: str, X_D: np.ndarray, y_D: np.ndarray, mask_D: np.ndarray,
+                                sid_D: np.ndarray, X_R: np.ndarray, y_R: np.ndarray,
+                                w_R: np.ndarray, sid_R: np.ndarray, *,
+                                n_boot: int = 1000, seed: int = 0,
+                                min_symbols_boot: int = 5, n_bins: int = 20) -> dict:
+    """대칭 참조 천장 — `PREREG-G3.md` §2 원칙1 의 구현.
+
+    **적합은 D 에서 한 번만, 채점은 R 에서 한 번만.** R 은 전혀 훈련에
+    관여하지 않는다 — 증류 후보가 R 을 한 번도 못 보는 것과 정확히 같은
+    조건이다(`fit_on_all_and_predict` 재사용 — §3.5 의 "단순회귀 기준선"과
+    **같은 계산**이다. 이게 의도한 것이다: 천장과 기준선이 이제 같은
+    경로를 걷는 같은 양이므로, 둘이 갈라지면 그 자체가 버그 신호다).
+
+    **1차 점수(원칙2)는 행단위 R²**(`weighted_r2`, `sd.sr.base` 재사용)다.
+    `binned_r2` 는 보조로 같이 내고 `amplification_factor`(binned/row)를
+    반드시 동봉한다 — 법칙마다 이 배율이 얼마나 흩어지는지 그 자체가
+    "구간 평균이 신뢰할 만한 보조 지표인가"의 근거가 된다(G3-REPORT.md).
+
+    **신뢰구간의 의미 — 재적합이 아니라 재표집.** 모델은 D 에서 **한 번만**
+    적합한 채 고정한다(후보도 R 에서 한 번만 채점되므로, 천장만 여러 번
+    다시 적합해 분산을 줄이면 천장에 후보한테 없는 이점을 또 주는 것이다
+    — 이번 수정이 고치려는 바로 그 비대칭의 재발). 대신 그 고정된 예측을
+    유지한 채 **R 을 종목 단위로 재표집(bootstrap)**해서 CI 를 낸다 —
+    "이 R 표본이 다른 R 표본이었다면 점수가 얼마나 흔들렸을까"만 반영한다.
+    """
+    y_pred_R = fit_on_all_and_predict(law, X_D, y_D, mask_D, X_R,
+                                      symbol_ids_fit=sid_D, symbol_ids_score=sid_R)
+    if y_pred_R is None:
+        return {"ok": False, "reason": "D 에서 참조모델 적합 실패"}
+
+    finite_R = np.isfinite(y_R) & np.isfinite(y_pred_R) & np.isfinite(w_R)
+    if finite_R.sum() < l0_measure.MIN_ROWS_GENERIC:
+        return {"ok": False, "reason": "R 에서 유효 예측 행이 부족하다",
+                "n_valid_rows": int(finite_R.sum())}
+
+    yR, ypR, wR, sidR = y_R[finite_R], y_pred_R[finite_R], w_R[finite_R], sid_R[finite_R]
+
+    row_r2_point = float(weighted_r2(yR, ypR, wR))
+    binned_r2_point = float(binned_r2(yR, ypR, wR, n_bins=n_bins))
+    amplification = (binned_r2_point / row_r2_point
+                     if np.isfinite(row_r2_point) and row_r2_point > 1e-12
+                     and np.isfinite(binned_r2_point) else None)
+
+    unique_symbols = np.unique(sidR)
+    base = {"ok": True, "law": law, "row_r2_point": row_r2_point,
+           "binned_r2_point": binned_r2_point, "amplification_factor": amplification,
+           "n_symbols_reference": int(len(unique_symbols)), "n_rows_reference": int(len(yR))}
+    if len(unique_symbols) < min_symbols_boot:
+        base["ok"] = False
+        base["reason"] = f"R 종목이 {len(unique_symbols)}개뿐이라 부트스트랩 불가"
+        return base
+
+    sym_to_idx = {s: np.flatnonzero(sidR == s) for s in unique_symbols}
+    rng = np.random.default_rng(int(seed))
+    n_syms = len(unique_symbols)
+    boot_row: list[float] = []
+    boot_binned: list[float] = []
+    for _ in range(int(n_boot)):
+        chosen = rng.choice(unique_symbols, size=n_syms, replace=True)
+        idx = np.concatenate([sym_to_idx[s] for s in chosen])
+        if idx.size < 2:
+            continue
+        r2r = weighted_r2(yR[idx], ypR[idx], wR[idx])
+        r2b = binned_r2(yR[idx], ypR[idx], wR[idx], n_bins=n_bins)
+        if np.isfinite(r2r):
+            boot_row.append(float(r2r))
+        if np.isfinite(r2b):
+            boot_binned.append(float(r2b))
+
+    if not boot_row:
+        base["ok"] = False
+        base["reason"] = "부트스트랩에서 유효한 행단위 R² 를 못 얻었다"
+        return base
+
+    row_arr = np.array(boot_row)
+    base.update({
+        "n_boot_used": len(row_arr), "n_boot_requested": int(n_boot),
+        "row_r2_median": float(np.median(row_arr)),
+        "row_r2_ci_low": float(np.percentile(row_arr, 2.5)),
+        "row_r2_ci_high": float(np.percentile(row_arr, 97.5)),
+    })
+    if boot_binned:
+        binned_arr = np.array(boot_binned)
+        base.update({
+            "binned_r2_median": float(np.median(binned_arr)),
+            "binned_r2_ci_low": float(np.percentile(binned_arr, 2.5)),
+            "binned_r2_ci_high": float(np.percentile(binned_arr, 97.5)),
+        })
+    return base
+
+
+def negative_control_fit_on_D_score_on_R(law: str, X_D: np.ndarray, y_D: np.ndarray,
+                                         mask_D: np.ndarray, sid_D: np.ndarray,
+                                         X_R: np.ndarray, y_R: np.ndarray, w_R: np.ndarray,
+                                         sid_R: np.ndarray, *, scope: str, seed: int,
+                                         n_boot: int = 300, n_bins: int = 20) -> dict:
+    """G3 음성 대조군 — D·R 양쪽에서 `y` 를 독립으로 섞은 뒤 같은 대칭 경로
+    (`ceiling_fit_on_D_score_on_R`)를 통과시킨다.
+
+    **왜 D 도 섞어야 하는가.** 원래 G2 의 음성 대조군(R 내부 K-fold)은
+    R 하나만 섞어도 됐다 — train/test 가 둘 다 R 안에 있었으므로. 이제는
+    train(D)과 test(R)가 분리됐으므로, D 의 `y` 가 그대로면 참조모델이
+    D 에서 **진짜** 관계를 학습해 R 의 permuted `y` 와도 (진짜 신호가
+    있다면) 여전히 무관해야 정상이다 — 이건 검사가 되지만, R31 이 발견한
+    "종목수준 생태학적 상관" 같은 결함(D 와 R 양쪽에 있는 구조)은 D 의
+    `y` 가 진짜인 채로는 못 잡을 수 있다. 그래서 D·R 양쪽을 각자
+    (독립 시드로) `within_symbol`/`global` 섞어, "이 데이터 어디에도 진짜
+    신호가 없을 때 대칭 경로가 허위로 자격을 주는가"를 직접 시험한다.
+    """
+    y_D_perm = permute_y(y_D, sid_D, scope=scope, seed=seed)
+    y_R_perm = permute_y(y_R, sid_R, scope=scope, seed=seed + 9_000_000)
+    return ceiling_fit_on_D_score_on_R(law, X_D, y_D_perm, mask_D, sid_D, X_R, y_R_perm, w_R, sid_R,
+                                       n_boot=n_boot, seed=seed, n_bins=n_bins)
+
+
 def score_candidate_binned(candidate, feature_names, X: np.ndarray, y: np.ndarray,
                            weight: np.ndarray, *, n_bins: int = 20) -> float:
     """`sd.sr.base.score_candidate` 와 같은 평가 방식(lambdify → broadcast)

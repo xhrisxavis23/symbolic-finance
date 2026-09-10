@@ -1,0 +1,436 @@
+{
+  "negative_controls": {
+    "L1": {
+      "within_symbol": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.00018528746402646235,
+          "row_r2_ci_low": -0.0008422298447886001,
+          "row_r2_ci_high": 7.855447963566741e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.0004595287074697918,
+          "row_r2_ci_low": -0.0012740897259490124,
+          "row_r2_ci_high": -6.864570173311102e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.0004937211513826867,
+          "row_r2_ci_low": -0.0012937665082303484,
+          "row_r2_ci_high": -0.000159750185947233,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.00026812258807495937,
+          "row_r2_ci_low": -0.0009750930827154225,
+          "row_r2_ci_high": -2.1744021845732218e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.00038658292979398823,
+          "row_r2_ci_low": -0.0012463959270058611,
+          "row_r2_ci_high": 1.869664697998721e-05,
+          "reason": null
+        }
+      ],
+      "global": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.0006049109620116511,
+          "row_r2_ci_low": -0.0011983058827921334,
+          "row_r2_ci_high": -0.00023354117574702073,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.00016117908931523317,
+          "row_r2_ci_low": -0.0006824809139090948,
+          "row_r2_ci_high": 5.314477430742869e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.00014558310822376797,
+          "row_r2_ci_low": -0.0008888640862149799,
+          "row_r2_ci_high": 0.00021489501033612396,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.0002449670060500342,
+          "row_r2_ci_low": -0.0010038234114075617,
+          "row_r2_ci_high": 7.207816115034446e-06,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -4.1644009973307305e-05,
+          "row_r2_ci_low": -0.0005245975259852709,
+          "row_r2_ci_high": 0.00017352553091055654,
+          "reason": null
+        }
+      ]
+    },
+    "L2": {
+      "within_symbol": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -4.4789577661630275e-05,
+          "row_r2_ci_low": -0.0007763994283234543,
+          "row_r2_ci_high": 4.5503966562171475e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -3.494851992091874e-05,
+          "row_r2_ci_low": -0.0012689531635224904,
+          "row_r2_ci_high": 1.0307032752332454e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": 5.542934120805754e-06,
+          "row_r2_ci_low": -0.0010865371981509774,
+          "row_r2_ci_high": 1.2799722028397622e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -5.4237104855969775e-05,
+          "row_r2_ci_low": -0.0009214050980276223,
+          "row_r2_ci_high": 5.003177117762751e-06,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -2.769837099036998e-05,
+          "row_r2_ci_low": -0.0008600926012333254,
+          "row_r2_ci_high": -3.2207710781329033e-06,
+          "reason": null
+        }
+      ],
+      "global": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": 7.669100917540028e-06,
+          "row_r2_ci_low": -0.00021350188320578555,
+          "row_r2_ci_high": 2.2665283432651834e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": 6.77045454910985e-06,
+          "row_r2_ci_low": -0.0003015648184854891,
+          "row_r2_ci_high": 2.6976888987906283e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -8.393364640424394e-06,
+          "row_r2_ci_low": -0.00023259970507201743,
+          "row_r2_ci_high": 1.274692277997424e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -8.003599912376202e-06,
+          "row_r2_ci_low": -0.00030950959256569873,
+          "row_r2_ci_high": -2.136715862671728e-06,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -1.9015102377117898e-06,
+          "row_r2_ci_low": -0.0003447538923020743,
+          "row_r2_ci_high": 2.963771282143972e-06,
+          "reason": null
+        }
+      ]
+    },
+    "L3": {
+      "within_symbol": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.8184075974947784,
+          "row_r2_ci_low": -1.295941786741768,
+          "row_r2_ci_high": -0.5022655191624326,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.8007519024120455,
+          "row_r2_ci_low": -1.3165235206727233,
+          "row_r2_ci_high": -0.4699256199809189,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.8435804750869385,
+          "row_r2_ci_low": -1.2461529321037441,
+          "row_r2_ci_high": -0.5346513319112425,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.8056950251006092,
+          "row_r2_ci_low": -1.3139337059711713,
+          "row_r2_ci_high": -0.49358898762341435,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.8299416977829748,
+          "row_r2_ci_low": -1.2500254143486351,
+          "row_r2_ci_high": -0.5399053464987976,
+          "reason": null
+        }
+      ],
+      "global": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.8282098246469052,
+          "row_r2_ci_low": -0.8869267859174839,
+          "row_r2_ci_high": -0.7613329274234041,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.8240738662098162,
+          "row_r2_ci_low": -0.8889896391127748,
+          "row_r2_ci_high": -0.7591446960644181,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.8155586913340045,
+          "row_r2_ci_low": -0.8579702124839945,
+          "row_r2_ci_high": -0.7573012689406649,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.8238411893668312,
+          "row_r2_ci_low": -0.8623286582014571,
+          "row_r2_ci_high": -0.768065445417217,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.8026569734851308,
+          "row_r2_ci_low": -0.8810441501257328,
+          "row_r2_ci_high": -0.7448953167935594,
+          "reason": null
+        }
+      ]
+    },
+    "L4": {
+      "within_symbol": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.027103572004976817,
+          "row_r2_ci_low": -0.23779774544322993,
+          "row_r2_ci_high": 0.0002562221324972125,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.02780088740466513,
+          "row_r2_ci_low": -0.2374578095663552,
+          "row_r2_ci_high": -0.00024061100237067275,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.028958557695582643,
+          "row_r2_ci_low": -0.19269161309891064,
+          "row_r2_ci_high": 1.2174758572841444e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.029096047837511296,
+          "row_r2_ci_low": -0.2049535748659137,
+          "row_r2_ci_high": -0.0001376976170405998,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.02878000186193863,
+          "row_r2_ci_low": -0.22343244203213958,
+          "row_r2_ci_high": -7.613564638716554e-05,
+          "reason": null
+        }
+      ],
+      "global": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.04459009063977604,
+          "row_r2_ci_low": -0.051214153366550885,
+          "row_r2_ci_high": -0.03754587746274139,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.044588983366823154,
+          "row_r2_ci_low": -0.054338936627246766,
+          "row_r2_ci_high": -0.03434899937878249,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.041805071306237895,
+          "row_r2_ci_low": -0.05536667955509402,
+          "row_r2_ci_high": -0.03137097486461467,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.04377700459867828,
+          "row_r2_ci_low": -0.05366847101986894,
+          "row_r2_ci_high": -0.03408758549107517,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.04413312107765344,
+          "row_r2_ci_low": -0.05263772683023958,
+          "row_r2_ci_high": -0.036858465457138695,
+          "reason": null
+        }
+      ]
+    },
+    "L5": {
+      "within_symbol": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -9.853716862062711e-05,
+          "row_r2_ci_low": -0.023358566383300684,
+          "row_r2_ci_high": 0.0005533708779954934,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.0003056966963557173,
+          "row_r2_ci_low": -0.03058519274957336,
+          "row_r2_ci_high": -5.307403944666491e-07,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.00017390665124472626,
+          "row_r2_ci_low": -0.022669966735160488,
+          "row_r2_ci_high": 0.0004662084117706096,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.00036222247132577934,
+          "row_r2_ci_low": -0.028808825915100904,
+          "row_r2_ci_high": 0.0002627134364927465,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.00028139068845778326,
+          "row_r2_ci_low": -0.022704608381611598,
+          "row_r2_ci_high": 5.187078816468176e-06,
+          "reason": null
+        }
+      ],
+      "global": [
+        {
+          "perm_index": 0,
+          "eligible": false,
+          "row_r2_point": -0.0007688950210988921,
+          "row_r2_ci_low": -0.030050176051932824,
+          "row_r2_ci_high": -8.63458235408457e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 1,
+          "eligible": false,
+          "row_r2_point": -0.00023269576443096796,
+          "row_r2_ci_low": -0.02602308565472765,
+          "row_r2_ci_high": -1.3133186056391059e-06,
+          "reason": null
+        },
+        {
+          "perm_index": 2,
+          "eligible": false,
+          "row_r2_point": -0.001329190802826119,
+          "row_r2_ci_low": -0.030629224807269886,
+          "row_r2_ci_high": -0.00023095229850875833,
+          "reason": null
+        },
+        {
+          "perm_index": 3,
+          "eligible": false,
+          "row_r2_point": -0.0005143895373966867,
+          "row_r2_ci_low": -0.03457028713779751,
+          "row_r2_ci_high": -1.1318102478202797e-05,
+          "reason": null
+        },
+        {
+          "perm_index": 4,
+          "eligible": false,
+          "row_r2_point": -0.0004585866908823899,
+          "row_r2_ci_low": -0.024097241404517238,
+          "row_r2_ci_high": -8.496421058500914e-05,
+          "reason": null
+        }
+      ]
+    }
+  },
+  "l1_within_symbol_clean": true,
+  "untrustworthy_laws_within_symbol": []
+}
