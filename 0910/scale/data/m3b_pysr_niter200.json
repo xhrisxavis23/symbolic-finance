@@ -1,0 +1,8 @@
+{
+  "niterations": 200,
+  "maxsize": 18,
+  "n_fit_rows": 198071,
+  "pysr_fit_seconds_wallclock": 1740.4651486873627,
+  "pysr_fit_seconds_internal": 1722.7630791664124,
+  "n_candidates": 15
+}
