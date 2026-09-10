@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-09-09 14:54:51",
+  "l1_positive_control": {
+    "eligible": true,
+    "negative_control_clean": true,
+    "main_track_recovered": false
+  },
+  "untrustworthy_laws": [],
+  "per_law": {
+    "L2": {
+      "status": "graded",
+      "eligible": true,
+      "recovered": true,
+      "exceeds_ceiling": true,
+      "no_added_value": false,
+      "teacher_harmed": false,
+      "score_main": 0.9945809218761661,
+      "score_no_distillation": 0.981936989920122,
+      "score_baseline": 0.3091696020543977,
+      "ceiling_ci_low": 0.819628001899455,
+      "ceiling_ci_high": 0.8277245191270619
+    },
+    "L3": {
+      "status": "graded",
+      "eligible": true,
+      "recovered": true,
+      "exceeds_ceiling": true,
+      "no_added_value": false,
+      "teacher_harmed": false,
+      "score_main": 0.9673097444375697,
+      "score_no_distillation": 0.9776423699325476,
+      "score_baseline": -0.07200678413355144,
+      "ceiling_ci_low": 0.025937513521807457,
+      "ceiling_ci_high": 0.05900850404201335
+    },
+    "L4": {
+      "status": "graded",
+      "eligible": true,
+      "recovered": true,
+      "exceeds_ceiling": true,
+      "no_added_value": false,
+      "teacher_harmed": false,
+      "score_main": 0.9862633245747112,
+      "score_no_distillation": 0.9785972972204539,
+      "score_baseline": 0.6219746771535689,
+      "ceiling_ci_low": 0.4610174660339399,
+      "ceiling_ci_high": 0.6694142721384546
+    },
+    "L5": {
+      "status": "graded",
+      "eligible": true,
+      "recovered": true,
+      "exceeds_ceiling": false,
+      "no_added_value": true,
+      "teacher_harmed": false,
+      "score_main": 0.0397299393957401,
+      "score_no_distillation": -0.1937834948933621,
+      "score_baseline": 0.47277027934963156,
+      "ceiling_ci_low": 0.009565297639036664,
+      "ceiling_ci_high": 0.25519042209024523
+    }
+  },
+  "E_prime": 4,
+  "K_prime": 4,
+  "verdict": "STOP",
+  "verdict_reason": "선결 조건(§4.1) 위반 — L1 자격/양성/음성대조군 중 하나가 깨졌다."
+}

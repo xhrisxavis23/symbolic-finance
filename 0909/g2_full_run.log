@@ -1,0 +1,59 @@
+[11:15:40] G2 전체 실행 시작. PID=1005216
+[11:15:40] === 단계 0: 3분할 조립 ===
+[11:15:48] 참조 120 / 증류-적합 96 / 증류-선택 48 — 서로소 확인 통과
+[11:15:48] === 단계 1: 참조 천장(밴드) — 증류 실행 전 확정 ===
+[11:16:05]   L1: median=0.9680094238970751 CI=[0.9525719716097877,0.9787923994100098] eligible=True (16.3s)
+[11:16:21]   L2: median=0.8251574800003345 CI=[0.819628001899455,0.8277245191270619] eligible=True (16.7s)
+[11:16:38]   L3: median=0.0413506789719536 CI=[0.025937513521807457,0.05900850404201335] eligible=True (16.3s)
+[11:17:00]   L4: median=0.6039797546818495 CI=[0.4610174660339399,0.6694142721384546] eligible=True (22.3s)
+[11:17:07]   L5: median=0.11580135463818225 CI=[0.009565297639036664,0.25519042209024523] eligible=True (7.4s)
+[11:17:07] 밴드 확정 — 이 시점 이후 어떤 이유로도 수정하지 않는다.
+[11:17:07] === 단계 2: 선결 조건(양성+음성 대조군) ===
+[11:17:20]   L1 음성대조군: within_symbol 0/5, global 0/5 (12.4s)
+[11:17:24]   L2 음성대조군: within_symbol 0/5, global 0/5 (4.3s)
+[11:17:31]   L3 음성대조군: within_symbol 0/5, global 0/5 (6.8s)
+[11:18:39]   L4 음성대조군: within_symbol 0/5, global 0/5 (68.3s)
+[11:21:09]   L5 음성대조군: within_symbol 0/5, global 0/5 (150.0s)
+[11:21:09] 선결 조건 통과 — 다섯 법칙 전부 음성 대조군 정상, L1 양성 정상.
+[11:21:09] === 단계 3: 증류(PySR) — 법칙마다 즉시 저장 ===
+[11:21:09]   L1: run_law 시작 (niterations=200, maxsize=18, epochs=700, max_manifold_samples=4000)
+/home/dgu/.local/lib/python3.10/site-packages/juliacall/__init__.py:61: UserWarning: torch was imported before juliacall. This may cause a segfault. To avoid this, import juliacall before importing torch. For updates, see https://github.com/pytorch/pytorch/issues/78829.
+  warnings.warn(
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 15개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 10개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 6개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 11개 — Pareto 비교에는 재계산 값만 쓴다
+[12:08:23]   L1: 완료 (2833.6s) — main_expr=book_imbalance*book_imbalance**2/(book_imbalance**4*(spread_to_round_trip_cost_ratio + spread_to_round_trip_cost_ratio)**2*tanh(spread_to_round_trip_cost_ratio)**2 + 4.2115407)
+[12:08:23]   L2: run_law 시작 (niterations=200, maxsize=18, epochs=700, max_manifold_samples=4000)
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 5개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 6개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 9개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 8개 — Pareto 비교에는 재계산 값만 쓴다
+[12:48:59]   L2: 완료 (2436.2s) — main_expr=(0.87841827 - (-0.0055260602)*Abs(ofi_20t_over_qbar))*tanh(ofi_20t_over_qbar*0.1171613) - 1*0.008865171
+[12:48:59]   L3: run_law 시작 (niterations=200, maxsize=18, epochs=700, max_manifold_samples=4000)
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 8개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 6개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 9개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 10개 — Pareto 비교에는 재계산 값만 쓴다
+[13:31:06]   L3: 완료 (2527.5s) — main_expr=tanh(rv5_over_spread)*tanh(signed_volume_20t_over_qbar)*Abs(rv5_over_spread*(sqrt(Abs(signed_volume_20t_over_qbar)) - 1.6314077) + 1.7010719)
+[13:31:06]   L4: run_law 시작 (niterations=200, maxsize=18, epochs=700, max_manifold_samples=4000)
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 5개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 8개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 7개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 10개 — Pareto 비교에는 재계산 값만 쓴다
+[14:11:06]   L4: 완료 (2399.8s) — main_expr=0.23457529*rv100_over_spread + rv5_over_spread - 0.23457529*sqrt(rv100_over_spread*tanh(tanh(rv5_over_spread)**2)) + 0.138324568124961
+[14:11:06]   L5: run_law 시작 (niterations=200, maxsize=18, epochs=700, max_manifold_samples=4000)
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 6개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 8개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 9개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 13개 — Pareto 비교에는 재계산 값만 쓴다
+[14:53:22]   L5: 완료 (2536.0s) — main_expr=1.24260973393365*recent_count_norm - log((2*dt_prev_over_median + recent_count_norm)**2 + 0.18087673) + 8.737204
+[14:53:22] === 단계 4: 참조 집합 재채점 ===
+[14:53:40]   L1: score_main=0.8998390235603251 score_no_distillation=0.866352426551527 score_baseline=0.9159613326744944 (18.3s)
+[14:54:02]   L2: score_main=0.9945809218761661 score_no_distillation=0.981936989920122 score_baseline=0.3091696020543977 (22.0s)
+[14:54:21]   L3: score_main=0.9673097444375697 score_no_distillation=0.9776423699325476 score_baseline=-0.07200678413355144 (18.3s)
+[14:54:46]   L4: score_main=0.9862633245747112 score_no_distillation=0.9785972972204539 score_baseline=0.6219746771535689 (25.5s)
+[14:54:51]   L5: score_main=0.0397299393957401 score_no_distillation=-0.1937834948933621 score_baseline=0.47277027934963156 (4.5s)
+[14:54:51] === 단계 5: 판정 ===
+[14:54:51] 최종 판정: STOP — 선결 조건(§4.1) 위반 — L1 자격/양성/음성대조군 중 하나가 깨졌다.
+[14:54:51] === 전체 완료. 총 소요 13151.2s (219.2분). 최종 판정: STOP ===
