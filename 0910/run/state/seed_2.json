@@ -1,0 +1,401 @@
+{
+  "schema": "e1_stage_seed.v1",
+  "seed": 2,
+  "n_symbols_L": 837,
+  "n_symbols_M": 834,
+  "n_fit_rows": 198014,
+  "n_select_rows": 197970,
+  "n_usable_L": 8151756,
+  "n_usable_M": 694361,
+  "feature_names": [
+    "ask_depth_concentration",
+    "bid_depth_concentration",
+    "bid_l1_depth_over_qbar",
+    "book_imbalance",
+    "book_imbalance_velocity",
+    "deep_depth_imbalance_6_10",
+    "microprice_velocity_over_spread",
+    "microprice_velocity_zscore",
+    "mid_return_100t_over_spread",
+    "mid_return_20t_over_spread",
+    "mid_return_5t_over_spread",
+    "ofi_depth_5_zscore",
+    "ofi_l1_over_qbar",
+    "ofi_over_qbar_10",
+    "ofi_over_qbar_5",
+    "queue_imbalance_best",
+    "signed_aggr_flow_100",
+    "signed_aggr_flow_20",
+    "spread_to_round_trip_cost_ratio"
+  ],
+  "teacher_fit_seconds": 1278.3431615829468,
+  "teacher_early_stop": {
+    "enabled": true,
+    "stopped_epoch": 150,
+    "best_epoch": 50,
+    "best_select_r2": 0.015138242016096704,
+    "triggered": true
+  },
+  "gate_passed": false,
+  "gate_checks": {
+    "beats_constant": {
+      "passed": true,
+      "correlation": 0.12475070943675394,
+      "threshold": 0.05
+    },
+    "fill_calibration": {
+      "passed": false,
+      "max_abs_gap": 0.4027317445519151,
+      "threshold": 0.25
+    },
+    "adverse_selection_sign": {
+      "passed": true,
+      "top_decile_mean_y_path": -1.127452484080525,
+      "top_decile_size": 19798,
+      "why": "양수면 큐 모델 낙관 또는 라벨 누수를 의심한다"
+    }
+  },
+  "sr_fit_seconds": 1923.3955671787262,
+  "sr_diagnostics": {
+    "backend": "pysr",
+    "seed": 2,
+    "deterministic": true,
+    "parallelism": "serial",
+    "fit_seconds": 1899.5181345939636,
+    "niterations": 200,
+    "maxsize": 18,
+    "complexity_of_constants": 2,
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "unary_operators": [
+      "sqrt",
+      "tanh",
+      "abs",
+      "square"
+    ],
+    "excluded_operators": {
+      "log": "to_catalog._walk 가 최외곽이든 깊이든 명시적으로 거부한다 (인수 양수성 미보장)",
+      "sign": "to_catalog._walk 에 sympy.sign 에 대응하는 노드가 없다"
+    },
+    "n_rows_total": 198014,
+    "n_rows_valid": 198014,
+    "n_equations_from_pysr": 14,
+    "n_candidates_kept": 14,
+    "n_discarded_free_symbols": 0,
+    "n_discarded_other": 0,
+    "output_directory": "/tmp/pysr_bet8a7i_"
+  },
+  "n_candidates": 14,
+  "n_compiled": 8,
+  "n_compile_failed": 3,
+  "compile_failure_reasons": [
+    {
+      "stage": "translate",
+      "reason": "상수만으로 된 가지는 진입식이 될 수 없다. 상수는 임계로 흡수한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "깊이(최외곽이 아닌 곳)의 상수배 0.322889270000000 는 옮길 수 없다: Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없다 (0.322889270000000·mid_return_20t_over_spread 같은 깊이의 계수는 최외곽 분위 임계로 흡수되지 않는다)"
+    },
+    {
+      "stage": "translate",
+      "reason": "깊이(최외곽이 아닌 곳)의 상수배 0.390892270000000 는 옮길 수 없다: Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없다 (0.390892270000000·mid_return_20t_over_spread 같은 깊이의 계수는 최외곽 분위 임계로 흡수되지 않는다)"
+    }
+  ],
+  "compiled_entries": [
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "ratio",
+          "numerator": {
+            "op": "primitive",
+            "primitive_id": "microprice_velocity"
+          },
+          "denominator": {
+            "op": "primitive",
+            "primitive_id": "spread_bps"
+          },
+          "zero_policy": "nan"
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Symbol('microprice_velocity_over_spread')",
+      "shells": [],
+      "complexity": 1,
+      "in_sample_score": -121.7906028796424,
+      "expr_str": "microprice_velocity_over_spread"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "primitive",
+          "primitive_id": "signed_aggr_flow_100"
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Symbol('signed_aggr_flow_100')",
+      "shells": [
+        "offset",
+        "tanh",
+        "scale"
+      ],
+      "complexity": 8,
+      "in_sample_score": 0.2655898421474988,
+      "expr_str": "tanh(signed_aggr_flow_100*0.091815494) - 1*1.038035"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "primitive",
+            "primitive_id": "book_imbalance"
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "signed_aggr_flow_100"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('book_imbalance'), Symbol('signed_aggr_flow_100'))",
+      "shells": [
+        "offset",
+        "scale"
+      ],
+      "complexity": 9,
+      "in_sample_score": 0.5052717888696852,
+      "expr_str": "(book_imbalance + signed_aggr_flow_100)*0.083205365 - 1*1.0411993"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "tanh",
+            "input": {
+              "op": "primitive",
+              "primitive_id": "book_imbalance"
+            }
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "signed_aggr_flow_100"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('signed_aggr_flow_100'), tanh(Symbol('book_imbalance')))",
+      "shells": [
+        "offset",
+        "scale"
+      ],
+      "complexity": 10,
+      "in_sample_score": 0.5154185578436126,
+      "expr_str": "(signed_aggr_flow_100 + tanh(book_imbalance))*0.09386577 - 1*1.0404555"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "add",
+            "left": {
+              "op": "add",
+              "left": {
+                "op": "primitive",
+                "primitive_id": "signed_aggr_flow_20"
+              },
+              "right": {
+                "op": "primitive",
+                "primitive_id": "signed_aggr_flow_100"
+              }
+            },
+            "right": {
+              "op": "primitive",
+              "primitive_id": "spread_to_round_trip_cost_ratio"
+            }
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "book_imbalance"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('book_imbalance'), Symbol('signed_aggr_flow_100'), Symbol('signed_aggr_flow_20'), Symbol('spread_to_round_trip_cost_ratio'))",
+      "shells": [
+        "offset",
+        "scale"
+      ],
+      "complexity": 11,
+      "in_sample_score": 0.6902928916046805,
+      "expr_str": "(book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio)*0.058926456 - 1*1.0840377"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "add",
+            "left": {
+              "op": "primitive",
+              "primitive_id": "signed_aggr_flow_100"
+            },
+            "right": {
+              "op": "primitive",
+              "primitive_id": "spread_to_round_trip_cost_ratio"
+            }
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "book_imbalance"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('book_imbalance'), Symbol('signed_aggr_flow_100'), Symbol('spread_to_round_trip_cost_ratio'))",
+      "shells": [
+        "offset",
+        "scale",
+        "tanh"
+      ],
+      "complexity": 11,
+      "in_sample_score": 0.6729193510182196,
+      "expr_str": "tanh(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio)*0.1410824 - 1*1.0991353"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "add",
+            "left": {
+              "op": "add",
+              "left": {
+                "op": "tanh",
+                "input": {
+                  "op": "primitive",
+                  "primitive_id": "signed_aggr_flow_20"
+                }
+              },
+              "right": {
+                "op": "primitive",
+                "primitive_id": "signed_aggr_flow_100"
+              }
+            },
+            "right": {
+              "op": "primitive",
+              "primitive_id": "spread_to_round_trip_cost_ratio"
+            }
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "book_imbalance"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('book_imbalance'), Symbol('signed_aggr_flow_100'), Symbol('spread_to_round_trip_cost_ratio'), tanh(Symbol('signed_aggr_flow_20')))",
+      "shells": [
+        "offset",
+        "scale",
+        "tanh"
+      ],
+      "complexity": 13,
+      "in_sample_score": 0.7325759110784118,
+      "expr_str": "tanh(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_20))*0.12482372 - 1*1.084626"
+    },
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "add",
+          "left": {
+            "op": "add",
+            "left": {
+              "op": "add",
+              "left": {
+                "op": "multiply",
+                "left": {
+                  "op": "primitive",
+                  "primitive_id": "signed_aggr_flow_20"
+                },
+                "right": {
+                  "op": "primitive",
+                  "primitive_id": "queue_imbalance_best"
+                }
+              },
+              "right": {
+                "op": "primitive",
+                "primitive_id": "book_imbalance"
+              }
+            },
+            "right": {
+              "op": "primitive",
+              "primitive_id": "spread_to_round_trip_cost_ratio"
+            }
+          },
+          "right": {
+            "op": "primitive",
+            "primitive_id": "signed_aggr_flow_100"
+          }
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Add(Symbol('book_imbalance'), Mul(Symbol('queue_imbalance_best'), Symbol('signed_aggr_flow_20')), Symbol('signed_aggr_flow_100'), Symbol('spread_to_round_trip_cost_ratio'))",
+      "shells": [
+        "offset",
+        "scale",
+        "tanh"
+      ],
+      "complexity": 14,
+      "in_sample_score": 0.7556786712359794,
+      "expr_str": "tanh(book_imbalance + queue_imbalance_best*signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio)*0.13854784 - 1*1.0886018"
+    }
+  ],
+  "total_elapsed_seconds": 3673.568141222
+}
