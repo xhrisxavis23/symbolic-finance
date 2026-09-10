@@ -82,7 +82,15 @@ def main() -> int:
     if baseline_failed:
         raise SystemExit(f"기준선 컴파일 실패 — 이건 있어서는 안 된다: {baseline_failed}")
     for e in baseline_compiled:
-        kind = "naive" if e.normal_form.count(P.NAIVE_FEATURE) else "null"
+        # 버그 수정(2026-09-10 실행 중 발견): `normal_form.count(NAIVE_FEATURE)`
+        # 로 분류했었는데 `NULL_FEATURE`="book_imbalance_velocity" 가
+        # `NAIVE_FEATURE`="book_imbalance" 를 **부분 문자열로 포함**해서 둘
+        # 다 "naive" 로 잘못 분류됐다 — "null" 버킷이 통째로 비어 영점
+        # 기준선이 "자격없음"으로 나왔다(실제로는 M 재생 자체는 맞게 됐고
+        # 분류만 틀렸다 — e019 가 null_M_summary 대신 naive_M_summary 에
+        # 섞여 있었다). `Candidate.backend` 는 생성 시점에 준 정확한 식별자라
+        # 부분 문자열 문제가 없다 — 이것으로 바꾼다.
+        kind = "naive" if e.source.backend == "baseline_naive" else "null"
         entries_flat.append((kind, -1, SimpleNamespace(
             ast=e.ast, normal_form=e.normal_form, complexity=e.source.complexity,
             expr_str=str(e.source.expr))))

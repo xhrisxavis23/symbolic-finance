@@ -132,7 +132,23 @@
     "M_decisions": 82556
   },
   "null_primary": {
-    "eligible": false
+    "eligible": true,
+    "contract_id": "e019:q0.95",
+    "ast": {
+      "op": "compare",
+      "input": {
+        "op": "primitive",
+        "primitive_id": "book_imbalance_velocity"
+      },
+      "comparator": ">",
+      "value": "UNRESOLVED:theta_score"
+    },
+    "normal_form": "Symbol('book_imbalance_velocity')",
+    "expr_str": "book_imbalance_velocity",
+    "M_total_net_bps": -121593.02238431631,
+    "M_bps_per_decision": -1.2397836614902353,
+    "M_scorable": 98076,
+    "M_decisions": 98364
   },
   "structural_recovery": {
     "n_unique_structures": 14,
@@ -234,7 +250,9 @@
       "prefix": "e018",
       "kind": "naive",
       "seed": -1
-    },
+    }
+  ],
+  "null_M_summary": [
     {
       "contract_id": "e019:q0.70",
       "decisions": 239710,
@@ -290,7 +308,6 @@
       "seed": -1
     }
   ],
-  "null_M_summary": [],
   "all_M_summary": [
     {
       "contract_id": "e000:q0.70",
@@ -1333,7 +1350,7 @@
       "cohort_COST_INSUFFICIENT": 631,
       "cohort_PERSISTENT_ADVERSE": 6473,
       "prefix": "e019",
-      "kind": "naive",
+      "kind": "null",
       "seed": -1
     },
     {
@@ -1351,7 +1368,7 @@
       "cohort_COST_INSUFFICIENT": 685,
       "cohort_PERSISTENT_ADVERSE": 5397,
       "prefix": "e019",
-      "kind": "naive",
+      "kind": "null",
       "seed": -1
     },
     {
@@ -1369,7 +1386,7 @@
       "cohort_COST_INSUFFICIENT": 535,
       "cohort_PERSISTENT_ADVERSE": 3547,
       "prefix": "e019",
-      "kind": "naive",
+      "kind": "null",
       "seed": -1
     }
   ]
