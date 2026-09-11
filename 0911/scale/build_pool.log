@@ -1,0 +1,9 @@
+[01:54:03] L=837 M=834
+[01:54:03] loading L pool: 2511 symbol-day pairs across ['20260316', '20260317', '20260318']
+[02:07:00] L pool loaded: 2509 blocks, 2 skipped, 19 common features, 795.2s
+[02:07:00] loading M pool: 834 symbol-day pairs on 20260316
+[02:08:49] M pool loaded: 834 blocks, 0 skipped, 19 common features, 109.4s
+[02:08:49] common L∩M features: 19: ('ask_depth_concentration', 'bid_depth_concentration', 'bid_l1_depth_over_qbar', 'book_imbalance', 'book_imbalance_velocity', 'deep_depth_imbalance_6_10', 'microprice_velocity_over_spread', 'microprice_velocity_zscore', 'mid_return_100t_over_spread', 'mid_return_20t_over_spread', 'mid_return_5t_over_spread', 'ofi_depth_5_zscore', 'ofi_l1_over_qbar', 'ofi_over_qbar_10', 'ofi_over_qbar_5', 'queue_imbalance_best', 'signed_aggr_flow_100', 'signed_aggr_flow_20', 'spread_to_round_trip_cost_ratio')
+[02:09:28] assembled X_L=(45734085, 19) X_M=(5736557, 19)
+[02:09:50] saved pool to /tmp/claude-1003/-home-dgu-tick-symbolic/4a3e1c4b-3ad5-47d8-a5f5-5cdf1d5a7bb6/scratchpad/0911_pool, total 975.0s
+[02:09:50] meta={'feature_names': ['ask_depth_concentration', 'bid_depth_concentration', 'bid_l1_depth_over_qbar', 'book_imbalance', 'book_imbalance_velocity', 'deep_depth_imbalance_6_10', 'microprice_velocity_over_spread', 'microprice_velocity_zscore', 'mid_return_100t_over_spread', 'mid_return_20t_over_spread', 'mid_return_5t_over_spread', 'ofi_depth_5_zscore', 'ofi_l1_over_qbar', 'ofi_over_qbar_10', 'ofi_over_qbar_5', 'queue_imbalance_best', 'signed_aggr_flow_100', 'signed_aggr_flow_20', 'spread_to_round_trip_cost_ratio'], 'L_symbols': 837, 'M_symbols': 834, 'L_pairs': 2511, 'M_pairs': 834, 'L_loaded': 2509, 'L_skipped': 2, 'M_loaded': 834, 'M_skipped': 0, 'X_L_shape': [45734085, 19], 'X_M_shape': [5736557, 19], 'n_usable_L': 45672051, 'n_usable_M': 5728332, 'train_dates': ['20260316', '20260317', '20260318'], 'eval_date': '20260316', 'build_seconds': 975.0199716091156}

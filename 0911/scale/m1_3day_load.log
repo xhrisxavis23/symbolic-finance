@@ -1,0 +1,27 @@
+[strata] universe=2570 stratified=2507 friction={'L': 837, 'H': 836, 'M': 834}
+[universe-check] 20260316: n=2570 overlap=2570
+[universe-check] 20260317: n=2568 overlap=2567
+[universe-check] 20260318: n=2570 overlap=2568
+[20260316 500/2507] elapsed=107.8s rss=1259MB rows_so_far=5,686,173
+[20260316 1000/2507] elapsed=197.7s rss=1259MB rows_so_far=10,503,316
+[20260316 1500/2507] elapsed=274.0s rss=1259MB rows_so_far=14,625,846
+[20260316 2000/2507] elapsed=348.3s rss=1259MB rows_so_far=18,266,256
+[20260316 2500/2507] elapsed=434.3s rss=1259MB rows_so_far=22,981,194
+[20260316 2507/2507] elapsed=436.3s rss=1259MB rows_so_far=23,091,003
+[done 20260316] rows=23,091,003 maskable=23,058,167 loaded=2507 skipped=0 wall=436.3s rss=1259MB
+[20260317 500/2507] elapsed=104.5s rss=1445MB rows_so_far=5,189,379
+[20260317 1000/2507] elapsed=192.8s rss=1445MB rows_so_far=9,813,800
+[20260317 1500/2507] elapsed=270.6s rss=1445MB rows_so_far=13,878,723
+[20260317 2000/2507] elapsed=341.6s rss=1445MB rows_so_far=17,562,821
+[20260317 2500/2507] elapsed=430.3s rss=1445MB rows_so_far=22,286,041
+[20260317 2507/2507] elapsed=432.2s rss=1445MB rows_so_far=22,392,688
+[done 20260317] rows=22,392,688 maskable=22,360,242 loaded=2503 skipped=4 wall=432.2s rss=1445MB
+[20260318 500/2507] elapsed=111.2s rss=1495MB rows_so_far=5,896,161
+[20260318 1000/2507] elapsed=208.7s rss=1543MB rows_so_far=10,986,232
+[20260318 1500/2507] elapsed=288.1s rss=1543MB rows_so_far=15,209,913
+[20260318 2000/2507] elapsed=365.5s rss=1543MB rows_so_far=19,302,086
+[20260318 2500/2507] elapsed=459.0s rss=1543MB rows_so_far=24,330,384
+[20260318 2507/2507] elapsed=462.4s rss=1543MB rows_so_far=24,517,869
+[done 20260318] rows=24,517,869 maskable=24,484,580 loaded=2505 skipped=2 wall=462.4s rss=1543MB
+[ALL DONE] 3-day total rows=70,001,560 maskable=69,902,989 friction_totals={'L': 45734085, 'M': 17844717, 'H': 6422758} wall=1340.1s rss=1543MB
+[saved] /home/dgu/tick/symbolic/0911/scale/data/m1_3day_load.json
