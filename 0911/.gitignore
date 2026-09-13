@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+groups/out/*.parquet
+groups/out/*.pt
+groups/out/*.npz
