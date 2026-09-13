@@ -18,3 +18,4 @@
 [03:19:44] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/shallow_cpu.json
 [03:19:44] === size=5,000,000 model=shallow device=cpu ===
 [04:41:32] select() -> fit_rows=4,950,332 (4908.1s)
+=== [2026-09-13_15:01:56] 기동: scale/sample_size_curve.py --model shallow --device cpu --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 700 --eval-every 10 --patience 10 --out scale/data/shallow_cpu.json ===
