@@ -126,3 +126,4 @@ torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 42.51 GiB. GPU 0 h
 }
 [16:35:59] 완료
 [W913 16:36:01.277728552 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+=== [2026-09-13_16:36:14] 종료 exit=0 ===
