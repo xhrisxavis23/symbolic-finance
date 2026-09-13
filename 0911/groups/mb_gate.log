@@ -1,1 +1,2 @@
 === [2026-09-13_16:25:38] 기동: groups/minibatch_run.py gate (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=) ===
+[16:28:37] [gate] 적재 5757/5763 블록, 공통 특징 19 (168s)
