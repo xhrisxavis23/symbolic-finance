@@ -1,5 +1,5 @@
 {
- "stage": "split",
+ "stage": "loaded",
  "train_dates": [
   "20260316",
   "20260317",
@@ -15,5 +15,29 @@
   "train": 1647,
   "select": 411,
   "eval": 411
- }
+ },
+ "n_pairs": 8232,
+ "n_blocks": 8224,
+ "features": [
+  "ask_depth_concentration",
+  "bid_depth_concentration",
+  "bid_l1_depth_over_qbar",
+  "book_imbalance",
+  "book_imbalance_velocity",
+  "deep_depth_imbalance_6_10",
+  "microprice_velocity_over_spread",
+  "microprice_velocity_zscore",
+  "mid_return_100t_over_spread",
+  "mid_return_20t_over_spread",
+  "mid_return_5t_over_spread",
+  "ofi_depth_5_zscore",
+  "ofi_l1_over_qbar",
+  "ofi_over_qbar_10",
+  "ofi_over_qbar_5",
+  "queue_imbalance_best",
+  "signed_aggr_flow_100",
+  "signed_aggr_flow_20",
+  "spread_to_round_trip_cost_ratio"
+ ],
+ "load_seconds": 357.5482313632965
 }

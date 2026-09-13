@@ -1,1 +1,2 @@
 === [2026-09-13_17:09:27] 기동: groups/minibatch_run.py full (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=) ===
+[17:15:45] [full] 적재 8224/8232 블록, 공통 특징 19 (358s)
