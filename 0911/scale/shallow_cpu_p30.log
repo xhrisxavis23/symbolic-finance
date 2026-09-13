@@ -1,0 +1,8 @@
+=== [2026-09-13_16:27:48] 기동: scale/sample_size_curve.py --model shallow --device cpu --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 1500 --eval-every 10 --patience 30 --out scale/data/shallow_cpu_p30.json ===
+[16:29:22] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[16:30:01] fixed eval set: select_rows=198,079 (select() took 39.7s)
+[16:30:02] === size=200,000 model=shallow device=cpu ===
+[16:34:34] select() -> fit_rows=197,941 (272.4s)
+[16:36:20] size=200,000 fit_seconds=105.5s best_epoch=210 best_score=0.015949 stopped_epoch=510 final_recheck=0.015949
+[16:36:20] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[16:36:20] === size=500,000 model=shallow device=cpu ===
