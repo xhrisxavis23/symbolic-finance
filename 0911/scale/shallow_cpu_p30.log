@@ -14,3 +14,7 @@
 [17:26:04] size=1,000,000 fit_seconds=1487.9s best_epoch=730 best_score=0.017568 stopped_epoch=1030 final_recheck=0.017568
 [17:26:04] checkpoint saved -> scale/data/shallow_cpu_p30.json
 [17:26:04] === size=2,000,000 model=shallow device=cpu ===
+[17:29:36] select() -> fit_rows=1,980,299 (211.8s)
+[17:42:27] size=2,000,000 fit_seconds=771.6s best_epoch=810 best_score=0.018260 stopped_epoch=1110 final_recheck=0.018260
+[17:42:27] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[17:42:27] === size=5,000,000 model=shallow device=cpu ===
