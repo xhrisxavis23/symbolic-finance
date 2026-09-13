@@ -12,3 +12,4 @@
 [16:53:54] [gate] 예측값 저장 {'eval1': 3849436, 'eval2': 15569153} (340s)
 [16:57:52] [gate] 판정 {'reference_fullbatch_select_r2': 0.022828300464851292, 'minibatch_select_r2': 0.023538523482576457, 'threshold': 0.020545470418366164, 'passed': True, 'minibatch_higher': True, 'reference_nonpositive': False}
 [16:57:52] [gate] 평가① R² 전체배치 0.00908 → 미니배치 0.00755, 차이 -0.00152 [-0.00298, -0.00085], 예측 상관 0.845
+=== [2026-09-13_16:58:41] 종료 exit=0 ===
