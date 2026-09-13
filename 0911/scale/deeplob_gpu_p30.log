@@ -13,3 +13,8 @@
 [17:03:15] size=500,000 fit_seconds=318.7s best_epoch=760 best_score=0.021014 stopped_epoch=1060 final_recheck=0.021014
 [17:03:15] checkpoint saved -> scale/data/deeplob_gpu_p30.json
 [17:03:15] === size=1,000,000 model=deeplob device=cuda ===
+[17:07:38] select() -> fit_rows=990,113 (262.7s)
+[17:12:37] windowing fit set -> (990113, 304) (298.5s)
+[17:22:57] size=1,000,000 fit_seconds=619.3s best_epoch=460 best_score=0.019685 stopped_epoch=760 final_recheck=0.019685
+[17:22:57] checkpoint saved -> scale/data/deeplob_gpu_p30.json
+[17:22:57] === size=2,000,000 model=deeplob device=cuda ===
