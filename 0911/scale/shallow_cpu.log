@@ -19,3 +19,15 @@
 [03:19:44] === size=5,000,000 model=shallow device=cpu ===
 [04:41:32] select() -> fit_rows=4,950,332 (4908.1s)
 === [2026-09-13_15:01:56] 기동: scale/sample_size_curve.py --model shallow --device cpu --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 700 --eval-every 10 --patience 10 --out scale/data/shallow_cpu.json ===
+[15:02:28] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[15:02:52] fixed eval set: select_rows=198,079 (select() took 23.3s)
+[15:02:52] 기존 결과 4개 발견, 이미 완료된 사이즈: {200000, 500000, 1000000, 2000000}
+[15:02:52] size=200,000 이미 완료 — 스킵
+[15:02:52] size=500,000 이미 완료 — 스킵
+[15:02:52] size=1,000,000 이미 완료 — 스킵
+[15:02:52] size=2,000,000 이미 완료 — 스킵
+[15:02:52] === size=5,000,000 model=shallow device=cpu ===
+[15:05:46] select() -> fit_rows=4,950,332 (174.8s)
+[15:32:22] size=5,000,000 fit_seconds=1594.9s best_epoch=480 best_score=0.018800 stopped_epoch=580 final_recheck=0.018800
+[15:32:22] checkpoint saved -> scale/data/shallow_cpu.json
+[15:32:22] === size=10,000,000 model=shallow device=cpu ===
