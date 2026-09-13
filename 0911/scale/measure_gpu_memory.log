@@ -1,0 +1,9 @@
+GPU NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+{'n': 100000, 'peak_alloc_gb': 3.850457191467285, 'peak_reserved_gb': 5.814453125, 'sec_per_epoch': 3.1311941146850586}
+{'n': 200000, 'peak_alloc_gb': 7.676872253417969, 'peak_reserved_gb': 11.658203125, 'sec_per_epoch': 3.012227932612101}
+{'n': 400000, 'peak_alloc_gb': 15.323753356933594, 'peak_reserved_gb': 23.302734375, 'sec_per_epoch': 7.911469141642253}
+{'n': 800000, 'peak_alloc_gb': 30.620956897735596, 'peak_reserved_gb': 46.412109375, 'sec_per_epoch': 3.6434505780537925}
+{'n': 1200000, 'peak_alloc_gb': 45.91563129425049, 'peak_reserved_gb': 69.513671875, 'sec_per_epoch': 7.333866516749064}
+peak_alloc_gb 백만 행당 38.24 GB, 투영 {'2000000': np.float64(76.5), '5000000': np.float64(191.2), '10000000': np.float64(382.4), '45734085': np.float64(1748.9)}
+peak_reserved_gb 백만 행당 57.89 GB, 투영 {'2000000': np.float64(115.9), '5000000': np.float64(289.5), '10000000': np.float64(578.9), '45734085': np.float64(2647.5)}
+exit=0
