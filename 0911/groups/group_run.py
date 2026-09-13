@@ -49,8 +49,11 @@ FIT_ROWS = 2_000_000          # 사전등록 §4
 SELECT_ROWS = 200_000
 EPOCHS = 1500
 EVAL_EVERY = 10
-PATIENCE = 10
-DEVICE = "cuda:1"             # 0번 GPU 는 표본 크기 곡선 측정이 쓰고 있다
+PATIENCE = 30                 # 부록 D: 10 은 일시적 하락 구간에서 멈춘다(곡선 50만 행 사례)
+# 이 셸은 ~/.bashrc 가 CUDA_VISIBLE_DEVICES 를 물리 GPU1(ollama 용) 한 장으로 고정한다 — 그래서 "cuda:1" 은
+# 존재하지 않는다(시험 운전에서 잡혔다). 기동할 때 CUDA_VISIBLE_DEVICES·GROUP_GPU_UUID 를 쓸 물리 GPU 로
+# 지정하고, 여기서는 보이는 첫 장("cuda")을 쓴다. build_teacher 가 UUID 로 맞는 장치인지 확인한다.
+DEVICE = "cuda"
 RIDGE_ALPHAS = (1e-3, 1e-2, 1e-1, 1.0, 10.0, 100.0, 1000.0)   # 부록 A4. 표준화 후 행당 단위
 BLOCKS_PER_SLICE = 100        # 평가 윈도우를 종목·날짜 묶음 단위로 잘라 만든다
 PRED_CHUNK = 500_000          # predict_path 는 입력 전체를 한 번에 GPU 로 올린다
@@ -123,7 +126,15 @@ def make_split(assign: pd.DataFrame) -> dict[str, str]:
 
 
 def build_teacher(n_features: int):
+    import torch
     from deeplob_gpu import DeepLOBCompactGPU   # CUDA 는 적재(fork) 뒤에만 건드린다
+    want = os.environ.get("GROUP_GPU_UUID", "")
+    got = str(torch.cuda.get_device_properties(0).uuid)
+    norm = lambda u: u.lower().removeprefix("gpu-")
+    if not want or norm(want) != norm(got):
+        raise RuntimeError(f"의도한 GPU 가 아니다: GROUP_GPU_UUID={want!r}, 보이는 장치={got} — "
+                           "다른 실행과 같은 GPU 를 쓰게 될 수 있어 멈춘다")
+    log(f"GPU 확인: {torch.cuda.get_device_name(0)} {got}")
     return DeepLOBCompactGPU(n_features=n_features, bottleneck=2, seed=SEED,
                              window=WINDOW, device=DEVICE)
 
