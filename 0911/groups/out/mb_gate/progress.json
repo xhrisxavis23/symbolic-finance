@@ -1,5 +1,5 @@
 {
- "stage": "predicted",
+ "stage": "analysed",
  "train_dates": [
   "20260316",
   "20260317"
@@ -256,5 +256,38 @@
   "eval1": 3849436,
   "eval2": 15569153
  },
- "predict_seconds": 339.6199560165405
+ "predict_seconds": 339.6199560165405,
+ "negative_control_violations": [],
+ "gate": {
+  "reference_fullbatch_select_r2": 0.022828300464851292,
+  "minibatch_select_r2": 0.023538523482576457,
+  "threshold": 0.020545470418366164,
+  "passed": true,
+  "minibatch_higher": true,
+  "reference_nonpositive": false
+ },
+ "vs_fullbatch_2M": {
+  "eval1": {
+   "r2_a": 0.009076133222516325,
+   "r2_b": 0.007551864219135895,
+   "delta": -0.0015242690033804296,
+   "delta_lo": -0.0029779257597236986,
+   "delta_hi": -0.0008545149032134326,
+   "n_symbols": 411,
+   "n_rows": 3849436,
+   "pred_corr": 0.8449285174263097,
+   "n_rows_dropped_non_finite": 0
+  },
+  "eval2": {
+   "r2_a": 0.019640341080380153,
+   "r2_b": 0.018277726863128008,
+   "delta": -0.001362614217252145,
+   "delta_lo": -0.0018850394386362324,
+   "delta_hi": -0.0008162794463276613,
+   "n_symbols": 1644,
+   "n_rows": 15569153,
+   "pred_corr": 0.8483878011349942,
+   "n_rows_dropped_non_finite": 0
+  }
+ }
 }
