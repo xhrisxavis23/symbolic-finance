@@ -26,3 +26,6 @@ Traceback (most recent call last):
 torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 42.51 GiB. GPU 0 has a total capacity of 94.97 GiB of which 23.27 GiB is free. Including non-PyTorch memory, this process has 71.68 GiB memory in use. Of the allocated memory 33.23 GiB is allocated by PyTorch, and 37.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
 === [2026-09-13_15:52:35] 종료 exit=1 ===
 === [2026-09-13_15:58:12] 기동: groups/group_run.py (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True) ===
+[15:58:15] train: 1647 종목 {'큰틱': 549, '중간틱': 549, '작은틱': 549}
+[15:58:15] select: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
+[15:58:15] eval: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
