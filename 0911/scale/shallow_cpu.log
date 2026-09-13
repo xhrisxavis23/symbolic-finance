@@ -32,3 +32,6 @@
 [15:32:22] checkpoint saved -> scale/data/shallow_cpu.json
 [15:32:22] === size=10,000,000 model=shallow device=cpu ===
 [15:40:47] select() -> fit_rows=9,900,579 (504.8s)
+[16:26:08] size=10,000,000 fit_seconds=2720.3s best_epoch=420 best_score=0.018785 stopped_epoch=520 final_recheck=0.018785
+[16:26:08] checkpoint saved -> scale/data/shallow_cpu.json
+[16:26:08] all sizes done
