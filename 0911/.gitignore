@@ -3,3 +3,6 @@ __pycache__/
 groups/out/*.parquet
 groups/out/*.pt
 groups/out/*.npz
+groups/out/**/*.parquet
+groups/out/**/*.pt
+groups/out/**/*.npz
