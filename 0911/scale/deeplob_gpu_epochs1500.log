@@ -18,3 +18,8 @@
 [15:14:25] size=500,000 fit_seconds=68.5s best_epoch=80 best_score=0.014053 stopped_epoch=180 final_recheck=0.014053
 [15:14:25] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
 [15:14:25] === size=1,000,000 model=deeplob device=cuda ===
+[15:17:32] select() -> fit_rows=990,113 (187.7s)
+[15:19:09] windowing fit set -> (990113, 304) (96.6s)
+[15:24:21] size=1,000,000 fit_seconds=310.6s best_epoch=460 best_score=0.019685 stopped_epoch=560 final_recheck=0.019685
+[15:24:21] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:24:21] === size=2,000,000 model=deeplob device=cuda ===
