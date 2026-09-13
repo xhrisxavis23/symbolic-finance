@@ -6,3 +6,6 @@
 [16:39:29] [gate] lr=0.001 학습 283s, 최선 epoch 10.25, 선택 R² 0.02329, 멈춤 15.25, 조기종료 True
 [16:39:29] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
 [16:39:29] [gate] 미니배치 학습 시작 lr=0.0003
+[16:48:14] [gate] lr=0.0003 학습 515s, 최선 epoch 20.0, 선택 R² 0.02354, 멈춤 25.0, 조기종료 True
+[16:48:14] [gate] 학습률 선택 0.0003 (선택 R² 0.001: 0.02329, 0.0003: 0.02354)
+[16:48:14] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
