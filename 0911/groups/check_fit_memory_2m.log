@@ -1,0 +1,4 @@
+GPU NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa ALLOC_CONF= expandable_segments:True
+{'gpu': 'dcd70e26-59e0-7835-941a-4a0aabb186fa', 'alloc_conf': 'expandable_segments:True', 'n_fit': 1979970, 'n_select': 197998, 'epochs': 12, 'eval_every': 4, 'peak_alloc_gb': 75.73901891708374, 'peak_reserved_gb': 77.814453125, 'gpu_total_gb': 94.97296142578125, 'seconds': 46.93406867980957, 'ok': True}
+[W913 15:59:53.557233574 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+exit=0
