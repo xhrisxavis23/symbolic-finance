@@ -55,6 +55,9 @@ def make(scenario: str, seed: int, level_sd: float):
         elif scenario == "equal":
             y = level + 0.3 * x + rng.normal(size=n)
             p_d = p_r = 0.3 * x
+        elif scenario == "weak_confound":
+            y = level + rng.normal(size=n)
+            p_d = p_r = 0.3 * level + noise_pred
         elif scenario == "confound":
             y = level + rng.normal(size=n)
             p_d = p_r = np.full(n, level)
@@ -111,11 +114,13 @@ for lsd in (0.2, 2.0):
     for seed in (1, 2, 3):
         v = run("flat", seed=seed, level_sd=lsd)["verdict_primary"]
         check(v["heterogeneity"] != "이질성 있음", f"seed={seed} level_sd={lsd} → {v['heterogeneity']}")
+        check(v["precondition_passed"], f"seed={seed} level_sd={lsd} → 대조군 거짓 경보 없음 (부록 E)")
 
 print("[equal — 적대적] 모든 종목군 같은 신호에서 거짓 이질성이 나오면 부록 C 수정 기각")
 for seed in (1, 2, 3):
     r = run("equal", seed=seed); v = r["verdict_primary"]
     check(v["heterogeneity"] != "이질성 있음", f"seed={seed} → {v['heterogeneity']}  {brief(r)}")
+    check(v["precondition_passed"], f"seed={seed} → 대조군 거짓 경보 없음 (부록 E)")
 
 r = run("confound"); v = r["verdict_primary"]
 nc = r["sets"]["eval1"]["deeplob"]["negative_control"]
@@ -124,6 +129,15 @@ global_hi = max(e["pooled"]["r2"] for e in nc["global"])
 print(f"[confound] 종목안섞기 R² 최대 {within_hi:+.4f}  전체섞기 R² 최대 {global_hi:+.4f}")
 check(not v["precondition_passed"], "종목 안 섞기 대조군이 교란을 잡아 판정 보류")
 check(within_hi > 0 and global_hi <= 0, "전체 섞기만으로는 못 잡는다 — 종목 안 섞기가 필요한 이유")
+
+print("[weak_confound — 검출력 기록, 합격선 아님] 예측이 종목 수준의 30% 만 탄다")
+for lsd in (0.2, 2.0):
+    for seed in (1, 2, 3):
+        r = run("weak_confound", seed=seed, level_sd=lsd); v = r["verdict_primary"]
+        nc = r["sets"]["eval1"]["deeplob"]["negative_control"]["within_symbol"]
+        lo = max(e["pooled"]["lo"] for e in nc); pt = max(e["pooled"]["r2"] for e in nc)
+        print(f"    level_sd={lsd} seed={seed}: 종목안섞기 R² 최대 {pt:+.4f} (하한 최대 {lo:+.4f}) → "
+              f"{'검출' if not v['precondition_passed'] else '놓침'}", flush=True)
 
 print()
 if failures:

@@ -10,7 +10,7 @@
 
 사전등록 대응
   §5  행 단위 R², 종목 단위 부트스트랩 1000회
-  §6  음성 대조군 = 고정 예측 대 종목 안에서 섞은 y (부록 A3). 모든 종목군 CI 상한 ≤ 0 이어야 판정
+  §6  음성 대조군 = 고정 예측 대 종목 안에서 섞은 y (부록 A3). 섞은 y 에서 R² 가 유의하게 양수(CI 하한 > 0)인 칸이 없어야 판정 (부록 E)
   §7  이질성 판정, 본질 vs 모델 판정
   부록 A1  틱×유동성 9칸 (서술, 판정 아님). 평가 종목 20개 미만 칸은 해석 제외
 """
@@ -133,13 +133,13 @@ def verdict(primary: dict, ridge: dict) -> dict:
         for p, entry in enumerate(primary["negative_control"][kind]):
             for g in ["pooled"] + TICK_ORDER:
                 ci = entry["pooled"] if g == "pooled" else entry["tick"][g]
-                if not (ci["hi"] <= 0):
-                    violations.append(f"deeplob {kind} perm{p} {g}: CI 상한 {ci['hi']:.5f} > 0")
+                if ci["lo"] > 0:   # 부록 E: 섞은 y 에서 유의하게 양수일 때만 경보
+                    violations.append(f"deeplob {kind} perm{p} {g}: CI 하한 {ci['lo']:.5f} > 0")
         for p, entry in enumerate(ridge["negative_control"][kind]):
             for g in ["pooled"] + TICK_ORDER:
                 ci = entry["pooled"] if g == "pooled" else entry["tick"][g]
-                if not (ci["hi"] <= 0):
-                    violations.append(f"ridge {kind} perm{p} {g}: CI 상한 {ci['hi']:.5f} > 0")
+                if ci["lo"] > 0:   # 부록 E: 섞은 y 에서 유의하게 양수일 때만 경보
+                    violations.append(f"ridge {kind} perm{p} {g}: CI 하한 {ci['lo']:.5f} > 0")
     if violations:
         return {"precondition_passed": False, "violations": violations,
                 "heterogeneity": "판정 보류 — 음성 대조군 위반", "nature": None}
