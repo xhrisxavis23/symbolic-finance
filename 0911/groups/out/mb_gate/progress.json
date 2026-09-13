@@ -1,0 +1,16 @@
+{
+ "stage": "split",
+ "train_dates": [
+  "20260316",
+  "20260317"
+ ],
+ "select_dates": [
+  "20260318"
+ ],
+ "test_date": "20260319",
+ "split_counts": {
+  "train": 1647,
+  "select": 411,
+  "eval": 411
+ }
+}
