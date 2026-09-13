@@ -3,3 +3,6 @@
 [16:34:30] [gate] 학습 풀 30,353,580 → 학습 표본 1,979,970 · 선택 표본 197,998 (318s)
 [16:34:30] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
 [16:34:31] [gate] 미니배치 학습 시작 lr=0.001
+[16:39:29] [gate] lr=0.001 학습 283s, 최선 epoch 10.25, 선택 R² 0.02329, 멈춤 15.25, 조기종료 True
+[16:39:29] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[16:39:29] [gate] 미니배치 학습 시작 lr=0.0003
