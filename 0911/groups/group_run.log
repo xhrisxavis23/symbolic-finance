@@ -35,3 +35,6 @@ torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 42.51 GiB. GPU 0 h
 [16:05:51] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
 [16:23:02] 교사 학습 1030s, 최선 epoch 700, 선택 R² 0.02283, 멈춤 1000, 조기종료 True
 [16:24:58] 릿지 규제 0.001, 선택 R² 0.02360 (117s)
+[16:25:25]   eval1 묶음 1: 누적 959,174행
+[16:25:39]   eval1 묶음 2: 누적 2,003,586행
+[16:25:51]   eval1 묶음 3: 누적 2,713,261행
