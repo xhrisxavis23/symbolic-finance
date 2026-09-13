@@ -1,2 +1,5 @@
 === [2026-09-13_17:09:27] 기동: groups/minibatch_run.py full (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=) ===
 [17:15:45] [full] 적재 8224/8232 블록, 공통 특징 19 (358s)
+[17:28:49] [full] 학습 풀 46,790,850 → 학습 표본 44,436,221 · 선택 표본 198,016 (733s)
+[17:28:49] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[17:28:49] [full] 미니배치 학습 시작 lr=0.001

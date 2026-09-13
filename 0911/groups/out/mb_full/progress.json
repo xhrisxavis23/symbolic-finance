@@ -1,5 +1,5 @@
 {
- "stage": "loaded",
+ "stage": "selected",
  "train_dates": [
   "20260316",
   "20260317",
@@ -39,5 +39,10 @@
   "signed_aggr_flow_20",
   "spread_to_round_trip_cost_ratio"
  ],
- "load_seconds": 357.5482313632965
+ "load_seconds": 357.5482313632965,
+ "n_train_pool": 46790850,
+ "n_select_pool": 11249700,
+ "n_fit_rows": 44436221,
+ "n_select_rows": 198016,
+ "select_seconds": 733.2137997150421
 }
