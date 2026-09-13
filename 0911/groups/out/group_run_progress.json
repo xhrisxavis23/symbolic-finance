@@ -1,5 +1,5 @@
 {
- "stage": "split",
+ "stage": "loaded",
  "split_counts": {
   "train": 1647,
   "select": 411,
@@ -2506,5 +2506,5 @@
   "signed_aggr_flow_20",
   "spread_to_round_trip_cost_ratio"
  ],
- "load_seconds": 213.03955841064453
+ "load_seconds": 171.42085886001587
 }
