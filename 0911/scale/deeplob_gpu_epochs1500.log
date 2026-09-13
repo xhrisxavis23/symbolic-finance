@@ -1,0 +1,15 @@
+[05:07:49] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[05:08:32] fixed eval set: select_rows=198,079 (select() took 42.8s)
+[05:09:17] Xw_eval shape=(198079, 304)
+[05:09:17] === size=200,000 model=deeplob device=cuda ===
+[05:15:17] select() -> fit_rows=197,941 (360.5s)
+=== [2026-09-13_15:01:56] 기동: scale/sample_size_curve.py --model deeplob --device cuda --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 1500 --out scale/data/deeplob_gpu_epochs1500.json ===
+[15:02:28] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[15:02:53] fixed eval set: select_rows=198,079 (select() took 24.6s)
+[15:03:02] Xw_eval shape=(198079, 304)
+[15:03:02] === size=200,000 model=deeplob device=cuda ===
+[15:05:54] select() -> fit_rows=197,941 (172.0s)
+[15:07:08] windowing fit set -> (197941, 304) (74.3s)
+[15:08:26] size=200,000 fit_seconds=77.0s best_epoch=340 best_score=0.017885 stopped_epoch=440 final_recheck=0.017885
+[15:08:26] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:08:26] === size=500,000 model=deeplob device=cuda ===
