@@ -3,3 +3,25 @@
 [15:40:37] select: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
 [15:40:37] eval: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
 [15:44:10] 적재 5757/5763 블록, 공통 특징 19 (213s)
+[15:45:07] 학습 풀 30,353,580행, 선택 풀 3,754,989행
+[15:51:12] 학습 표본 1,979,970 · 선택 표본 197,998 · 윈도우 (1979970, 304) (366s)
+[15:51:13] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+Traceback (most recent call last):
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 304, in <module>
+    main()
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 209, in main
+    teacher = build_teacher(F).fit(
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 163, in fit
+    self.early_stop_history_ = run_with_early_stopping(
+  File "/home/dgu/tick/symbolic/0902/sd/teacher/early_stopping.py", line 113, in run_with_early_stopping
+    train_step()
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 150, in train_step
+    loss.backward()
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/_tensor.py", line 625, in backward
+    torch.autograd.backward(
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 42.51 GiB. GPU 0 has a total capacity of 94.97 GiB of which 23.27 GiB is free. Including non-PyTorch memory, this process has 71.68 GiB memory in use. Of the allocated memory 33.23 GiB is allocated by PyTorch, and 37.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+=== [2026-09-13_15:52:35] 종료 exit=1 ===
