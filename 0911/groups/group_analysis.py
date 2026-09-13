@@ -148,9 +148,11 @@ def verdict(primary: dict, ridge: dict) -> dict:
     best = max(TICK_ORDER, key=lambda g: t[g]["r2"])
     worst = min(TICK_ORDER, key=lambda g: t[g]["r2"])
     pooled = primary["pooled"]["r2"]
-    # 부록 B: "가장 나쁜 종목군 CI 가 0 을 포함" 의 의도는 "0 보다 유의하게 낫지 않다" 다.
-    # 신호 없는 종목군은 예측이 잡음을 따라가 CI 가 통째로 0 아래에 놓이기 쉽고, 그것도 이 조건을 만족한다.
-    het_yes = t[best]["lo"] > pooled and t[worst]["lo"] <= 0
+    # 부록 B: 가장 나쁜 종목군 조건은 "0 보다 유의하게 낫지 않다"(CI 하한 ≤ 0).
+    # 부록 C: "가장 좋은 종목군 CI 하한 > 전체 R² 점추정" 은 구조적으로 과엄격하다 — 전체 R² 에는 그 종목군
+    #         자신이 섞여 있어, 종목 단위 CI 폭이 종목군-전체 차이보다 넓으면 참 이질성도 떨어뜨린다.
+    #         의도("한 종목군은 되고 다른 종목군은 안 된다")를 직접 묻는다.
+    het_yes = (not overlap(t[best], t[worst])) and t[best]["lo"] > 0 and t[worst]["lo"] <= 0
     het_no = all(overlap(t[a], t[b]) for i, a in enumerate(TICK_ORDER) for b in TICK_ORDER[i + 1:])
     heterogeneity = "이질성 있음" if het_yes else ("이질성 없음" if het_no else "애매")
 
