@@ -1,0 +1,32 @@
+[15:27:46] train: 24 종목 {'큰틱': 8, '중간틱': 8, '작은틱': 8}
+[15:27:46] select: 6 종목 {'큰틱': 2, '중간틱': 2, '작은틱': 2}
+[15:27:47] eval: 6 종목 {'큰틱': 2, '중간틱': 2, '작은틱': 2}
+[15:27:58] 적재 84/84 블록, 공통 특징 19 (11s)
+[15:28:10] 학습 풀 342,706행, 선택 풀 118,271행
+[15:28:17] 학습 표본 19,812 · 선택 표본 4,952 · 윈도우 (19812, 304) (7s)
+Traceback (most recent call last):
+  File "/home/dgu/tick/symbolic/0911/groups/smoke_group_run.py", line 27, in <module>
+    t0 = time.time(); gr.main(); print(f"=== 1회차(처음부터) {time.time()-t0:.0f}s ===", flush=True)
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 198, in main
+    teacher = build_teacher(F).fit(
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 127, in build_teacher
+    return DeepLOBCompactGPU(n_features=n_features, bottleneck=2, seed=SEED,
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 108, in __init__
+    lstm_hidden=lstm_hidden).to(self.device)   # 값 복사만, 재초기화 아님
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1371, in to
+    return self._apply(convert)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 930, in _apply
+    module._apply(fn)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 930, in _apply
+    module._apply(fn)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 957, in _apply
+    param_applied = fn(param)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1357, in convert
+    return t.to(
+torch.AcceleratorError: CUDA error: invalid device ordinal
+GPU device may be out of range, do you have enough GPUs?
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+exit=1

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=1200, initial-scale=1">
+<title>시장 미시구조 심볼릭 증류 — 3일 전체 학습 · 틱 크기별 종목군 · 데이터 양 곡선 (0909~0911)</title>
+<style>
+  :root{
+    --bg:#eef2f7;--panel:#fff;--ink:#1b2735;--muted:#5f6c7d;--line:#d9e0ea;--soft:#f6f9fc;
+    --top:#0f172a;--accent:#0f766e;--blue:#2563eb;--violet:#7c3aed;--orange:#c2410c;--amber:#a15c07;
+    --green:#15803d;--red:#b42318;--gold:#b7791f;--gold-soft:#fff7e0;
+    --p1:#6d28d9;--p1s:#f3eeff;--p2:#0e7490;--p2s:#e6f6fa;--p3:#b91c1c;--p3s:#fdecec;--p4:#b45309;--p4s:#fef3e2;
+    --warn:#fff7ed;
+  }
+  *{box-sizing:border-box}html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Arial,sans-serif;font-size:14.5px;line-height:1.74;letter-spacing:0}
+  a{color:#0b5cad;font-weight:600;text-decoration:none}a:hover{text-decoration:underline}
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(15,23,42,.98);color:#e2e8f0;border-bottom:1px solid #1e293b;backdrop-filter:blur(8px)}
+  .topbar .wrap{padding:9px 22px}
+  .wrap{width:1120px;max-width:100%;margin:0 auto;padding:16px 22px}
+  main.wrap{padding-top:8px}
+  h1,h2,h3,h4{margin:0;letter-spacing:0}
+  h1{font-size:18px;font-weight:760;color:#fff;line-height:1.2}
+  h2{font-size:21px;margin-bottom:8px}
+  h2 .vtag{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-top:3px}
+  h3{font-size:16px;margin:16px 0 8px}
+  h4{font-size:13px;margin:14px 0 6px;color:#334155;text-transform:uppercase;letter-spacing:.04em}
+  .submeta{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px}
+  .submeta .b{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:#cbd5e1;border-radius:999px;padding:1px 8px;font-size:11px;white-space:nowrap}
+  .nav{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .nav a{color:#dbeafe;font-size:11.5px;border:1px solid #334155;padding:2px 8px;border-radius:999px}
+  .nav a:hover{background:rgba(255,255,255,.14);text-decoration:none}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:22px 24px;margin:16px 0;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  section.paper{border-top:6px solid var(--accent)}
+  section#p1{border-top-color:var(--p1)}section#p2{border-top-color:var(--p2)}
+  section#p3{border-top-color:var(--p3)}section#p4{border-top-color:var(--p4)}
+  p{margin:9px 0}
+  .lead{font-size:16px;font-weight:650;background:#f0fdfa;border-left:5px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px}
+  .how{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:11px 15px;font-size:13.8px}
+  .callout{border-left:4px solid var(--blue);background:#eef5ff;border-radius:0 8px 8px 0;padding:12px 15px;margin:12px 0}
+  .warn{border-left:4px solid var(--orange);background:var(--warn);border-radius:0 8px 8px 0;padding:12px 15px;margin:12px 0}
+  /* easy block */
+  .easy{background:#f5f9ff;border:1px solid #d6e4fb;border-radius:10px;padding:6px 16px 14px;margin:12px 0}
+  .ezhead{display:inline-block;background:#2563eb;color:#fff;font-size:12px;font-weight:800;border-radius:0 0 8px 8px;padding:4px 12px;margin-bottom:6px}
+  .analogy{background:#eef5ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:14px}
+  .analogy b{color:#1d4ed8}
+  .deepbar{margin:16px 0 4px;font-size:12.5px;font-weight:800;letter-spacing:.06em;color:#64748b;border-top:1px dashed var(--line);padding-top:12px}
+  .oneline{margin-top:16px;background:#0f172a;color:#f1f5f9;border-radius:10px;padding:12px 16px;font-size:14.5px}
+  .oneline b{color:#fcd34d}
+  /* 개인 메모 블록 */
+  .mynote{margin:16px 0 4px;background:#fffaf0;border:1px solid #f0d79c;border-left:5px solid #c79a3a;border-radius:10px;padding:4px 18px 15px;box-shadow:0 1px 2px rgba(180,140,40,.08)}
+  .mynote .mnhead{display:inline-flex;align-items:center;gap:6px;background:#c79a3a;color:#fff;font-size:12px;font-weight:800;border-radius:0 0 9px 9px;padding:4px 13px;margin-bottom:9px;letter-spacing:.02em}
+  .mynote .mnq{font-size:13.6px;color:#6b5418;font-style:italic;line-height:1.7;background:#fff4d8;border-radius:8px;padding:9px 13px;margin:6px 0 11px;position:relative}
+  .mynote .mnq::before{content:"\201C";font-size:26px;color:#dcb766;font-style:normal;line-height:0;vertical-align:-9px;margin-right:3px}
+  .mynote ul{margin:6px 0 2px 4px;list-style:none;padding:0}
+  .mynote li{margin:8px 0;font-size:13.9px;padding-left:22px;position:relative;line-height:1.66}
+  .mynote li::before{content:"";position:absolute;left:4px;top:9px;width:8px;height:8px;border-radius:2px;background:#c79a3a;transform:rotate(45deg)}
+  .mynote li b{color:#7a5c12}
+  .mynote .mntake{margin-top:10px;font-size:12.6px;font-weight:700;color:#8a6a14}
+  .mynote .tk{display:inline-block;font-size:11.5px;font-weight:700;color:#8a6a14;background:#fdeccb;border:1px solid #ecd29a;border-radius:999px;padding:2px 10px;margin-left:5px}
+  .meta-box{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 18px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:13px 16px;margin:10px 0 4px;font-size:12.8px}
+  .meta-box div{display:flex;gap:7px}
+  .meta-box b{color:var(--muted);font-weight:700;min-width:74px;display:inline-block}
+  ul,ol{margin:8px 0 6px 22px;padding:0}li{margin:6px 0}
+  ul.tight li{margin:3px 0}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:10px}
+  .card{border:1px solid var(--line);border-radius:10px;padding:13px 16px;background:var(--soft)}
+  .card h4{margin:0 0 4px;font-size:14.5px;color:#0f172a;text-transform:none;letter-spacing:0}
+  .card p{margin:3px 0;font-size:13.6px}
+  .box{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fff}
+  .box.soft{background:var(--soft)}
+  .schema{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.55;background:#0f172a;color:#e2e8f0;border-radius:8px;padding:13px 15px;overflow-x:auto;white-space:pre}
+  .schema .c{color:#93c5fd}.schema .g{color:#86efac}.schema .y{color:#fcd34d}.schema .m{color:#c4b5fd}
+  .table-scroll{width:100%;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12.7px;margin-top:6px}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+  th{background:#f1f5fa;color:#475569;font-weight:700}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .pill{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:650;white-space:nowrap;background:#fff;color:var(--muted)}
+  .pill.spot{color:var(--gold);border-color:#f3d98b;background:var(--gold-soft)}
+  .pill.v{color:var(--green);border-color:#bbf7d0;background:#f0fdf4}
+  .tag1{color:var(--p1);background:var(--p1s);border-color:#ddd0ff}
+  .tag2{color:var(--p2);background:var(--p2s);border-color:#bae6e6}
+  .tag3{color:var(--p3);background:var(--p3s);border-color:#fbcaca}
+  .tag4{color:var(--p4);background:var(--p4s);border-color:#fad9a5}
+  .contrib{counter-reset:c;list-style:none;margin-left:0;padding-left:0}
+  .contrib li{position:relative;padding:9px 12px 9px 44px;margin:8px 0;background:var(--soft);border:1px solid var(--line);border-radius:8px}
+  .contrib li::before{counter-increment:c;content:counter(c);position:absolute;left:12px;top:9px;width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  section#p1 .contrib li::before{background:var(--p1)}section#p2 .contrib li::before{background:var(--p2)}
+  section#p3 .contrib li::before{background:var(--p3)}section#p4 .contrib li::before{background:var(--p4)}
+  .kv{font-variant-numeric:tabular-nums;font-weight:780;color:#0f172a}
+  .num-b{font-variant-numeric:tabular-nums;font-weight:780;color:#0f172a}
+  .small{font-size:12px;color:var(--muted)}
+  .feat{border:1px solid var(--line);border-radius:8px;padding:13px 16px;margin:10px 0;background:#fff}
+  .feat h4{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:14.5px;color:#0f172a}
+  .feat .n{flex:0 0 26px;width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .feat .ev{margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+  /* tooltip terms */
+  .term{position:relative;border-bottom:2px dotted var(--amber);font-weight:650;cursor:help;color:#0f172a}
+  .term:hover,.term:focus{background:#fff6df}
+  .term::after{content:attr(data-tip);position:absolute;left:0;bottom:155%;z-index:70;width:290px;max-width:80vw;
+    background:#0f172a;color:#f8fafc;font-size:12.6px;font-weight:400;line-height:1.55;letter-spacing:0;
+    padding:10px 12px;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.32);
+    opacity:0;transform:translateY(5px);pointer-events:none;transition:.13s}
+  .term:hover::after,.term:focus::after{opacity:1;transform:translateY(0)}
+  /* diagrams */
+  .figwrap{border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 10px;margin:12px 0 4px;overflow-x:auto}
+  figure{margin:0}figcaption{font-size:12.4px;color:var(--muted);text-align:center;margin-top:4px}
+  svg.dgm{width:100%;min-width:740px;height:auto;display:block}
+  .dgm text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Arial,sans-serif;fill:var(--ink)}
+  .dgm .t{font-weight:700;font-size:12.5px}.dgm .s{font-size:10px;fill:#5f6c7d}
+  .dgm .el{font-size:10px;fill:#475569;font-style:italic}.dgm .hd{font-weight:800;font-size:12px;fill:#334155}
+  .dgm .note{font-size:11px;fill:#5f6c7d}.dgm .box{stroke-width:1.5}
+  .dgm .data{fill:#fff;stroke:#94a3b8}.dgm .out{fill:#f0fdf4;stroke:#15803d}
+  .dgm .b1{fill:#f3eeff;stroke:#6d28d9}.dgm .e1{fill:#ddd6fe;stroke:#6d28d9}
+  .dgm .b2{fill:#e6f6fa;stroke:#0e7490}.dgm .e2{fill:#cffafe;stroke:#0e7490}
+  .dgm .b3{fill:#fdecec;stroke:#b91c1c}.dgm .e3{fill:#fbd5d5;stroke:#b91c1c}
+  .dgm .b4{fill:#fef3e2;stroke:#b45309}.dgm .e4{fill:#fde9c8;stroke:#b45309}
+  .dgm .ln{stroke:#64748b;stroke-width:1.6;fill:none}.dgm .dash{stroke:#94a3b8;stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+  .dgm .nd{stroke-width:1.6}
+  /* review process block */
+  .review{margin-top:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;overflow:hidden}
+  .rvhead{background:#334155;color:#fff;font-weight:800;font-size:13.5px;padding:9px 16px}
+  .rvdec{padding:12px 16px 2px;font-size:13.8px}
+  .rvscore{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .rvscore .s{font-variant-numeric:tabular-nums;font-weight:750;border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-size:11.8px;background:#fff;color:#475569}
+  .rvscore .s.up{color:var(--green);border-color:#bbf7d0;background:#f0fdf4}
+  .rvscore .s.low{color:var(--red);border-color:#fbcaca;background:#fdecec}
+  .rvgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 16px 4px}
+  .rvcol{border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:#fff}
+  .rvcol h5{margin:0 0 6px;font-size:13px}
+  .rvcol.ok{border-left:4px solid var(--green)}
+  .rvcol.con{border-left:4px solid var(--orange)}
+  .rvcol ul{margin:4px 0 0 2px}
+  .rvcol li{margin:5px 0;font-size:13px}
+  .rvwhy{margin:6px 16px 14px;background:#f1edff;border-left:4px solid var(--violet);border-radius:0 8px 8px 0;padding:11px 14px;font-size:13.8px}
+  .rvwhy b{color:#5b21b6}
+  @media(max-width:980px){.rvgrid{grid-template-columns:1fr}}
+  @media print{.topbar{position:static}body{background:#fff}section{break-inside:avoid;box-shadow:none}.nav{display:none}}
+  @media(max-width:980px){.two-col,.grid,.meta-box{grid-template-columns:1fr}}
+  /* ===== 추가(2026-06-08 보강): 원본 핵심 그림 ===== */
+  .paperfig{border:1px solid var(--line);border-radius:11px;background:#fff;padding:10px 12px 6px;margin:14px 0 6px;overflow-x:auto;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  .paperfig img{display:block;max-width:100%;height:auto;margin:2px auto 0;border-radius:5px}
+  .paperfig figcaption{font-size:12.4px;color:var(--muted);text-align:center;margin-top:7px;line-height:1.55}
+  .figsrc{display:inline-block;font-size:11px;font-weight:800;color:#6b5418;background:#fff4d8;border:1px solid #ecd29a;border-radius:999px;padding:2px 10px;margin-bottom:4px}
+  /* ===== 추가: 벤치마크 깊이 보기(데이터셋·태스크·평가) ===== */
+  .spec{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--accent);color:#fff;font-weight:800;font-size:12px;margin-right:7px;vertical-align:1px}
+  section#p1 .spec{background:var(--p1)}section#p2 .spec{background:var(--p2)}section#p3 .spec{background:var(--p3)}section#p4 .spec{background:var(--p4)}
+  .qbox{border-left:4px solid var(--green);background:#f0fdf4;border-radius:0 8px 8px 0;padding:10px 14px;margin:11px 0;font-size:13.6px}
+  .qbox b{color:var(--green)}
+  /* ===== 추가: 연구 방향 정렬 섹션 ===== */
+  section#align{border-top:6px solid #0f172a}
+  .align-lead{font-size:15px;font-weight:600;line-height:1.7;background:#0f172a;color:#e8eefc;border-radius:11px;padding:15px 19px;margin:10px 0}
+  .align-lead b{color:#fcd34d}
+  .lstack{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:14px 0 6px}
+  .lrow{display:grid;grid-template-columns:116px 1fr;border-top:1px solid var(--line)}
+  .lrow:first-child{border-top:0}
+  .lrow .lx{display:flex;align-items:center;gap:7px;font-weight:800;font-size:13px;color:#fff;padding:12px 13px;letter-spacing:.02em}
+  .lrow.l1 .lx{background:#475569}.lrow.l2 .lx{background:#0e7490}.lrow.l3 .lx{background:#15803d}.lrow.l4 .lx{background:#7c3aed}.lrow.cp .lx{background:#b45309}
+  .lrow .ld{padding:11px 15px;font-size:13.5px;background:#fff;line-height:1.6}
+  .lrow .ld .ex{color:#475569;font-size:12.7px;display:block;margin-top:3px}
+  .lrow .ld .ex b{color:#0f172a}
+  .conngrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  .conn{border:1px solid var(--line);border-radius:11px;padding:14px 17px;background:var(--soft)}
+  .conn h4{margin:0 0 3px;font-size:15px;text-transform:none;letter-spacing:0;color:#0f172a}
+  .conn .ph{font-size:12px;color:var(--muted);margin:0 0 9px;font-weight:600}
+  .conn .role{font-size:13.2px;margin:7px 0;line-height:1.62}
+  .conn .role .k{display:inline-block;min-width:64px;font-weight:800;color:#0f766e}
+  .conn .gap{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:12.8px;color:var(--muted)}
+  .conn.c1{border-top:4px solid var(--p1)}.conn.c2{border-top:4px solid var(--p2)}.conn.c3{border-top:4px solid var(--p3)}.conn.c4{border-top:4px solid var(--p4)}
+  .algn{border-left:5px solid var(--violet);background:#f1edff;border-radius:0 11px 11px 0;padding:15px 19px;margin:14px 0}
+  .algn b{color:#5b21b6}
+  .algn ol{margin:8px 0 2px 20px}.algn li{margin:7px 0}
+  @media(max-width:980px){.conngrid{grid-template-columns:1fr}.lrow{grid-template-columns:92px 1fr}}
+
+  section.paper.g1{border-top-color:var(--p1)}section.paper.g2{border-top-color:var(--p2)}section.paper.g3{border-top-color:var(--p3)}section.paper.g4{border-top-color:var(--p4)}
+  .g1 .spec,.g1 .contrib li::before{background:var(--p1)}.g2 .spec,.g2 .contrib li::before{background:var(--p2)}
+  .g3 .spec,.g3 .contrib li::before{background:var(--p3)}.g4 .spec,.g4 .contrib li::before{background:var(--p4)}
+  section.grouphead{border-left:8px solid var(--accent);background:#f8fafc}
+  section.grouphead.g1{border-left-color:var(--p1)}section.grouphead.g2{border-left-color:var(--p2)}section.grouphead.g3{border-left-color:var(--p3)}section.grouphead.g4{border-left-color:var(--p4)}
+  .pill.tagA{color:#475569;background:#f1f5f9;border-color:#cbd5e1}.pill.tagB{color:#0e7490;background:#e6f6fa;border-color:#bae6e6}
+  .pill.tagC{color:#b91c1c;background:#fdecec;border-color:#fbcaca;font-weight:800}.pill.tagCl{color:#b45309;background:#fef3e2;border-color:#fad9a5}
+  .meta-box{display:grid;grid-template-columns:1fr;gap:6px 18px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0 6px;font-size:13.4px}
+  .meta-box>div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px}.meta-box>div>span{min-width:0;overflow-wrap:anywhere}.meta-box b{color:#475569;font-weight:700}
+  .qbox{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans KR",monospace;font-size:12.6px}
+  .mynote{margin:16px 0 4px;background:#fffaf0;border:1px solid #f0d79c;border-left:5px solid #c79a3a;border-radius:10px;padding:4px 18px 15px}
+  .mynote .mnhead{display:inline-flex;align-items:center;gap:6px;background:#c79a3a;color:#fff;font-size:12px;font-weight:800;border-radius:0 0 9px 9px;padding:4px 13px;margin-bottom:9px}
+  .mynote ul{margin:6px 0 2px 4px;list-style:none;padding:0}.mynote li{margin:8px 0;font-size:13.9px;padding-left:22px;position:relative;line-height:1.66}
+  .mynote li::before{content:"";position:absolute;left:4px;top:9px;width:8px;height:8px;border-radius:2px;background:#c79a3a;transform:rotate(45deg)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.3px;background:#f1f5f9;border-radius:4px;padding:1px 5px}
+  ul.tight{margin:6px 0 0 18px}ul.tight li{margin:5px 0}
+
+  section.paper.g1{border-top-color:var(--p1)}section.paper.g2{border-top-color:var(--p2)}
+  section.paper.g3{border-top-color:var(--p3)}section.paper.g4{border-top-color:var(--p4)}
+  section.paper.g5{border-top-color:#0369a1}section.paper.g6{border-top-color:#be123c}
+  section.grouphead{border-left:8px solid var(--accent);background:#f8fafc}
+  section.grouphead.g1{border-left-color:var(--p1)}section.grouphead.g2{border-left-color:var(--p2)}
+  section.grouphead.g3{border-left-color:var(--p3)}section.grouphead.g4{border-left-color:var(--p4)}
+  section.grouphead.g5{border-left-color:#0369a1}section.grouphead.g6{border-left-color:#be123c}
+  .g1 .spec,.g1 .contrib li::before{background:var(--p1)}.g2 .spec,.g2 .contrib li::before{background:var(--p2)}
+  .g3 .spec,.g3 .contrib li::before{background:var(--p3)}.g4 .spec,.g4 .contrib li::before{background:var(--p4)}
+  .g5 .spec,.g5 .contrib li::before{background:#0369a1}.g6 .spec,.g6 .contrib li::before{background:#be123c}
+  .pill.tag1{color:#5b21b6;background:#f3eeff;border-color:#ddd0ff}
+  .pill.tag2{color:#0e7490;background:#e6f6fa;border-color:#bae6e6}
+  .pill.tag3{color:#b91c1c;background:#fdecec;border-color:#fbcaca}
+  .pill.tag4{color:#b45309;background:#fef3e2;border-color:#fad9a5}
+  .pill.tag5{color:#0369a1;background:#e0f2fe;border-color:#bae6fd}
+  .pill.tag6{color:#be123c;background:#ffe4e6;border-color:#fecdd3}
+  .pill.resTick{color:#065f46;background:#d1fae5;border-color:#6ee7b7;font-weight:800}
+  .pill.resSub{color:#92400e;background:#fef3c7;border-color:#fcd34d;font-weight:700}
+  .pill.resDay{color:#9f1239;background:#ffe4e6;border-color:#fda4af;font-weight:700}
+  .pill.resSyn{color:#5b21b6;background:#ede9fe;border-color:#c4b5fd;font-weight:700}
+  .pill.resExec{color:#1e293b;background:#e2e8f0;border-color:#94a3b8;font-weight:700}
+  .pill.resNA{color:#64748b;background:#f8fafc;border-color:#e2e8f0}
+  .pill.tagL0{color:#64748b;background:#f1f5f9;border-color:#cbd5e1}
+  .pill.tagL1{color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe}
+  .pill.tagL2{color:#b45309;background:#fffbeb;border-color:#fde68a}
+  .pill.tagL3{color:#0e7490;background:#ecfeff;border-color:#a5f3fc}
+  .pill.tagL4{color:#15803d;background:#f0fdf4;border-color:#bbf7d0;font-weight:800}
+  .pill.tagL5{color:#b91c1c;background:#fef2f2;border-color:#fecaca;font-weight:800}
+  .pill.tagL6{color:#1e293b;background:#e2e8f0;border-color:#94a3b8;font-weight:800}
+  .meta-box{display:grid;grid-template-columns:1fr;gap:6px 18px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0 6px;font-size:13.4px}
+  .meta-box>div{display:grid;grid-template-columns:104px minmax(0,1fr);gap:8px}
+  .meta-box>div>span{min-width:0;overflow-wrap:anywhere}.meta-box b{color:#475569;font-weight:700}
+  .btbar{margin:18px 0 8px;background:#0f766e;color:#fff;font-size:12.5px;font-weight:800;
+         border-radius:7px;padding:6px 14px;display:inline-block;letter-spacing:.02em}
+  table.bt th{width:132px;vertical-align:top;text-align:left;background:#f6f9fc;color:#334155;font-size:12.6px}
+  table.bt th .hint{display:block;font-weight:500;color:#94a3b8;font-size:11px;line-height:1.45;margin-top:2px}
+  table.bt td{font-size:13.6px;line-height:1.7}
+  .qbox{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Noto Sans KR",monospace;font-size:12.6px}
+  .mynote{margin:16px 0 4px;background:#fffaf0;border:1px solid #f0d79c;border-left:5px solid #c79a3a;border-radius:10px;padding:4px 18px 15px}
+  .mynote .mnhead{display:inline-flex;align-items:center;gap:6px;background:#c79a3a;color:#fff;font-size:12px;font-weight:800;border-radius:0 0 9px 9px;padding:4px 13px;margin-bottom:9px}
+  .mynote ul{margin:6px 0 2px 4px;list-style:none;padding:0}
+  .mynote li{margin:8px 0;font-size:13.9px;padding-left:22px;position:relative;line-height:1.66}
+  .mynote li::before{content:"";position:absolute;left:4px;top:9px;width:8px;height:8px;border-radius:2px;background:#c79a3a;transform:rotate(45deg)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.3px;background:#f1f5f9;border-radius:4px;padding:1px 5px}
+  ul.tight{margin:6px 0 0 18px}ul.tight li{margin:5px 0}
+  .navdetails{width:100%;margin-top:6px}
+  .navdetails summary{cursor:pointer;color:#93c5fd;font-size:11.5px;list-style:none}
+  .navdetails summary::-webkit-details-marker{display:none}
+  .navgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 14px;margin-top:7px;
+           padding:9px 11px;background:rgba(255,255,255,.05);border-radius:8px}
+  .navgrid a{color:#cbd5e1;font-size:11px;border:0;padding:1px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .navgrid .navhd{grid-column:1/-1;color:#f8fafc;font-size:11px;font-weight:800;margin-top:6px;
+                  border-bottom:1px solid #334155;padding-bottom:2px}
+  .diff{display:grid;grid-template-columns:150px 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0;font-size:13.4px}
+  .diff>div{padding:10px 14px;border-bottom:1px solid var(--line);min-width:0;overflow-wrap:anywhere}
+  .diff>div:nth-child(3n+1){background:#f6f9fc;font-weight:700;color:#334155}
+  .diff>div:nth-child(3n+2){border-left:1px solid var(--line)}
+  .diff>div:nth-child(3n+3){border-left:1px solid var(--line);background:#fffdf7}
+  .diff .hd{background:#0f172a !important;color:#fff;font-weight:800}
+  .same{color:#15803d;font-weight:700}.notsame{color:#b42318;font-weight:700}
+
+  /* 0911 추가: 용어 설명 상자로 인한 가로 스크롤 방지 */
+  html,body{overflow-x:clip}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <h1>시장 미시구조 심볼릭 증류 — 데이터를 22배로 늘리고, 종목을 틱 크기로 나눠 보다 (0909 · 0910 · 0911)</h1>
+  <div class="submeta">
+    <span class="b">질문: 딥러닝 교사의 설명력이 낮은 것은 데이터가 부족해서인가, 종목이 섞여 있어서인가</span><span class="b">진행보드 직전 게시(0902) 이후 세 폴더 — 0909 검증 장치 수정 · 0910 본 실험 · 0911 규모·종목군 진단</span><span class="b">KRX 틱 20260316~19 · 주식 2,507종목 · 3일 70,001,560행</span><span class="b">판정 기준은 전부 결과를 보기 전에 커밋(사전등록)</span><span class="b">봉인 날짜 20260420 이후 미개봉</span>
+    <span class="b">2026-09-14</span>
+  </div>
+  <nav class="nav"><a href="#start">시작</a><a href="#since">0909·0910 요약</a><a href="#formulas">증류된 진입 수식 · 경제성</a><a href="#glance">한눈에</a><a href="#full">3일 전체 학습</a><a href="#groups">틱 크기별 종목군</a><a href="#curve">데이터 양 곡선</a><a href="#checks">검증 장치 · 잡은 결함</a><a href="#verdict">종합 판정</a><a href="#next">남은 질문</a><a href="#files">자료 위치</a><a href="#caveats">한계</a></nav>
+</div></header>
+<main class="wrap">
+
+<section id="start">
+  <div class="how"><b>읽는 법.</b> <a href="#glance">한눈에</a> 표에서 결론을 먼저 보고, 실험 절은
+  <b>기본 정보 → 쉽게 말하면 → 설계 → 결과 → 판정 → 서술 분석(판정 아님) → 한 줄</b> 순서로 읽는다.
+  점선 밑줄 용어에 마우스를 올리면 설명이 나온다. 숫자는 전부 0909·0910·0911 폴더의 결과 JSON·진행 기록에서 옮겼다.</div>
+<p class="lead"><b>수식을 뽑아내는 장치는 제대로 작동한다. 그런데 딥러닝이 시장에서 읽어내는 신호 자체가 작다.</b>
+안 본 종목·안 본 날 기준 설명력은 어떻게 해도 0.01~0.03 이다. 학습 데이터를 22배(3일 전체)로 늘리면 조금 오르고(+0.003),
+종목을 틱 크기로 나눠도 "되는 종목군"이 따로 떨어져 나오지 않는다. 이 정도로는 왕복 수수료 23bp 를 넘지 못한다는 결론이 그대로다.</p>
+<div class="grid">
+  <div class="card"><h4>무엇을 만들려는가</h4><p>틱 데이터를 딥러닝(DeepLOB)에 학습시키고, 그 모델을 사람이 읽을 수 있는 짧은 수식으로 옮겨
+  <b>매수 진입 조건 하나</b>를 만든다. 청산은 정본 백테스트가 고정한다 — gross −120bp 손절 · 최고 ASK1 대비 −30bp 추적 ·
+  최대 900초 · 왕복 23bp. 미지수를 진입 하나로 줄이기 위해서다.</p></div>
+  <div class="card"><h4>직전 게시 이후</h4><p>0902 게시는 "알려진 법칙 5개 중 1개만 되찾음, 중단" 이었다.
+  <b>0909</b> 에서 그 원인이 증류가 아니라 관문에 있음을 밝히고 관문을 고쳐 진행 판정을 받았다.
+  <b>0910</b> 본 실험에서는 말이 되는 수식이 나왔지만 모든 층에서 손실이었다. <b>0911</b> 은 그 이유를 가르는 진단이다.</p></div>
+  <div class="card"><h4>0911 에서 물은 것</h4><p>① <b>3일 전체로 학습하고 다음 날 하루로 시험</b>하면 나아지는가 ·
+  ② 교사를 <b>틱 크기별 종목군</b>으로 나눠 재면 되는 종목군과 안 되는 종목군이 갈리는가 ·
+  ③ <b>학습 데이터 양</b>을 늘리면 설명력이 계속 오르는가. 셋 다 모델은 바꾸지 않는다.</p></div>
+  <div class="card"><h4>채점 원칙</h4><p>이 프로젝트에서 같은 결함이 다섯 번 나왔다 — <b>자기가 공부한 데이터로 자기를 채점한다.</b>
+  그래서 학습·선택·평가 종목을 서로 겹치지 않게 나누고, 판정 규칙은 알려진 답이 있는 합성 데이터로 먼저 돌려 본 뒤,
+  결과를 보기 전에 커밋했다.</p></div>
+</div>
+</section>
+
+<section id="since" class="grouphead g1">
+  <h2>직전 게시 이후 — 0909 검증 장치 수정, 0910 본 실험<span class="vtag">진행보드의 직전 게시는 0902(관문 중단 판정). 그 뒤 두 폴더를 짧게 잇는다</span></h2>
+
+  <h3>0909 — 관문이 막힌 이유: 증류가 아니라 관문이 틀렸다</h3>
+  <p>관문은 교과서 법칙 5개가 이 데이터에서 참이라고 <b>가정</b>하고 만들어져 있었다. 그래서 증류도 딥러닝도 없이
+  데이터에서 곧바로 회귀로 쟀다(200종목 · 130만 행, 결과 전 사전등록, 단 한 번).</p>
+  <div class="table-scroll"><table><thead><tr><th style="width:170px">법칙</th><th>데이터에서 직접 잰 것</th><th style="width:120px">법칙이 있는가</th><th style="width:120px">증류가 찾았는가</th></tr></thead><tbody>
+  <tr><th>마이크로프라이스</th><td>순위상관 0.997</td><td><span class="pill v">있음</span></td><td><span class="pill v">찾음</span></td></tr>
+  <tr><th>체결 군집</th><td>감쇠 곡률 0.700</td><td><span class="pill v">있음</span></td><td><span class="pill v">찾음</span></td></tr>
+  <tr><th>주문흐름 선형</th><td>종목 간 기울기 변동 0.704 (기준 0.15)</td><td><span class="pill tag3">없음</span></td><td><span class="pill tag3">실패</span></td></tr>
+  <tr><th>집계 임팩트</th><td>지수 0.078, log-log R² 0.025 — 멱법칙 관계 자체가 없음</td><td><span class="pill tag3">없음</span></td><td><span class="pill tag3">실패</span></td></tr>
+  <tr><th>다중 스케일 변동성</th><td>R² 0.335 (기준 0.85)</td><td><span class="pill tag3">없음</span></td><td><span class="pill tag3">실패</span></td></tr>
+  </tbody></table></div>
+  <p><b>5개 전부 일치.</b> 증류는 있는 법칙은 찾고 없는 법칙은 못 찾았다. 게다가 관문의 판정 함수 셋은 실제 y 가 아니라
+  <b>수식 자신의 출력</b>을 회귀하고 있었다 — "수식이 법칙처럼 생겼는가" 를 물었지 "데이터를 예측하는가" 를 묻지 않았다.</p>
+
+  <ol class="contrib">
+    <li><b>교사를 안 본 종목 성적으로 멈추게 했다.</b> DeepLOB 교사의 안 본 종목 R² 가 −1.720 → +0.053, −0.397 → +0.214, −13.864 → −0.000 으로 음수 붕괴가 전부 사라졌다.
+    그 과정에서 모양만 보는 관문이 관계가 없는 집계 임팩트를 "복원" 으로 찍는 것도 드러났다(수식 지수 0.590 · R² 0.963 vs 데이터 0.078 · 0.025).</li>
+    <li><b>관문을 "안 본 종목에서 실제로 맞는가" 로 다시 만들었다.</b> 기준을 만드는 참조 종목과 증류 종목을 분리하고, <span class="term" tabindex="0" data-tip="예측값은 그대로 두고 정답 y 만 무작위로 섞은 가짜 데이터. 여기서도 점수가 나오면 측정이 가짜 신호를 잡고 있다는 뜻이다.">가짜 데이터 검사</span>를 선결 조건으로 넣었다.
+    이 검사가 곧바로 결함을 잡았다 — 다중 스케일 변동성 기준 모델이 y 를 섞어도 R² 0.81~0.86 을 냈다(종목마다 변동성 수준이 다른 것을 잡고 있었음).</li>
+    <li><b>전체 실행은 중단 판정.</b> 원인 둘: 점수 지표(구간 평균 R²)가 법칙마다 2~109배 제각각 부풀렸고, 기준만 참조 종목 안에서 교차검증해 홈그라운드 이점이 있었다.</li>
+    <li><b>채점을 대칭으로 고치자 진행 판정.</b> 기준도 후보처럼 증류 종목에서 학습 → 참조 종목에서 채점, 지표는 행 단위 R².
+    주문흐름 기준이 0.268 → 0.111 로 2.4배 떨어졌다(옛 방식이 기준을 부풀린 직접 증거). 대조군 마이크로프라이스 통과(0.044 ≥ 0.024), 주문흐름 0.354 · 다중 스케일 0.493 재현.
+    다만 자격 있는 법칙이 2개로 줄어 열린 것이라 원래 기준(5개 중 3개)과 같은 무게가 아니다 — 이 사실을 함께 적고 본 실험으로 갔다.</li>
+  </ol>
+
+  <h3>0910 — 본 실험: 수식은 말이 되는데 돈은 잃는다</h3>
+  <div class="meta-box">
+    <div><b>학습</b><span>저마찰 837종목, 09:00–12:00, 교사 학습 행 20만(가용 행의 2.4%)</span></div>
+    <div><b>선택</b><span>중간마찰 834종목, 12:00–13:00 — 멈출 시점과 1순위 수식 선택</span></div>
+    <div><b>최종 평가</b><span>고마찰 836종목 하루 전체(봉인 층)</span></div>
+    <div><b>성공 조건</b><span>시드 0·1·2 <b>전부</b>가 고마찰층에서 총 순손익 &gt; 0 · 거래 ≥ 200 · 영점 기준선보다 나음 · 교사 검증 게이트 통과</span></div>
+  </div>
+  <div class="table-scroll"><table><thead><tr><th style="width:70px">시드</th><th style="width:120px">안 본 종목 R²</th><th>1순위 진입 수식 (상위 분위에서 매수)</th></tr></thead><tbody>
+  <tr><th>0</th><td class="num">0.0153</td><td><code>microprice_velocity_over_spread</code> <span class="small">(번역 성공 1/14 — 고를 것이 없었다)</span></td></tr>
+  <tr><th>1</th><td class="num">0.0150</td><td><code>tanh((호가불균형 + 공격적주문흐름20 + 스프레드비용비)/16.48) − 1.064</code></td></tr>
+  <tr><th>2</th><td class="num">0.0151</td><td><code>tanh(호가불균형 + 큐불균형·공격적주문흐름20 + 공격적주문흐름100 + 스프레드비용비)·0.1385 − 1.0886</code></td></tr>
+  </tbody></table></div>
+  <p>읽으면 <b>"사겠다는 쪽이 많고, 최근 사들이는 체결이 몰렸고, 비용 대비 스프레드가 유리할 때 산다"</b> — 경제적으로 말이 되고, 두 시드가 독립적으로 같은 형태에 도달했다. 정확한 원식 · 실행 조건 · 후보 전체 · 체결 단위 경제성은 <a href="#formulas">증류된 진입 수식과 경제성 분석</a>에 있다.</p>
+  <div class="table-scroll"><table><thead><tr><th>의사결정당 손익 (bps)</th><th>저마찰 (학습층)</th><th>중간 (선택층)</th><th>고마찰 (봉인층)</th></tr></thead><tbody>
+  <tr><th>시드 0</th><td class="num">−2.444</td><td class="num">−1.829</td><td class="num">−1.772</td></tr>
+  <tr><th>시드 1</th><td class="num">−0.980</td><td class="num">−0.576</td><td class="num"><b>−0.415</b></td></tr>
+  <tr><th>시드 2</th><td class="num">−0.974</td><td class="num">−0.528</td><td class="num"><b>−0.460</b></td></tr>
+  <tr><th>나이브 기준선 (호가불균형)</th><td class="num">−1.193</td><td class="num">−0.781</td><td class="num">−0.797</td></tr>
+  <tr><th>영점 기준선 (호가불균형 속도)</th><td class="num">−1.773</td><td class="num">−1.240</td><td class="num">−1.222</td></tr>
+  </tbody></table></div>
+  <div class="warn"><b>판정: 성공 주장 불가.</b> 어떤 층에서도 총 순손익이 양수가 아니다. 교사 검증 게이트도 세 시드 전부 체결확률 보정에서 실패했다(0.373 · 0.279 · 0.403, 기준 0.25) —
+  문턱은 결과를 보고 넓히지 않았다. 라벨 누수를 잡는 역선택 부호 검사는 전부 통과(−1.12~−1.13)라 오염은 아니다.</div>
+  <div class="callout"><b>왜 잃는가.</b> 실제 진입 1,031번을 분해하면 <b>방향이 계속 틀림 70%</b> · 수익 남김 14% · 방향은 맞는데 비용 못 넘김 13% · 초반 오르다 뒤집힘 3%.
+  비용에 먹힌 것이 아니라 <b>방향을 못 맞춘다.</b> 시드 1·2 는 나이브보다 의사결정당 약 45% 덜 잃고 그 순서가 세 층에서 똑같지만, 흑자로 돌리기에는 모자라다.
+  층이 바뀌며 손실이 줄어드는 것은 영점 기준선도 똑같아서 전략이 아니라 층의 성질이다.</div>
+  <div class="warn"><b>뒤늦게 드러난 구멍.</b> 교사가 저마찰층 가용 행 8,151,756 중 <b>198,007 행(2.4%)</b> 만 봤다.
+  R² 0.015 가 모델 탓인지 데이터 부족 탓인지 가를 수 없었다. 같은 시기 조사한 LOBFrame(Briola 외, <i>Quantitative Finance</i> 2025)은 같은 DeepLOB 으로
+  큰 틱 종목은 예측력이 유지되고(MCC 0.29 → 0.26) 작은 틱 종목은 거의 무작위(0.11 → 0.01)임을 보였다. → <b>0911 의 두 질문이 여기서 나왔다.</b></div>
+</section>
+
+<section id="formulas" class="paper g1">
+  <h2>증류된 진입 수식과 경제성 분석<span class="vtag">0910 본 실험 · 시드 3개 · 원자료 0910/run/state (후보·선택·곡선·백테스트 원장) · 집계 스크립트 0911/board/formula_economics.py</span></h2>
+  <div class="warn"><b>먼저 밝혀 둔다 — 이 수식들은 0910 의 하루치 교사에서 증류했다.</b> 교사는 3/16 저마찰 837종목 09:00–12:00 에서 뽑은 약 20만 행으로 학습했다(안 본 종목 R² 0.015).
+  0911 은 교사의 설명력만 진단했고 <b>3일 교사로 다시 증류하지 않았다.</b> 그러므로 아래 경제성은 "0910 교사 → 수식 → 정본 백테스트" 의 결과다.</div>
+
+  <div class="easy"><div class="ezhead">쉽게 말하면</div>
+    <p><b>수식이 무엇을 하나?</b> 매 틱마다 시장 상태 몇 개를 더한 점수를 계산하고, 그 점수가 <b>같은 종목의 직전 100틱 점수 중 상위 5%</b>를 넘으면 매수 주문을 낸다.
+    시드 1·2 가 고른 점수는 거의 같다 — <b>"사겠다는 호가가 많고(호가불균형) + 최근 사들이는 체결이 몰렸고(공격적 주문흐름) + 스프레드가 비용 대비 넓다(스프레드비용비)"</b>.</p>
+    <p><b>얼마나 벌었나?</b> 수수료를 빼기 전에는 체결 1건당 약 +3bp 로 방향을 맞힌다(기준선들은 0 이하). 그러나 왕복 수수료가 23bp 라 체결 1건당 약 −20bp 를 잃는다.</p>
+    <div class="analogy"><b>비유.</b> 앞면이 아주 조금 더 자주 나오는 동전을 찾았는데, 한 번 걸 때마다 판돈에서 큰 수수료를 떼는 도박장인 셈이다. 동전은 진짜로 조금 치우쳐 있지만(체결당 +3bp) 수수료(23bp)를 이길 만큼은 아니다.</div>
+  </div>
+
+  <div class="deepbar">수식이 매매 규칙이 되는 과정</div>
+  <div class="schema"><span class="y">PySR 수식 f(x)</span>       예) tanh(A + B + C + D)·0.13854784 − 1.0886018        <span class="small">교사(DeepLOB)의 예측을 흉내 낸 식</span>
+   <span class="c">↓ 단조 껍질 벗기기</span>   −1.0886(offset) · ×0.1385(scale) · tanh  — 전부 증가함수라 순위가 같다
+<span class="y">실행 식 g(x)</span>         A + B + C + D                                     <span class="small">백테스트가 실제로 계산하는 점수</span>
+   <span class="c">↓ 임계 붙이기</span>       g(x<sub>t</sub>) &gt; [같은 종목 g 의 직전 100틱 (t−100 … t−1) 의 q 분위],  q ∈ {0.70, 0.85, 0.95}
+<span class="g">진입</span>                 BID1 지정가 매수 · 10초 / 100틱 대기 (신호가 꺼져도 유지)
+<span class="g">청산</span>                 ASK1 지정가 매도(60초 대기) · 최고 ASK1 대비 −30bp 추적 손절 · gross −120bp 손절 · 최대 900초
+<span class="m">비용</span>                 왕복 23bp (스프레드는 체결가에 이미 반영)</div>
+  <p class="small">청산·비용은 정본 프로필 CANONICAL_QUEUE_V9 가 고정한다. 분위 임계를 쓰기 때문에 수식의 상수(offset·scale)는 매매에 영향이 없고, 변수들의 <b>조합 방식</b>만 의미가 있다.
+  같은 이유로 PySR 계수가 달라도 실행 식이 같으면 백테스트 결과가 똑같다(아래 표의 e004 = e014, e007 = e016).</p>
+
+  <div class="deepbar">수식에 쓰인 변수</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:250px">변수 (수식 속 이름)</th><th>정의</th><th style="width:90px">범위</th><th>경제적 의미</th></tr></thead><tbody>
+  <tr><th><code>book_imbalance</code> 호가불균형</th><td>(BID1 잔량 − ASK1 잔량) / (BID1 + ASK1 잔량)</td><td>[−1, 1]</td><td>게시된 매수·매도 유동성의 비대칭. 양수면 사려는 쪽이 많다</td></tr>
+  <tr><th><code>queue_imbalance_best</code> 큐불균형</th><td>BID1 잔량 / (BID1 + ASK1 잔량)</td><td>[0, 1]</td><td>호가불균형의 단조 변환(2q−1). 단독 임계 대상은 금지, 다른 항의 가중치로만 쓴다</td></tr>
+  <tr><th><code>signed_aggr_flow_20</code> 공격적 주문흐름 20</th><td>최근 20틱 (매수 주도 − 매도 주도 체결량) / (합)</td><td>[−1, 1]</td><td>시장가로 사들이는 쪽이 우세한가. 체결이 없으면 0</td></tr>
+  <tr><th><code>signed_aggr_flow_100</code> 공격적 주문흐름 100</th><td>최근 100틱, 같은 정의</td><td>[−1, 1]</td><td>더 긴 구간의 매수·매도 주도 편향</td></tr>
+  <tr><th><code>spread_to_round_trip_cost_ratio</code> 스프레드비용비</th><td>스프레드(bp) / 왕복 비용 23bp</td><td>0 이상</td><td>지금 스프레드가 수수료의 몇 배인가. 1 이면 스프레드 = 23bp</td></tr>
+  <tr><th><code>deep_depth_imbalance_6_10</code> 깊은 호가불균형</th><td>6~10호가 (매수 잔량 합 − 매도 잔량 합) / (합)</td><td>[−1, 1]</td><td>최우선호가보다 깊은 곳의 방향 비대칭</td></tr>
+  <tr><th><code>microprice_velocity_over_spread</code> 마이크로프라이스 속도</th><td>(잔량가중 가격의 직전 틱 대비 변화, bp) / 스프레드(bp)</td><td>실수</td><td>가격이 방금 어느 쪽으로 움직였는가</td></tr>
+  <tr><th><code>book_imbalance_velocity</code> 호가불균형 속도 (영점 기준선)</th><td>호가불균형의 직전 틱 대비 차</td><td>[−2, 2]</td><td>비교용 기준선. 정보가 거의 없다고 본 신호</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">시드별로 고른 수식 (선택 종목층에서 총 순손익 최대 → 고마찰층에서 최종 평가)</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:118px">시드</th><th>PySR 원식</th><th style="width:130px">벗긴 껍질</th><th>백테스트가 실행한 진입 조건 (q = 0.95)</th><th style="width:70px">복잡도</th></tr></thead><tbody>
+  <tr><th>0<br><span class="small">후보 14 · 번역 성공 1</span></th><td><code>microprice_velocity_over_spread</code></td><td>없음</td><td><code>microprice_velocity_over_spread</code> &gt; 직전 100틱 95% 분위</td><td class="num">1</td></tr>
+  <tr><th>1<br><span class="small">후보 14 · 번역 성공 9</span></th><td><code>tanh((book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio)/16.481377) − 1.063918</code></td><td>offset · tanh · scale</td><td><code>book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> &gt; 직전 100틱 95% 분위</td><td class="num">11</td></tr>
+  <tr><th>2<br><span class="small">후보 14 · 번역 성공 8</span></th><td><code>tanh(book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio)·0.13854784 − 1.0886018</code></td><td>offset · scale · tanh</td><td><code>book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> &gt; 직전 100틱 95% 분위</td><td class="num">14</td></tr>
+  <tr><th>나이브</th><td colspan="2">사전 지정 기준선</td><td><code>book_imbalance</code> &gt; 직전 100틱 95% 분위</td><td class="num">—</td></tr>
+  <tr><th>영점</th><td colspan="2">사전 지정 기준선</td><td><code>book_imbalance_velocity</code> &gt; 직전 100틱 95% 분위</td><td class="num">—</td></tr>
+  </tbody></table></div>
+  <p class="small">PySR 설정: 연산자 + − × ÷ · sqrt · tanh · abs · square, 반복 200, 최대 복잡도 18, 결정론 모드. 입력 19개 무차원 특징(위 변수 + 정규화 주문흐름·스프레드로 나눈 가격 변화 등). 수식 탐색은 교사가 학습한 같은 20만 행에서 교사의 경로 예측을 흉내 냈다.</p>
+  <div class="schema"><span class="c">시드 2 진입 조건 — 백테스트 DSL 원문</span>
+{"op": "compare", "comparator": "&gt;", "value": "UNRESOLVED:theta_score",   <span class="small">← theta = rolling_prior_100_ticks_quantile(q)</span>
+ "input": {"op": "add",
+   "left": {"op": "add",
+     "left": {"op": "add",
+       "left":  {"op": "multiply", "left": {"op": "primitive", "primitive_id": "signed_aggr_flow_20"},
+                                   "right": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
+       "right": {"op": "primitive", "primitive_id": "book_imbalance"}},
+     "right": {"op": "primitive", "primitive_id": "spread_to_round_trip_cost_ratio"}},
+   "right": {"op": "primitive", "primitive_id": "signed_aggr_flow_100"}}}</div>
+
+  <div class="deepbar">번역되지 못한 후보 — 시드 0 이 가장 나빴던 진짜 이유</div>
+  <p>시드 0 의 후보 14개 중 13개가 백테스트 DSL 로 옮겨지지 못했다. 그중 10개가 <code>−11.571544/(book_imbalance + signed_aggr_flow_100 + 11.530237)</code>,
+  <code>−16.081614/(book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio + 15.329111)</code> 같은 <b>음의 상수 ÷ (변수 합 + 양의 상수)</b> 꼴이었다(8개는 호가불균형·주문흐름·스프레드비용비 등 여러 변수의 합, 2개는 큐불균형 하나)
+  — DSL 에는 산술 안에 숫자를 놓을 자리가 없어 거부됐다. 그런데 분자가 음수이고 분모가 양수라 이 꼴은 괄호 안의 합에 대해 <b>증가함수</b>이고, 분위 임계로 쓰면 시드 1·2 가 고른 합과 같은 순위를 낸다.
+  <b>시드 0 도 같은 계열의 수식을 찾았는데 번역기가 막았고</b>, 남은 유일한 후보(마이크로프라이스 속도)가 기준선보다 나빴다. 교사 문제가 아니라 번역기 한계다.
+  나머지 거부 사유: 상수만 남은 식(시드 0·1·2 합 5개), 큐불균형 단독 임계(1개), 깊은 곳의 상수배 <code>0.3229·mid_return_20t_over_spread</code> 등(시드 2, 2개).</p>
+
+  <div class="deepbar">모든 번역 성공 후보의 선택 단계 성적 — 중간마찰 834종목, 12:00–13:00</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:62px">계약</th><th style="width:64px">시드</th><th>실행 식 <span class="small">(PySR 원식)</span></th><th style="width:48px">복잡도</th><th style="width:170px">결정당 손익 bp<br><span class="small">q 0.70 / 0.85 / 0.95</span></th><th style="width:60px">체결 <span class="small">q0.95</span></th><th style="width:80px">총 순손익 <span class="small">q0.95</span></th><th style="width:70px">방향 오류 <span class="small">q0.95</span></th></tr></thead><tbody>
+  <tr><th>e000</th><td>0 ★</td><td><code>microprice_velocity_over_spread</code></td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e001</th><td>1</td><td>e000 과 같은 식</td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e002</th><td>1</td><td><code>signed_aggr_flow_20</code> <span class="small">(signed_aggr_flow_20/16.907553 − 1.0188909)</span></td><td class="num">7</td><td class="num">−0.982 / −1.069 / −1.220</td><td class="num">3,162</td><td class="num">−80,726</td><td class="num">79.9%</td></tr>
+  <tr><th>e003</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_20</code> <span class="small">(tanh((…)/16.275808) − 1.0204525)</span></td><td class="num">10</td><td class="num">−0.725 / −0.680 / −0.713</td><td class="num">2,540</td><td class="num">−60,216</td><td class="num">74.2%</td></tr>
+  <tr><th>e004</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">((…)/18.90462 − 1.0539246)</span></td><td class="num">11</td><td class="num">−0.641 / −0.592 / −0.584</td><td class="num">2,539</td><td class="num">−50,923</td><td class="num">68.7%</td></tr>
+  <tr><th>e005</th><td>1 ★</td><td><code>book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh((…)/16.481377) − 1.063918)</span></td><td class="num">11</td><td class="num">−0.615 / −0.580 / −0.576</td><td class="num">2,498</td><td class="num"><b>−47,800</b></td><td class="num">68.5%</td></tr>
+  <tr><th>e006</th><td>1</td><td><code>book_imbalance + deep_depth_imbalance_6_10 + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">((…)/19.204815 − 1.063918)</span></td><td class="num">12</td><td class="num">−0.684 / −0.626 / −0.576</td><td class="num">2,546</td><td class="num">−48,927</td><td class="num">69.7%</td></tr>
+  <tr><th>e007</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_20)</code> <span class="small">((…)/17.484331 − 1.0568297)</span></td><td class="num">12</td><td class="num">−0.609 / −0.589 / −0.565</td><td class="num">2,537</td><td class="num">−48,915</td><td class="num">68.9%</td></tr>
+  <tr><th>e008</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(deep_depth_imbalance_6_10 + signed_aggr_flow_20)</code> <span class="small">((…)/16.261276 − 1.0676535)</span></td><td class="num">14</td><td class="num">−0.643 / −0.599 / −0.584</td><td class="num">2,528</td><td class="num">−49,362</td><td class="num">69.2%</td></tr>
+  <tr><th>e009</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_20 + tanh(deep_depth_imbalance_6_10))</code> <span class="small">(tanh((…)/16.187672) − 1.0667877)</span></td><td class="num">16</td><td class="num">−0.640 / −0.603 / −0.584</td><td class="num">2,526</td><td class="num">−49,273</td><td class="num">69.4%</td></tr>
+  <tr><th>e010</th><td>2</td><td>e000 과 같은 식</td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e011</th><td>2</td><td><code>signed_aggr_flow_100</code> <span class="small">(tanh(signed_aggr_flow_100·0.091815494) − 1.038035)</span></td><td class="num">8</td><td class="num">−1.030 / −1.070 / −1.164</td><td class="num">4,313</td><td class="num">−121,697</td><td class="num">83.1%</td></tr>
+  <tr><th>e012</th><td>2</td><td><code>book_imbalance + signed_aggr_flow_100</code> <span class="small">((…)·0.083205365 − 1.0411993)</span></td><td class="num">9</td><td class="num">−0.701 / −0.695 / −0.746</td><td class="num">2,741</td><td class="num">−69,991</td><td class="num">75.2%</td></tr>
+  <tr><th>e013</th><td>2</td><td><code>signed_aggr_flow_100 + tanh(book_imbalance)</code> <span class="small">((…)·0.09386577 − 1.0404555)</span></td><td class="num">10</td><td class="num">−0.714 / −0.707 / −0.748</td><td class="num">2,819</td><td class="num">−72,151</td><td class="num">76.2%</td></tr>
+  <tr><th>e014</th><td>2</td><td>e004 와 같은 실행 식 <span class="small">((…)·0.058926456 − 1.0840377)</span></td><td class="num">11</td><td class="num">−0.641 / −0.592 / −0.584</td><td class="num">2,539</td><td class="num">−50,923</td><td class="num">68.7%</td></tr>
+  <tr><th>e015</th><td>2</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh(…)·0.1410824 − 1.0991353)</span></td><td class="num">11</td><td class="num">−0.584 / −0.573 / −0.587</td><td class="num">2,532</td><td class="num">−50,670</td><td class="num">69.0%</td></tr>
+  <tr><th>e016</th><td>2</td><td>e007 과 같은 실행 식 <span class="small">(tanh(…)·0.12482372 − 1.084626)</span></td><td class="num">13</td><td class="num">−0.609 / −0.589 / −0.565</td><td class="num">2,537</td><td class="num">−48,915</td><td class="num">68.9%</td></tr>
+  <tr><th>e017</th><td>2 ★</td><td><code>book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh(…)·0.13854784 − 1.0886018)</span></td><td class="num">14</td><td class="num">−0.597 / −0.567 / <b>−0.528</b></td><td class="num">2,468</td><td class="num"><b>−45,575</b></td><td class="num">68.4%</td></tr>
+  <tr><th>e018</th><td>나이브</td><td><code>book_imbalance</code></td><td class="num">—</td><td class="num">−0.669 / −0.710 / −0.781</td><td class="num">2,525</td><td class="num">−64,130</td><td class="num">74.0%</td></tr>
+  <tr><th>e019</th><td>영점</td><td><code>book_imbalance_velocity</code></td><td class="num">—</td><td class="num">−0.968 / −1.084 / −1.240</td><td class="num">4,364</td><td class="num">−121,593</td><td class="num">81.3%</td></tr>
+  </tbody></table></div>
+  <p class="small">★ = 시드의 1순위(사전등록 규칙: 거래 ≥ 200 중 총 순손익 최대). 방향 오류 = 체결 중 "방향이 계속 틀림" 비율. 18개 후보의 서로 다른 실행 식 14개.
+  <b>"호가불균형 + 공격적 주문흐름 + 스프레드비용비" 를 더하는 계열</b>이 전부 −0.53 ~ −0.59 로 몰려 있고, 단일 변수(주문흐름만 · 가격 속도만)는 −1.16 ~ −1.83 으로 확연히 나쁘다.
+  60개 계약 중 총 순손익이 양수인 것은 <b>하나도 없다.</b></p>
+
+  <div class="deepbar">층별 결과 — 학습층 → 선택층 → 최종 평가층 (q = 0.95 동결)</div>
+  <div class="table-scroll"><table><thead><tr><th rowspan="2">수식</th><th colspan="3">저마찰 837종목 (학습층)</th><th colspan="3">중간마찰 834종목 (선택층)</th><th colspan="3">고마찰 836종목 (최종 평가층)</th></tr>
+  <tr><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th></tr></thead><tbody>
+  <tr><th>시드 0</th><td class="num">115,538 · 10,652</td><td class="num">−2.444</td><td class="num">−279,575</td><td class="num">87,983 · 5,254</td><td class="num">−1.829</td><td class="num">−159,976</td><td class="num">52,810 · 2,290</td><td class="num">−1.772</td><td class="num">−93,372</td></tr>
+  <tr><th>시드 1</th><td class="num">124,115 · 6,097</td><td class="num">−0.980</td><td class="num">−120,325</td><td class="num">83,454 · 2,498</td><td class="num">−0.576</td><td class="num">−47,800</td><td class="num">46,634 · 1,031</td><td class="num"><b>−0.415</b></td><td class="num">−19,301</td></tr>
+  <tr><th>시드 2</th><td class="num">130,116 · 6,242</td><td class="num">−0.974</td><td class="num">−125,322</td><td class="num">86,642 · 2,468</td><td class="num">−0.528</td><td class="num">−45,575</td><td class="num">47,984 · 1,039</td><td class="num"><b>−0.460</b></td><td class="num">−22,015</td></tr>
+  <tr><th>나이브</th><td class="num">125,828 · 6,212</td><td class="num">−1.193</td><td class="num">−148,567</td><td class="num">82,556 · 2,525</td><td class="num">−0.781</td><td class="num">−64,130</td><td class="num">47,713 · 1,073</td><td class="num">−0.797</td><td class="num">−37,998</td></tr>
+  <tr><th>영점</th><td class="num">136,072 · 9,491</td><td class="num">−1.773</td><td class="num">−239,698</td><td class="num">98,364 · 4,364</td><td class="num">−1.240</td><td class="num">−121,593</td><td class="num">55,333 · 1,961</td><td class="num">−1.222</td><td class="num">−67,538</td></tr>
+  </tbody></table></div>
+  <p class="small">결정 = 신호가 켜져 주문을 낸 횟수, 체결 = 지정가가 실제로 체결된 횟수. 결정의 90% 이상은 체결되지 않아 손익 0 으로 끝난다. 최종 평가층 13:00 이후만: 시드 1 −0.335 · 시드 2 −0.306 · 나이브 −0.539 · 영점 −0.962 · 시드 0 −1.331 bp/결정.</p>
+
+  <div class="deepbar">체결 1건 단위 경제성 — 수수료 전(gross)과 후(net), 종목 단위 부트스트랩 95% 구간</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:120px">층 · 수식</th><th>체결 (체결률)</th><th><span class="term" tabindex="0" data-tip="수수료를 빼기 전 체결 1건의 손익(bp). 체결가 기준이라 스프레드는 이미 반영돼 있다.">gross</span> / 체결</th><th><span class="term" tabindex="0" data-tip="gross 에서 왕복 수수료 23bp 를 뺀 체결 1건의 손익(bp).">net</span> / 체결</th><th>gross 중앙값</th><th>수수료를 넘긴 체결</th><th>방향 오류</th><th>보유 중앙</th><th>진입 스프레드 중앙</th></tr></thead><tbody>
+  <tr><th>저마찰 · 시드 1</th><td class="num">6,097 (4.9%)</td><td class="num"><b>+3.26</b> [+2.12, +4.46]</td><td class="num">−19.74 [−20.99, −18.59]</td><td class="num">0.0</td><td class="num">22.6%</td><td class="num">65.0%</td><td class="num">175초</td><td class="num">17.1bp</td></tr>
+  <tr><th>저마찰 · 시드 2</th><td class="num">6,242 (4.8%)</td><td class="num"><b>+2.92</b> [+1.79, +4.39]</td><td class="num">−20.08 [−21.31, −18.77]</td><td class="num">0.0</td><td class="num">22.3%</td><td class="num">65.1%</td><td class="num">182초</td><td class="num">17.0bp</td></tr>
+  <tr><th>저마찰 · 나이브</th><td class="num">6,212 (4.9%)</td><td class="num">−0.92 [−2.53, +0.55]</td><td class="num">−23.92 [−25.48, −22.41]</td><td class="num">−7.7</td><td class="num">21.1%</td><td class="num">68.9%</td><td class="num">183초</td><td class="num">15.9bp</td></tr>
+  <tr><th>저마찰 · 영점</th><td class="num">9,491 (7.0%)</td><td class="num">−2.26 [−3.39, −1.26]</td><td class="num">−25.26 [−26.39, −24.21]</td><td class="num">−9.0</td><td class="num">19.3%</td><td class="num">76.5%</td><td class="num">241초</td><td class="num">15.7bp</td></tr>
+  <tr><th>저마찰 · 시드 0</th><td class="num">10,652 (9.2%)</td><td class="num">−3.25 [−4.22, −2.31]</td><td class="num">−26.25 [−27.16, −25.31]</td><td class="num">−11.0</td><td class="num">18.6%</td><td class="num">80.7%</td><td class="num">256초</td><td class="num">15.6bp</td></tr>
+  <tr><th>고마찰 · 시드 1</th><td class="num">1,031 (2.2%)</td><td class="num"><b>+4.28</b> [−0.47, +9.11]</td><td class="num">−18.72 [−23.76, −14.19]</td><td class="num">0.0</td><td class="num">29.4%</td><td class="num">69.8%</td><td class="num">112초</td><td class="num">64.3bp</td></tr>
+  <tr><th>고마찰 · 시드 2</th><td class="num">1,039 (2.2%)</td><td class="num"><b>+1.81</b> [−3.48, +7.46]</td><td class="num">−21.19 [−26.40, −16.15]</td><td class="num">0.0</td><td class="num">28.9%</td><td class="num">70.5%</td><td class="num">115초</td><td class="num">65.9bp</td></tr>
+  <tr><th>고마찰 · 나이브</th><td class="num">1,073 (2.2%)</td><td class="num">−12.41 [−17.86, −7.63]</td><td class="num">−35.41 [−40.67, −30.00]</td><td class="num">−15.1</td><td class="num">22.5%</td><td class="num">78.4%</td><td class="num">141초</td><td class="num">45.8bp</td></tr>
+  <tr><th>고마찰 · 영점</th><td class="num">1,961 (3.5%)</td><td class="num">−11.44 [−15.06, −7.81]</td><td class="num">−34.44 [−38.07, −30.89]</td><td class="num">−14.2</td><td class="num">20.4%</td><td class="num">82.6%</td><td class="num">162초</td><td class="num">47.1bp</td></tr>
+  <tr><th>고마찰 · 시드 0</th><td class="num">2,290 (4.3%)</td><td class="num">−17.77 [−21.17, −14.46]</td><td class="num">−40.77 [−44.13, −37.61]</td><td class="num">−18.3</td><td class="num">17.9%</td><td class="num">84.2%</td><td class="num">180초</td><td class="num">43.6bp</td></tr>
+  </tbody></table></div>
+  <p class="small">체결률 = 체결 / 결정. 수수료를 넘긴 체결 = net &gt; 0 인 체결 비율. 고마찰·시드 1 체결 1,031건의 결과 분해: 방향이 계속 틀림 69.8% · 수익 남김 14.1% · 방향은 맞았으나 비용 못 넘김 12.8% · 초반 오르다 뒤집힘 3.3%.
+  청산 사유 상위: 추적 손절 뒤 재호가·시간 초과로 BID1 청산 44.2% · 추적 뒤 ASK1 재호가 청산 18.7% · 추적 시간 초과 14.9% · 최대 보유 900초 8.7% · 손절(−120bp) 5.5%.</p>
+
+  <div class="deepbar">체결되는 순간에는 신호가 이미 식어 있다 — 결정 시점 → 체결 시점의 중앙값</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:150px">층 · 수식</th><th>공격적 주문흐름 20</th><th>호가불균형</th><th>스프레드 (bp)</th></tr></thead><tbody>
+  <tr><th>저마찰 · 시드 1</th><td class="num">0.894 → <b>0.818</b></td><td class="num">0.646 → <b>0.568</b></td><td class="num">16.2 → 15.6</td></tr>
+  <tr><th>저마찰 · 시드 2</th><td class="num">0.848 → <b>0.772</b></td><td class="num">0.663 → <b>0.597</b></td><td class="num">15.8 → 15.2</td></tr>
+  <tr><th>저마찰 · 나이브</th><td class="num">0.072 → −0.067</td><td class="num">0.904 → 0.895</td><td class="num">14.0 → 12.4</td></tr>
+  <tr><th>고마찰 · 시드 1</th><td class="num">0.846 → <b>0.614</b></td><td class="num">0.606 → <b>0.381</b></td><td class="num">60.6 → <b>70.5</b></td></tr>
+  <tr><th>고마찰 · 시드 2</th><td class="num">0.813 → <b>0.546</b></td><td class="num">0.646 → <b>0.441</b></td><td class="num">59.0 → <b>69.2</b></td></tr>
+  <tr><th>고마찰 · 나이브</th><td class="num">−0.045 → −0.212</td><td class="num">0.948 → 0.927</td><td class="num">37.3 → 34.7</td></tr>
+  </tbody></table></div>
+  <div class="callout"><b>해석.</b> 진입은 BID1 에 지정가로 걸어 두고 누군가 팔아 줄 때 체결된다. 그래서 체결은 <b>매수 우위가 약해져 파는 쪽이 BID1 을 칠 때</b> 몰린다
+  — 결정 시점에 0.85 였던 공격적 매수 흐름이 체결 시점에는 0.61, 호가불균형은 0.61 → 0.38 로 떨어져 있다(고마찰층). 신호가 가장 강한 순간에는 체결이 안 되고,
+  신호가 식은 순간에 체결되는 <span class="term" tabindex="0" data-tip="지정가 주문이 불리한 순간에 골라서 체결되는 현상. 내 매수 호가를 누군가 치는 것은 대개 그 사람이 가격이 내릴 것을 알 때다.">역선택</span>이다.
+  고마찰층에서는 스프레드가 넓어진 순간(60 → 70bp)에 체결되는 경향도 보인다. 이것은 원장에서 본 서술이며, 진입 방식을 바꿔 확인한 인과는 아니다.</div>
+
+  <div class="deepbar">종목군별 체결 단위 경제성 — 0911 의 틱 크기 · 거래대금 3분위를 0910 원장에 붙인 서술</div>
+  <div class="two-col">
+    <div class="table-scroll"><table><thead><tr><th>고마찰층</th><th>체결</th><th>gross</th><th>net</th></tr></thead><tbody>
+    <tr><th>시드 1 · 큰틱</th><td class="num">53</td><td class="num">+3.07</td><td class="num">−19.93</td></tr>
+    <tr><th>시드 1 · 중간틱</th><td class="num">430</td><td class="num"><b>+10.91</b></td><td class="num">−12.09</td></tr>
+    <tr><th>시드 1 · 작은틱</th><td class="num">543</td><td class="num">−0.80</td><td class="num">−23.80</td></tr>
+    <tr><th>시드 1 · 고유동</th><td class="num">327</td><td class="num"><b>+17.00</b></td><td class="num"><b>−6.00</b></td></tr>
+    <tr><th>시드 1 · 중유동</th><td class="num">472</td><td class="num">+4.25</td><td class="num">−18.75</td></tr>
+    <tr><th>시드 1 · 저유동</th><td class="num">227</td><td class="num">−13.86</td><td class="num">−36.86</td></tr>
+    <tr><th>시드 2 · 고유동</th><td class="num">337</td><td class="num">+13.27</td><td class="num">−9.73</td></tr>
+    <tr><th>시드 2 · 중간틱</th><td class="num">426</td><td class="num">+7.96</td><td class="num">−15.04</td></tr>
+    <tr><th>나이브 · 고유동</th><td class="num">364</td><td class="num">−2.54</td><td class="num">−25.54</td></tr>
+    </tbody></table></div>
+    <div class="table-scroll"><table><thead><tr><th>저마찰층 (시드 1)</th><th>체결</th><th>gross</th><th>net</th></tr></thead><tbody>
+    <tr><th>큰틱</th><td class="num">4,270</td><td class="num">+2.27</td><td class="num">−20.73</td></tr>
+    <tr><th>중간틱</th><td class="num">1,339</td><td class="num">+5.37</td><td class="num">−17.63</td></tr>
+    <tr><th>작은틱</th><td class="num">449</td><td class="num">+5.77</td><td class="num">−17.23</td></tr>
+    <tr><th>고유동</th><td class="num">5,422</td><td class="num">+3.53</td><td class="num">−19.47</td></tr>
+    <tr><th>중유동</th><td class="num">565</td><td class="num">+0.31</td><td class="num">−22.69</td></tr>
+    <tr><th>저유동</th><td class="num">71</td><td class="num">+2.74</td><td class="num">−20.26</td></tr>
+    </tbody></table></div>
+  </div>
+  <p class="small">종목군 경계는 0911 에서 3/16 기준으로 정한 것이다. 고마찰층은 작은틱·저유동 종목이 많아 칸마다 체결 수가 크게 다르다 — 구간을 내지 않은 서술이며 판정에 쓰지 않는다.
+  <b>순손익이 양수인 칸은 없다.</b> 가장 가까운 곳은 고마찰층 고유동(49종목) 시드 1 의 −6.0bp.</p>
+
+  <ol class="contrib">
+    <li><b>방향 신호는 있다.</b> 시드 1·2 수식은 수수료 전 체결당 +2.9 ~ +3.3bp 이고 저마찰층(체결 6천여 건)에서는 종목 단위 구간이 0 위에 있다. 나이브·영점·시드 0 은 0 이하다. 고마찰층(체결 1천여 건)에서는 구간이 0 을 포함한다.</li>
+    <li><b>크기는 수수료의 7분의 1이다.</b> 흑자가 되려면 체결당 gross 가 평균 23bp 를 넘어야 하는데 +3bp 다. gross 중앙값은 정확히 0(진입가에 그대로 청산)이고, 수수료를 넘기는 체결은 22~29% 뿐이다.</li>
+    <li><b>지정가 진입이 신호를 깎는다.</b> 체결은 신호가 식은 순간에 몰린다(역선택). 손실의 약 70% 가 "방향이 계속 틀림" 인 이유와 같은 방향의 증거다.</li>
+    <li><b>수식 계열은 안정적이다.</b> 서로 다른 시드가 같은 합(호가불균형 + 주문흐름 + 스프레드비용비)에 도달했고, 그 계열의 변형 10여 개가 선택 단계에서 −0.53 ~ −0.59bp/결정으로 거의 같다. 시드 0 도 같은 계열을 찾았으나 번역기에서 막혔다.</li>
+    <li><b>종목군으로 좁혀도 흑자는 없다.</b> 고마찰층 고유동 종목에서 −6bp 가 가장 가깝다 — 0911 의 "틱 크기로 쉬운 탈출구는 없다" 와 같은 결론이다.</li>
+  </ol>
+  <div class="oneline"><b>한 줄.</b> 증류된 진입 수식은 <b>"매수 호가가 두껍고, 사들이는 체결이 몰렸고, 스프레드가 넓을 때 산다"</b> 이다.
+  수수료 전에는 체결당 +3bp 로 방향을 맞히지만 <b>왕복 23bp 의 7분의 1</b>이고, 지정가가 체결되는 순간에는 이미 매수세가 식어 있다.</div>
+</section>
+
+<section id="glance">
+  <h2>한눈에 — 0911 의 세 질문과 답<span class="vtag">R² 는 전부 학습에 쓰지 않은 종목에서 잰 값</span></h2>
+  <div class="table-scroll"><table><thead><tr><th style="width:210px">질문</th><th style="width:130px">판정</th><th>핵심 수치</th></tr></thead><tbody>
+  <tr><th>3일 전체로 학습하면 나아지는가</th><td><span class="pill v">효과 있음 · 작음</span></td><td>다음 날 안 본 종목 R² <b>0.0091 → 0.0122</b> (+0.0031, 95% 구간 [+0.0021, +0.0058]). 학습 방식을 맞추면 +0.0046</td></tr>
+  <tr><th>틱 크기로 되는 종목군이 갈리는가</th><td><span class="pill tag4">애매</span></td><td>큰틱 0.026 · 중간틱 0.005 · 작은틱 0.023 — 가장 나쁜 종목군도 0 보다 유의하게 크고, 틱 크기 순서도 아니다</td></tr>
+  <tr><th>데이터 양을 늘리면 계속 오르는가</th><td><span class="pill tag3">포화</span></td><td>DeepLOB 50만 행에서 0.021, 200만 행까지 평평. 얕은 모델은 500만 행에서 0.0188 로 멈춤</td></tr>
+  </tbody></table></div>
+  <h3>교사 설명력의 흐름</h3>
+  <div class="table-scroll"><table><thead><tr><th style="width:200px">실험</th><th>학습 데이터</th><th>평가</th><th style="width:210px">R²</th></tr></thead><tbody>
+  <tr><th>0910 본 실험</th><td>하루, 저마찰 종목 20만 행</td><td>같은 날, 중간마찰 종목</td><td class="num">0.0150 ~ 0.0153 (시드 3개)</td></tr>
+  <tr><th>0911 데이터 양 곡선</th><td>3일 풀에서 20만 ~ 200만 행</td><td>같은 기간, 중간마찰 종목</td><td class="num">0.0179 ~ 0.0213</td></tr>
+  <tr><th>0911 종목군 분석</th><td>이틀, 200만 행</td><td><b>다음 날, 안 본 종목</b></td><td class="num">0.0091 <span class="small">(변동 상위 1종목 제외 0.0162)</span></td></tr>
+  <tr><th>0911 3일 전체 학습</th><td>3일, 4,444만 행</td><td><b>다음 날, 안 본 종목</b></td><td class="num"><b>0.0122</b> <span class="small">(변동 상위 1종목 제외 0.0208)</span></td></tr>
+  </tbody></table></div>
+  <div class="oneline"><b>한 줄.</b> 데이터를 늘리면 조금 오르고, 종목을 나눠도 쉬운 탈출구는 없다. <b>설명력 0.01~0.03 이라는 천장이 모델을 바꾸기 전에 확인한 사실이다.</b></div>
+</section>
+
+<section id="full" class="paper g2">
+  <h2>① 3일 전체 학습 → 다음 날 하루 시험<span class="vtag">지시 1 · 사전등록 PREREG-MINIBATCH.md (미니배치 코드 작성 전 커밋) · 판정: 데이터 증가 효과 있음</span></h2>
+  <div class="meta-box">
+    <div><b>학습</b><span>학습 종목 1,647 × 3일(3/16·17·18) 의 <span class="term" tabindex="0" data-tip="실제 시장에 존재하는 상태 근처의 행만 골라 쓰는 표집. 드문 꼬리 상태에는 가중치를 더 준다.">on-manifold</span> 행 전부 — <b>44,436,221 행</b> (풀 46,790,850)</span></div>
+    <div><b>멈출 시점</b><span>선택 종목 411 × 같은 3일에서 뽑은 198,016 행의 R²</span></div>
+    <div><b>평가</b><span>평가 종목 411 × <b>3/19 하루 전체</b> 3,849,436 행 (평가 ①, 1차) · 학습 종목 × 3/19 15,569,153 행 (평가 ②, 참고)</span></div>
+    <div><b>비교 기준</b><span>같은 평가 행에서 예측한, 종목군 분석의 200만 행 교사</span></div>
+    <div><b>판정 규칙</b><span><span class="term" tabindex="0" data-tip="두 모델이 같은 행에서 예측했으므로 두 R² 는 서로 독립이 아니다. 종목을 복원추출한 같은 표본에서 두 R² 를 함께 계산해 차이의 분포를 만든다.">종목 단위 짝지은 부트스트랩</span> 1000회로 ΔR² 95% 구간 — 하한 &gt; 0 효과 있음 / 0 포함 효과 없음 / 상한 &lt; 0 나빠짐</span></div>
+    <div><b>사전 예측</b><span>1단계 통과 · 효과는 있으나 작음 · R² 0.03 미만</span></div>
+  </div>
+  <div class="easy"><div class="ezhead">쉽게 말하면</div>
+    <p><b>무슨 문제?</b> 0910 교사는 가용 데이터의 2.4% 만 봤다. 3일 치를 전부 보여 주면 다음 날 처음 보는 종목에서 더 잘 맞히는가?</p>
+    <p><b>걸림돌.</b> 기존 교사는 학습 데이터 전체를 GPU 에 한 번에 올리는 방식이라 3일 치(1.75TB)가 들어가지 않는다. 그래서 <b>학습 절차만</b> 8,192행씩 나눠 보는 미니배치로 바꿨다 —
+    바꾼 방식이 제대로 배우는지 먼저 확인(1단계)하고, 통과했을 때만 3일 전체로 갔다(2단계).</p>
+    <div class="analogy"><b>비유.</b> 문제집을 한 권만 풀던 학생에게 22권을 주되, 한 번에 다 펼칠 책상이 없어서 몇 쪽씩 넘기며 풀게 했다. 넘기며 풀어도 같은 실력이 붙는지 한 권으로 먼저 확인했다.</div>
+  </div>
+
+  <div class="deepbar">왜 학습 방식을 바꿔야 했나 — GPU 메모리 실측</div>
+  <div class="table-scroll"><table><thead><tr><th>학습 행 (전체 배치)</th><th>10만</th><th>20만</th><th>40만</th><th>80만</th><th>120만</th><th>투영: 200만</th><th>500만</th><th>3일 저마찰 전체</th></tr></thead><tbody>
+  <tr><th>최대 할당 GB</th><td class="num">3.85</td><td class="num">7.68</td><td class="num">15.32</td><td class="num">30.62</td><td class="num">45.92</td><td class="num">≈ 77</td><td class="num">≈ 191</td><td class="num">≈ 1,750</td></tr>
+  </tbody></table></div>
+  <p class="small">무작위 배열로 쟀다(메모리는 값이 아니라 모양에만 달려 있다). 10만 행당 3.83GB 로 완벽한 선형. GPU 한 장은 약 95GB — 실제로 500만 행 곡선 측정이 106GB 요청 실패로 죽었다.</p>
+
+  <div class="deepbar">실측 전 점검</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:280px">점검</th><th>결과</th></tr></thead><tbody>
+  <tr><th>묶음마다 즉석으로 만든 16스텝 윈도우 = 기존 윈도우 함수</th><td><span class="pill v">통과</span> 비트 단위 동일 (비유한 값·세션 경계 포함)</td></tr>
+  <tr><th>흘려 계산한 표준화 통계 = 전체 배치 방식</th><td><span class="pill v">통과</span> 상수 열의 척도까지 정확히 같음</td></tr>
+  <tr><th>짝지은 부트스트랩 (알려진 답이 있는 합성 데이터)</th><td><span class="pill v">통과</span> 같은 예측 → 구간 정확히 0 · 한쪽에 신호 → 효과 있음 · 잡음 → 나빠짐 · 같은 신호·다른 잡음 3회 → 거짓 효과 없음 · 행이 다르면 계산 거부</td></tr>
+  <tr><th>학습기가 알려진 신호를 배우는가</th><td><span class="pill tag4">첫 실행 실패 → 진단 → 통과</span> 6 epoch 점검에서 0.016. 같은 합성 데이터에서 기존 전체 배치(0.840)와 미니배치(0.834) <b>모두 긴 정체 뒤 급등</b>하는 모양이라 결함이 아니었다. 점검 예산만 40 epoch 로 올려 통과(진짜 y 0.834 · 섞은 y 0.0018)</td></tr>
+  <tr><th>실행 코드 시험 운전 (36종목)</th><td><span class="pill v">통과</span> 1단계가 기준 실행과 같은 행을 뽑음(표준화 차이 0) · 저장 모델을 불러와 다시 예측한 차이 0 · 2단계 경로 끝까지</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">1단계 — 같은 200만 행에서 미니배치가 전체 배치만큼 배우는가 (통과선: 전체 배치 × 0.9)</div>
+  <div class="table-scroll"><table><thead><tr><th></th><th>선택 종목 R²</th><th>최선 / 멈춤</th><th>학습 시간</th></tr></thead><tbody>
+  <tr><th>미니배치 · 학습률 1e-3</th><td class="num">0.02329</td><td>10.25 / 15.25 epoch</td><td class="num">283초</td></tr>
+  <tr><th>미니배치 · 학습률 3e-4 <span class="pill v">선택</span></th><td class="num"><b>0.02354</b></td><td>20.0 / 25.0 epoch</td><td class="num">515초</td></tr>
+  <tr><th>기준: 전체 배치</th><td class="num">0.02283</td><td>700 / 1000 epoch</td><td class="num">1,030초</td></tr>
+  </tbody></table></div>
+  <p><span class="pill v">통과</span> 통과선 0.02055. 같은 데이터임을 표준화 평균 차이 3.4e-13 · 척도 차이 2.2e-11 로 확인했다.
+  결과 전에 걱정했던 "실제 데이터에도 정체가 있어 5 epoch 인내가 너무 일찍 멈출" 일은 없었다 — 점수가 꾸준히 올랐다.</p>
+  <div class="callout"><b>판정은 아니지만 중요한 관측.</b> 선택 종목에서는 미니배치가 더 높았는데, 다음 날 평가 ① 에서는 조금 낮았다
+  (0.00755 vs 0.00908, <b>−0.0015</b> [−0.0030, −0.0009], 예측 상관 0.845). 그래서 사전등록 비교(3일 미니배치 − 200만 전체 배치)에는
+  <b>데이터 효과와 학습 방식 차이가 섞인다.</b> 결과를 보기 전에 보조 비교(3일 미니배치 − 200만 미니배치)를 함께 보고하기로 적어 두었다. 판정은 사전등록 비교로 한다.</div>
+
+  <div class="deepbar">2단계 — 3일 전체 학습</div>
+  <div class="table-scroll"><table><thead><tr><th></th><th>선택 종목 R²</th><th>최선 / 멈춤</th><th>학습 시간</th></tr></thead><tbody>
+  <tr><th>학습률 1e-3 <span class="pill v">선택</span></th><td class="num"><b>0.02900</b></td><td>14.75 / 19.75 epoch (조기 종료)</td><td class="num">5,763초 (epoch 당 약 4.9분)</td></tr>
+  <tr><th>학습률 3e-4</th><td class="num">0.02764</td><td>26.0 / 30.0 epoch (<b>상한에서 잘림</b>)</td><td class="num">7,840초</td></tr>
+  </tbody></table></div>
+  <p class="small">선택 종목 R² 는 선택 행(3일)이 1단계(하루)와 달라 서로 비교하지 않는다. 속도는 GPU 가 아니라 CPU 의 묶음 준비(묶음당 37ms 실측)가 정했다. 전체 KST 02:09 → 06:26.</p>
+
+  <div class="deepbar">판정 — 같은 평가 행, 종목 단위 짝지은 부트스트랩</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:280px">비교</th><th>200만 행</th><th>3일 전체</th><th>차이</th><th>95% 구간</th><th style="width:120px">판정</th></tr></thead><tbody>
+  <tr><th>평가 ① 안 본 종목 · 기준: 전체 배치 200만 <span class="small">(사전등록)</span></th><td class="num">0.00908</td><td class="num"><b>0.01216</b></td><td class="num"><b>+0.00309</b></td><td class="num">[+0.00208, +0.00576]</td><td><span class="pill v">효과 있음</span></td></tr>
+  <tr><th>평가 ② 본 종목 · 기준: 전체 배치 200만</th><td class="num">0.01964</td><td class="num">0.02454</td><td class="num">+0.00490</td><td class="num">[+0.00412, +0.00580]</td><td><span class="small">참고</span></td></tr>
+  <tr><th>보조 평가 ① · 기준: 미니배치 200만</th><td class="num">0.00755</td><td class="num">0.01216</td><td class="num">+0.00461</td><td class="num">[+0.00315, +0.00822]</td><td><span class="small">보조</span></td></tr>
+  <tr><th>보조 평가 ② · 기준: 미니배치 200만</th><td class="num">0.01828</td><td class="num">0.02454</td><td class="num">+0.00626</td><td class="num">[+0.00542, +0.00722]</td><td><span class="small">보조</span></td></tr>
+  </tbody></table></div>
+  <p>선결 조건인 <span class="term" tabindex="0" data-tip="예측은 그대로 두고 y 를 같은 종목 안에서만 섞는다. 종목별 y 평균은 보존되므로, 예측이 종목 간 수준 차이만 타고 있으면 섞은 y 에서도 양의 R² 가 나온다.">음성 대조군</span> 통과 — 섞은 y 에서 R² −0.011, 구간 하한 최대 −0.029.</p>
+
+  <div class="deepbar">서술 분석 — 판정이 아니다</div>
+  <div class="table-scroll"><table><thead><tr><th>평가 ① (안 본 종목)</th><th>전체 배치 200만</th><th>미니배치 200만</th><th>미니배치 3일</th></tr></thead><tbody>
+  <tr><th>모든 행 R² (사전등록 지표)</th><td class="num">0.00908</td><td class="num">0.00755</td><td class="num"><b>0.01216</b></td></tr>
+  <tr><th>변동 상위 1종목 제외</th><td class="num">0.01615</td><td class="num">0.01390</td><td class="num">0.02076</td></tr>
+  <tr><th>변동 상위 5종목 제외</th><td class="num">0.02317</td><td class="num">0.02090</td><td class="num">0.02850</td></tr>
+  <tr><th>변동 상위 10종목 제외</th><td class="num">0.02706</td><td class="num">0.02629</td><td class="num">0.03333</td></tr>
+  <tr><th>종목별 R² 중앙값</th><td class="num">0.03601</td><td class="num">0.03119</td><td class="num"><b>0.04070</b></td></tr>
+  </tbody></table></div>
+  <ul class="tight">
+    <li>전체 변동의 48% 를 차지하는 종목(261780, <a href="#groups">종목군 절</a> 참고)을 빼고 재도 <b>3일 − 전체 배치 200만 = +0.0046 [+0.0036, +0.0061]</b> — 한 종목 때문이 아니다.</li>
+    <li>3일 교사의 틱 종목군(평가 ①): 큰틱 <b>0.0327</b> [0.0258, 0.0424] · 중간틱 0.0069 [0.0035, 0.0218] · 작은틱 0.0282 [0.0191, 0.0446]. 세 종목군 모두 올랐고 모양은 그대로다.</li>
+    <li>데이터 양 곡선은 평평했는데 3일 전체는 올랐다. 후보 — 날짜가 2일 → 3일로 늘어난 다양성 / 행 22배 / 학습 방식·선택 행 차이. <b>이 실험으로는 셋을 가를 수 없다.</b></li>
+  </ul>
+  <div class="diff">
+    <div class="hd">사전 예측</div><div class="hd">예측</div><div class="hd">결과</div>
+    <div>1단계</div><div>통과</div><div><span class="same">맞음</span> — 0.02354 ≥ 0.02055, 미니배치가 더 높음</div>
+    <div>데이터 증가 효과</div><div>있음, 그러나 작음</div><div><span class="same">맞음</span> — +0.0031 [+0.0021, +0.0058]</div>
+    <div>R² 절대 수준</div><div>0.03 미만</div><div><span class="same">맞음</span> — 평가 ① 0.0122 · 평가 ② 0.0245</div>
+  </div>
+  <div class="oneline"><b>한 줄.</b> 3일 전체로 학습한 교사가 다음 날 처음 보는 종목에서 가장 잘 맞힌다 — <b>그러나 0.009 가 0.012 가 되는 크기다.</b>
+  사전등록의 "0.03 이상이면 데이터 부족이 주원인이었다" 는 조건에는 닿지 않았다.</div>
+</section>
+
+<section id="groups" class="paper g3">
+  <h2>② 틱 크기별 종목군 분석<span class="vtag">지시 2 · 사전등록 PREREG-GROUPS.md (부록 A~E, 전부 종목군 R² 계산 전 커밋) · 판정: 애매</span></h2>
+  <div class="meta-box">
+    <div><b>질문</b><span>R² 가 낮은 것은 "모든 종목에서 조금씩" 인가, "일부 종목군은 되고 일부는 전혀 안 되는 것의 평균" 인가</span></div>
+    <div><b>1차 축</b><span>상대 틱 크기 = 스프레드가 평균 몇 틱에 걸치는가, 3분위 (큰틱 · 중간틱 · 작은틱 각 823종목)</span></div>
+    <div><b>2차 축</b><span>거래대금 3분위 (저 · 중 · 고유동). 두 축 모두 보고하고 좋아 보이는 쪽을 고르지 않는다</span></div>
+    <div><b>교사 · 기준선</b><span>DeepLOB 200만 행(인내 30) · 같은 304차원 입력의 릿지(선형 회귀)</span></div>
+    <div><b>지표</b><span>테스트일 유효 행 전체의 행 단위 R², 종목 단위 부트스트랩 1000회 구간</span></div>
+    <div><b>사전 예측</b><span>이질성 있음 · 큰틱이 최선 · 본질(선형 모델도 같은 기울기)</span></div>
+  </div>
+  <div class="easy"><div class="ezhead">쉽게 말하면</div>
+    <p><b>무슨 문제?</b> LOBFrame 논문은 같은 DeepLOB 으로 호가 단위가 큰 종목은 예측이 되고 작은 종목은 거의 무작위임을 보였다. 우리는 2,507종목을 한 덩어리로 섞었다.
+    평균 0.015 가 "되는 종목군 + 전혀 안 되는 종목군" 의 평균이라면, 모델을 바꾸기보다 종목을 좁히는 것이 먼저다.</p>
+    <p><b>어떻게?</b> 교사는 모든 종목군을 섞어 학습시키고(한 층에서만 배우면 층 효과가 끼어든다 — 0910 의 교훈), 평가만 종목군별로 나눠 잰다. 모든 종목군에 선형 기준선을 나란히 둔다.</p>
+  </div>
+
+  <div class="deepbar">종목군 정의 — 결과 전에 규칙으로</div>
+  <p><b>호가 단위표를 코드에 박지 않았다.</b> 무작위 파일 160개를 재 보니 높은 가격대에 5원 간격이 24~37% 섞여 있었다(ETF 로 추정).
+  그래서 <b>종목마다 1~5호가 인접 간격의 최빈값</b>을 그 종목의 틱으로 썼다. 주식 종목에서 최빈값 비율 하위 5% 가 0.591 로 판정이 깨끗하다.
+  틱 판정이 불확실한 38종목을 빼 2,469종목.</p>
+  <div class="two-col">
+    <div class="table-scroll"><table><thead><tr><th>종목군</th><th>스프레드 평균 틱 수</th><th>중앙값</th></tr></thead><tbody>
+    <tr><th>큰틱</th><td class="num">0.808 ~ 1.810</td><td class="num">1.420</td></tr>
+    <tr><th>중간틱</th><td class="num">1.810 ~ 2.792</td><td class="num">2.247</td></tr>
+    <tr><th>작은틱</th><td class="num">2.793 ~ 23.702</td><td class="num">4.021</td></tr>
+    </tbody></table></div>
+    <div class="table-scroll"><table><thead><tr><th>종목 수</th><th>저유동</th><th>중유동</th><th>고유동</th></tr></thead><tbody>
+    <tr><th>큰틱</th><td class="num">104</td><td class="num">189</td><td class="num">530</td></tr>
+    <tr><th>중간틱</th><td class="num">274</td><td class="num">338</td><td class="num">211</td></tr>
+    <tr><th>작은틱</th><td class="num">445</td><td class="num">296</td><td class="num">82</td></tr>
+    </tbody></table></div>
+  </div>
+  <p class="small">틱과 유동성이 섞여 있다(순위상관 −0.555). 기존 마찰층과도 다른 축이다 — 저마찰층이 오히려 스프레드가 1.6틱에 붙은 큰틱 종목이고, 스프레드(bps)와 상대 틱(bps)의 순위상관은 0.331.</p>
+  <div class="schema"><span class="y">                  3/16 · 3/17          3/18                  3/19</span>
+<span class="c">학습 종목 1,647</span>    DeepLOB·릿지 학습     —                    <span class="g">평가 ② 본 종목·안 본 날</span>
+<span class="c">선택 종목   411</span>    —                  멈출 시점·규제 세기      —
+<span class="c">평가 종목   411</span>    —                  —                    <span class="m">평가 ① 안 본 종목·안 본 날 ← 1차</span>
+<span class="small">종목 분할은 틱 3분위별 같은 비율, 시드 0. 봉인 날짜(20260420 이후)는 열지 않는다.</span></div>
+
+  <div class="deepbar">판정 규칙을 실측 전에 세 번 고쳤다 — 전부 알려진 답이 있는 합성 데이터가 드러냈다</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:70px">부록</th><th>원문 규칙의 결함</th><th>수정</th></tr></thead><tbody>
+  <tr><th>B</th><td>"최악 종목군 구간이 0 을 포함" — 무신호 종목군은 구간이 통째로 0 아래라 전형적 이질성을 떨어뜨림</td><td>최악 종목군 구간 하한 ≤ 0</td></tr>
+  <tr><th>C</th><td>"최선 종목군 하한 &gt; 전체 R²" — 전체에 최선 종목군 자신이 섞여 검정력이 없음. 구간이 겹치지도 않는 명백한 이질성이 "애매" 로 나옴</td><td>최선·최악 구간이 안 겹치고, 최선 하한 &gt; 0, 최악 하한 ≤ 0</td></tr>
+  <tr><th>E</th><td>대조군이 "0 이하임을 입증하라" 고 요구 — 가짜 신호가 없어도 구간이 넓으면 경보(검정 방향이 뒤집힘)</td><td>섞은 y 의 구간 <b>하한 &gt; 0</b> 일 때만 위반</td></tr>
+  <tr><th>D</th><td>곡선 50만 행에서 인내 10 이 일시 하락 구간에서 멈춤</td><td>교사 인내 10 → 30</td></tr>
+  </tbody></table></div>
+  <p class="small">채택 조건: 신호 없음 6회 · 모든 종목군 같은 신호 3회에서 거짓 이질성·거짓 경보 0, 종목 수준 교란은 여전히 검출. 사전등록 문서에 손으로 적은 작성 시각이 실제보다 7~25분 앞서 있던 것은 git 커밋 시각 표로 정정했다 — 모든 부록은 종목군 R² 가 존재하기 전에 커밋됐다.</p>
+
+  <div class="deepbar">결과 — 평가 ① 안 본 종목 411개, 3/19, 3,849,436 행</div>
+  <p class="small">학습 단계 점수(선택 종목, 3/18): DeepLOB 0.02283 (1,030초, 최선 700 / 멈춤 1000 epoch) · 릿지 0.02360 (규제 0.001, 후보 중 가장 약한 값)</p>
+  <div class="table-scroll"><table><thead><tr><th>종목군</th><th>DeepLOB</th><th>릿지</th><th>종목</th></tr></thead><tbody>
+  <tr><th>전체</th><td class="num"><b>0.0091</b> [0.0046, 0.0228]</td><td class="num">−0.0020 [−0.0105, 0.0163]</td><td class="num">411</td></tr>
+  <tr><th>큰틱</th><td class="num"><b>0.0260</b> [0.0203, 0.0342]</td><td class="num">0.0242 [0.0182, 0.0331]</td><td class="num">137</td></tr>
+  <tr><th>중간틱</th><td class="num"><b>0.0046</b> [0.0019, 0.0171]</td><td class="num">−0.0078 [−0.0148, 0.0120]</td><td class="num">137</td></tr>
+  <tr><th>작은틱</th><td class="num"><b>0.0231</b> [0.0160, 0.0357]</td><td class="num">0.0082 [−0.0086, 0.0165]</td><td class="num">137</td></tr>
+  <tr><th>저유동</th><td class="num">0.0090 [−0.0007, 0.0178]</td><td class="num">0.0006 [−0.0179, 0.0073]</td><td class="num">136</td></tr>
+  <tr><th>중유동</th><td class="num">0.0043 [0.0016, 0.0234]</td><td class="num">−0.0092 [−0.0161, 0.0171]</td><td class="num">142</td></tr>
+  <tr><th>고유동</th><td class="num">0.0261 [0.0209, 0.0331]</td><td class="num">0.0228 [0.0173, 0.0306]</td><td class="num">133</td></tr>
+  </tbody></table></div>
+  <p class="small">평가 ② (본 종목 1,644개): DeepLOB 전체 0.0196 — 큰틱 0.0243 · 중간틱 0.0161 · 작은틱 0.0150.</p>
+
+  <div class="deepbar">판정 (사전등록 규칙 그대로)</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:360px">조건</th><th>값</th><th style="width:110px">충족</th></tr></thead><tbody>
+  <tr><th>선결: 음성 대조군 (섞은 y 의 구간 하한 &gt; 0 인 칸이 없는가)</th><td>섞은 y 에서 R² −0.009, 하한 최대 −0.024 (틱군별 −0.016)</td><td><span class="pill v">통과</span></td></tr>
+  <tr><th>최선(큰틱)·최악(중간틱) 구간이 겹치지 않는다</th><td>[0.0203, 0.0342] vs [0.0019, 0.0171]</td><td><span class="pill v">예</span></td></tr>
+  <tr><th>최선 종목군이 0 보다 유의하게 크다</th><td>하한 0.0203</td><td><span class="pill v">예</span></td></tr>
+  <tr><th>최악 종목군이 0 보다 유의하게 크지 <b>않다</b></th><td>하한 0.0019 &gt; 0</td><td><span class="pill tag3">아니오</span></td></tr>
+  <tr><th><b>이질성 판정</b></th><td>"한 종목군은 되고 다른 종목군은 안 된다" 가 아니다. 세 종목군이 같다고도 할 수 없다. 틱 크기 순서도 아니다(작은틱 ≈ 큰틱). 유동성 칸 안의 틱 효과는 해석 가능한 칸이 1개라 말할 수 없다</td><td><span class="pill tag4">애매</span></td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">서술 분석 — 판정이 아니다</div>
+  <div class="table-scroll"><table><thead><tr><th>평가 ① 전체 변동을 차지하는 몫</th><th>상위 1종목</th><th>상위 5</th><th>상위 10</th><th>상위 20</th></tr></thead><tbody>
+  <tr><th>몫</th><td class="num"><b>47.8%</b></td><td class="num">70.0%</td><td class="num">79.2%</td><td class="num">88.1%</td></tr>
+  <tr><th>그 종목들을 빼면 DeepLOB 전체 R²</th><td class="num">0.0162</td><td class="num">0.0232</td><td class="num">0.0271</td><td class="num">0.0377</td></tr>
+  </tbody></table></div>
+  <ul class="tight">
+    <li><b>1위 종목 261780</b>(중간틱·중유동): 행은 1.9% 인데 변동은 47.8%. 가격 약 3,050원, 틱 5원(16bp), 평균 스프레드 2.7틱, 호가 갱신이 드묾.
+    y 표준편차 <b>5.44</b>(평가 종목 중앙값 0.31 의 17배), 범위 −55 ~ +57. y 가 "진입 시점 스프레드로 나눈 수익" 이라 이런 종목에서 꼬리가 두꺼워진다.</li>
+    <li>상위 5종목 중 4개가 중간틱 → <b>"중간틱이 가장 나쁘다" 는 틱 효과라기보다 소수 종목 효과일 가능성이 크다.</b></li>
+    <li>종목별 R² 중앙값 <b>0.036</b>, 74% 의 종목에서 양수. 평가 ② 에선 1위 종목 몫이 6.8% 뿐이고 상위 5종목을 빼면 평가 ①·② 모두 0.023 — 본 종목과 안 본 종목의 차이 대부분은 평가 ① 종목 구성 탓이다.</li>
+    <li>확인하지 않은 것: 261780 의 극단값이 실제 가격 움직임인지, 호가 공백 같은 데이터 문제인지.</li>
+  </ul>
+  <div class="table-scroll"><table><thead><tr><th style="width:280px">같은 행에서 DeepLOB − 릿지</th><th>차이</th><th>95% 구간</th><th>예측 상관</th></tr></thead><tbody>
+  <tr><th>평가 ① 안 본 종목</th><td class="num"><b>+0.011</b></td><td class="num">[+0.003, +0.016]</td><td class="num">0.557</td></tr>
+  <tr><th>평가 ② 본 종목</th><td class="num">+0.023</td><td class="num">[+0.006, +0.054]</td><td class="num">0.589</td></tr>
+  </tbody></table></div>
+  <div class="callout"><b>DeepLOB 의 부가가치는 "더 높은 최고점" 이 아니라 "종목이 바뀌어도 덜 무너짐" 에 있다.</b>
+  학습 단계에서는 릿지가 약간 높았지만, 새 종목·새 날에서 릿지는 중간틱·작은틱·저유동에서 0 아래로 떨어지고 DeepLOB 은 양수를 유지한다. 큰틱·고유동에서는 둘이 거의 같다(0.026 vs 0.024).</div>
+  <div class="diff">
+    <div class="hd">사전 예측</div><div class="hd">예측</div><div class="hd">결과</div>
+    <div>이질성</div><div>있음</div><div><span class="notsame">빗나감</span> — 애매</div>
+    <div>최선 종목군</div><div>큰틱</div><div><span class="same">맞음</span> — 큰틱 0.026 (작은틱 0.023 과 근소)</div>
+    <div>본질 vs 모델</div><div>본질</div><div>판정하지 않음 — "이질성 있음" 일 때만 묻는 규칙</div>
+  </div>
+  <div class="oneline"><b>한 줄.</b> 틱 크기로 나눠도 "되는 종목군" 이 따로 떨어져 나오지 않는다. 가장 나은 곳은 큰틱·고유동(R² 약 0.026)이고, <b>거기서는 선형 모델도 거의 같은 점수다.</b></div>
+</section>
+
+<section id="curve" class="paper g4">
+  <h2>③ 학습 데이터 양에 따른 설명력 곡선<span class="vtag">모델을 바꾸지 않는 진단 · 결론: 금방 포화한다</span></h2>
+  <div class="meta-box">
+    <div><b>학습</b><span>저마찰층 × 3일 풀에서 학습 행만 20만 → 1000만으로 바꾼다</span></div>
+    <div><b>평가</b><span>중간마찰층의 안 본 종목 20만 행(고정) — 종목 축 일반화</span></div>
+    <div><b>모델</b><span>얕은 신경망(CPU) · DeepLOB(GPU). GPU 는 같은 시드에서 CPU 와 최선·멈춤 epoch 가 같고 R² 차이 ≤ 4.1e-05 임을 확인하고 채택(8.7~9.8배 빠름)</span></div>
+  </div>
+  <div class="easy"><div class="ezhead">쉽게 말하면</div>
+    <p>학습 데이터를 10배, 50배 늘리면 처음 보는 종목에서 얼마나 더 맞히는지 곡선으로 그린다. 계속 오르면 데이터가 병목이고, 평평해지면 아니다.</p>
+  </div>
+  <div class="deepbar">측정하며 드러난 함정 세 개</div>
+  <ol class="contrib">
+    <li><b>예산 잘림.</b> 첫 측정은 epoch 예산 300 이라 DeepLOB 4점 중 3점이 아직 오르는 중에 끊겼다. 1500 으로 다시 재니 20만 행이 0.01453 → 0.01788(+23%). 잘린 곡선에서 나온 "두 모델이 거의 같다" 는 해석은 폐기.</li>
+    <li><b>"조기 종료가 걸렸다" 는 "수렴했다" 가 아니다.</b> 50만 행이 이웃보다 낮았다(0.01405). 평가 점수가 일시 하락 뒤 회복하던 중에 <span class="term" tabindex="0" data-tip="점수 개선 없이 기다려 주는 평가 횟수. 10 이면 10 epoch 마다 평가해 100 epoch 동안 개선이 없으면 멈춘다.">인내</span> 10회가 소진돼 80 epoch 에서 멈췄다.
+    한 점만 다시 재면 나빠 보이는 점만 고치는 것이 되므로, <b>결과 전에 모든 지점을 인내 30 으로 다시 재기로 했다</b>(얕은 모델은 인내 30 에 맞춰 예산도 700 → 1500).</li>
+    <li><b>전체 배치 메모리 한계.</b> 500만 행 DeepLOB 은 GPU 메모리 부족으로 죽었다(106GB 요청). DeepLOB 곡선은 200만 행까지다. 이 한계가 ① 3일 학습에서 미니배치로 바꾼 이유가 됐다.</li>
+  </ol>
+  <div class="table-scroll"><table><thead><tr><th>학습 행</th><th>20만</th><th>50만</th><th>100만</th><th>200만</th><th>500만</th><th>1000만</th></tr></thead><tbody>
+  <tr><th>DeepLOB · 인내 10</th><td class="num">0.01788</td><td class="num">0.01405</td><td class="num">0.01968</td><td class="num">0.02132</td><td>메모리 부족</td><td>—</td></tr>
+  <tr><th>DeepLOB · 인내 30</th><td class="num">0.01788</td><td class="num"><b>0.02101</b></td><td class="num">0.01968</td><td class="num">0.02132</td><td>—</td><td>—</td></tr>
+  <tr><th>얕은 모델 · 인내 10</th><td class="num">0.01595</td><td class="num">0.01706</td><td class="num">0.01756</td><td class="num">0.01816</td><td class="num">0.01880</td><td class="num">0.01879</td></tr>
+  <tr><th>얕은 모델 · 인내 30</th><td class="num">0.01595</td><td class="num">0.01706</td><td class="num">0.01757</td><td class="num">0.01826</td><td class="num">0.01880</td><td class="num">0.01879</td></tr>
+  </tbody></table></div>
+  <p class="small">인내 30 의 최선/멈춤 epoch — DeepLOB 340/640 · 760/1060 · 460/760 · 340/640, 얕은 모델 1000만 행 420/720. 모두 예산에 안 잘리고 조기 종료로 멈췄다.</p>
+  <div class="callout"><b>읽는 법.</b> 바뀐 값은 DeepLOB 50만 행 하나(0.01405 → 0.02101) — 부작용이 맞았고 사전 예측(0.018~0.020)보다도 높았다. 나머지는 300 epoch 를 더 봐도 그대로.
+  <b>DeepLOB 은 50만 행에서 이미 0.021 에 닿고 200만 행까지 평평하다. 얕은 모델은 500만 행에서 0.0188 로 포화.</b> 같은 행 수에서 DeepLOB 이 얕은 모델보다 10~20% 높다.</div>
+  <div class="oneline"><b>한 줄.</b> 같은 날짜 안에서 행만 늘리면 금방 평평해진다. <b>데이터를 늘려 0.03 에 가는 길은 이 곡선에는 없다</b> — ① 의 3일 전체가 오른 것은 행 수만의 효과가 아닐 수 있다.</div>
+</section>
+
+<section id="checks">
+  <h2>검증 장치와 실행 중 잡은 것<span class="vtag">전부 "오류 없이 조용히 틀린 답" 이 될 수 있던 종류. 결과 수치에 섞인 것은 없다</span></h2>
+  <div class="table-scroll"><table><thead><tr><th style="width:230px">무엇</th><th>어떻게 드러났나</th><th style="width:260px">처리</th></tr></thead><tbody>
+  <tr><th>판정 규칙 결함 3개</th><td>알려진 답이 있는 합성 데이터로 분석 코드를 먼저 돌렸다(신호 없음·같은 신호·교란·약한 교란)</td><td>부록 B·C·E 로 실측 전에 수정, 적대적 점검 통과 후 채택</td></tr>
+  <tr><th>GPU 지정 오류</th><td>36종목 시험 운전에서 <code>cuda:1</code> 이 없다는 오류. 사용자 셸 설정이 GPU 를 ollama 용 한 장으로 고정해 두었다</td><td>설정은 건드리지 않고 기동할 때만 GPU0 지정. <b>UUID 가 다르면 즉시 멈춤</b></td></tr>
+  <tr><th>GPU 메모리 조각화</th><td>본 실행 첫 역전파에서 실패 — 할당 33.2GB, 쓰지 않는 조각 37.8GB</td><td>메모리 할당 방식만 바꿈. 같은 모양 가짜 데이터로 최대 75.7GB 확인 후 재기동. 계산 값 불변</td></tr>
+  <tr><th>학습기 점검 실패</th><td>알려진 신호를 6 epoch 안에 못 배움</td><td>진단: 긴 정체 뒤 급등하는 신호였음. 점검 예산만 올림, 사전등록 설정은 불변</td></tr>
+  <tr><th>예산 잘림 · 인내 부작용</th><td>조기 종료가 안 걸린 지점, 이웃보다 낮은 지점</td><td>예산 1500, 전 지점 인내 30 재측정</td></tr>
+  <tr><th>대기 작업의 자기 매칭</th><td>1단계 종료 알림이 오지 않음 — 대기 작업이 자기 명령 문자열에서 자기 자신을 찾고 있었다</td><td>30분 점검에서 발견, 2단계 11분 늦게 기동(결과 영향 없음). 프로세스 번호로 기다리게 수정</td></tr>
+  <tr><th>머신 재부팅 · 세션 중단</th><td>재부팅 1회로 곡선 재측정이 결과 없이 죽음, 세션 중단 2회</td><td>분리 실행 + <b>결과 파일이 바뀔 때마다 자동 커밋</b>, 단계별 체크포인트</td></tr>
+  <tr><th>내 수치·시각 오류</th><td>"200만 행에서 49.5GB" 는 확인 안 한 순간값, 손으로 적은 시각은 7~25분 틀림, GPU 배치 판단이 거꾸로였음</td><td>실측 선형 투영으로 정정, 이후 시각은 <code>date</code> 값만, 정정 기록을 문서에 남김</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="verdict">
+  <h2>종합 판정 — 일곱 가지 사실</h2>
+  <div class="table-scroll"><table><thead><tr><th style="width:270px">사실</th><th>근거</th></tr></thead><tbody>
+  <tr><th>① 증류 장치는 작동한다</th><td>데이터에 실제로 있는 법칙은 찾고 없는 법칙은 못 찾는다(직접 측정과 5개 전부 일치). 마이크로프라이스 법칙을 소수 오차 수준의 대칭(1e-15)으로 되찾았고, 본 실험의 수식은 경제적으로 말이 되며 시드 간 재현된다.</td></tr>
+  <tr><th>② 교사의 설명력이 천장이다</th><td>안 본 종목·안 본 날 R² 0.01~0.03, 종목별 중앙값 0.04. 본 실험 손실의 70% 가 방향 오류 — 비용·임계 조정으로 고칠 종류가 아니다.</td></tr>
+  <tr><th>③ 증류된 수식은 방향을 맞히지만 수수료의 7분의 1</th><td>시드 1·2 진입 수식(호가불균형 + 공격적 주문흐름 + 스프레드비용비)은 수수료 전 체결당 +2.9 ~ +3.3bp 로 저마찰층 종목 단위 구간이 0 위에 있다. 왕복 23bp 에 한참 못 미쳐 체결당 약 −20bp, 60개 계약 전부 손실. 지정가가 체결되는 순간 매수 신호가 식어 있는 역선택이 크다(<a href="#formulas">수식 절</a>).</td></tr>
+  <tr><th>④ 데이터를 늘리면 오른다 — 조금</th><td>3일·22배로 +0.0031 [+0.0021, +0.0058] (상대 +34%). 학습 방식을 맞추면 +0.0046. 그러나 같은 날짜 안의 행 수 곡선은 50만~500만 행에서 포화한다.</td></tr>
+  <tr><th>⑤ 틱 크기로 쉬운 탈출구는 없다</th><td>판정 애매. 가장 나쁜 종목군도 0 보다 크고 순서가 틱 크기를 따르지 않는다. 가장 나은 큰틱·고유동도 0.026(3일 교사 0.033) 수준이다.</td></tr>
+  <tr><th>⑥ 전체 R² 는 꼬리가 두꺼운 소수 종목이 좌우한다</th><td>평가 ① 변동의 48% 가 한 종목. 사전등록 지표(모든 행 R²)는 바꾸지 않았고, 다른 지표는 서술로만 붙였다.</td></tr>
+  <tr><th>⑦ DeepLOB 의 가치는 강건성이다</th><td>같은 입력의 선형 모델과 최고점은 비슷하지만 새 종목에서 +0.011 [+0.003, +0.016] 덜 무너진다.</td></tr>
+  </tbody></table></div>
+  <div class="oneline"><b>한 줄 결론.</b> 모델을 바꾸지 않고 확인할 수 있는 것은 다 확인했다 — <b>데이터 부족도 종목 혼합도 R² 0.015 의 주원인이 아니다.</b>
+  0910 의 결론(이 예측력으로는 수수료 23bp 를 넘기 어렵다)은 그대로다. 수식으로 옮길 교사로는 3일 교사가 가장 낫다.</div>
+</section>
+
+<section id="next">
+  <h2>남은 질문과 선택지<span class="vtag">결정되지 않음</span></h2>
+  <div class="table-scroll"><table><thead><tr><th style="width:280px">아직 답하지 못한 것</th><th>왜 중요한가</th></tr></thead><tbody>
+  <tr><th>3일 교사로 다시 증류한 수식의 백테스트 성과</th><td>0911 은 교사까지만 쟀다. 수식 추출·정본 백테스트는 0910 의 하루치 교사로만 했다.</td></tr>
+  <tr><th>증류가 기여하는가</th><td>증류를 뺀 비교를 본 실험 규모에서 돌린 적이 없다. 0902 에서는 빼는 쪽이 나은 경우가 있었다.</td></tr>
+  <tr><th>봉인 날짜 성적</th><td>20260420 이후는 한 번도 열지 않았다. 시험일도 3/19 하루뿐이라 날짜 간 변동을 모른다.</td></tr>
+  <tr><th>지정가 진입의 역선택 크기</th><td>진입 방식은 정본 계약으로 고정했다. 체결 시점에 신호가 식어 있는 현상이 손익을 얼마나 깎는지는 진입 방식을 바꿔 잰 적이 없다.</td></tr>
+  <tr><th>체결확률 헤드 보정</th><td>0910 게이트 실패 원인. 문턱 0.25 가 이 규모에 맞는지 결과 전에 재야 한다.</td></tr>
+  <tr><th>날짜 다양성 vs 행 수</th><td>3일 전체가 오른 이유를 가르지 못했다. 학습률 3e-4 는 30 epoch 에서 잘렸다.</td></tr>
+  </tbody></table></div>
+  <div class="table-scroll"><table><thead><tr><th style="width:280px">선택지</th><th>무엇을 알게 되나</th></tr></thead><tbody>
+  <tr><th>3일 교사 → 진입 수식 → 정본 백테스트</th><td>더 나은 교사가 경제성을 바꾸는가</td></tr>
+  <tr><th>큰틱·고유동으로 좁혀 증류·백테스트</th><td>가장 나은 종목군에서 수수료를 넘는가</td></tr>
+  <tr><th>MLPLOB 등 모델 교체 (원시 호가 레벨 입력 필요)</th><td>모델 구조가 병목인가 — 0911 결과로 기대치는 낮아졌다</td></tr>
+  <tr><th>학습 날짜 추가 (봉인 전 날짜)</th><td>날짜 다양성이 계속 올려 주는가</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="files">
+  <h2>자료 위치</h2>
+  <div class="table-scroll"><table><thead><tr><th style="width:330px">경로</th><th>내용</th></tr></thead><tbody>
+  <tr><th><code>/home/dgu/tick/symbolic/EXPERIMENT-RECORD.md</code></th><td>0902~0911 전체 실험 기록 (이 게시에 함께 첨부)</td></tr>
+  <tr><th><code>0911/PROGRESS.md</code></th><td>0911 전 과정 시간순 기록 (정정 포함)</td></tr>
+  <tr><th><code>0911/PREREG-GROUPS.md</code> · <code>PREREG-MINIBATCH.md</code></th><td>사전등록 원문과 부록 A~E</td></tr>
+  <tr><th><code>0911/RESULTS-GROUPS.md</code> · <code>RESULTS-MINIBATCH.md</code></th><td>종목군 분석 · 3일 전체 학습 결과와 분석</td></tr>
+  <tr><th><code>0911/groups/out/</code></th><td>판정·서술 수치 JSON, 미니배치 1·2단계(<code>mb_gate/</code>, <code>mb_full/</code>)</td></tr>
+  <tr><th><code>0911/board/formula_economics.py</code> · <code>.json</code></th><td>증류 수식 · 선택 단계 60계약 · 층별 결과 · 체결 단위 경제성 집계 (0910 원장 읽기 전용)</td></tr>
+  <tr><th><code>0910/run/state/</code></th><td>0910 후보 수식(seed_*.json) · 선택(select.json) · 층별 곡선(curve.json) · 백테스트 원장(replay_L · replay_H)</td></tr>
+  <tr><th><code>0911/scale/data/</code></th><td>데이터 양 곡선(인내 10·30), GPU 메모리 실측</td></tr>
+  <tr><th><code>0909/JOURNEY.md</code> · <code>0910/ANALYSIS.md</code> · <code>0910/MODEL-CANDIDATES.md</code></th><td>검증 장치 수정 과정 · 본 실험 분석 · 다음 모델 후보 조사</td></tr>
+  </tbody></table></div>
+</section>
+
+<section id="caveats">
+  <h2>한계</h2>
+  <ul>
+    <li><b>시험일이 하루(3/19)</b>, 평가 종목 411개다. 종목 단위 구간이 넓다.</li>
+    <li><b>모든 행을 합친 R² 는 y 꼬리가 두꺼운 소수 종목에 좌우된다.</b> 판정은 사전등록 지표로 했고, 상위 종목 제외·종목별 중앙값은 결과를 본 뒤 계산한 서술이다.</li>
+    <li>3일 교사와 200만 행 교사는 학습 방식(미니배치 vs 전체 배치)도 다르다 — 보조 비교로 방향이 같음을 확인했지만 완전히 분리되지는 않는다.</li>
+    <li>릿지 규제가 후보의 가장 약한 끝에서 골라졌다. 더 약한 규제가 나았을 수 있다(후보 범위는 바꾸지 않았다).</li>
+    <li>GPU 학습은 비트 단위로 재현되지 않는다(작은 규모에서 CPU 와 같은 해로 가는 것만 확인).</li>
+    <li><b>경제성 분석의 수식은 0910 하루치 교사에서 나왔다.</b> 체결 단위 구간은 종목 단위 부트스트랩이고, 종목군별 경제성 표는 체결 수가 칸마다 달라 구간 없이 서술만 했다.</li>
+    <li>0910 에서 알고 감수한 구멍 둘 — 증류 수식 쪽 가짜 데이터 검사가 관문 조건이 아니고, 자격 검사가 곡선 관계를 못 본다 — 은 여전히 열려 있다.</li>
+  </ul>
+</section>
+</main>
+
+</body></html>

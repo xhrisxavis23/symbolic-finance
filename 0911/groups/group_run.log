@@ -1,0 +1,129 @@
+=== [2026-09-13_15:40:34] 기동: groups/group_run.py (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa) ===
+[15:40:37] train: 1647 종목 {'큰틱': 549, '중간틱': 549, '작은틱': 549}
+[15:40:37] select: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
+[15:40:37] eval: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
+[15:44:10] 적재 5757/5763 블록, 공통 특징 19 (213s)
+[15:45:07] 학습 풀 30,353,580행, 선택 풀 3,754,989행
+[15:51:12] 학습 표본 1,979,970 · 선택 표본 197,998 · 윈도우 (1979970, 304) (366s)
+[15:51:13] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+Traceback (most recent call last):
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 304, in <module>
+    main()
+  File "/home/dgu/tick/symbolic/0911/groups/group_run.py", line 209, in main
+    teacher = build_teacher(F).fit(
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 163, in fit
+    self.early_stop_history_ = run_with_early_stopping(
+  File "/home/dgu/tick/symbolic/0902/sd/teacher/early_stopping.py", line 113, in run_with_early_stopping
+    train_step()
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 150, in train_step
+    loss.backward()
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/_tensor.py", line 625, in backward
+    torch.autograd.backward(
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/autograd/__init__.py", line 354, in backward
+    _engine_run_backward(
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 42.51 GiB. GPU 0 has a total capacity of 94.97 GiB of which 23.27 GiB is free. Including non-PyTorch memory, this process has 71.68 GiB memory in use. Of the allocated memory 33.23 GiB is allocated by PyTorch, and 37.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+=== [2026-09-13_15:52:35] 종료 exit=1 ===
+=== [2026-09-13_15:58:12] 기동: groups/group_run.py (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True) ===
+[15:58:15] train: 1647 종목 {'큰틱': 549, '중간틱': 549, '작은틱': 549}
+[15:58:15] select: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
+[15:58:15] eval: 411 종목 {'큰틱': 137, '중간틱': 137, '작은틱': 137}
+[16:01:06] 적재 5757/5763 블록, 공통 특징 19 (171s)
+[16:01:46] 학습 풀 30,353,580행, 선택 풀 3,754,989행
+[16:05:51] 학습 표본 1,979,970 · 선택 표본 197,998 · 윈도우 (1979970, 304) (245s)
+[16:05:51] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[16:23:02] 교사 학습 1030s, 최선 epoch 700, 선택 R² 0.02283, 멈춤 1000, 조기종료 True
+[16:24:58] 릿지 규제 0.001, 선택 R² 0.02360 (117s)
+[16:25:25]   eval1 묶음 1: 누적 959,174행
+[16:25:39]   eval1 묶음 2: 누적 2,003,586행
+[16:25:51]   eval1 묶음 3: 누적 2,713,261행
+[16:26:10]   eval1 묶음 4: 누적 3,769,897행
+[16:26:11]   eval1 묶음 5: 누적 3,849,436행
+[16:26:28]   eval2 묶음 1: 누적 981,522행
+[16:26:48]   eval2 묶음 2: 누적 2,314,433행
+[16:27:09]   eval2 묶음 3: 누적 3,396,200행
+[16:27:22]   eval2 묶음 4: 누적 4,136,766행
+[16:27:42]   eval2 묶음 5: 누적 5,265,684행
+[16:28:29]   eval2 묶음 6: 누적 6,344,850행
+[16:28:59]   eval2 묶음 7: 누적 7,147,407행
+[16:30:21]   eval2 묶음 8: 누적 7,954,285행
+[16:31:11]   eval2 묶음 9: 누적 9,017,780행
+[16:31:43]   eval2 묶음 10: 누적 9,941,823행
+[16:31:51]   eval2 묶음 11: 누적 10,573,791행
+[16:32:03]   eval2 묶음 12: 누적 11,397,981행
+[16:32:15]   eval2 묶음 13: 누적 12,249,985행
+[16:32:30]   eval2 묶음 14: 누적 13,204,309행
+[16:32:49]   eval2 묶음 15: 누적 14,125,512행
+[16:33:15]   eval2 묶음 16: 누적 15,122,352행
+[16:33:26]   eval2 묶음 17: 누적 15,569,153행
+[16:33:26] 예측값 저장 {'eval1': 3849436, 'eval2': 15569153} (508s)
+비유한 제외 0행
+
+=== ① 안 본 종목·안 본 날 (1차) ===
+  [deeplob] 전체 R² +0.00908 [+0.00461, +0.02280]  종목 411
+      큰틱    +0.02601 [+0.02025, +0.03415]  종목 137
+      중간틱   +0.00460 [+0.00186, +0.01714]  종목 137
+      작은틱   +0.02310 [+0.01600, +0.03567]  종목 137
+      저유동   +0.00901 [-0.00074, +0.01778]  종목 136
+      중유동   +0.00428 [+0.00159, +0.02342]  종목 142
+      고유동   +0.02610 [+0.02094, +0.03311]  종목 133
+  [ridge] 전체 R² -0.00196 [-0.01050, +0.01631]  종목 411
+      큰틱    +0.02424 [+0.01823, +0.03308]  종목 137
+      중간틱   -0.00783 [-0.01483, +0.01200]  종목 137
+      작은틱   +0.00819 [-0.00860, +0.01654]  종목 137
+      저유동   +0.00056 [-0.01792, +0.00727]  종목 136
+      중유동   -0.00920 [-0.01605, +0.01714]  종목 142
+      고유동   +0.02275 [+0.01729, +0.03058]  종목 133
+
+=== ② 본 종목·안 본 날 ===
+  [deeplob] 전체 R² +0.01964 [+0.01678, +0.02364]  종목 1644
+      큰틱    +0.02429 [+0.01992, +0.02976]  종목 548
+      중간틱   +0.01612 [+0.01232, +0.02391]  종목 548
+      작은틱   +0.01504 [+0.01167, +0.02050]  종목 548
+      저유동   +0.00920 [+0.00724, +0.01339]  종목 547
+      중유동   +0.01559 [+0.01076, +0.02723]  종목 541
+      고유동   +0.02390 [+0.02043, +0.02849]  종목 556
+  [ridge] 전체 R² -0.00366 [-0.03235, +0.01426]  종목 1644
+      큰틱    +0.02371 [+0.01968, +0.02901]  종목 548
+      중간틱   -0.00823 [-0.06382, +0.01424]  종목 548
+      작은틱   -0.05253 [-0.18343, +0.00246]  종목 548
+      저유동   -0.06392 [-0.28701, +0.00032]  종목 547
+      중유동   -0.02202 [-0.11888, +0.01181]  종목 541
+      고유동   +0.02019 [+0.01414, +0.02625]  종목 556
+
+=== 판정 (§6·§7, 1차: 평가①·DeepLOB·틱 축) ===
+{
+ "precondition_passed": true,
+ "violations": [],
+ "best_group": "큰틱",
+ "worst_group": "중간틱",
+ "pooled_r2": 0.009076133222516325,
+ "heterogeneity": "애매",
+ "nature": null,
+ "appendix_A1": {
+  "within_liquidity": {
+   "저유동": {
+    "diff": 0.014296992504923334,
+    "same_sign": true,
+    "interpretable": false
+   },
+   "중유동": {
+    "diff": -0.016484696049131387,
+    "same_sign": false,
+    "interpretable": true
+   },
+   "고유동": {
+    "diff": 0.0048908542957870615,
+    "same_sign": true,
+    "interpretable": false
+   }
+  },
+  "same_sign_count": 0,
+  "usable_cells": 1,
+  "statement": "유동성 통제 후 틱 효과가 유지된다고 말할 수 없다"
+ }
+}
+[16:35:59] 완료
+[W913 16:36:01.277728552 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+=== [2026-09-13_16:36:14] 종료 exit=0 ===

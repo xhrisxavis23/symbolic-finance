@@ -1,0 +1,6 @@
+[02:14:39] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[02:14:57] fixed eval set: select_rows=198,079 (select() took 17.5s)
+[02:15:06] Xw_eval shape=(198079, 304)
+[02:15:06] === size=200,000 model=deeplob device=cpu ===
+[02:17:48] select() -> fit_rows=197,941 (162.8s)
+[02:21:33] windowing fit set -> (197941, 304) (224.8s)

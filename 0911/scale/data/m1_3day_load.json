@@ -1,0 +1,395 @@
+{
+  "dates": [
+    "20260316",
+    "20260317",
+    "20260318"
+  ],
+  "strata_date": "20260316",
+  "per_date": {
+    "20260316": {
+      "n_loaded": 2507,
+      "n_skipped": 0,
+      "total_rows": 23091003,
+      "total_maskable": 23058167,
+      "wall_seconds": 436.34335374832153,
+      "rss_mb_after": 1258.62109375,
+      "sample_symbol_timings": [
+        {
+          "symbol": "000020",
+          "n_rows": 2213,
+          "n_maskable": 2209,
+          "t_total": 0.9512288570404053
+        },
+        {
+          "symbol": "000040",
+          "n_rows": 1225,
+          "n_maskable": 1220,
+          "t_total": 0.057944297790527344
+        },
+        {
+          "symbol": "000050",
+          "n_rows": 2198,
+          "n_maskable": 2190,
+          "t_total": 0.06525254249572754
+        },
+        {
+          "symbol": "000070",
+          "n_rows": 2594,
+          "n_maskable": 2585,
+          "t_total": 0.065460205078125
+        },
+        {
+          "symbol": "000080",
+          "n_rows": 9183,
+          "n_maskable": 9162,
+          "t_total": 0.16192388534545898
+        },
+        {
+          "symbol": "491000",
+          "n_rows": 35147,
+          "n_maskable": 35113,
+          "t_total": 0.6640698909759521
+        },
+        {
+          "symbol": "492220",
+          "n_rows": 3521,
+          "n_maskable": 3520,
+          "t_total": 0.08787965774536133
+        },
+        {
+          "symbol": "493330",
+          "n_rows": 1284,
+          "n_maskable": 1280,
+          "t_total": 0.050922393798828125
+        },
+        {
+          "symbol": "494120",
+          "n_rows": 9311,
+          "n_maskable": 9303,
+          "t_total": 0.17750954627990723
+        },
+        {
+          "symbol": "499790",
+          "n_rows": 9788,
+          "n_maskable": 9775,
+          "t_total": 0.1606616973876953
+        }
+      ]
+    },
+    "20260317": {
+      "n_loaded": 2503,
+      "n_skipped": 4,
+      "total_rows": 22392688,
+      "total_maskable": 22360242,
+      "wall_seconds": 432.1601710319519,
+      "rss_mb_after": 1445.17578125,
+      "sample_symbol_timings": [
+        {
+          "symbol": "000020",
+          "n_rows": 3752,
+          "n_maskable": 3746,
+          "t_total": 0.0929872989654541
+        },
+        {
+          "symbol": "000040",
+          "n_rows": 1183,
+          "n_maskable": 1177,
+          "t_total": 0.06773996353149414
+        },
+        {
+          "symbol": "000050",
+          "n_rows": 3993,
+          "n_maskable": 3987,
+          "t_total": 0.10990357398986816
+        },
+        {
+          "symbol": "000070",
+          "n_rows": 3034,
+          "n_maskable": 3026,
+          "t_total": 0.07649397850036621
+        },
+        {
+          "symbol": "000080",
+          "n_rows": 7892,
+          "n_maskable": 7880,
+          "t_total": 0.14310407638549805
+        },
+        {
+          "symbol": "491000",
+          "n_rows": 25643,
+          "n_maskable": 25615,
+          "t_total": 0.4147825241088867
+        },
+        {
+          "symbol": "492220",
+          "n_rows": 80,
+          "n_maskable": 79,
+          "t_total": 0.036986589431762695
+        },
+        {
+          "symbol": "493330",
+          "n_rows": 1372,
+          "n_maskable": 1370,
+          "t_total": 0.051634788513183594
+        },
+        {
+          "symbol": "494120",
+          "n_rows": 9473,
+          "n_maskable": 9469,
+          "t_total": 0.14413809776306152
+        },
+        {
+          "symbol": "499790",
+          "n_rows": 8674,
+          "n_maskable": 8670,
+          "t_total": 0.13785123825073242
+        }
+      ]
+    },
+    "20260318": {
+      "n_loaded": 2505,
+      "n_skipped": 2,
+      "total_rows": 24517869,
+      "total_maskable": 24484580,
+      "wall_seconds": 462.36314153671265,
+      "rss_mb_after": 1542.66015625,
+      "sample_symbol_timings": [
+        {
+          "symbol": "000020",
+          "n_rows": 2699,
+          "n_maskable": 2694,
+          "t_total": 0.06511974334716797
+        },
+        {
+          "symbol": "000040",
+          "n_rows": 1388,
+          "n_maskable": 1385,
+          "t_total": 0.0522618293762207
+        },
+        {
+          "symbol": "000050",
+          "n_rows": 2145,
+          "n_maskable": 2143,
+          "t_total": 0.06210470199584961
+        },
+        {
+          "symbol": "000070",
+          "n_rows": 3564,
+          "n_maskable": 3557,
+          "t_total": 0.07405805587768555
+        },
+        {
+          "symbol": "000080",
+          "n_rows": 7484,
+          "n_maskable": 7467,
+          "t_total": 0.1216588020324707
+        },
+        {
+          "symbol": "491000",
+          "n_rows": 36829,
+          "n_maskable": 36796,
+          "t_total": 0.6309094429016113
+        },
+        {
+          "symbol": "492220",
+          "n_rows": 235,
+          "n_maskable": 233,
+          "t_total": 0.05570220947265625
+        },
+        {
+          "symbol": "493330",
+          "n_rows": 1777,
+          "n_maskable": 1776,
+          "t_total": 0.05768418312072754
+        },
+        {
+          "symbol": "494120",
+          "n_rows": 13997,
+          "n_maskable": 13988,
+          "t_total": 0.2212963104248047
+        },
+        {
+          "symbol": "499790",
+          "n_rows": 6476,
+          "n_maskable": 6462,
+          "t_total": 0.10830283164978027
+        }
+      ]
+    }
+  },
+  "rss_checkpoints": [
+    {
+      "date": "20260316",
+      "n_done": 500,
+      "rss_mb": 1258.62109375,
+      "t": 107.7616753578186
+    },
+    {
+      "date": "20260316",
+      "n_done": 1000,
+      "rss_mb": 1258.62109375,
+      "t": 197.6909885406494
+    },
+    {
+      "date": "20260316",
+      "n_done": 1500,
+      "rss_mb": 1258.62109375,
+      "t": 273.97166895866394
+    },
+    {
+      "date": "20260316",
+      "n_done": 2000,
+      "rss_mb": 1258.62109375,
+      "t": 348.3147039413452
+    },
+    {
+      "date": "20260316",
+      "n_done": 2500,
+      "rss_mb": 1258.62109375,
+      "t": 434.292653799057
+    },
+    {
+      "date": "20260316",
+      "n_done": 2507,
+      "rss_mb": 1258.62109375,
+      "t": 436.3416302204132
+    },
+    {
+      "date": "20260317",
+      "n_done": 500,
+      "rss_mb": 1445.17578125,
+      "t": 104.50808620452881
+    },
+    {
+      "date": "20260317",
+      "n_done": 1000,
+      "rss_mb": 1445.17578125,
+      "t": 192.80360555648804
+    },
+    {
+      "date": "20260317",
+      "n_done": 1500,
+      "rss_mb": 1445.17578125,
+      "t": 270.5883717536926
+    },
+    {
+      "date": "20260317",
+      "n_done": 2000,
+      "rss_mb": 1445.17578125,
+      "t": 341.56824564933777
+    },
+    {
+      "date": "20260317",
+      "n_done": 2500,
+      "rss_mb": 1445.17578125,
+      "t": 430.3375172615051
+    },
+    {
+      "date": "20260317",
+      "n_done": 2507,
+      "rss_mb": 1445.17578125,
+      "t": 432.1583878993988
+    },
+    {
+      "date": "20260318",
+      "n_done": 500,
+      "rss_mb": 1495.4375,
+      "t": 111.18119955062866
+    },
+    {
+      "date": "20260318",
+      "n_done": 1000,
+      "rss_mb": 1542.66015625,
+      "t": 208.72609424591064
+    },
+    {
+      "date": "20260318",
+      "n_done": 1500,
+      "rss_mb": 1542.66015625,
+      "t": 288.1097776889801
+    },
+    {
+      "date": "20260318",
+      "n_done": 2000,
+      "rss_mb": 1542.66015625,
+      "t": 365.4991817474365
+    },
+    {
+      "date": "20260318",
+      "n_done": 2500,
+      "rss_mb": 1542.66015625,
+      "t": 458.98526787757874
+    },
+    {
+      "date": "20260318",
+      "n_done": 2507,
+      "rss_mb": 1542.66015625,
+      "t": 462.36098051071167
+    }
+  ],
+  "n_symbols_universe": 2570,
+  "n_symbols_stratified": 2507,
+  "stratum_counts": {
+    "H-shallow": 419,
+    "L-shallow": 419,
+    "L-deep": 418,
+    "M-shallow": 418,
+    "H-deep": 417,
+    "M-deep": 416
+  },
+  "friction_counts": {
+    "L": 837,
+    "H": 836,
+    "M": 834
+  },
+  "symbol_universe_by_date": {
+    "20260316": {
+      "n": 2570,
+      "overlap_with_strata_date": 2570,
+      "missing_from_strata_date": 0,
+      "new_vs_strata_date": 0
+    },
+    "20260317": {
+      "n": 2568,
+      "overlap_with_strata_date": 2567,
+      "missing_from_strata_date": 3,
+      "new_vs_strata_date": 1
+    },
+    "20260318": {
+      "n": 2570,
+      "overlap_with_strata_date": 2568,
+      "missing_from_strata_date": 2,
+      "new_vs_strata_date": 2
+    }
+  },
+  "grand_total_rows_3day": 70001560,
+  "grand_total_maskable_3day": 69902989,
+  "stratum_row_totals_3day": {
+    "H-deep": 4003451,
+    "H-shallow": 2419307,
+    "M-shallow": 5362628,
+    "L-deep": 30458261,
+    "L-shallow": 15275824,
+    "M-deep": 12482089
+  },
+  "stratum_maskable_totals_3day": {
+    "H-deep": 3996461,
+    "H-shallow": 2414766,
+    "M-shallow": 5354530,
+    "L-deep": 30417996,
+    "L-shallow": 15254055,
+    "M-deep": 12465181
+  },
+  "friction_row_totals_3day": {
+    "L": 45734085,
+    "M": 17844717,
+    "H": 6422758
+  },
+  "friction_maskable_totals_3day": {
+    "L": 45672051,
+    "M": 17819711,
+    "H": 6411227
+  },
+  "total_wall_seconds": 1340.1411004066467,
+  "rss_final_mb": 1542.66015625
+}

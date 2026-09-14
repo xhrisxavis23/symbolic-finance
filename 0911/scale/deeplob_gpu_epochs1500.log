@@ -1,0 +1,59 @@
+[05:07:49] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[05:08:32] fixed eval set: select_rows=198,079 (select() took 42.8s)
+[05:09:17] Xw_eval shape=(198079, 304)
+[05:09:17] === size=200,000 model=deeplob device=cuda ===
+[05:15:17] select() -> fit_rows=197,941 (360.5s)
+=== [2026-09-13_15:01:56] 기동: scale/sample_size_curve.py --model deeplob --device cuda --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 1500 --out scale/data/deeplob_gpu_epochs1500.json ===
+[15:02:28] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[15:02:53] fixed eval set: select_rows=198,079 (select() took 24.6s)
+[15:03:02] Xw_eval shape=(198079, 304)
+[15:03:02] === size=200,000 model=deeplob device=cuda ===
+[15:05:54] select() -> fit_rows=197,941 (172.0s)
+[15:07:08] windowing fit set -> (197941, 304) (74.3s)
+[15:08:26] size=200,000 fit_seconds=77.0s best_epoch=340 best_score=0.017885 stopped_epoch=440 final_recheck=0.017885
+[15:08:26] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:08:26] === size=500,000 model=deeplob device=cuda ===
+[15:11:49] select() -> fit_rows=495,046 (202.9s)
+[15:13:15] windowing fit set -> (495046, 304) (85.7s)
+[15:14:25] size=500,000 fit_seconds=68.5s best_epoch=80 best_score=0.014053 stopped_epoch=180 final_recheck=0.014053
+[15:14:25] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:14:25] === size=1,000,000 model=deeplob device=cuda ===
+[15:17:32] select() -> fit_rows=990,113 (187.7s)
+[15:19:09] windowing fit set -> (990113, 304) (96.6s)
+[15:24:21] size=1,000,000 fit_seconds=310.6s best_epoch=460 best_score=0.019685 stopped_epoch=560 final_recheck=0.019685
+[15:24:21] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:24:21] === size=2,000,000 model=deeplob device=cuda ===
+[15:28:55] select() -> fit_rows=1,980,299 (274.0s)
+[15:38:10] windowing fit set -> (1980299, 304) (555.4s)
+[15:46:03] size=2,000,000 fit_seconds=467.6s best_epoch=340 best_score=0.021315 stopped_epoch=440 final_recheck=0.021315
+[15:46:03] checkpoint saved -> scale/data/deeplob_gpu_epochs1500.json
+[15:46:03] === size=5,000,000 model=deeplob device=cuda ===
+[15:50:52] select() -> fit_rows=4,950,332 (289.3s)
+[15:53:51] windowing fit set -> (4950332, 304) (178.3s)
+Traceback (most recent call last):
+  File "/home/dgu/tick/symbolic/0911/scale/sample_size_curve.py", line 171, in <module>
+    main()
+  File "/home/dgu/tick/symbolic/0911/scale/sample_size_curve.py", line 141, in main
+    teacher = DeepLOBCompactGPU(n_features=n_features, bottleneck=2, seed=SEED,
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 163, in fit
+    self.early_stop_history_ = run_with_early_stopping(
+  File "/home/dgu/tick/symbolic/0902/sd/teacher/early_stopping.py", line 113, in run_with_early_stopping
+    train_step()
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 144, in train_step
+    latent = self._encode(inputs)
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 181, in _encode
+    return self._encoder(x)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/dgu/tick/symbolic/0911/gpu_eval/deeplob_gpu.py", line 85, in forward
+    _output, (h_n, _c_n) = self.lstm(h)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/opt/conda/envs/lab/lib/python3.10/site-packages/torch/nn/modules/rnn.py", line 1127, in forward
+    result = _VF.lstm(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 106.27 GiB. GPU 0 has a total capacity of 94.97 GiB of which 4.48 GiB is free. Including non-PyTorch memory, this process has 89.23 GiB memory in use. Process 1529900 has 1.24 GiB memory in use. Of the allocated memory 44.63 GiB is allocated by PyTorch, and 43.93 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+=== [2026-09-13_15:55:58] 종료 exit=0 ===

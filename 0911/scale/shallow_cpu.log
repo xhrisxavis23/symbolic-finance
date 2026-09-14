@@ -1,0 +1,38 @@
+[02:14:50] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[02:15:08] fixed eval set: select_rows=198,079 (select() took 17.9s)
+[02:15:08] === size=200,000 model=shallow device=cpu ===
+[02:17:57] select() -> fit_rows=197,941 (168.6s)
+[02:18:20] size=200,000 fit_seconds=23.1s best_epoch=210 best_score=0.015949 stopped_epoch=310 final_recheck=0.015949
+[02:18:20] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/shallow_cpu.json
+[02:18:20] === size=500,000 model=shallow device=cpu ===
+[02:21:48] select() -> fit_rows=495,046 (208.1s)
+[02:25:05] size=500,000 fit_seconds=196.6s best_epoch=470 best_score=0.017059 stopped_epoch=570 final_recheck=0.017059
+[02:25:05] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/shallow_cpu.json
+[02:25:05] === size=1,000,000 model=shallow device=cpu ===
+[02:28:09] select() -> fit_rows=990,113 (184.3s)
+[02:50:17] size=1,000,000 fit_seconds=1327.1s best_epoch=590 best_score=0.017559 stopped_epoch=690 final_recheck=0.017559
+[02:50:17] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/shallow_cpu.json
+[02:50:17] === size=2,000,000 model=shallow device=cpu ===
+[02:56:55] select() -> fit_rows=1,980,299 (398.5s)
+[03:19:44] size=2,000,000 fit_seconds=1368.7s best_epoch=530 best_score=0.018164 stopped_epoch=630 final_recheck=0.018164
+[03:19:44] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/shallow_cpu.json
+[03:19:44] === size=5,000,000 model=shallow device=cpu ===
+[04:41:32] select() -> fit_rows=4,950,332 (4908.1s)
+=== [2026-09-13_15:01:56] 기동: scale/sample_size_curve.py --model shallow --device cpu --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 700 --eval-every 10 --patience 10 --out scale/data/shallow_cpu.json ===
+[15:02:28] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[15:02:52] fixed eval set: select_rows=198,079 (select() took 23.3s)
+[15:02:52] 기존 결과 4개 발견, 이미 완료된 사이즈: {200000, 500000, 1000000, 2000000}
+[15:02:52] size=200,000 이미 완료 — 스킵
+[15:02:52] size=500,000 이미 완료 — 스킵
+[15:02:52] size=1,000,000 이미 완료 — 스킵
+[15:02:52] size=2,000,000 이미 완료 — 스킵
+[15:02:52] === size=5,000,000 model=shallow device=cpu ===
+[15:05:46] select() -> fit_rows=4,950,332 (174.8s)
+[15:32:22] size=5,000,000 fit_seconds=1594.9s best_epoch=480 best_score=0.018800 stopped_epoch=580 final_recheck=0.018800
+[15:32:22] checkpoint saved -> scale/data/shallow_cpu.json
+[15:32:22] === size=10,000,000 model=shallow device=cpu ===
+[15:40:47] select() -> fit_rows=9,900,579 (504.8s)
+[16:26:08] size=10,000,000 fit_seconds=2720.3s best_epoch=420 best_score=0.018785 stopped_epoch=520 final_recheck=0.018785
+[16:26:08] checkpoint saved -> scale/data/shallow_cpu.json
+[16:26:08] all sizes done
+=== [2026-09-13_16:27:00] 종료 exit=0 ===

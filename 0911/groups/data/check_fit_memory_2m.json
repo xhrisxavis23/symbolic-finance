@@ -1,0 +1,13 @@
+{
+ "gpu": "dcd70e26-59e0-7835-941a-4a0aabb186fa",
+ "alloc_conf": "expandable_segments:True",
+ "n_fit": 1979970,
+ "n_select": 197998,
+ "epochs": 12,
+ "eval_every": 4,
+ "peak_alloc_gb": 75.73901891708374,
+ "peak_reserved_gb": 77.814453125,
+ "gpu_total_gb": 94.97296142578125,
+ "seconds": 46.93406867980957,
+ "ok": true
+}

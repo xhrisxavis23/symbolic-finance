@@ -1,0 +1,15 @@
+=== [2026-09-13_17:09:27] 기동: groups/minibatch_run.py full (CUDA_VISIBLE_DEVICES=GPU-dcd70e26-59e0-7835-941a-4a0aabb186fa PYTORCH_CUDA_ALLOC_CONF=) ===
+[17:15:45] [full] 적재 8224/8232 블록, 공통 특징 19 (358s)
+[17:28:49] [full] 학습 풀 46,790,850 → 학습 표본 44,436,221 · 선택 표본 198,016 (733s)
+[17:28:49] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[17:28:49] [full] 미니배치 학습 시작 lr=0.001
+[19:08:39] [full] lr=0.001 학습 5763s, 최선 epoch 14.75, 선택 R² 0.02900, 멈춤 19.75, 조기종료 True
+[19:08:39] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[19:08:39] [full] 미니배치 학습 시작 lr=0.0003
+[21:22:19] [full] lr=0.0003 학습 7840s, 최선 epoch 26.0, 선택 R² 0.02764, 멈춤 30.0, 조기종료 False
+[21:22:19] [full] 학습률 선택 0.001 (선택 R² 0.001: 0.02900, 0.0003: 0.02764)
+[21:22:19] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[21:25:04] [full] 예측값 저장 {'eval1': 3849436, 'eval2': 15569153} (165s)
+[21:26:37] [full] 판정 데이터 증가 효과 있음
+[21:26:37] [full] 평가① R² 전체배치 0.00908 → 미니배치 0.01216, 차이 +0.00309 [+0.00208, +0.00576], 예측 상관 0.852
+=== [2026-09-13_21:27:31] 종료 exit=0 ===

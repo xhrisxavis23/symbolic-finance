@@ -1,0 +1,25 @@
+[02:14:45] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[02:15:02] fixed eval set: select_rows=198,079 (select() took 17.4s)
+[02:15:11] Xw_eval shape=(198079, 304)
+[02:15:11] === size=200,000 model=deeplob device=cuda ===
+[02:18:26] select() -> fit_rows=197,941 (194.8s)
+[02:21:36] windowing fit set -> (197941, 304) (189.9s)
+[02:22:36] size=200,000 fit_seconds=59.1s best_epoch=270 best_score=0.014532 stopped_epoch=300 final_recheck=0.014532
+[02:22:36] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/deeplob_gpu.json
+[02:22:36] === size=500,000 model=deeplob device=cuda ===
+[02:25:37] select() -> fit_rows=495,046 (181.3s)
+[02:27:31] windowing fit set -> (495046, 304) (113.7s)
+[02:28:31] size=500,000 fit_seconds=58.7s best_epoch=80 best_score=0.014053 stopped_epoch=180 final_recheck=0.014053
+[02:28:31] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/deeplob_gpu.json
+[02:28:31] === size=1,000,000 model=deeplob device=cuda ===
+[02:31:57] select() -> fit_rows=990,113 (206.1s)
+[02:37:24] windowing fit set -> (990113, 304) (327.2s)
+[02:40:30] size=1,000,000 fit_seconds=184.5s best_epoch=270 best_score=0.017436 stopped_epoch=300 final_recheck=0.017436
+[02:40:30] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/deeplob_gpu.json
+[02:40:30] === size=2,000,000 model=deeplob device=cuda ===
+[02:46:16] select() -> fit_rows=1,980,299 (345.6s)
+[02:56:52] windowing fit set -> (1980299, 304) (635.8s)
+[03:03:56] size=2,000,000 fit_seconds=422.7s best_epoch=260 best_score=0.019414 stopped_epoch=300 final_recheck=0.019414
+[03:03:56] checkpoint saved -> /home/dgu/tick/symbolic/0911/scale/data/deeplob_gpu.json
+[03:03:56] === size=5,000,000 model=deeplob device=cuda ===
+[03:12:50] select() -> fit_rows=4,950,332 (533.6s)

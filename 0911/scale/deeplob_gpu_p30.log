@@ -1,0 +1,27 @@
+=== [2026-09-13_16:36:57] 기동: scale/sample_size_curve.py --model deeplob --device cuda --sizes 200000,500000,1000000,2000000 --epochs 1500 --eval-every 10 --patience 30 --out scale/data/deeplob_gpu_p30.json ===
+[16:37:50] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[16:38:09] fixed eval set: select_rows=198,079 (select() took 19.0s)
+[16:38:18] Xw_eval shape=(198079, 304)
+[16:38:18] === size=200,000 model=deeplob device=cuda ===
+[16:41:28] select() -> fit_rows=197,941 (190.3s)
+[16:46:00] windowing fit set -> (197941, 304) (272.4s)
+[16:48:33] size=200,000 fit_seconds=151.3s best_epoch=340 best_score=0.017885 stopped_epoch=640 final_recheck=0.017885
+[16:48:33] checkpoint saved -> scale/data/deeplob_gpu_p30.json
+[16:48:33] === size=500,000 model=deeplob device=cuda ===
+[16:54:11] select() -> fit_rows=495,046 (337.9s)
+[16:57:55] windowing fit set -> (495046, 304) (224.3s)
+[17:03:15] size=500,000 fit_seconds=318.7s best_epoch=760 best_score=0.021014 stopped_epoch=1060 final_recheck=0.021014
+[17:03:15] checkpoint saved -> scale/data/deeplob_gpu_p30.json
+[17:03:15] === size=1,000,000 model=deeplob device=cuda ===
+[17:07:38] select() -> fit_rows=990,113 (262.7s)
+[17:12:37] windowing fit set -> (990113, 304) (298.5s)
+[17:22:57] size=1,000,000 fit_seconds=619.3s best_epoch=460 best_score=0.019685 stopped_epoch=760 final_recheck=0.019685
+[17:22:57] checkpoint saved -> scale/data/deeplob_gpu_p30.json
+[17:22:57] === size=2,000,000 model=deeplob device=cuda ===
+[17:27:35] select() -> fit_rows=1,980,299 (277.2s)
+[17:29:27] windowing fit set -> (1980299, 304) (112.1s)
+[17:39:05] size=2,000,000 fit_seconds=577.3s best_epoch=340 best_score=0.021315 stopped_epoch=640 final_recheck=0.021315
+[17:39:05] checkpoint saved -> scale/data/deeplob_gpu_p30.json
+[17:39:05] all sizes done
+[W913 17:39:07.336097164 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+=== [2026-09-13_17:40:00] 종료 exit=0 ===

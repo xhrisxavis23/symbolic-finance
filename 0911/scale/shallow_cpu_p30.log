@@ -1,0 +1,29 @@
+=== [2026-09-13_16:27:48] 기동: scale/sample_size_curve.py --model shallow --device cpu --sizes 200000,500000,1000000,2000000,5000000,10000000 --epochs 1500 --eval-every 10 --patience 30 --out scale/data/shallow_cpu_p30.json ===
+[16:29:22] pool loaded: X_L=(45734085, 19) X_M=(5736557, 19) n_features=19 usable_L=45,672,051 usable_M=5,728,332
+[16:30:01] fixed eval set: select_rows=198,079 (select() took 39.7s)
+[16:30:02] === size=200,000 model=shallow device=cpu ===
+[16:34:34] select() -> fit_rows=197,941 (272.4s)
+[16:36:20] size=200,000 fit_seconds=105.5s best_epoch=210 best_score=0.015949 stopped_epoch=510 final_recheck=0.015949
+[16:36:20] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[16:36:20] === size=500,000 model=shallow device=cpu ===
+[16:39:03] select() -> fit_rows=495,046 (163.6s)
+[16:57:51] size=500,000 fit_seconds=1127.1s best_epoch=470 best_score=0.017059 stopped_epoch=770 final_recheck=0.017059
+[16:57:51] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[16:57:51] === size=1,000,000 model=shallow device=cpu ===
+[17:01:16] select() -> fit_rows=990,113 (204.8s)
+[17:26:04] size=1,000,000 fit_seconds=1487.9s best_epoch=730 best_score=0.017568 stopped_epoch=1030 final_recheck=0.017568
+[17:26:04] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[17:26:04] === size=2,000,000 model=shallow device=cpu ===
+[17:29:36] select() -> fit_rows=1,980,299 (211.8s)
+[17:42:27] size=2,000,000 fit_seconds=771.6s best_epoch=810 best_score=0.018260 stopped_epoch=1110 final_recheck=0.018260
+[17:42:27] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[17:42:27] === size=5,000,000 model=shallow device=cpu ===
+[17:45:00] select() -> fit_rows=4,950,332 (153.0s)
+[18:02:48] size=5,000,000 fit_seconds=1067.4s best_epoch=480 best_score=0.018800 stopped_epoch=780 final_recheck=0.018800
+[18:02:48] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[18:02:48] === size=10,000,000 model=shallow device=cpu ===
+[18:05:12] select() -> fit_rows=9,900,579 (144.1s)
+[18:37:49] size=10,000,000 fit_seconds=1956.7s best_epoch=420 best_score=0.018785 stopped_epoch=720 final_recheck=0.018785
+[18:37:49] checkpoint saved -> scale/data/shallow_cpu_p30.json
+[18:37:49] all sizes done
+=== [2026-09-13_18:37:52] 종료 exit=0 ===
