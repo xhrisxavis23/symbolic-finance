@@ -1,0 +1,89 @@
+{
+ "key": "bizfinbench",
+ "title": "BizFinBench: A Business-Driven Real-World Financial Benchmark for Evaluating LLMs",
+ "authors_short": "Guilong Lu, Xuntao Guo(공동1저자), Rongjunchen Zhang(교신) 외 · HiThink Research(同花顺) · Harbin Institute of Technology",
+ "venue": "arXiv only (2505.19457 v1, 2025-05-26, 'Preprint. Under review')",
+ "venue_verified": "arXiv only. Crossref/dblp/OpenReview에서 채택 기록 미발견. GitHub README는 후속 별도 논문 BizFinBench.v2가 ICML 2026 채택이라 기재(2026-01-05)하며 v1을 'Outdated'로 표시",
+ "type": "QA 벤치마크(중국어, 9개 태스크, 객관/주관 채점 혼합) + LLM 심판 방법(IteraJudge)",
+ "domain": "금융 / 중국 A주·홍콩·미국 주식 리테일 투자 서비스(iwencai 앱)",
+ "data_scope": "iwencai 앱 실사용자 질의에서 출발한 중국어 6,781문항(HF 9 config 합계: AEA 1,064·ER 600·FDD 1,461·FQA 990·FNER 433·FNC 581·FTR 514·FTU 641·SP 497), 주로 2023–2025년 중국 상장사 주가·자금흐름·뉴스 컨텍스트 동봉(Table 2 p.6)",
+ "tags": [
+  "Chinese financial QA",
+  "business-driven",
+  "numerical computation",
+  "temporal reasoning",
+  "distractor context",
+  "LLM-as-judge",
+  "iwencai"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2505.19457",
+  "pdf": "https://arxiv.org/pdf/2505.19457",
+  "proceedings": null,
+  "github": "https://github.com/HiThink-Research/BizFinBench",
+  "huggingface": "https://huggingface.co/datasets/HiThink-Research/BizFinBench",
+  "website": "https://hithink-research.github.io/BizFinBench/",
+  "verified": "arXiv abs 200, GitHub 200(README에 라이선스·v2 공지 확인), HF 200(datasets-server로 Financial_Numerical_Computation·Financial_Time_Reasoning 각 4행 수신, 9개 config 행수 확인), 프로젝트 페이지 200."
+ },
+ "easy": {
+  "problem": "기존 금융 벤치마크(FinEval 등)는 시험 문제나 문서 QA라 '실제 투자 앱에서 사용자가 묻는 질문'과 거리가 멀고, 긴 표·뉴스 같은 구조화 입력과 시점 추론, 오답 유도 노이즈를 다루지 못한다(p.2).",
+  "how": "HiThink(同花顺)의 iwencai 앱 실사용자 질의를 GPT-4o로 정제·분류하고(부족 범주는 GPT-4o로 합성), 질의 시점을 복원해 주가·자금흐름·뉴스 등 관련 데이터를 붙이며 일부러 교란 자료를 섞은 뒤 GPT-4o 초안 답을 5년 이상 경력의 시니어 전문가 3인이 만장일치 검수했다(p.5-6). 9개 태스크를 정확도 또는 GPT-4o 심판 점수로 채점하고, 심판 편향을 줄이는 IteraJudge를 제안했다.",
+  "analogy": "증권앱 고객센터에 실제로 들어온 질문들('국경절 이후 평안은행이 12위안 넘은 날?')을 모아, 그날 시세표를 문제지에 인쇄해 붙이고 애널리스트 세 명이 답을 확정한 실무형 모의고사다."
+ },
+ "contributions": [
+  "실서비스 질의 기반 중국어 금융 벤치마크 6,781문항, 5차원·9태스크(Table 2 p.6); 질의 길이 22~4,556 토큰(p.7, Table 6 p.16)",
+  "시점 복원 + 관련 데이터 첨부 + 의도적 교란(무관 기업 뉴스·반대 감성·시점 불일치) 설계(p.6)와 시니어 전문가 3인 만장일치 검수(p.6)",
+  "IteraJudge: 차원별 순차 정제로 참조 답을 만든 뒤 대비 채점하는 LLM 심판; FDD Spearman 0.4848→0.5684, FTU 0.8000→0.8667(GPT-4o 심판, Table 4 p.9)",
+  "25개 모델 평가: 평균 최고 ChatGPT-o3 73.86; FNC 최고 DeepSeek-R1 64.04·Claude-3.5-Sonnet 63.18; FTR 최고 GPT-4o 76.20 vs Llama-3.1-8B 2.91(Table 3 p.8); 총 비용 $21,000(p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/bizfinbench_fig3.png",
+   "label": "Figure 3",
+   "page": 5,
+   "caption_ko": "데이터 구축 워크플로. 온라인 배드케이스 → 분류 설계 → (LLM) 노이즈 제거·범주화 → 정제된 사용자 질의 → 관련 데이터 접근 → 프롬프트 추가 → 참조 답 생성 → 수작업 마킹 → 데이터셋. 상단 예시: 사용자 '테슬라 주가가 왜 급등했나?' → 에이전트가 시점을 붙여 '2023년 11월 15일에 왜 급등했나?'로 바꾸고, 질의를 '테슬라, 2023-11-15와 그 전주, 관련 긍정 뉴스'로 확장해 자료 1·2·3에 접근한다.",
+   "alt": "BizFinBench 데이터 구축 워크플로"
+  },
+  {
+   "file": "figs/bizfinbench_fig8.png",
+   "label": "Figure 8",
+   "page": 17,
+   "caption_ko": "Financial Numerical Computation 인스턴스 예. 프롬프트에 百度(BIDU.O)의 2024년 8월·9월 일별 종가 표 두 개가 Markdown으로 동봉되고, 사용자 질문 '2024년 8월~9월 기간 百度 종가가 90달러를 넘은 날은 며칠?'과 JSON 출력 형식({cot, answer}, 수치는 소수 4자리)이 주어진다. 하단은 모델의 사고과정과 답 6.0000.",
+   "alt": "FNC 태스크 프롬프트·표·답 예시"
+  }
+ ],
+ "dataset": {
+  "construction": "출처: 'Our dataset is primarily sourced from real user queries on the iwencai APP'(p.5); 전문가가 질의 분석으로 플랫폼 질의의 90% 이상을 덮는 9개 범주 정의. 정제: 'we first aggregate a large set of real user queries, then employ GPT-4o … to clean noisy entries, filter out incomplete or invalid ones, and classify each valid query into the appropriate expert-defined category. For underrepresented categories, we further use GPT-4o to synthesize additional data'(p.5). 컨텍스트: 질의 발화 시점을 자동 복원해 시간 고정 질의로 바꾸고 내부 금융 DB·외부 출처에서 주가·과거 거래·뉴스·공시를 수집, 교란 자료(무관 기업 뉴스, 반대 감성 기사, 시점 어긋난 사건)를 의도적으로 삽입(p.6). 답: 태스크별 프롬프트로 GPT-4o 등이 후보 답 생성 → 'every entry is independently reviewed and annotated by three senior financial experts'(5년 이상 경력) → 'A data point is accepted into the final dataset only when all three experts reach full consensus'(p.6). 폐기율·합성 비율은 미보고.",
+  "size_format": "HF 9개 config(test split만): AEA 1,064·ER 600·FDD 1,461·FQA 990·FNER 433·FNC 581·FTR 514·FTU 641·SP 497 = 6,781. 각 행은 OpenAI 대화 형식: messages[user: '# 金融数值推理 … ### 数据参考(取数问句/취득 표 Markdown) … ### 用户问题 … ### 输出格式(JSON {cot, answer})'], choices[assistant: 정답]. 논문 Table 2는 FNER 435로 표기(합 6,783). FNC 평균 651토큰, FTR 1,162토큰, FTU 4,556토큰(Table 2 p.6).",
+  "samples": [
+   "[# 金融数值推理] 데이터참조(取数问句): ['同花顺2023年12月每日的资金流入', '同花顺2023年12月每日的资金流出'] | 用户问题: \"question: 在2023年12月1日至2023年12月18日期间，同花顺的资金净流入是多少亿元？\" | 정답(choices): \"14.8065\" | 한국어 풀이: '2023-12-01~12-18 기간 同花顺(동화순, 300033.SZ)의 자금 순유입은 몇 억 위안인가?' — 동봉된 12월 일별 자금유입·유출 표에서 기간 내 (유입−유출)을 합산해 억 위안 단위 소수 4자리로 답함(정답 14.8065) (출처: HF HiThink-Research/BizFinBench, split test, row 0)",
+   "[# 金融时间推理] 데이터참조(取数问句): ['平安银行2023年10月1日前后10日的股价明细', '平安银行2024年10月1日前后10日的股价明细', '平安银行2022年10月1日前后10日的股价明细'] | 用户问题: \"question: 今天是2024年11月15日，请问国庆节后平安银行股价首次突破12元的日期是哪一天？\" | 정답(choices): \"2024年10月8日\" | 한국어 풀이: '오늘은 2024-11-15. 국경절 이후 平安银行(핑안은행, 000001.SZ) 주가가 처음 12위안을 돌파한 날짜는?' — 2022·2023·2024년 10월 1일 전후 10일 종가 표 중 2024년 표에서 12위안 초과 첫 거래일을 찾음(정답 2024年10月8日) (출처: HF HiThink-Research/BizFinBench, split test, row 0)",
+   "[# 金融数值推理] 데이터참조(取数问句): ['药明康德2023年10月每日的资金流入', '药明康德2023年10月每日的资金流出'] | 用户问题: \"question: 在2023年10月1日至2023年10月10日期间，药明康德的资金净流入是多少元？\" | 정답(choices): \"-116183607\" | 한국어 풀이: '2023-10-01~10-10 기간 药明康德(우시앱텍, 603259.SH)의 자금 순유입은 몇 위안인가?' — 10월 일별 유입/유출 표(억·만·원 단위 혼재)를 원 단위로 환산해 합산(정답 -116183607) (출처: HF HiThink-Research/BizFinBench, split test, row 2)",
+   "[# 金融时间推理] 데이터참조(取数问句): ['中国银行2023年5月1日前后10日的股价明细', '中国银行2024年5月1日前后10日的股价明细', '中国银行2022年5月1日前后10日的股价明细'] | 用户问题: \"question: 今天是2024年6月5日，请问劳动节后中国银行股价变化最大的一天是什么时候？\" | 정답(choices): \"2024年5月6日\" | 한국어 풀이: '오늘은 2024-06-05. 노동절 이후 中国银行(중국은행, 601988.SH) 주가 변동이 가장 컸던 날은?' — 2024년 5월 1일 전후 종가 표에서 전일 대비 변동폭 최대일(정답 2024年5月6日) (출처: HF HiThink-Research/BizFinBench, split test, row 2)"
+  ],
+  "class": "C-lite",
+  "class_reason": "FNC·FTR 문항은 특정 종목·날짜 구간·문턱(12위안 돌파)·오늘 날짜를 명시하고, 계산 대상 원자료(일별 종가·자금유입/유출 표)를 프롬프트에 동봉하며 답이 결정론적 수치/날짜로 정확도 채점된다는 점에서 C형 요건 다수를 충족한다. 그러나 표가 소형 단일 테이블이고 '资金净流入'의 정의(유입−유출)나 단위 환산(亿/万/元 혼재) 규약이 질문에 명시되지 않으며, 벤치마크 전체로는 FQA(지식)·ER(감성)·FDD(서술) 등 A/B형 태스크가 다수라 C-lite로 둔다.",
+  "release": "HF 공개(카드 라이선스 cc-by-4.0, GitHub README는 데이터 CC BY-NC 4.0·코드 Apache-2.0으로 표기—불일치). test split만 공개. HF datasets-server로 FNC·FTR 행 실제 열람. 원 질의의 사용자 정보는 미포함.",
+  "contamination": "별도 오염 방지 장치 없음. 실사용자 질의는 비공개 로그 기반이라 사전학습 노출 가능성은 낮으나, 동봉 시세 데이터는 공개 시장 데이터.",
+  "evaluation": "AEA·FTR·FNC·ER·SP·FNER는 정확도, FTU·FQA·FDD는 GPT-4o 심판 점수(Table 2 p.6); 출력은 JSON {cot, answer} 강제, 규칙 기반 정확일치 추출(약 2% 오차 추정, p.12). 25개 모델: ChatGPT-o3 평균 73.86, DeepSeek-R1 73.05, GPT-4o 71.80; FNC 최고 DeepSeek-R1 64.04; FTR 최고 GPT-4o 76.20; ER 최고 ChatGPT-o4-mini 47.67(Table 3 p.8). IteraJudge 절제(Table 4 p.9)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 기업(HiThink) 자사 앱 iwencai의 실사용자 질의 로그를 출발점으로 구성, 부족 범주는 GPT-4o 합성(p.5).",
+  "q2_method": "② 출처(iwencai 앱)와 처리 절차(GPT-4o 정제·분류, 시점 복원, 데이터 첨부, 교란 삽입, 3인 검수)는 명시되나 원 질의 수·합성 비율·내부 DB 명세는 비공개.",
+  "q3_license": "③ HF 카드 cc-by-4.0 vs GitHub CC BY-NC 4.0(연구용) 표기 불일치; 시세·뉴스 데이터는 HiThink 내부 DB·외부 출처(p.6).",
+  "q4_relabel": "④ 공개 데이터 재사용이 아니라 실사용 질의를 태스크별로 재구성·재라벨링(시점 고정, 교란 추가).",
+  "q5_industry": "⑤ 기업(HiThink Research) 자체 데이터로 구성하고 벤치마크 문항·컨텍스트를 공개(test만). 원 로그·내부 DB는 비공개.",
+  "q6_constraints": "⑥ 사용자 로그 프라이버시·내부 데이터 제약이 있음에도 정제된 질의와 동봉 컨텍스트를 공개; 비공개 사유는 논문에 명시 없음. 사용 라이선스가 연구 목적 제한(README).",
+  "q7_accept": "⑦ 공개 리뷰 없음(arXiv). self-claim: 최초의 비즈니스 기반 실사용 금융 벤치마크, 교란 컨텍스트로 견고성 평가, IteraJudge."
+ },
+ "review": null,
+ "limitations": "미채택 프리프린트이며 저자 스스로 답 추출 규칙 오차(~2%), 파생상품 가격결정·실시간 의사결정 미포함, 단일턴 한정을 한계로 명시(p.12). 중국어·중국 시장 편중으로 다른 시장 일반화 제한. 정답 초안이 GPT-4o 생성물이라 전문가 검수에 의존하고, 검수 일치도·폐기율 미보고. FDD·FQA·FTU는 LLM 심판 점수라 객관성 제한. HF와 GitHub의 라이선스 표기가 불일치.",
+ "oneline": "증권앱 실사용자 질의에 시세표·뉴스와 교란 자료를 붙이고 전문가 3인이 검수한 중국어 금융 벤치마크 6,781문항으로 25개 LLM을 채점한 프리프린트.",
+ "implications": [
+  "FNC·FTR은 '개체+구간+문턱+오늘 날짜'가 질문에, 원자료 표가 프롬프트에 동봉된 형태로 우리 C형 문항과 가장 닮은 공개 사례다. 다만 단위 혼재(亿/万/元)와 순유입 정의를 질문에 안 적어 모델 오답 원인이 규약 모호성인지 계산 오류인지 분리되지 않는다—참고 QA셋의 '규약 전문 명시' 방침의 필요성을 보여준다.",
+  "의도적 교란(무관 종목·반대 감성·시점 불일치 자료) 삽입은 온체인 QA에서 '구간 밖 트랜잭션·다른 토큰의 로그'를 evidence에 섞어 필터링 능력을 재는 설계로 옮길 수 있다.",
+  "오늘 날짜를 질문에 박아 상대 시점('국경절 이후')을 절대 구간으로 환산하게 하는 FTR 설계는 블록 높이·타임스탬프 변환을 요구하는 문항 유형의 선례다.",
+  "실서비스 로그 기반이라 문항 분포가 실제 수요를 반영한다는 장점과, 로그·내부 DB 비공개로 재현성이 제한된다는 단점을 함께 보여주므로, 온체인 QA는 공개 원장(BigQuery) 기반이라는 점을 재현성 우위로 부각할 수 있다."
+ ],
+ "brief": false
+}

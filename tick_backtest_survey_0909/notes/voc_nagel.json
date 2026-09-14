@@ -1,0 +1,53 @@
+{
+ "key": "voc_nagel",
+ "title": "The Virtue of Complexity 와 Nagel 의 반박 — 표본 외 분할로는 절대 잡히지 않는 실패 모드",
+ "authors_short": "Bryan Kelly · Semyon Malamud · Kangying Zhou (VoC) vs Stefan Nagel (반박)",
+ "venue": "Journal of Finance 79(1), 459–503 (2024) vs NBER WP 34104 (2025)",
+ "venue_verified": "VoC DOI 10.1111/jofi.13298 Crossref 검증. 무료 전문은 NBER WP 30217 로 확보. Nagel 반박은 NBER w34104, DOI 10.3386/w34104 Crossref 검증(제목·저자·2025-08), 전문 확보",
+ "type": "고차원 예측 모형의 표본 외 성과 논쟁",
+ "domain": "시장 타이밍 (월간)",
+ "data_scope": "**월간** 미국 시장 수익률 — CRSP 가치가중 지수 1926–2020, Goyal–Welch 예측변수 15개(+ 시차 지수수익률)를 Rahimi–Recht Random Fourier Features 로 **P 를 최대 12,000 까지** 확장하고 **T = 12 개월** 같은 짧은 롤링 창으로 학습.",
+ "tags": [
+  "고차원",
+  "무해한 과적합",
+  "기하학적 인공물",
+  "반사실 데이터 검정"
+ ],
+ "links": {
+  "proceedings": "https://doi.org/10.1111/jofi.13298",
+  "pdf": "https://www.nber.org/papers/w30217",
+  "github_extra": [],
+  "verified": "VoC Crossref 200 · NBER WP 30217 전문. Nagel NBER w34104 Crossref 200 · 전문. 공개 코드 없음"
+ },
+ "easy": {
+  "problem": "파라미터 수가 관측 수보다 훨씬 많은 모형(P ≫ T)이 표본 외에서 더 잘 되는가? VoC 는 '그렇다, 복잡도가 높을수록 엄격히 좋아진다' 고 증명하고 실증했다.",
+  "how": "Nagel 은 그 추정기의 기하학을 뜯어본다. P ≫ T 에서 RFF ridgeless 예측은 **가우시안 커널 무릉 회귀와 동치**이고, 이는 **학습 표본 수익률의 유사도 가중 평균**이다.",
+  "analogy": "복잡한 기계가 좋은 답을 내는 줄 알았는데, 뜯어 보니 그냥 최근 12개월 평균을 내고 있었던 것."
+ },
+ "contributions": [
+  "**VoC 의 주장** — \"expected out-of-sample forecast accuracy and portfolio performance are **strictly increasing in model complexity**\"; 시장 타이밍 샤프 개선이 연 **약 0.47**, t값 3.0 근처; 테스트 표본의 **15개 침체 중 14개**에서 미리 비중을 줄였다.",
+  "**방법론적으로 중요한 부수 주장** — \"the out-of-sample R² from a prediction model is an **incomplete measure of its economic value**… A very low out-of-sample R² indicates a highly volatile timing strategy\" — R² 가 크게 음수여도 기대 타이밍 **수익**은 양수일 수 있다.",
+  "**Nagel 의 반박이 통계적이 아니라 기계적이다.** Goyal–Welch 예측변수가 매우 지속적이므로 '유사도' 가 사실상 **시간적 근접도**가 되고, T = 12 면 예측이 **최근 12개월 수익률의 최신성 가중 평균 — 즉 모멘텀 전략**으로 붕괴한다. 게다가 유사도는 예측변수 변동성이 낮을 때 커지므로 **변동성 타이밍 모멘텀**이 된다.",
+  "**그의 결정적 검정**: 실제 시장 수익률에 강한 음의 자기상관을 갖는 MA(2) 성분을 합성해 **반전(reversal)** 이 나타나는 인공 계열을 만들고, VoC 의 데이터·코드·분석을 그대로 다시 돌린다. 결과 — **RFF 는 여전히 같은 변동성 타이밍 모멘텀 전략을 만들고, 이제는 성과가 나쁘다.** 그의 문장: \"the RFF-based regression **does not learn from the training data whether momentum or reversal dynamics are present; it mechanically produces momentum**.\" 겉보기 성공의 출처는 \"the fact that a **volatility-timed momentum strategy happened to perform well in historical data**\".",
+  "**Bunčić(SSRN 10.2139/ssrn.5239006, 2025)** 는 VoC 의 우위가 \"**two specific implementation choices that artificially disadvantage simpler approaches**\" 에서 나오고, 제대로 설정하면 **표준 선형 모형의 샤프가 최대 약 40% 더 크다**고 주장한다 — 다만 SSRN 이 403 이라 저자 홈페이지 요약만 확인했고 그 '두 선택' 이 무엇인지는 **미확인**이다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "월간 시장 타이밍이다. 틱과 무관하지만 실패 모드가 이 리포트의 모든 군에 적용된다.",
+  "data_short": "**월간** CRSP 지수 1926–2020",
+  "fill_short": "월간 비중 조정",
+  "cost_short": "논쟁의 초점이 아님",
+  "validation": "표준 표본 외 분할을 통과했는데도 결과가 인공물이었다 — **그것이 이 항목의 요점이다.**",
+  "gap": "**표본 외 분할이 잡지 못하는 실패 모드가 있다.** 추정기의 기하학이 데이터의 한 실현과 상호작용해 전략을 '제조' 하는 경우다. 진단법은 싸다 — 자기상관 부호를 뒤집은 반사실 데이터에 같은 파이프라인을 돌려 같은 전략이 나오는지 보는 것. **이 조사의 호가창·RL 문헌에서 아무도 이것을 하지 않는다.**"
+ },
+ "code": [
+  "공개 코드 없음(양쪽 다)"
+ ],
+ "oneline": "표본 외에서 잘 나왔는데도 인공물일 수 있다 — 추정기가 데이터와 무관하게 특정 전략을 만들어 내는 경우, 어떤 분할도 그것을 잡지 못한다.",
+ "implications": [
+  "**Nagel 의 반사실 데이터 검정을 우리도 할 수 있다.** 우리 원장의 체결·호가 계열에서 중간가 수익률의 부호 구조를 뒤집은 합성 원장을 만들고 같은 발굴 파이프라인을 돌려, **같은 종류의 진입식이 나오는지** 보면 된다. 나온다면 우리 탐색이 데이터가 아니라 파이프라인의 기하학을 반영하는 것이다.",
+  "우리 경우 의심 지점이 분명하다 — 정본 프로필의 gross 가 대부분 **진입 스프레드**에서 나온다는 관측(research-log 관측 21)이 있다. 즉 어떤 진입식을 넣어도 BID1 지정가 + hold-through 구조 자체가 스프레드를 포획할 수 있다. **가설이 아니라 실행 프로필이 수익을 만들고 있는지**가 정확히 Nagel 이 던진 종류의 질문이다.",
+  "그 검정의 대조군은 이미 문헌에 있다 — Moallemi–Yuan 의 '무작위 시점 인공 주문'. 가설 없이 무작위로 BID1 에 걸었을 때의 `net_bps` 분포가 우리 진짜 기준선이어야 한다."
+ ],
+ "resolution": "일봉 이상"
+}

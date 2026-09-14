@@ -1,0 +1,32 @@
+{
+ "key": "qrdata",
+ "title": "Are LLMs Capable of Data-based Statistical and Causal Reasoning? Benchmarking Advanced Quantitative Reasoning with Data",
+ "authors_short": "Liu et al. · Peking University · UCLA",
+ "venue": "ACL 2024 Findings (pp.9215–9235)",
+ "venue_verified": "ACL Anthology 2024.findings-acl.548 페이지 제목 일치(HTTP 200); GitHub README bib 'Findings of the Association for Computational Linguistics ACL 2024, pages 9215--9235'; arXiv 2402.17644v2",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2402.17644",
+  "pdf": "https://arxiv.org/pdf/2402.17644",
+  "proceedings": "https://aclanthology.org/2024.findings-acl.548/",
+  "github": "https://github.com/xxxiaol/QRData",
+  "huggingface": null,
+  "website": "https://xxxiaol.github.io/QRData/",
+  "verified": "arXiv PDF(21쪽) 다운로드, ACL Anthology 200, GitHub README·raw benchmark/QRData.json(411문항) 실제 다운로드, 프로젝트 사이트 200"
+ },
+ "domain": "통계 추론·인과 추론(교과서 OpenIntro Statistics, Quantitative Social Science, 온라인 교재 Causal Inference for the Brave and True, 논문 데이터셋 Flow cytometry·IHDP·Jobs·Neuropathic pain·Arctic sea ice)",
+ "dataset": {
+  "construction": "8개 공개 자원(교과서 2권, 온라인 강의 1, 논문 데이터셋 5)을 '정량 추론 관련·데이터 동봉·오픈소스' 기준으로 선정(p.3). 교과서·강의 자료는 연습문제와 해답을 그대로 질문·정답으로 쓰고, 본문에 쓰인 데이터는 저자가 문항을 주석: \"If a data sheet is used in exercises, we use the exercise question and its solution as the question and answer; if it is used in the main content, we annotate questions and answers based on the content.\"(p.3). 인과 발견 데이터셋(Flow cytometry, Neuropathic pain, Arctic sea ice)은 'Which cause-and-effect relationship is more likely? A … B … C. No causal relationship exists' 형식의 객관식으로, IHDP·Jobs는 ATE/ATT/ATC 수치 문항으로 구성(p.3). \"Through careful manual construction, our dataset consists of 411 questions along with 195 data sheets\"(p.2) — LLM 생성 없이 사람 제작. 데이터 설명(data_description)을 함께 제공. Min-K% Prob으로 GPT·Llama-2 사전학습 노출 검사(p.3). 수치 답은 ±3% 허용(p.4).",
+  "size_format": "411문항(객관식 248 / 수치 163; 통계 142 / 인과 269), 데이터 파일 195개(평균 15,219행·46열), 질문 평균 32단어(p.3 Table 1). GitHub benchmark/QRData.json 필드: data_description, question, answer, data_files[], meta_data{reference, keywords[], question_type, multiple_choices}; benchmark/data.zip에 CSV. 보조셋 QRText 290문항(수치 오류로 수정판 예정, README).",
+  "samples": [
+   "[QRData.json #0, OpenIntro Statistics Guided Practice 1.1, numerical] data_description: \"The CSV file stent365.csv summarizes an experiment that studies effectiveness of stents in treating patients at risk of stroke with some unexpected results. These data represent the results 365 days after stroke.\" question: \"Compute the proportion of patients in the treatment group who had a stroke by the end of their first year. Please round to the nearest hundredth.\" answer: \"0.20\"",
+   "[#50, OpenIntro Statistics Ex 3.18c, numerical] question: \"What is the probability of a randomly chosen male respondent with green eyes having a partner with blue eyes? Please round to the nearest hundredth.\" answer: \"0.31\" (data_files: assortative_mating.csv)",
+   "[#300, Flow cytometry dataset, multiple_choice, keywords Causality·Full graph causal discovery·Observational data] data_description: \"The data set in flow.csv offers continuous measurements of expression levels of multiple phosphorylated proteins and phospholipid components in human immune system cells. It contains 7466 cells (n = 7466) and flow cytometry measurements of 11 (p = 11) phosphorylated proteins and phospholipids.\" question: \"Which cause-and-effect relationship is more likely?\\nA. PKC causes praf\\nB. praf causes PKC\\nC. No causal relationship exists\\nPlease answer with A, B, or C.\" answer: \"A\"",
+   "[논문 Figure 2 p.2, IHDP] question: \"What is the Average Treatment Effect (ATE) of the dataset? Please round the final answer to the nearest hundredth.\" → 4.02(propensity score weighting 후 refutation test)"
+  ],
+  "class": "C-lite",
+  "class_reason": "단일 CSV(동봉)에서 계산되는 수치 답이 결정론적이고 반올림 규약이 질문에 있으나, 개체 지정이 '치료군'·'남성 응답자' 수준으로 약하고 문턱·판정 규약이 없다. 인과 추정 문항은 방법(IPW 등)에 따라 값이 달라 ±3% 허용오차를 두었고, 인과 발견 객관식은 알고리즘 의존이라 결정론성이 약해 C-lite.",
+  "release": "GitHub 공개(QRData.json 411문항·정답, data.zip). 저장소 LICENSE 파일은 CC BY-NC 4.0(raw 확인); 논문 윤리 진술 '수집 데이터는 상업적으로 쓰지 말 것'(p.9). 결과: GPT-4 코드 인터프리터 57.9%, Deepseek-coder-instruct PoT 37.0%, 인간(50문항 부분) 76.0(p.5 Table 2)."
+ },
+ "oneline": "교과서·논문 데이터셋에서 사람이 만든 411개 통계·인과 추론 데이터 질문(CSV 동봉)으로, GPT-4 코드 인터프리터도 57.9%에 그치고 데이터를 주면 오히려 인과 판단이 나빠지는 현상을 보였다(ACL 2024 Findings).",
+ "brief": true
+}

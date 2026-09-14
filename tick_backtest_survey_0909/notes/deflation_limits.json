@@ -1,0 +1,55 @@
+{
+ "key": "deflation_limits",
+ "title": "보정의 한계 — 샤프 35짜리 누출 오라클이 DSR 과 PBO 를 그대로 통과한다",
+ "authors_short": "Eray Gençay / Boutgajouft / Steven E. Pav",
+ "venue": "arXiv 2608.27734 (2026) · SSRN 7346738 (미심사) · arXiv 1906.00573 · 2606.01650",
+ "venue_verified": "arXiv API 로 2608.27734·1906.00573·2606.01650 확인. Boutgajouft DOI 10.2139/ssrn.7346738 은 미심사 프리프린트이고 SSRN 이 403 이라 Crossref 등록 초록만 읽었다",
+ "type": "보정 통계의 실패 모드",
+ "domain": "전략 탐색의 통계적 타당성",
+ "data_scope": "Gençay: 453종목 point-in-time 미국주식 + 39 ETF 다자산, 실제 거래·충격·대차 비용 포함. Pav: 시뮬레이션. Boutgajouft: 이론 + 시뮬.",
+ "tags": [
+  "누출 오라클",
+  "PBO 역방향",
+  "선택적 추론",
+  "James-Stein"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2608.27734",
+  "github_extra": [
+   "https://github.com/eslazarev/purged-cross-validation"
+  ],
+  "verified": "arXiv 200 세 편. SSRN 프리프린트는 초록만"
+ },
+ "easy": {
+  "problem": "시행 횟수로 샤프를 깎으면(DSR) 과최적화가 잡히나? 잡히지 않는 경우가 있다.",
+  "how": "일부러 미래를 보는 '누출 오라클' 을 만들어 DSR·PBO 를 통과시켜 본다. 그리고 보고하지 않은 탐색이 넓어질 때 PBO 가 어떻게 움직이는지 본다.",
+  "analogy": "부정행위 탐지기를 만들어 놓고, 답안을 통째로 베낀 학생을 넣었더니 통과하는 상황."
+ },
+ "contributions": [
+  "**Gençay(2026)의 결정적 실험** — \"a deliberately leaky oracle posting a Sharpe ratio of 35 survives Deflated Sharpe and probability-of-backtest-overfitting testing **completely**.\" 즉 **보정은 누출 탐지가 아니다.**",
+  "그의 처방은 구조적이다 — \"the agent can only act through **registry-validated tools whose feature space excludes look-ahead by construction**\" 그리고 \"the system **records every strategy evaluation its search performs and deflates all reported performance by that trial count**, tracing how the best in-sample Sharpe ratio climbs with each trial while the deflation threshold, driven by the agent's own search, climbs faster.\" 결과: **LLM 이 발견한 전략을 전부 기각**하고 패시브 벤치마크만 인증한다.",
+  "그리고 그의 결론 한 줄 — \"The framework formalizes why **pre-registered hypotheses earn lower evidential bars than brute search.**\"",
+  "**Boutgajouft: PBO 가 반대로 움직인다.** 숨은 설정 M 개 중 10개짜리 격자만 보고할 때, M 이 10 → 1,000 으로 늘면 **실제 선택 손상은 0.066 → 0.141 로 커지는데 보고되는 PBO 는 0.54 → 0.10 으로 떨어진다.** 이유는 \"a wider hidden search produces a winner that is an extreme of the whole sample and therefore dominates its grid more consistently, which is exactly what a low value records… **No statistic computed on the reported grid recovers what is missing.**\" 그리고 로짓 분산도 설정이 독립일 때만 도움이 되며, \"the separation vanishes once neighbouring configurations share sixty percent of their trades\" — 유전 탐색의 상관 국면이 정확히 그렇다.",
+  "**Pav 의 통계적 반론: 극값 근사 대신 선택적 추론을 쓰라.** Lee 외의 polyhedral lemma 로 선택 사건을 정확히 특징지으면 조건부 추론이 타당해지고, \"does not appear to suffer from non-normality of returns\". 그리고 **추정** 문제에서는 \"the **James Stein estimator** provides the best performance across many different realistic values\" 로, 그가 비교군에 넣은 \"debiasing the expected maximum Sharpe ratio\"(= DSR 의 추정량)를 **이긴다.**",
+  "용어 경고 — Pav 의 `SharpeR` 에서 말하는 'haircut' 은 **Markowitz 포트폴리오 오추정 haircut**(중앙값 약 25%)이고 Harvey–Liu 의 다중검정 haircut 이 아니다. 혼동하면 안 된다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "보정 통계의 실패 모드를 다룬다.",
+  "data_short": "453종목 PIT + 39 ETF (Gençay)",
+  "fill_short": "해당 없음",
+  "cost_short": "Gençay 는 거래·충격·대차 비용 포함",
+  "validation": "누출 오라클 · 숨은 탐색 폭 · 선택적 추론 시뮬레이션.",
+  "gap": "Boutgajouft 는 미심사 프리프린트이고 저자의 다른 색인 저작을 찾지 못했다. Gençay 도 arXiv 단계다."
+ },
+ "code": [
+  "[eslazarev/purged-cross-validation](https://github.com/eslazarev/purged-cross-validation) — `effective_n_trials`, Optuna trial-Sharpe 기록기 (MIT)"
+ ],
+ "oneline": "DSR·PBO 는 시행 횟수를 깎는 도구이지 누출을 잡는 도구가 아니다 — 그리고 보고하지 않은 탐색 앞에서는 PBO 가 거꾸로 움직인다.",
+ "implications": [
+  "**\"사전등록된 가설이 무차별 탐색보다 낮은 증거 문턱을 받는다\" 는 Gençay 의 정식화가 우리 사전등록 절차의 이론적 근거다.** 우리는 이미 freeze 커밋·코드 sha256·H0/H1·격자·날짜를 결과 보기 전에 고정한다.",
+  "**그러나 Boutgajouft 의 경고가 우리에게 정확히 해당한다** — 우리는 사전등록서에 격자를 적지만, 그 이전 발굴 캠페인에서 시도한 전체 설정 수는 보고하지 않는다. 사전등록서가 \"이 판정규칙은 20260330~0401 결과를 본 뒤에 정했다\" 고 공개하는 것이 부분적 답이지만, **숫자로는 안 세고 있다.**",
+  "**실행 가능한 개선 하나**: Optuna study 를 전부 보존하고 있으므로 `effective_n_trials`(수익률 계열 클러스터링 기반)를 계산해 창마다 보고할 수 있다. 원시 시행 수가 아니라 유효 시행 수여야 한다는 것이 López de Prado & Lewis 의 요지다."
+ ],
+ "resolution": "일봉 이상"
+}

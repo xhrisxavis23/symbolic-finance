@@ -1,0 +1,94 @@
+{
+ "key": "ctibench",
+ "title": "CTIBench: A Benchmark for Evaluating LLMs in Cyber Threat Intelligence",
+ "authors_short": "Alam, Bhusal, Nguyen, Rastogi · Rochester Institute of Technology",
+ "venue": "NeurIPS 2024 Datasets & Benchmarks Track (Spotlight)",
+ "venue_verified": "papers.nips.cc 2024 목록에 'CTIBench…' (hash 5acd3c628aa1819fbf07c39ef73e7285, Datasets_and_Benchmarks_Track) 확인; OpenReview iJAOpsXo2I (papercopilot nips2024: status=Spotlight, rating 6;8;9). GitHub README도 'NeurIPS 2024 Spotlight' 배지. openreview.net 직접 접근은 challenge로 차단",
+ "type": "벤치마크(다중 과제: 지식 MCQ + CVE→CWE 매핑 + CVSS 벡터 예측 + ATT&CK 기법 추출 + 위협 행위자 귀속)",
+ "domain": "사이버 위협 인텔리전스(CTI): MITRE ATT&CK/CWE/CVE/CVSS/NVD/APT 리포트",
+ "data_scope": "CTI-MCQ 2,500(MITRE 1,578·CWE 750·수동 40·표준 32) / CTI-RCM 1,000 CVE(2024, NVD) + RCM-2021 1,000 / CTI-VSP 1,000 CVE(2024) / CTI-ATE 60 malware(2024 30+이전 30, 397 기법) / CTI-TAA 50 위협 리포트(§3 p.3-5)",
+ "tags": [
+  "cybersecurity",
+  "CTI",
+  "MITRE-ATT&CK",
+  "CVE-CWE",
+  "CVSS",
+  "LLM-generated-MCQ",
+  "human-validated",
+  "multi-task"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2406.07599",
+  "pdf": "https://arxiv.org/pdf/2406.07599",
+  "proceedings": "https://papers.nips.cc/paper_files/paper/2024/hash/5acd3c628aa1819fbf07c39ef73e7285-Abstract-Datasets_and_Benchmarks_Track.html",
+  "github": "https://github.com/xashru/cti-bench",
+  "huggingface": "https://huggingface.co/datasets/AI4Sec/cti-bench",
+  "website": "https://maveryn.github.io/cti-bench/",
+  "verified": "arXiv PDF OK; GitHub xashru/cti-bench 200(README는 maveryn/cti-bench로 이전 표기); HF AI4Sec/cti-bench 200 + datasets-server rows 수신(config cti-mcq 등 6개); papers.nips.cc 페이지 200; OpenReview는 차단"
+ },
+ "easy": {
+  "problem": "보안 분석가가 위협 정보를 읽고 취약점의 원인(CWE)·심각도(CVSS)·공격 기법(ATT&CK)·배후 조직을 판단하는 실무를 LLM이 얼마나 잘하는지 재는 벤치마크가 없었다. 기존 보안 벤치마크는 암기형 지식 위주였다.",
+  "how": "권위 있는 공개 출처(MITRE, CWE, NIST, GDPR 등)에서 GPT-4o로 MCQ를 만들고 사람이 검수해 2,500문항을 만들었고, NVD의 2024년 CVE 1,000건(정답: 공식 CWE·CVSS 문자열), MITRE의 2024년 malware 60건(정답: 기법 ID), APT 리포트 50건(행위자명 가림)을 실무 과제로 구성했다.",
+  "analogy": "보안 자격시험(객관식)에 더해, 실제 사고 보고서를 주고 '원인 분류·위험 점수·공격 수법·범인 추정'을 시키는 실기 시험을 붙인 것."
+ },
+ "contributions": [
+  "CTI 전 영역을 겨냥한 최초의 실무형 LLM 벤치마크 5과제(MCQ·RCM·VSP·ATE·TAA) 설계·공개, 총 4,610문항 + RCM-2021 1,000(README)",
+  "CTI-MCQ: GPT-4o 생성 후 약 3,000문항을 수동 검증해 복수정답·오답 제거, 최종 2,500(§3.1 p.3)",
+  "실무 과제 정답을 공개 표준 DB에서 직접 취득(NVD CWE 매핑·CVSS v3 문자열, MITRE ATT&CK 기법 ID)해 사람 라벨링 없이 결정론적 채점; VSP는 예측 벡터 문자열을 cvss 라이브러리로 점수화해 MAD 계산(§4.2 p.6)",
+  "5개 LLM 평가: GPT-4가 MCQ 71.0·RCM 72.0·ATE F1 0.6388·TAA 정답 52%/타당 86%로 최고, VSP는 Gemini-1.5 MAD 1.09 최저(Table 1 p.7); 모든 모델이 틀린 MCQ 293개(p.7)",
+  "지식 컷오프 전/후 비교(ATE Table 2 p.9, TAA Table 3 p.10)와 2021 vs 2024 RCM 비교(Fig 3c p.8)로 암기 의존도 분석; 추론 프롬프트는 MCQ에서 대체로 이득 없음(Table 4 p.20)"
+ ],
+ "figures": [
+  {
+   "file": "figs/ctibench_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "CTIBench 개요. (a) CTI-MCQ: 지식베이스(MITRE·CWE·NIST 등) 웹페이지 → GPT-4o 문항 생성 → 사람 검증. (b) CTI-RCM: 취약점 설명 → CWE 근본원인 매핑. (c) CTI-VSP: 취약점 설명 → CVSS 벡터 문자열. (d) CTI-ATE: 위협 리포트 → ATT&CK 공격 기법 ID. (e) CTI-TAA: 위협 리포트 → 위협 행위자 귀속.",
+   "alt": "CTIBench 5개 과제 개요"
+  }
+ ],
+ "dataset": {
+  "construction": "CTI-MCQ: NIST·Diamond Model·GDPR·STIX/TAXII·MITRE ATT&CK·CWE·CAPEC 웹페이지를 전처리(생성일·참조 제거)한 뒤 GPT-4o에 'generate a maximum of 5 multiple-choice questions with four possible options each … suitable for security professionals with three to five years of experience'(Prompt A p.16) 프롬프트로 문서 길이에 비례해 생성, 약 3,000문항을 무작위 추출해 소스 URL을 보며 수동 검증 — 'some questions had multiple correct options … sometimes the LLM-given answer was incorrect. We removed the questions that were unanswerable … We fixed the responses that had incorrect annotations'(p.3); 최종 2,500(MITRE 1,578·CWE 750·수동 수집 40·표준 32). CTI-RCM/VSP: NVD에서 2024년 CVE 중 CWE 매핑이 있는 것 1,000건 무작위 추출, CVSS v3 문자열 동일 소스(p.4-5). CTI-ATE: MITRE ATT&CK 소프트웨어 페이지의 2024년 malware 30 + 이전 30, 하위기법 제외(p.5). CTI-TAA: 벤더 위협 리포트 50건에서 행위자·캠페인·malware명을 [PLACEHOLDER]로 치환, Malpedia 별칭·MITRE 연관 그룹 그래프를 BFS로 탐색해 정답/타당/오답 판정(App D p.19-20). 필터링 비율(3,000→2,500 등)은 명시되지 않음.",
+  "size_format": "HF AI4Sec/cti-bench: config cti-mcq(2,500; URL, Question, Option A-D, Prompt, GT), cti-rcm(1,000), cti-rcm-2021(1,000), cti-vsp(1,000), cti-ate(60), cti-taa(50, URL·익명화 리포트·Prompt; 정답은 evaluation/responses TSV). GitHub data/*.tsv 동일",
+  "samples": [
+   "[HF cti-mcq row0] URL: https://attack.mitre.org/techniques/T1548/ Question: \"Which of the following mitigations involves preventing applications from running that haven't been downloaded from legitimate repositories?\" Option A: Audit, B: Execution Prevention, C: Operating System Configuration, D: User Account Control. GT: B",
+   "[HF cti-mcq row2] Question: \"What does mitigation ID M1028 suggest to prevent privilege escalation exploits on a system?\" A: Limiting privileges of cloud accounts, B: Preventing unsigned applications from running, C: Minimizing applications with setuid or setgid bits set, D: Enforcing the highest UAC level. GT: C",
+   "[논문 §3.2 p.4, RCM 예시] CVE-2018-15506: \"In BubbleUPnP 0.9 update 30, the XML parsing engine for SSDP/UPnP functionality is vulnerable to an XML External Entity Processing (XXE) attack. …\" → 정답 CWE-611: Improper Restriction of XML External Entity Reference",
+   "[논문 App C.3 p.18, VSP 프롬프트] \"Analyze the following CVE description and calculate the CVSS v3.1 Base Score. Determine the values for each base metric: AV, AC, PR, UI, S, C, I, and A. … Ensure the final line of your response contains only the CVSS v3 Vector String in the following format: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H\""
+  ],
+  "class": "B",
+  "class_reason": "MCQ는 표준 문서 지식형(B). RCM·VSP·ATE는 특정 CVE/malware 인스턴스가 주어지고 정답이 공식 DB에서 결정론적으로 정해지지만, 답은 '제공된 원자료로부터의 계산'이 아니라 텍스트 해석→표준 코드 분류이며 채점 규약(CVSS 점수식)은 질문 밖에 있다. 따라서 전체적으로 B, VSP는 결정론적 점수 변환이 있어 C-lite 성격을 일부 가진다.",
+  "release": "HF·GitHub 전량 공개(TSV, 모델 응답 로그·평가 노트북 포함). 라이선스: HF 카드 cc-by-nc-sa-4.0(비상업), GitHub API license=None. datasets-server로 실제 행 열람 확인",
+  "contamination": "RCM/VSP/ATE(2024년 절반)는 평가 모델의 지식 컷오프 이후 데이터로 구성하고, 컷오프 전(2021 RCM, 2024 이전 malware/리포트)과 성능 비교(§5.2·5.4·5.5). 별도 비공개 셋 없음",
+  "evaluation": "MCQ·RCM 정확도; VSP는 CVSS v3.1 점수 MAD(벡터→점수는 cvss 라이브러리로 결정론 변환); ATE Micro-F1(표에는 Macro-F1로 표기); TAA 정답/타당 정확도. GPT-4: 71.0/72.0/1.31/0.6388/52·86, Gemini-1.5 VSP 1.09, LLAMA3-70B 65.7/65.9/1.83/0.4720/52·80, LLAMA3-8B 61.3/44.7/1.91/0.1562/28·36(Table 1 p.7). MCQ 소스별 GPT-4 최고 75.65%(CWE, p.7); 모델들이 PR·S·C·I 메트릭에서 약함, 과대추정 경향(Fig 4 p.8-9)"
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작이나 원천은 모두 기존 공개 지식베이스(MITRE·CWE·NVD·벤더 리포트)",
+  "q2_method": "출처·방법 분명: 소스별 문항 수, 생성 프롬프트(App A), 평가 프롬프트(App C), TAA 판정 알고리즘(App D) 공개",
+  "q3_license": "공개 정부·비영리 표준 데이터(NIST, MITRE, CVE, CWE, EU) 활용; 배포는 HF cc-by-nc-sa-4.0(비상업); 논문 체크리스트에 자산 라이선스 언급 N/A(p.15)",
+  "q4_relabel": "MCQ는 LLM 생성 + 사람 재검수(재라벨); RCM/VSP/ATE는 공식 DB 라벨을 그대로 정답으로 사용; TAA는 익명화 가공 + 별칭 그래프 구축",
+  "q5_industry": "학계 자체 구성(RIT). 벤더 위협 리포트를 인용하나 기업 협업 없음",
+  "q6_constraints": "개인정보 없음, 공개 정보만 사용(§6 p.10); 악용(허위 위협 보고서 생성) 위험을 한계로 언급하되 전량 공개",
+  "q7_accept": "공개 리뷰 본문 미확인. 점수 6/8/9로 Spotlight. 논문 self-claim: 'first benchmark specifically designed to evaluate LLMs’ comprehension, reasoning, and problem-solving abilities in the broad domain of CTI'(p.2), 컷오프 이후 데이터로 암기 효과 통제, 실무 과제 5종"
+ },
+ "review": {
+  "decision": "Accept (Spotlight, Datasets & Benchmarks Track)",
+  "scores": "6/8/9 (rating), confidence 3/3/5 (papercopilot 집계)",
+  "praised": [
+   "리뷰 본문 미확인 — 점수 분포(6·8·9)와 Spotlight 선정으로 미루어 실무형 CTI 과제 구성과 공개 표준 기반 결정론적 채점이 인정된 것으로 보임(추정)"
+  ],
+  "concerns": [
+   "리뷰 본문 미확인(HF 미러 인덱스 로딩 실패, OpenReview 차단)"
+  ],
+  "why_accept": "미확인(점수·결정만 확인)"
+ },
+ "limitations": "CTI 활동의 일부 과제만 다루며(§7 p.10) 영어 전용이다. MCQ는 LLM 생성이라 소스(MITRE·CWE) 편중이 크고 수동 검증의 필터링 비율·주석자 수가 명시되지 않는다. RCM/VSP 정답은 NVD의 공식 라벨이지만 CVE 설명만으로 CVSS를 정확히 산정하기 어렵다는 점을 저자도 인정한다(p.4). ATE 60건·TAA 50건은 규모가 작다. 추론 프롬프트가 MCQ 성능을 올리지 못해 MCQ가 암기 위주임을 저자가 시사한다(p.7).",
+ "oneline": "MITRE·CWE·NVD 등 공개 표준 데이터로 만든 CTI 지식 MCQ 2,500 + CVE→CWE/CVSS/ATT&CK/행위자 귀속 실무 과제 4종의 LLM 벤치마크(NeurIPS 2024 D&B Spotlight).",
+ "implications": [
+  "정답을 사람 라벨이 아니라 공식 데이터베이스(NVD CWE·CVSS)에서 결정론적으로 가져오고, 모델 출력(벡터 문자열)을 라이브러리로 점수화해 채점하는 방식은 우리 온체인 C형 문항의 '원장에서 계산된 정답 + 결정론적 채점기' 설계와 같은 철학이다.",
+  "지식 컷오프 이후(2024년) 인스턴스를 절반 넣고 전/후 성능을 비교한 설계는, 우리 셋의 블록 구간(25,369,414–25,419,597)이 모델 컷오프 이후임을 명시해 암기 불가능성을 근거로 삼는 방식으로 차용 가능하다.",
+  "MCQ 293개를 모든 모델이 틀린 문항으로 따로 분석했듯, 우리도 전 모델 실패 문항(예: run 정의·ratio 문턱 문항)을 군집화해 실패 원인(규약 파싱 vs 산술 오류)을 보고하면 좋다.",
+  "TAA의 별칭 그래프 BFS 채점처럼, 우리 셋의 record/list형 답도 동치 표현(대소문자 주소, 단위 표기)을 정규화하는 채점 규약을 명문화해야 한다."
+ ],
+ "brief": false
+}

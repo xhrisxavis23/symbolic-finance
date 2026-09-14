@@ -1,0 +1,64 @@
+{
+ "key": "huang_lehalle_rosenbaum",
+ "title": "The Queue-Reactive Model — 재생을 버리고 \"내 주문이 큐를 바꾸는\" 시뮬레이터를 만든 논문",
+ "authors_short": "Weibing Huang · Charles-Albert Lehalle · Mathieu Rosenbaum",
+ "venue": "Journal of the American Statistical Association 110(509), 107–122 (2015)",
+ "venue_verified": "DOI 10.1080/01621459.2014.982278 · arXiv 1312.0563 전문 확인",
+ "type": "호가창 확률모형 + 시뮬레이터 + 집행 실험",
+ "domain": "대형틱 종목 호가창 동역학",
+ "data_scope": "\"collected from Cheuvreux's LOB database, from January 2010 to March 2012, on Euronext Paris\" — 대형틱 2종목(France Telecom 일 159,250주문 · Alcatel-Lucent). 2년 3개월.",
+ "tags": [
+  "큐 반응 모형",
+  "자기영향 있음",
+  "FIFO 근사",
+  "시장충격 재현"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1312.0563",
+  "proceedings": "https://doi.org/10.1080/01621459.2014.982278",
+  "verified": "arXiv 전문 200 · 본문 직접 확인"
+ },
+ "easy": {
+  "problem": "\"시장 재생기(market replayer)\" 로 전략을 시험하면 두 가지가 막힌다. 하나는 시뮬레이션 횟수가 가진 거래일 수를 못 넘는 것, 다른 하나는 내 주문의 시장충격이 무시되는 것.",
+  "how": "각 호가 레벨의 주문 도착·취소 강도를 **현재 큐 길이의 함수**로 추정한다. 그러면 내가 주문을 넣어 큐가 길어지는 순간 다른 사람들의 행동 강도도 바뀐다 — 시장충격이 모형 안에서 저절로 생긴다.",
+  "analogy": "녹화 영상을 돌려 보는 대신, \"줄이 길면 사람들이 덜 선다\" 는 규칙을 배워서 시장을 다시 만드는 것. 내가 줄에 서면 그 규칙이 남들에게도 적용된다."
+ },
+ "contributions": [
+  "**재생 백테스트의 두 한계를 정면으로 지목하고 대안을 제시했다.** 저자들의 문장: \"one often needs to rely on so-called market replayers, in which the number of simulations is limited by that of the available trading days… Moreover, the market impact… is often neglected. In contrast, our framework is unlimited in number of simulations.\"",
+  "자기영향이 모형에서 나온다 — \"the limit orders change the queue sizes and therefore modify the behaviors of the order flows. Consequently they generate market impact.\"",
+  "FIFO 를 가정하되 근사를 **정직하게** 밝힌다: 취소 시 내 주문을 제외한 모든 대기 주문이 동등한 확률로 취소되고, 강도는 (q₋₁ − n₀)/q₋₁ 로 재조정된다. 그리고 \"Orders with lower priority are actually more likely to be canceled… As a result, execution probabilities might be slightly overestimated.\" 라고 적는다.",
+  "집행 실험: 60·AES₁ 을 10분 슬라이스 20개로, 스케줄러 2종 × 전술 2종(fire-and-forget vs peg-to-best), 쌍마다 **2,000회 몬테카를로**. 충격 곡선이 시간·물량에 대해 오목하게 나와 제곱근 법칙과 일치한다.",
+  "**부정적 결과도 보고한다.** θ_reinit = 0 이면 \"maximal mechanical volatility is 5 bps vs 14 bps empirical\" — \"endogenous LOB dynamics alone may not be enough for reproducing the market volatility.\""
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "재생이 아니라 실데이터로 보정한 상호작용 시뮬레이터다. FIFO 큐가 있고 내 주문이 흐름 강도를 바꾼다. 지연이 없고 시장이 '에이전트'로 반응하는 것은 아니라 L5 는 아니다.",
+  "data_short": "Euronext Paris 대형틱 2종목 · 2010-01~2012-03",
+  "fill_short": "FIFO (내 주문은 취소 대상에서 제외)",
+  "cost_short": "명시 없음",
+  "data": "Cheuvreux 사내 호가창 DB. 대형틱 종목만 — 모형의 전제(스프레드 1틱)가 그래야 성립한다.",
+  "design": "**보정된 상호작용 시뮬레이터.** 큐 길이별 도착·취소 강도를 추정해 시장을 다시 생성한다. 시뮬레이션 횟수에 제한이 없다.",
+  "fill": "FIFO. 취소는 내 주문을 뺀 나머지에 균등 배분하고 강도를 재조정한다. 저자들이 이 근사가 체결확률을 약간 과대평가한다고 밝힌다.",
+  "cost": "논문의 초점이 아니다.",
+  "latency": "없다.",
+  "selfimpact": "**있다.** 이 논문의 핵심 기여다.",
+  "validation": "보정 구간과 시뮬레이션의 정형 사실 대조. 전략 표본 외 분할은 아니다.",
+  "metrics": "집행 비용, 충격 곡선, 기계적 변동성 대 실증 변동성.",
+  "quotes": [
+   "one often needs to rely on so-called market replayers, in which the number of simulations is limited by that of the available trading days… Moreover, the market impact… is often neglected. In contrast, our framework is unlimited in number of simulations.",
+   "Orders with lower priority are actually more likely to be canceled… As a result, execution probabilities might be slightly overestimated."
+  ],
+  "gap": "대형틱 2종목 · Euronext 에 특화돼 있다. 지연이 없고, 내생 동역학만으로는 실증 변동성을 재현하지 못한다(5 vs 14 bps)."
+ },
+ "code": [
+  "저자 공개 코드 없음. 후속 [SaadSouilmi/Queue-Reactive](https://github.com/SaadSouilmi/Queue-Reactive) (MIT) 가 C++20+Python 구현을 공개"
+ ],
+ "limitations": "스프레드가 대부분 1틱인 대형틱 종목이라는 전제가 강하다. 소형틱 종목·KRX 소형주에 그대로 옮기기 어렵다.",
+ "oneline": "\"재생 백테스트로는 답할 수 없는 두 질문\"을 명문화하고 대안을 실제로 만든 논문 — 사다리 L4의 원형.",
+ "implications": [
+  "우리가 재생을 쓰는 한 시뮬레이션 횟수는 6주 × 2,661종목에 묶인다. 이 논문의 지적이 우리에게 그대로 적용된다.",
+  "다만 우리는 종목 수가 많아 '거래일 수 제한' 문제를 종목 축으로 일부 상쇄한다 — 이 논문의 표본(2종목)과 정반대다. 관련연구에서 설계 대비로 쓸 수 있다.",
+  "취소를 내 주문 밖에 균등 배분하고 체결확률이 **과대평가**된다고 밝힌 태도가, 우리 `unexplained_fill_fraction = 1.0` 의 방향성 서술과 정확히 같은 종류의 고백이다. 우리도 이렇게 적어야 한다."
+ ],
+ "resolution": "틱·메시지"
+}

@@ -1,0 +1,70 @@
+{
+ "key": "infiagent",
+ "title": "InfiAgent-DABench: Evaluating Agents on Data Analysis Tasks",
+ "authors_short": "Hu et al. · Zhejiang University · ByteDance (Rochester Institute of Technology)",
+ "venue": "ICML 2024 (PMLR v235, pp.19544–19572)",
+ "venue_verified": "PMLR 페이지 proceedings.mlr.press/v235/hu24s.html 열림(citation_firstpage 19544, lastpage 19572), Semantic Scholar venue=International Conference on Machine Learning 2024; ICML은 공개 리뷰 없음",
+ "type": "벤치마크(데이터 분석 에이전트, 폐쇄형 QA) + 에이전트 프레임워크 + instruction-tuning 데이터셋(DAInstruct)/모델(DAAgent)",
+ "domain": "도메인 무관 데이터 분석(CSV; Finance 25.5%, Demographics 20.0%, Energy 18.2%, Transportation 12.7% 등 9개 도메인, p.5 Figure 3)",
+ "data_scope": "검증셋 257문항·461 서브문항·52개 CSV(파일당 평균 9,639.7행·10.6열, p.5 Table 3); 테스트셋은 비공개; CSV는 GitHub에서 크롤링한 실제 파일",
+ "tags": ["data-analysis-agent", "closed-form-QA", "CSV", "ReAct", "LLM-generated-questions", "format-prompting"],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2401.05507",
+  "pdf": "https://arxiv.org/pdf/2401.05507",
+  "proceedings": "https://proceedings.mlr.press/v235/hu24s.html",
+  "github": "https://github.com/InfiAgent/InfiAgent",
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv PDF(27쪽) 다운로드, PMLR 페이지 200, GitHub 200, raw da-dev-questions.jsonl(257줄)·da-dev-labels.jsonl 실제 열람"
+ },
+ "easy": {
+  "problem": "LLM 에이전트가 CSV 파일을 받아 코드를 짜고 실행해서 데이터 분석 질문에 끝까지 답하는 능력을 재는 벤치마크가 없었다. 게다가 데이터 분석 질문은 개방형이라 사람 없이 자동 채점하기 어렵다.",
+  "how": "GitHub에서 모은 CSV의 요약(GPT-3.5)과 전문가 인터뷰로 뽑은 7개 핵심 개념을 GPT-4에 주어 개방형 질문을 만들고, 다시 GPT-4로 'constraints(방법·반올림 규정)'와 '@answer_name[answer]' 형식 요구를 붙여 폐쇄형으로 바꾼다(format-prompting). 정답은 OpenAI ADA를 3회 돌려 일치한 것만 채택하고, 사람 전문가가 6개 지표로 검수해 85%만 남긴다. 평가 시 에이전트 답을 GPT-3.5로 재포맷한 뒤 정규식+정확일치로 채점한다.",
+  "analogy": "서술형 통계 문제를 '소수 둘째 자리까지, 이 공식을 써서 답하라'는 단답형으로 바꿔 OMR 채점이 가능하게 만든 시험과 같다."
+ },
+ "contributions": [
+  "데이터 분석 에이전트 전용 첫 벤치마크 DAEval: 검증셋 257문항·461 서브문항·52 CSV(p.5 Table 3), 난이도 easy 82/medium 87/hard 88(p.6 Table 4); 테스트셋은 비공개",
+  "format-prompting으로 개방형→폐쇄형 변환. GPT-4를 평가자로 쓰는 파일럿에서 사람과 67% 일치에 그쳐(p.4, p.13) 모델 없는 정규식·정확일치 채점을 택함",
+  "사람 검수 6지표(Suitableness 0.98, Reasonableness 0.95, Value 0.98, Restrictiveness 0.94, Alignment 0.98, Correctness 0.93, Overall 0.85; p.5 Table 1) 및 사람 작성 문항과 비교(GPT-4 문항이 Restrictiveness 4.74 vs 4.14, 난이도 승률 60.66%; p.5 Table 2)",
+  "34개 LLM 벤치마크: GPT-4 78.99%, 최고 오픈소스 Qwen-72B-Chat 59.92%(GPT-3.5 대비 -0.78%p)(p.7)",
+  "DAInstruct(5,131 샘플·631 CSV, p.14)로 학습한 DAAgent-34B가 64.59%로 GPT-3.5보다 3.89%p 높음(p.7–8 Table 5)"
+ ],
+ "figures": [
+  {"file": "figs/infiagent_fig1.png", "label": "Figure 1", "page": 2, "caption_ko": "평가 흐름 개요. 왼쪽에 문제(Happiness_rank.csv에서 GDP와 기대수명 간 선형회귀·R²)와 CSV 표가 있고, LLM 에이전트가 ReAct 방식으로 pandas/sklearn 코드를 써서 Python 샌드박스에 보내 STDOUT(0.666…)을 받는다. 최종 답변 문장은 Reformat 단계를 거쳐 폐쇄형 라벨 {@coefficient_determination[0.67], @model_fit[\"poor fit\"]}과 매칭된다.", "alt": "InfiAgent-DABench 평가 파이프라인: 문제+CSV → ReAct 에이전트 → Python 샌드박스 → 재포맷 → 폐쇄형 라벨 매칭"},
+  {"file": "figs/infiagent_fig2.png", "label": "Figure 2", "page": 3, "caption_ko": "DAEval 구축 워크플로. CSV 파일(Credit.csv)에서 GPT-3.5로 컬럼 설명·자료형·결측 여부를 생성하고, 전문가 인터뷰에서 얻은 개념(Outlier Detection 등)과 함께 GPT-4가 질문을 만든다. 이어 'Constraints & Format'(예: 평균에서 3σ 초과를 이상치로 정의, Z=(X-mu)/sigma 사용, @outliers[outliers count]) 을 생성해 폐쇄형으로 만들고, 라벨은 GPT-4 Advanced Data Analysis 실행 결과(@outliers[1])로 얻는다.", "alt": "DAEval 구축: CSV → 설명 생성 → 개념 결합 질문 생성 → 제약·형식 생성 → ADA 라벨"}
+ ],
+ "dataset": {
+  "construction": "① 파일 수집: GitHub에서 실제 CSV를 모아 'Meaningfulness / Language uniqueness / Scale sufficiency(열>5, 행≥20)' 기준으로 선별(p.3). ② 설명 생성: GPT-3.5가 컬럼 설명·자료형·결측치를 요약. ③ 개념 결정: 전문 데이터 분석가 인터뷰로 핵심 개념 7종(Summary Statistics, Feature Engineering, Correlation Analysis, Machine Learning, Distribution Analysis, Outlier Detection, Comprehensive Data Preprocessing) 확정, 시각화는 폐쇄형이 어려워 제외(p.3, 부록 A). ④ 개방형 질문 생성: GPT-4가 파일 설명+개념으로 난이도 상승 순서로 질문 생성(파일당 한 대화에서 단순 3·복합 3·더 복합 3문항, p.13). ⑤ 제약·형식 생성: \"we introduce a format-prompting technique that prompts GPT-4 to generate detailed constraints and format requirements for open-ended questions to make them closed-form\"(p.4); 형식은 '@answer_name[answer]' 서브문항 나열. ⑥ 정답 수집: \"We leverage OpenAI ADA to generate answers of closed-form questions. Each question is sent to ADA for 3 times. Only the answer is kept when ADA consistently generates the same answer in all trials.\"(p.4). ⑦ 사람 검수: 수학·프로그래밍 전문가 3인이 파일·질문·라벨을 6개 지표의 yes/no 문항으로 평가, 한 지표라도 탈락하면 제거 → 85%만 유지(p.4–5 Table 1). 난이도는 GPT-4가 5문항 묶음 80개를 100회 반복 순위화해 easy/medium/hard 부여(p.14).",
+  "size_format": "검증셋 257문항(서브문항 461, 문항당 최대 8) / 52 CSV; 난이도 easy 82·medium 87·hard 88; 개념별 Summary Statistics 90, Correlation 72, Distribution 64 등(p.6 Table 4). GitHub examples/DA-Agent/data/ 에 da-dev-questions.jsonl(필드 id, question, concepts, constraints, format, file_name, level)과 da-dev-labels.jsonl(common_answers=[[answer_name, value],…]) 및 CSV 동봉. 테스트셋은 유출 방지를 위해 비공개(p.5).",
+  "samples": [
+   "[GitHub da-dev-questions.jsonl id=0, file test_ave.csv, level easy] question: \"Calculate the mean fare paid by the passengers.\" constraints: \"Calculate the mean fare using Python's built-in statistics module or appropriate statistical method in pandas. Rounding off the answer to two decimal places.\" format: \"@mean_fare[mean_fare_value] where \\\"mean_fare_value\\\" is a floating-point number rounded to two decimal places.\" → label(da-dev-labels.jsonl): [[\"mean_fare\", \"34.65\"]]",
+   "[id=5, level medium, concepts Feature Engineering·Correlation Analysis] question: \"Generate a new feature called \\\"FamilySize\\\" by summing the \\\"SibSp\\\" and \\\"Parch\\\" columns. Then, calculate the Pearson correlation coefficient (r) between the \\\"FamilySize\\\" and \\\"Fare\\\" columns.\" constraints: \"Create a new column 'FamilySize' that is the sum of 'SibSp' and 'Parch' for each row.\\nCalculate the Pearson correlation coefficient between 'FamilySize' and 'Fare'\\nDo not perform any further data cleaning or preprocessing steps before calculating the correlation.\" format: \"@correlation_coefficient[r_value]\\nwhere \\\"r_value\\\" is the Pearson correlation coefficient between 'FamilySize' and 'Fare', a number between -1 and 1, rounded to two decimal places.\" → label [[\"correlation_coefficient\", \"0.21\"]]",
+   "[id=6, level medium] question: \"Create a new column called \\\"AgeGroup\\\" that categorizes the passengers into four age groups: 'Child' (0-12 years old), 'Teenager' (13-19 years old), 'Adult' (20-59 years old), and 'Elderly' (60 years old and above). Then, calculate the mean fare for each age group.\" constraints: \"Make sure to round the mean fare of each group to 2 decimal places.\" format: \"@mean_fare_child[mean_fare], @mean_fare_teenager[mean_fare], @mean_fare_adult[mean_fare], @mean_fare_elderly[mean_fare], where \\\"mean_fare\\\" is a float number rounded to 2 decimal places.\" → label elderly 43.47 / teenager 31.98 / child 31.09 / adult 35.17",
+   "[id=7, level hard, concept Machine Learning] question: \"Apply the linear regression algorithm from the sklearn library to predict whether a passenger survived or not based on the features 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', and 'Embarked'. Encode 'Sex' and 'Embarked' to numerical values before applying the model. Split the dataset into a training set (80%) and a testing set (20%), train the model on the training set, and evaluate its performance on the testing set using the accuracy score. Ensure that the train_test_split function's random_state parameter is set to 42 for consistency.\" constraints: \"Use one-hot encoding for the 'Sex' and 'Embarked' features. Use the \\\"linear regression\\\" model provided by the sklearn library in Python.\" format: \"@prediction_accuracy[accuracy], where \\\"accuracy\\\" is a float number rounded to 2 decimal places and has a range of 0.0 to 1.0.\" → label [[\"prediction_accuracy\", \"0.78\"]]"
+  ],
+  "class": "C-lite",
+  "class_reason": "constraints 필드에 방법(피어슨 상관, Z-score 3σ, one-hot, random_state=42)·반올림·컬럼명이 명시되고 답은 동봉된 CSV에서 결정론적으로 계산되므로 계산형이다. 그러나 단일 소형 CSV 위의 컬럼 수준 지정에 그치고 블록 구간·이벤트 디코딩 같은 다층 규약이나 문턱 판정이 드물며, 일부 ML 문항은 라이브러리 구현에 따라 값이 흔들릴 수 있어 C-lite로 본다.",
+  "release": "GitHub 공개(저장소 LICENSE: Apache License 2.0, GitHub API 확인): 검증셋 257문항·라벨·CSV 실제 열람(raw 200). 테스트셋 비공개.",
+  "contamination": "테스트셋을 비공개로 유지(\"the rest is for test set which is closed for avoiding data leakage\", p.5). CSV가 GitHub 공개 파일이라 사전학습 노출 가능성은 논문에서 다루지 않음.",
+  "evaluation": "지표: 정확도(문항의 모든 서브문항이 맞아야 정답), 정규식으로 '@name[answer]' 추출 후 정확일치(p.14). 모델 응답을 GPT-3.5로 재포맷(reformat)하는 단계를 두며, 이를 빼면 GPT-4 약 -6%p, Mistral-7B 최대 -32%p(p.15). 결과: GPT-4 78.99%, Qwen-72B-Chat 59.92%, DAAgent-34B 64.59%, CodeLlama-34B-Instruct 31.13%(p.7–8 Table 5, Figure 6)."
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작. 원자료(CSV)는 GitHub 공개 파일을 크롤링했고 문항·제약·형식·라벨은 GPT-4/GPT-3.5/OpenAI ADA로 새로 생성(p.3–4).",
+  "q2_method": "수집 방법은 분명(GitHub CSV 선별 기준 3가지, 프롬프트 전문을 부록 E·M에 공개). 다만 전문가 인터뷰 원문은 \"We could not directly publicize them for some reasons\"(p.13)라며 GPT-3.5 요약만 제공.",
+  "q3_license": "오픈소스 공개(GitHub 저장소 Apache 2.0). 크롤링한 CSV 원 파일들의 개별 라이선스는 논문에 명시되지 않음.",
+  "q4_relabel": "공개 CSV를 그대로 쓰되 문항·정답은 task 맞춤으로 전부 새로 생성(재라벨링이 아니라 신규 라벨링).",
+  "q5_industry": "ByteDance 소속 저자 다수이나 기업 내부 데이터는 쓰지 않고 공개 CSV로 자체 구성; 검증셋만 공개, 테스트셋 비공개.",
+  "q6_constraints": "저작권 제약은 논문에서 언급 없음. 유출(leakage) 우려로 테스트셋 미공개(p.5)가 유일한 미공개 사유.",
+  "q7_accept": "공개 리뷰 없음. 논문 self-claim: (1) 데이터 분석 에이전트 첫 벤치마크, (2) 34개 LLM 대규모 평가, (3) DAInstruct·DAAgent로 GPT-3.5 초과(p.2)."
+ },
+ "review": null,
+ "limitations": "시각화 문항을 전부 제외(p.12 부록 A). 문항·제약·라벨이 모두 GPT-4/ADA 산출물이라 모델 편향이 남고, 라벨 정확성 검수도 0.93에 그친다(p.5). 테스트셋이 비공개라 외부 재현은 검증셋 257문항에 한정된다. 평가에 GPT-3.5 재포맷 단계가 끼어 완전 모델-프리는 아니며, ML 문항은 라이브러리 버전에 따라 값이 달라질 수 있다.",
+ "oneline": "GitHub CSV 52개 위에서 GPT-4가 만든 데이터 분석 질문에 제약·형식을 붙여 폐쇄형으로 만든 257문항 벤치마크로, 34개 LLM 에이전트를 정확일치로 채점한다(ICML 2024).",
+ "implications": [
+  "우리 C형 셋의 '질문 안 규약' 설계와 같은 취지의 'constraints + @answer_name[answer]' 형식 요구가 자동 채점을 가능하게 했고, 사람 검수에서 Restrictiveness(답 유일성) 0.94가 핵심 지표였다 — 온체인 문항도 답 유일성 검수 항목을 두면 좋다.",
+  "GPT-4를 채점자로 쓰면 사람과 67%만 일치했다는 파일럿(p.4)은 온체인 계산형 QA에서 LLM-judge 대신 결정론적 값 비교를 고집할 근거가 된다.",
+  "정답을 ADA 3회 실행 일치로 얻은 방식은 우리 셋의 evidence 레코드 동봉보다 약하다. 원장 쿼리 결과를 증거로 남기는 우리 방식이 검증 가능성 면에서 우위임을 대비 근거로 쓸 수 있다.",
+  "재포맷 단계를 빼면 성능이 최대 32%p 떨어지는 관찰(p.15)은 온체인 QA에서도 '정수 최소단위/소수 8자리' 같은 형식 요구를 채점 전 정규화 단계로 흡수해야 함을 시사한다."
+ ],
+ "brief": false
+}

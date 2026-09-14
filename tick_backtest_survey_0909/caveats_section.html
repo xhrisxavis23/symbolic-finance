@@ -1,0 +1,45 @@
+<section id="caveats">
+  <h2>검증 한계 — 확인하지 못한 것과 확인 방법</h2>
+  <ul class="tight">
+    <li><b>웹 검색 예산.</b> 이 세션의 WebSearch 한도(200회)를 조사 중간에 소진했다. 그 뒤의 확인은 전부 WebFetch(직접 URL 열람)로만 했다.
+      그래서 “검색해서 더 찾았어야 할 것”이 남아 있을 수 있고, 특히 국내 증권사 쪽은 검색이 아니라 포털·저장소를 직접 여는 방식으로만 좁혔다.</li>
+    <li><b>GitHub API 호출 한도.</b> 비인증 호출 한도에 걸려 일부 저장소의 star·라이선스·최근 커밋을 숫자로 확정하지 못했다.
+      확정한 것만 숫자를 적었고(예: <code>koreainvestment/open-trading-api</code> star 1,596 · fork 827 · push 2026-08-26 · 라이선스 필드 null,
+      <code>nkaz001/hftbacktest</code> star 4,642 · MIT), 나머지는 “미확인”으로 남겼다.</li>
+    <li><b>유료·폐쇄 원문.</b> JF·JFE·RFS·QJE 계열은 출판본이 유료라 NBER·SSRN·저자 홈페이지의 워킹페이퍼 판본으로 확인한 항목이 있다.
+      워킹페이퍼와 출판본의 표·수치가 다를 수 있으므로, 인용할 때는 출판본을 다시 확인해야 한다.</li>
+    <li><b>ACM/IEEE.</b> dl.acm.org 는 종종 Cloudflare 로 막히고 IEEE Xplore 도 유료다. venue 는 arXiv comments · Crossref 메타데이터 ·
+      학회 프로그램 페이지로 교차 확인했고, 확인하지 못한 것은 그대로 적었다.</li>
+    <li><b>국내 증권사에서 확인 못 한 것.</b> 코스콤 데이터몰이 “서비스 잠정 중단” 상태라 틱 상품의 라인업·가격을 확인하지 못했다.
+      KRX 가 기관에 별도 판매하는 시장데이터의 해상도, 키움 <code>ka10079</code> 틱차트의 조회 가능 과거 기간,
+      NH PLUG 의 차트데이터 해상도(로그인 뒤 문서)도 미확인이다.</li>
+    <li><b>수치까지 확인하지 못한 것.</b> <b>Holden &amp; Jacobsen(2014)의 편의 크기</b>(유효스프레드 +54% 등)는
+      Wiley·SSRN 403, Unpaywall <code>is_oa: false</code>, 저자 페이지 삭제로 <b>모든 공개 경로에서 전문을 얻지 못했다</b> —
+      초록에 있는 세 메커니즘과 Interpolated Time 기법만 인용 가능하고 <b>숫자는 2차 출처 기준</b>이다.
+      Sullivan·Timmermann·White(1999)의 "7,846개 거래규칙" 도 원문에서 확인하지 못했다(DOI·venue·초록은 확인).
+      Barndorff-Nielsen 외의 정제규칙 표(P1–P3/T1–T4/Q1–Q4)도 표 자체는 열지 못했다.</li>
+    <li><b>미심사 프리프린트를 명시한다.</b> 본문에서 인용한 것 중
+      <b>Nefedov(샤프 3.6배 부풀림, SSRN 7350238)</b> · <b>Boutgajouft(PBO 역방향, SSRN 7346738)</b> ·
+      <b>Gençay(누출 오라클, arXiv 2608.27734)</b> · <b>Bunčić(VoC 반박, SSRN 5239006)</b> 은
+      동료심사를 거치지 않았고, SSRN 403 때문에 <b>Crossref 등록 초록 또는 저자 홈페이지 요약만</b> 읽었다.
+      내용이 이 리포트의 논지와 정확히 맞물리지만 그만큼 가중치를 낮춰 읽어야 한다.
+      Berk 의 VoC 코멘트는 초록조차 색인돼 있지 않아 <b>논지를 옮기지 않았다.</b></li>
+    <li><b>venue 표기를 바로잡은 것들.</b> 조사 과정에서 흔한 오인용을 여럿 확인했다 —
+      <b>TransLOB 은 동료심사를 거친 적이 없고</b>, DeepLOB-Seq2Seq/multi-horizon 도 게재 venue 가 없으며,
+      <b>TradingAgents 는 ICML 2025 <u>워크숍</u> 포스터</b>이고 <b>FinMem 은 AAAI Symposium Series 3쪽</b>이다.
+      Gort 외의 PDF 에 있는 "Copyright © 2022, AAAI" 는 LaTeX 클래스 보일러플레이트이지 채택 증거가 아니다.
+      PBO 논문은 2017 이 아니라 <b>2016</b>년 발행이고 Crossref 가 권·호·페이지를 null 로 반환한다.
+      IMM 은 IJCAI 2023 이 아니라 IEEE TETCI 2025 다.</li>
+    <li><b>도구에 대한 경고.</b> <code>mlfinlab</code> 은 <b>오픈소스가 아니다</b> — 공개 저장소의
+      <code>cross_validation.py</code> 는 272줄에 <code>pass</code> 문 10개로 모든 함수 본문이 스텁이고,
+      LICENSE 는 독점 구독 계약(<b>£100/월/사용자</b>)이며, PyPI 에 없고, 2023-10 이후 방치돼 있으며,
+      <b>정작 쓰려는 PurgedKFold 에 미해결 누출 이슈 #295</b> 가 재현 예제와 함께 열려 있다.
+      purged CV·CPCV 의 참조 구현으로 인용하면 안 된다.</li>
+    <li><b>백테스트 등급 판정의 한계.</b> 사다리 등급은 <b>논문·문서가 명시한 것</b>만 근거로 매겼다.
+      “안 적혀 있다 = 안 했다” 로 읽은 곳이 있고(특히 지연·큐), 부록이나 저장소 코드에는 있는데 본문에 없는 경우 과소평가됐을 수 있다.
+      코드가 공개된 항목은 코드를 열어 확인했고, 그렇지 않은 항목은 “문서 기준”이라고 적었다.</li>
+    <li><b>우리 코드 쪽.</b> 소스를 읽어 확인한 것이지 재실행해 수치를 재현한 것은 아니다.
+      본문에 인용한 실측 수치(취소 모델 체결률 중앙값 ~9% vs 실측 패시브 ~45%, hold-through 전환 뒤 61건 중 27건 생존)는
+      <code>framework/fill.py</code> 의 모듈 주석에 적힌 기록을 그대로 옮긴 것이다.</li>
+  </ul>
+</section>

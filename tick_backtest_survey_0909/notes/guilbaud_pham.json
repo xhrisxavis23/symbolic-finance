@@ -1,0 +1,23 @@
+{
+ "key": "guilbaud_pham",
+ "title": "Optimal High-Frequency Trading with Limit and Market Orders (Guilbaud & Pham)",
+ "authors_short": "Fabien Guilbaud · Huyên Pham",
+ "venue": "Quantitative Finance 13(1), 79–94 (2013)",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1106.5040",
+  "proceedings": "https://doi.org/10.1080/14697688.2012.708779",
+  "verified": "arXiv 전문 200"
+ },
+ "backtest": {
+  "rung": "L1",
+  "rung_reason": "보정은 실틱으로 하지만 성과 평가는 합성 몬테카를로(10⁵ 오일러 경로, Δt=0.3초, T=300초)다.",
+  "data_short": "SOGN.PA 2011-04-18 09:30~16:30 · Quanthouse/OneTick 틱 Level-1",
+  "fill_short": "FIFO 우선순위를 반영한 체결 대용치",
+  "cost_short": "**명시적 수수료 — 리베이트 €0.0008/주, 수수료 €0.0012/주**",
+  "design": "마켓메이킹 문헌에서 가장 미시구조적으로 정직한 체결 대용치다. 최우선가를 개선하면 \"top priority in the LOB and therefore captures all incoming market order flow\", 최우선 큐에 합류하면 매수측 누적 체결량이 V₀ + V^b 를 넘을 때만 체결 카운터가 오른다. 지연은 0.",
+  "validation": "정보비율 최적 2.117 vs 시장가 미사용 1.999 vs 고정호가 0.472 vs 무작위 0.376. 잉여이익 거래당 €0.056 — \"roughly twice the clearing fees\".",
+  "gap": "저자들 스스로 적었다 — \"this simulated data backtest must be completed by a backtest on real data.\""
+ },
+ "oneline": "수수료와 FIFO 우선순위를 넣은 드문 마켓메이킹 연구 — 다만 성과는 합성 경로에서 나왔고 저자들도 그렇게 밝힌다.",
+ "resolution": "합성·모형"
+}

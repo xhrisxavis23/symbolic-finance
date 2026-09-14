@@ -1,0 +1,24 @@
+{
+ "key": "vpin_dispute",
+ "title": "VPIN 논쟁 (Easley–López de Prado–O'Hara vs Andersen–Bondarenko) — 탑티어 금융저널 유일의 백테스트 방법론 논쟁",
+ "authors_short": "David Easley · Marcos López de Prado · Maureen O'Hara / Torben Andersen · Oleg Bondarenko",
+ "venue": "RFS 25(5) 1457–1493 (2012) vs Journal of Financial Markets 17, 1–46 · 47–52 · 53–64 (2014)",
+ "links": {
+  "pdf": "https://www.stern.nyu.edu/sites/default/files/assets/documents/con_035928.pdf",
+  "proceedings": "https://doi.org/10.1016/j.finmar.2013.05.005",
+  "verified": "ELO 저자 원고 200 · A&B CREATES 워킹페이퍼 repec.econ.au.dk 200 전문 확인"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "양쪽 다 전략을 굴리지 않는다. 그러나 논쟁의 내용이 백테스트 위생 그 자체다.",
+  "data_short": "E-mini·WTI 1분봉 (ELO) / CME BBO 정답 데이터 (A&B)",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "design": "ELO 의 VPIN 은 1분봉의 거래량을 표준정규 CDF 로 나눠(BVC) 매수/매도로 배분하고, 일평균거래량의 1/50 짜리 버킷 50개 이동창으로 불균형을 잰다. **VPIN 은 Tudor 의 상표이고 저자들이 특허를 출원했다**고 논문 1쪽에 공시돼 있다.",
+  "cost": "없음.",
+  "validation": "**여기가 논쟁의 핵심이다.** ELO 의 문장 — \"We use the entire sample period to determine the cumulative distribution function of the estimated parameters.\" 즉 'CDF(VPIN)이 붕괴 두 시간 전 0.9 를 넘었다' 는 주장이 **붕괴 이후까지 포함한 분포**로 평가된 것이다. 거래를 하지 않아도 이것은 룩어헤드다.",
+  "gap": "A&B 의 다섯 갈래 반박: ① **기계적 인공물** — 체결 분류를 무작위로 지운 위약 지표 U1/U2-VPIN 이 붕괴 때 똑같이 움직인다. ② 고정 거래량 빈에서는 변동성 연관의 **부호가 뒤집힌다**. ③ **순환성** — BVC 가 |Δ가격|에서 불균형을 만들어 |Δ가격|을 예측한다. 동시점 거래량·변동성을 통제하면 증분 설명력이 없고 VIX·거래량이 압도한다. ④ **의사 실시간 재구성** — 붕괴 이전 데이터만 쓰면 경고가 없고 TR-VPIN 은 14:00 이후에 정점을 찍는다. ⑤ **기저율 보정** — 하루 약 50개 관측이 나오므로 '99번째 백분위수' 는 100일에 한 번이 아니다. **일 최댓값의 CDF** 로 고치면 CDF(VPIN) 99.0 은 일 최댓값의 96.9%, 즉 **연 8회 정도**다. 붕괴 시점 수준은 **2주에 한 번** 꼴이다."
+ },
+ "oneline": "\"전 표본으로 임계값을 정하는 것\" 은 거래를 안 해도 룩어헤드이고, \"99번째 백분위수\" 는 관측 빈도를 밝히지 않으면 아무 뜻이 없다.",
+ "resolution": "초~분봉"
+}

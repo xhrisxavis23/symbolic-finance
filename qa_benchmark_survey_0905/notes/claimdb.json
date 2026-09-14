@@ -1,0 +1,71 @@
+{
+ "key": "claimdb",
+ "title": "ClaimDB: A Fact Verification Benchmark over Large Structured Data",
+ "authors_short": "Theologitis et al. · University of Washington",
+ "venue": "ACL 2026 Long (Volume 1, pp.34428–34451)",
+ "venue_verified": "ACL Anthology 2026.acl-long.1589 페이지(제목·Venue ACL)와 .bib(doi 10.18653/v1/2026.acl-long.1589, pages 34428--34451, San Diego, July 2026) 열림; Anthology PDF 다운로드(24쪽, 1쪽 하단 'Proceedings of the 64th Annual Meeting of the ACL (Volume 1: Long Papers), pages 34428–34451'); GitHub·HF README 'Accepted to ACL 2026'; ARR 리뷰는 비공개",
+ "type": "벤치마크(대규모 관계형 DB 기반 사실검증, 3-way 분류; 도구 호출 에이전트 평가)",
+ "domain": "도메인 무관(BIRD의 80개 실제 DB: Economy, Entertainment, Sports, Education, Technology, Gastronomy, Health, Environment, Transportation, Governance, Labor 11개 도메인·36 하위도메인; p.3 Figure 2, p.24 Table 4)",
+ "data_scope": "53,368 claims(ENTAILED 12,855 / CONTRADICTED 16,529 / NEI 23,984), 80 DB, claim당 평균 11.3 테이블·4.6M 레코드·110M 토큰(p.3 Table 1); train 51,369 / test-public 1,000 / test-private 999(라벨 비공개), test DB 11개(BIRD dev)",
+ "tags": ["fact-verification", "relational-database", "text-to-SQL-derived", "NEI-abstention", "LLM-generated-claims", "LLM-judge-panel", "tool-calling-agent"],
+ "links": {
+  "arxiv": null,
+  "pdf": "https://aclanthology.org/2026.acl-long.1589.pdf",
+  "proceedings": "https://aclanthology.org/2026.acl-long.1589/",
+  "github": "https://github.com/claimdb/claimdb",
+  "huggingface": "https://huggingface.co/datasets/michaeltheologitis/claimdb",
+  "website": "https://claimdb.github.io/",
+  "verified": "ACL Anthology 페이지·bib·PDF 200, GitHub README(raw) 200, HF README 200, HF resolve로 test-public.jsonl(1,000행) 실제 다운로드, claimdb.github.io 200; arXiv 버전은 이번 조사에서 찾지 못함"
+ },
+ "easy": {
+  "problem": "기존 사실검증 벤치마크는 증거(위키 문장·소형 표)가 LLM 문맥창에 들어갈 만큼 작다. 그러나 '미국 인플레이션이 3에 가깝다', '워싱턴 DC 살인율이 1위'처럼 실제 중요한 주장은 수백만 레코드·여러 테이블을 집계해야 검증되며, 이를 재는 벤치마크가 없었다.",
+  "how": "BIRD text-to-SQL 벤치마크의 NL-SQL 쌍 10,962개에서 AST 분석으로 정렬·집계·윈도·3테이블 이상 조인이 있는 '구성적' 질의만 남겨(6,545 Q/A) DB에서 실행해 답을 얻고, gpt-5로 답에 부합(entailed)·모순(contradicted)·판단불가(NEI: 스키마 밖/반사실/주관) 주장을 생성한다. Phi-4·grok-3-mini·mistral-small 3개 심판이 라벨·자족성·스키마 유출을 검사해 하나라도 문제 삼으면 버린다(약 14% 제거). 평가는 SQL 실행 도구 하나(최대 20회)를 가진 에이전트로 30개 모델을 돌려 라벨 정확도·macro-F1을 잰다.",
+  "analogy": "수백만 건 회계 장부를 주고 '작년 최다 매출 지점은 A다'라는 주장을 맞다/틀리다/알 수 없다로 판정하는 감사 시험 — 장부를 통째로 읽을 수 없으니 반드시 쿼리를 짜야 한다."
+ },
+ "contributions": [
+  "80개 실제 DB(평균 11.3 테이블·4.6M 레코드·110M 토큰)에서 구성적 SQL로 도출한 53,368개 주장의 사실검증 벤치마크 — 문맥에 '읽어서' 푸는 방식이 불가능한 규모(p.1–3 Table 1)",
+  "AST 기반 구성성 필터(ORDER BY·집계·윈도·3+테이블 조인, 결과 ≤10건)와 3분류 NEI 하위유형(Out-of-Schema 12,644 / Counterfactual 5,786 / Subjective 5,554) 설계(p.3–5)",
+  "OpenAI 모델을 배제한 3개 소형 LLM 심판 패널(Phi-4, grok-3-mini, mistral-small)로 보수적 필터링: 사람 주석 300건으로 프롬프트 보정, 테스트 150건에서 문제 4건 100% 재현율, 전체 14% 제거(p.5–6)",
+  "30개 모델(≤70B 오픈 + 상용) 평가: 최고 gpt-5-mini macro-F1 0.828/acc 0.827, claude-haiku-4-5 0.811, gemini-3-flash 0.800; 17/30이 55% 미만; 도구 없는 gpt-5-mini는 acc 0.367로 무작위 수준 → 오염 아님(p.7 Table 2)",
+  "NEI 처리 실패 분석: 상용 모델은 기권 회피(gpt-5-mini NEI 재현율 0.777), 오픈 모델은 과잉 기권(qwen3:32b NEI 0.866); 도구 호출 4–8회가 최적(p.7–8 Figure 6, 8)"
+ ],
+ "figures": [
+  {"file": "figs/claimdb_fig1.png", "label": "Figure 1", "page": 2, "caption_ko": "구축 파이프라인. BIRD 벤치마크의 NL-SQL 쌍 10,962개 → 80개 DB에서 SQL 실행 + AST 필터 → 중간 Q/A 쌍 6,545개 → Entailed·Contradicted·NEI 프롬프트로 각각 13,737·19,450·28,831개(총 62,018) 주장 생성 → LLM 심판 패널의 Keep/Reject 판정 → 최종 ClaimDB 12,855·16,529·23,984(총 53,368).", "alt": "ClaimDB 구축 파이프라인: BIRD → AST 필터 → gpt-5 주장 생성 → 심판 패널 → 53,368 claims"},
+  {"file": "figs/claimdb_fig2.png", "label": "Figure 3", "page": 4, "caption_ko": "단일 Q/A 쌍에서 생성된 주장 예. California Schools DB에서 질문 'Which cities have the top 5 lowest enrollment number for students in grades 1 through 12?'와 답(Coulterville; Pinecrest; Shaver Lake; Emigrant Gap; Hyampom)으로부터 Entailed(다섯 도시 나열), Contradicted(Lee Vining, Trona, Keeler), NEI Out-of-Schema(홈스쿨링 선호), NEI Counterfactual(Pinecrest에 2020년 새 캠퍼스가 생겼다면…), NEI Subjective('가장 따뜻한 학습환경') 주장이 만들어진다.", "alt": "ClaimDB 예시: 하나의 Q/A에서 파생된 Entailed/Contradicted/NEI 세 유형 주장"}
+ ],
+ "dataset": {
+  "construction": "① 출발: BIRD의 train+test 11k NL-SQL 쌍(전문가 이중맹검 주석, external info 포함). ② 사전 필터(p.3–4): \"a query is retained if and only if its AST contains at least one of the following: Orderings or superlatives … Aggregate Functions, such as AVG and SUM … Window functions … Multi-table joins, where three or more tables are combined\"; 결과 10건 초과 질의는 제거 → 약 6.5k 쌍. ③ 실행해 답을 JSON으로 변환, SQL은 폐기(p.4). ④ 주장 생성(p.4–5): \"we prompt gpt-5 to generate claims that are either entailed by the answer or contradicted by it\"(1-shot, medium reasoning, 1–3개), NEI는 zero-shot으로 스키마 정보를 주고 \"claims that are based on concepts not represented anywhere in the schema\"(out-of-schema), subjective, counterfactual 유형을 1–5개 생성 → 약 14k/19k/28k. ⑤ 품질 관리(p.5–6): OpenAI 모델을 배제한 심판 패널(Phi-4, grok-3-mini, mistral-small)이 '라벨 정확?', '자족적?', NEI는 추가로 '스키마 유출?', '범주 정확?'을 판정, \"If any judge flags a claim as problematic under any rubric … the claim is discarded\"; 사람 주석 300건(150 NEI+150 E/C)으로 프롬프트 보정·테스트, 테스트셋의 문제 4건 100% 재현율; 전체 5.6% 라벨 오류·1.7% 비자족, NEI 11% 스키마 유출·5% 범주 오류 → 약 14% 제거. ⑥ NEI 접지(p.6): gemini-embedding-001로 Q/A와 주장의 유사도를 계산해 테스트셋은 상위 사분위(out-of-schema Q3 0.86)에서 샘플링. ⑦ 분할(p.7): train / public test 1,000 / private test 999(라벨 비공개), 라벨당 약 333개 균형, 테스트는 정제된 BIRD dev 분할 DB에서만.",
+  "size_format": "53,368 claims(train 51,369 / test-public 1,000 / test-private 999), 80 DB(train 80 DB zip 9.7GB, test 11 DB zip 346MB). HF jsonl 필드: claim_id, bird_id, db_name, label(ENTAILED/CONTRADICTED/NOT ENOUGH INFO), category(NEI만: OUT-OF-SCHEMA/COUNTERFACTUAL/SUBJECTIVE), claim, extra_info(BIRD의 evidence 문장). test-public 1,000행 라벨 분포 NEI 336 / E 333 / C 331 확인.",
+  "samples": [
+   "[HF test-public.jsonl claim_id 4652, db formula_1, label ENTAILED] claim: \"Sebastian Vettel is the driver with the most points, totaling 397.0.\" extra_info: \"the most points scored refers to max(points); Full name of the driver refers to drivers.forename and drivers.surname;\"",
+   "[claim_id 1334, db toxicology, label CONTRADICTED] claim: \"There are exactly five triple type bonds (bond_type '#') in the dataset.\" extra_info: \"triple type bonds refers to bond_type = '#'\"",
+   "[claim_id 15691, db formula_1, label NOT ENOUGH INFO, category OUT-OF-SCHEMA] claim: \"A jammed front-left wheel nut caused Lewis Hamilton's 35.688-second pit stop.\" extra_info: \"longest time refes to MAX(duration);\"",
+   "[claim_id 6195, db thrombosis_prediction, NOT ENOUGH INFO, COUNTERFACTUAL] claim: \"If patients older than 60 years had been made ineligible for inpatient admission, the inpatient percentage among those born between 1930 and 1940 would have fallen below 25%.\" extra_info: \"patient born between Year 1930 to 1940 refers to year(Birthday) BETWEEN '1930-01-01' AND '1940-12-31'; inpatient refers to Admission = '+'\"",
+   "[논문 Figure 3 p.4, California Schools] Question: \"Which cities have the top 5 lowest enrollment number for students in grades 1 through 12?\" Answer: \"Coulterville; Pinecrest; Shaver Lake; Emigrant Gap; Hyampom.\" Entailed claim: \"In California, the five cities with the lowest K-12 student enrollment are Coulterville, Pinecrest, Shaver Lake, Emigrant Gap, and Hyampom.\" Contradicted: \"The three California cities with the lowest K-12 enrollments are Lee Vining, Trona and Keeler.\""
+  ],
+  "class": "C-lite",
+  "class_reason": "주장이 구체 개체(Sebastian Vettel, bond_type '#')와 수치(397.0, 5건)를 담고 extra_info에 BIRD 규약(max(points), Admission='+')이 붙으며, 판정은 동봉된 대규모 다중 테이블 DB(4.6M 레코드)에서 결정론적으로 나오고 NEI는 우리 out_of_scope처럼 자료 한계 인식을 요구한다. 그러나 답이 계산값이 아닌 3-way 라벨이고, 규약이 짧은 evidence 문장에 그치며, 정답을 만든 SQL·증거 레코드는 폐기되어 동봉되지 않아 C-lite로 분류한다.",
+  "release": "CC BY-SA 4.0(BIRD 라이선스 상속, p.9). HF에 train·test-public(라벨 포함)·test-private(라벨 비공개)·DB zip 공개, GitHub에 생성 노트북(nbs 0–7)·실험 로그 공개, 웹사이트에 리더보드·주장 탐색기. test-public.jsonl 실제 열람.",
+  "contamination": "gpt-5-mini를 도구 없이 돌리면 macro-F1 0.253/acc 0.367로 무작위 수준 → \"ClaimDB cannot be solved using parametric knowledge alone\"(p.7). private test 라벨 비공개. 다만 주장 생성·평가에 같은 계열(gpt-5, gpt-5-mini)이 쓰여 자기선호 우려는 심판 패널에서만 배제.",
+  "evaluation": "설정: Google MCP Toolbox의 SQL 실행 도구 하나, 최대 20회 호출(초과 시 실패), 단일 프롬프트(Figure 22), 구조화 출력(p.7, p.16). 지표: 라벨별 P/R/F1, Macro-F1, Accuracy(p.7). 결과(public test 1,000, p.7 Table 2): gpt-5-mini Macro-F1 0.828/Acc 0.827, claude-haiku-4-5 0.811/0.809, gemini-3-flash 0.800/0.801, gpt-5-nano 0.787, gpt-oss:20b 0.739(오픈 최고), qwen3-coder:30b 0.672, llama3.1:8b 0.288; 30개 중 17개가 55% 미만. SQL 성공률 gpt-5-mini 93%·claude-haiku-4.5 99%로 실패는 문법이 아닌 추론 문제(p.8 Figure 7)."
+ },
+ "seven_questions": {
+  "q1_source": "기존 공개 벤치마크(BIRD)의 DB와 NL-SQL 쌍을 재활용해 주장을 신규 생성.",
+  "q2_method": "AST 필터 규칙, 프롬프트 전문(Figure 17–22), 심판 루브릭, 사람 보정 300건, 제거율까지 상세 공개(p.3–6, 부록 C). 분명함.",
+  "q3_license": "오픈소스 CC BY-SA 4.0(BIRD 동일 조건 상속, p.9).",
+  "q4_relabel": "공개 데이터를 그대로 쓰지 않고 task 맞춤 재라벨링: NL-SQL 쌍 → 주장+3-way 라벨(+NEI 하위범주)로 변환.",
+  "q5_industry": "학계(UW) 자체 구성, 전량 공개(private test 라벨만 비공개).",
+  "q6_constraints": "저작권은 BIRD CC BY-SA 4.0 준수로 해결; 프라이버시는 익명화 없음(합성 반사실 주장이 실제 정보로 오인되지 않도록 명시, p.9). private test 라벨은 리더보드 무결성 목적.",
+  "q7_accept": "공개 리뷰 없음(ACL/ARR). 논문 self-claim: (1) 수백만 레코드·다중 테이블 증거 위 첫 사실검증 벤치마크, (2) 30개 모델 중 절반 이상이 55% 미만, (3) 기권(NEI) 실패라는 체계적 약점 발견(p.1 초록)."
+ },
+ "review": null,
+ "limitations": "저자 명시(p.9): BIRD 주석 오류가 그대로 전파(예: 'Seattle' 질문에 'Portland' SQL); 구조화 데이터 단일 모달리티; 고정 DB 스냅샷 기준 판정; SQL 도구 하나만 쓰는 평가라 SQL 작성 능력이 성능을 좌우. 추가로 주장·라벨이 gpt-5 생성물이고 필터도 LLM 심판이라 사람 검증은 300건에 한정되며, 정답 근거 SQL이 폐기되어 문항별 증거 감사가 어렵다.",
+ "oneline": "BIRD의 구성적 SQL 질의를 gpt-5로 참/거짓/판단불가 주장 53,368개로 바꾸고 3개 LLM 심판으로 거른 대규모 DB 사실검증 벤치마크로, 최고 모델도 macro-F1 0.83에 그친다(ACL 2026).",
+ "implications": [
+  "NEI 세 하위유형(스키마 밖·반사실·주관)은 우리 out_of_scope/indeterminate 문항 설계의 분류 체계로 차용 가능하며, '상용 모델은 기권 회피, 오픈 모델은 과잉 기권'이라는 발견은 온체인 QA에서 indeterminate 문항의 변별력 근거가 된다.",
+  "'문맥에 넣어 읽기 불가능한 규모(110M 토큰)'를 벤치마크의 정체성으로 삼은 논리는 우리 1주 구간 원장(수백만 레코드)에서 결정론적 계산을 요구하는 설계의 정당화에 그대로 쓸 수 있다.",
+  "정답 SQL을 폐기해 증거 감사가 불가능해진 점은 우리가 evidence 레코드를 동봉하는 설계의 차별점이다. 반대로 AST 기반 '구성성' 필터(집계·정렬·다중 조인 필수)는 우리 문항의 난이도 정의(단순 조회 배제)에 형식적 기준으로 참고할 만하다.",
+  "도구 없는 모델이 무작위 수준(acc 0.367)임을 보여 오염을 반증한 실험은 우리 셋에서도 '원장 접근 없이 답하기' 대조 실험으로 재현할 가치가 있다."
+ ],
+ "brief": false
+}

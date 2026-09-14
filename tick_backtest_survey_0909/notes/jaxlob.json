@@ -1,0 +1,64 @@
+{
+ "key": "jaxlob",
+ "title": "JAX-LOB / AlphaTrade — GPU 위에서 수천 개 호가창을 동시에 굴리는 L3 시뮬레이터",
+ "authors_short": "Frey, Li, Nagy, Sapora, Lu, Zohren, Foerster, Calinescu (Oxford FLAIR · Oxford-Man Institute)",
+ "venue": "arXiv 2308.13289 · ICAIF 2023",
+ "venue_verified": "arXiv 2308.13289 확인. 저장소는 github.com/KangOxford/jax-lob(star 59 · 라이선스 파일 없음 · branch jaxV3 · push 2023-10-22)과 후속 github.com/KangOxford/AlphaTrade(star 145 · 라이선스 없음 · push 2026-03-16). `KangOxford/jaxlob`(하이픈 없음)은 404",
+ "type": "GPU 벡터화 L3 호가창 시뮬레이터 (RL 환경)",
+ "domain": "최적 실행 RL",
+ "data_scope": "LOBSTER 의 message/orderbook CSV 를 `data/Flow_10/`·`data/Book_10/` 에서 읽고 `message.type.isin([1,2,3,4])` 로 거른다. `nOrdersPerSide=100`, `book_depth=10`. 주문 ID 와 초·나노초 시각 필드를 갖는 **완전한 L3**.",
+ "tags": [
+  "L3 FIFO",
+  "JAX/GPU",
+  "LOBSTER",
+  "RL 실행",
+  "라이선스 없음"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2308.13289",
+  "github": "https://github.com/KangOxford/jax-lob",
+  "github_extra": [
+   "https://github.com/KangOxford/AlphaTrade"
+  ],
+  "verified": "arXiv 200 · 두 저장소 200 · `gymnax_exchange/jaxob/JaxOrderBookArrays.py` 소스 확인"
+ },
+ "easy": {
+  "problem": "강화학습으로 집행 정책을 배우려면 환경을 수백만 번 굴려야 한다. 그런데 호가창 시뮬레이터는 보통 파이썬 루프라 너무 느리다.",
+  "how": "호가창을 객체가 아니라 **고정 크기 배열**(`[가격, 수량, 주문ID, 트레이더ID, 초, 나노초]`)로 표현하고 전부 `jax.jit` 로 컴파일했다. 그러면 `vmap` 으로 수천 개 호가창을 GPU 에서 동시에 굴릴 수 있다.",
+  "analogy": "한 번에 한 판씩 두던 바둑을, 판을 수천 개 늘어놓고 GPU 로 동시에 두는 것."
+ },
+ "contributions": [
+  "\"the first GPU-enabled LOB simulator designed to process thousands of books in parallel, with a notably reduced per-message processing time\".",
+  "우선순위 선택이 정확하다 — 가격 → 초 → 나노초 순으로 진짜 FIFO 를 구현한다. `bid_lim`/`bid_cancel`/`bid_mkt`/`ask_lim`/`ask_cancel`/`ask_mkt` 로 메시지 타입을 분기한다.",
+  "에이전트 주문에 별도 `traderid` 를 붙여 같은 배열에 넣는다. 그래서 **에이전트 주문이 재생되는 유동성을 실제로 소비한다** — hftbacktest·Nautilus 가 의도적으로 하지 않는 부분적 자기영향이다.",
+  "다만 반응은 없다. 재생되는 메시지 스트림은 고정이고 에이전트에 반응하지 않는다.",
+  "`jaxrl/` 에 PPO·S5 에이전트 학습 코드가 있고, 후속 AlphaTrade 저장소에는 GAN 실험까지 포함돼 있다."
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "L3 FIFO 로 큐를 정확히 재현하고 에이전트 주문이 유동성을 소비한다(부분 자기영향). 그러나 **지연 모델이 전혀 없고** 시장이 반응하지 않으므로 L5 는 아니다.",
+  "data_short": "LOBSTER L3 (주문 ID 있음)",
+  "fill_short": "진짜 FIFO (가격→초→나노초)",
+  "cost_short": "**없음** (보상은 TWAP 대비 집행품질)",
+  "data": "LOBSTER 메시지+호가창. 고정 용량 배열(측당 100주문, 깊이 10)이 GPU 벡터화의 조건이자 한계다.",
+  "design": "메시지 재생 + 에이전트 주문 삽입. `scan_through_entire_array` 로 스트림을 훑는다.",
+  "fill": "가격-시간 우선. 내 주문도 같은 배열에서 같은 규칙으로 처리된다.",
+  "cost": "없다. 보상 함수는 TWAP 대비 집행 품질이다.",
+  "latency": "**없다.** 이 도구의 가장 큰 사실성 공백.",
+  "selfimpact": "**부분적.** 유동성은 소비하지만 시장이 반응하지 않는다.",
+  "validation": "RL 학습·평가 분할은 사용자 몫.",
+  "metrics": "TWAP 대비 집행 가격 등.",
+  "gap": "지연 없음 · 시장 무반응 · 고정 용량 배열(측당 100주문) · **두 저장소 모두 라이선스 파일이 없다.** 라이선스 부재는 권리 부여가 없다는 뜻이므로, 저자에게 문의하지 않는 한 읽기 전용 참고로만 다뤄야 한다."
+ },
+ "code": [
+  "[KangOxford/jax-lob](https://github.com/KangOxford/jax-lob) — 논문 저장소. **라이선스 없음** · star 59 · branch `jaxV3` · push 2023-10-22",
+  "[KangOxford/AlphaTrade](https://github.com/KangOxford/AlphaTrade) — 유지되는 후속. **라이선스 없음** · star 145 · push 2026-03-16"
+ ],
+ "limitations": "라이선스 부재가 실무 채택의 결정적 장벽이다. LOBSTER 데이터도 별도 구독이 필요하다.",
+ "oneline": "L3 FIFO 를 정확히 하면서 GPU 로 수천 배 빠르게 — 대신 지연과 시장 반응을 통째로 버렸다.",
+ "implications": [
+  "우리 원장에는 주문 ID 가 없어 이 수준의 FIFO 를 구현할 수 없다. 그래서 `unexplained_fill_fraction` 같은 추정이 필요하다는 사실이 여기서 대비되어 드러난다.",
+  "속도 관점의 교훈은 크다 — 우리 `fill.py` 도 numba `njit` 로 커널을 짰지만, 창 4개 × 종목 2,600개 × Optuna 18 trial 규모에서는 배열 표현과 벡터화가 더 큰 이득을 줄 수 있다."
+ ],
+ "resolution": "틱·메시지"
+}

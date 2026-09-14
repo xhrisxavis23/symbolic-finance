@@ -1,0 +1,68 @@
+{
+ "key": "krx_rl_execution",
+ "title": "An Adaptive Dual-level Reinforcement Learning Approach for Optimal Trade Execution — KRX 밀리초 호가 원장으로 돌린 VWAP 추종 RL",
+ "authors_short": "Soohan Kim · Jimyeong Kim (성균관대 수학) · Hong Kee Sul (중앙대 재무) · Youngjoon Hong (성균관대 수학)",
+ "venue": "arXiv 2307.10649 (q-fin.CP, 2023-07-20) · Expert Systems with Applications 투고",
+ "venue_verified": "arXiv PDF 15쪽을 직접 내려받아 전문 확인(2026-09-09). arXiv 초록 페이지에 'Expert Systems with Applications' 2차 심사 중으로 표기. 최종 게재 여부는 미확인",
+ "type": "강화학습 최적 실행 (VWAP 추종)",
+ "domain": "KRX KOSPI 대형주 일중 주문 집행",
+ "data_scope": "\"Our millisecond trade and limit order book (LOB) tick data is from the Korea Exchange (KRX).\" 삼성전자·SK하이닉스·기아·POSCO홀딩스 4종목, 2021-01-01 ~ 2021-12-31. 학습 1/1~9/30, 테스트 10/1~12/31. 원자료를 5초 구간으로 묶어 **구간의 마지막 LOB 스냅샷**으로 상태를 만들고, 5초 VWAP·체결량으로 일간 VWAP 을 계산",
+ "tags": [
+  "KRX 틱",
+  "최적 실행",
+  "PPO",
+  "Transformer+LSTM",
+  "VWAP"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2307.10649",
+  "pdf": "https://arxiv.org/pdf/2307.10649",
+  "verified": "arXiv PDF 200(15쪽) 전문 열람. 논문·arXiv 페이지 어디에도 코드 공개 링크 없음"
+ },
+ "easy": {
+  "problem": "기관은 하루에 정해진 수량을 사야 하는데, 한꺼번에 사면 가격을 밀어 올린다. 그래서 \"오늘의 거래량가중평균가(VWAP)만큼만 내고 사자\" 가 목표가 된다. 기존 RL 연구는 몇 분~한 시간 같은 짧은 구간만 다뤄서 하루 전체 VWAP 추종에는 잘 안 맞았다.",
+  "how": "하루를 두 층으로 쪼갠다. 위층은 Transformer 가 하루 거래량의 U자 패턴을 예측해 20분 구간 19개에 물량을 배분하고, 아래층은 LSTM+PPO 가 그 구간 안 1분 단위 20개에 다시 배분한다. 실제 주문은 5초마다 균등하게 나간다.",
+  "analogy": "\"하루치 장보기\" 를 큰 바구니 19개로 먼저 나누고, 각 바구니를 다시 20번에 걸쳐 조금씩 담는 식. 남들이 많이 사는 시간대에 나도 많이 사야 평균가에 붙는다."
+ },
+ "contributions": [
+  "KRX 밀리초 체결·호가 원장을 쓴 드문 공개 논문이다. 한국 시장에서 LOB 기반 RL 실행을 다룬 연구의 대표 사례로 인용 가능하다.",
+  "하루 전체(09:00~15:20의 380분)를 다루면서, 거래량 U자 패턴을 Transformer 로 예측해 상위 배분에 쓰는 이층 구조를 제안했다.",
+  "테스트 시점에 미래를 보지 않도록 명시적으로 막았다: \"during testing, we only use the daily ground truth U-shape volume ratios of dates in the training data for our Transformer Encoder **to prevent looking ahead into the future**\" — 룩어헤드 방지를 문장으로 못 박은 드문 사례.",
+  "하루 총 주문량 O 를 고정하지 않고 종목별 최근 거래량 통계의 변동성을 반영해 뽑았다 — 대부분의 선행연구가 고정값을 쓰는 것과 다르다.",
+  "DQN(Ning et al. 2021) · OPD(Fang et al. AAAI 2021) · PPO(Lin & Beling 2020) 를 같은 데이터 위에서 재구현해 비교했다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "실제 KRX 호가창을 되감지만, 체결은 즉시·무비용·무지연으로 가정한다. 큐 위치도 자기 주문의 영구 충격도 없다. 틱 원장의 해상도(밀리초)와 백테스트의 해상도(5초 스냅샷)가 다르다는 점도 등급을 결정한다.",
+  "data_short": "KRX 밀리초 체결+호가 4종목 1년",
+  "fill_short": "5초마다 즉시 전량 체결",
+  "cost_short": "**수수료·거래소비용 무시**",
+  "data": "KRX 밀리초 체결·LOB 틱, 삼성전자·SK하이닉스·기아·POSCO홀딩스(평균 거래량 각 1,700만 · 380만 · 390만 · 43만주). 2021년 1년. 5초 버킷으로 다운샘플링(구간 마지막 LOB). 장전 08:30~09:00 의 상위 5호가 잔량 평균을 초기 상태 생성에 사용.",
+  "design": "**무영향 재생**. 에이전트가 5초마다 정해진 수량을 시장에 내보내고, 그 시각의 체결가로 평균 매입단가를 누적한다. 하루가 끝나면 실제 일간 VWAP 과 비교한다.",
+  "fill": "즉시 전량 체결. 논문이 가정을 세 줄로 명시한다 — \"1. We assume that the actions taken by our model only affect a temporary market, and that the market will recover to the equilibrium level at the next time step. 2. Commissions and exchange fees are ignored. 3. Our model's orders are traded immediately without order arrival delays.\" 지정가 대기·부분체결·큐 위치는 없다.",
+  "cost": "**없다.** 수수료·거래소 수수료를 명시적으로 무시한다. KRX 매도 증권거래세(0.2%)도 당연히 반영되지 않는다. 다만 매수 집행 문제라 거래세는 원래 안 걸린다.",
+  "latency": "없다(가정 3에서 명시적으로 배제).",
+  "selfimpact": "일시적 충격만 가정하고 다음 스텝에 회복한다고 본다. 영구 충격·타 참가자 반응은 없다. 논문은 이를 \"we consider relatively small total orders in comparison to the daily total market volumes\" 로 정당화한다.",
+  "validation": "**단일 시간 분할**. 학습 1~9월, 테스트 10~12월. 워크포워드·롤링 재학습·다중 시드 보고는 없다. 종목 4개에 걸친 robustness 는 있다.",
+  "metrics": "VAA(VWAP Approximation Accuracy) = (MP_day − VWAP_day) / VWAP_day. 0 에 가까울수록 좋다. 평균·표준편차와 [0, 10bps] 구간 비율을 보고한다.",
+  "quotes": [
+   "As in previous works Nevmyvaka et al. (2006), Hendricks & Wilcox (2014), Ning et al. (2021), and Lin & Beling (2020), we make the following assumptions in our experiments.\n1. We assume that the actions taken by our model only affect a temporary market, and that the market will recover to the equilibrium level at the next time step.\n2. Commissions and exchange fees are ignored.\n3. Our model's orders are traded immediately without order arrival delays.",
+   "Our millisecond trade and limit order book (LOB) tick data is from the Korea Exchange (KRX). We use the daily trade and LOB data of Samsung Electronics (SE), SK Hynix (SH), Kia Corporation (KC) and POSCO Holdings Inc (PH) from January 1st, 2021 to December 31st, 2021. … We divide the data into two sets, using January 1st to September 30th as training data and October 1st to December 31st as test data.",
+   "The millisecond raw data is preprocessed by first dividing them into groups of 5 seconds, and extracting data that represents each 5-second interval. We take the last LOB data of the 5-second interval to construct the MDP state and the 5-second VWAP and total traded volume for calculating the daily VWAP."
+  ],
+  "gap": "밀리초 원장을 확보하고도 백테스트는 5초 격자에서 돌아간다. 즉 데이터의 해상도가 백테스트의 사실성으로 이어지지 않았다. 체결 큐·부분체결·수수료·지연이 모두 빠져 있어, VAA 가 10bps 안이라는 결과가 실제 체결 후에도 유지되는지는 이 실험이 답하지 않는다."
+ },
+ "code": [
+  "**공개 코드 없음.** 논문 본문·arXiv 초록 어디에도 저장소 링크가 없다. KRX 원자료도 재배포 불가"
+ ],
+ "limitations": "데이터 출처를 \"from the Korea Exchange (KRX)\" 라고만 적어, 어떤 상품(코스콤 데이터몰? 기관 계약?)으로 받았는지 알 수 없다. 재현이 사실상 불가능하다. Expert Systems with Applications 최종 게재 여부도 확인하지 못했다.",
+ "oneline": "KRX 밀리초 호가 원장을 쓴 대표 논문이지만, 백테스트는 5초 격자 · 즉시 체결 · 무비용 — 데이터 해상도와 백테스트 사실성은 별개임을 보여 준다.",
+ "implications": [
+  "\"밀리초 데이터를 썼다\" 는 문장이 곧 사실적인 백테스트를 뜻하지 않는다는 가장 좋은 국내 사례다. 우리 리포트의 사다리 개념을 정당화하는 데 인용할 수 있다.",
+  "이 논문이 명시적으로 배제한 세 가지(수수료 · 지연 · 큐)가 정확히 우리 `fill.py` 가 모델링하는 것들이다. 대조군으로 매우 유용하다.",
+  "룩어헤드 방지를 문장으로 선언한 방식은 우리 `DECISION_TIME_CAUSAL_INPUTS_ONLY` 제약과 같은 발상이다 — 다만 우리는 제약을 계약(constraints 목록)으로 코드에 박았고, 이 논문은 서술로 남겼다.",
+  "단일 시간 분할(9개월 학습 / 3개월 테스트)은 우리 롤링 워크포워드(4창 + 7일 OOS 3창)보다 약하다. 국내 선행연구 대비 우리 검증 설계가 강한 지점으로 쓸 수 있다.",
+  "이 논문의 표본(4종목·1년)과 우리 표본(2,661종목·6주)은 서로 다른 축으로 크다. 종목 수 vs 기간 길이의 교환관계를 명시하면 두 설계를 공정하게 비교할 수 있다."
+ ],
+ "resolution": "초~분봉"
+}

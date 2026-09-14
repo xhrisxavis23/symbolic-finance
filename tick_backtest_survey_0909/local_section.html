@@ -1,0 +1,209 @@
+<section id="local" class="paper g6" style="border-top-color:#0f766e">
+  <h2>우리 코드와의 대조 — <code>/home/dgu/tick</code> 에서 가장 최근에 돌린 백테스트
+    <span class="vtag">proj_claude_tick_finance/framework · 정본 프로필 <code>CANONICAL_QUEUE_V9</code> · 마지막 실행 흔적 <code>runs/sandbox12_experiments_20260909</code> (2026-09-09)</span></h2>
+
+  <div class="how"><b>무엇을 읽었나.</b> <code>framework/fill.py</code>(체결 판정) ·
+  <code>framework/canonical.py</code>(정본 실행 프로필) · <code>framework/ledger.py</code>(원장·상태) ·
+  <code>framework/portfolio.py</code>(공용 현금 · 부분체결) · <code>framework/data.py</code>(틱 로더) ·
+  <code>framework/config.py</code>(상수) · <code>framework/modules/backtest.py</code>(요약 산출) 를 직접 읽고,
+  실행 산출물 <code>runs/sandbox12_experiments_20260909/allstock_W1~W4</code> 와 <code>allstock_oos7_20260906</code> 의
+  <code>00_research_context.json</code> 에서 실제 날짜·종목·제약을 확인했다.</div>
+
+  <div class="deepbar">우리 백테스트의 실체 — 한 화면 요약</div>
+  <div class="table-scroll"><table class="bt"><tbody>
+    <tr><th>데이터<span class="hint">무엇을 되감는가</span></th><td>KRX 원장 parquet(<code>~/tick/tickdata_krx/&lt;YYYYMMDD&gt;/&lt;종목&gt;_*.parquet</code>).
+      한 파일에 <code>data_type==12</code>(호가 10단계 · 가격/잔량)와 <code>data_type==11</code>(체결 · <code>askbid_type</code> 1=매도주도 / 2=매수주도)가 섞여 있고,
+      로더가 <b>호가를 시간 격자로 삼고 체결을 그 격자에 누적</b>한다. 타임스탬프는 <code>HHMMSSffffff</code> 마이크로초.
+      세션은 <code>090000000000</code>~<code>152000000000</code> — <b>종가 단일가는 연속 체결로 계산하지 않는다</b>.
+      전종목 <b>2,656~2,661개</b>, 2026-03-16 ~ 04-23 약 6주.</td></tr>
+    <tr><th>결정<span class="hint">언제 사는가</span></th><td><code>decision.basis = EVERY_TICK</code>. 간격을 두지 않고 매 틱 조건을 본다.
+      포지션 보유 중의 신호 틱은 새 결정으로 세지 않는다(<code>blocked_while_holding</code>) — 성과가 신호 지속시간에 좌우되지 않게.</td></tr>
+    <tr><th>진입 체결<span class="hint">무엇이 체결을 결정하는가</span></th><td><b>BID1 지정가 + 큐 위치 모델</b>(<code>BEST_QUOTE_QUEUE</code>).
+      게시 시점에 <code>remaining = qfrac × 최우선잔량 + 주문수량</code> 만큼 앞에 서 있다고 본다. 이것을 줄이는 것은 두 가지뿐이다 —
+      (a) <b>내 가격에 도달한 반대편 주도 체결</b>(지정가 매수면 <code>sell_volume</code>/<code>sell_min_price</code> 만),
+      (b) 체결로 설명되지 않는 잔량 감소 × <code>unexplained_fill_fraction</code>.
+      <b>가격이 움직였다는 사실만으로는 체결되지 않는다</b>(<code>price_move_alone_does_not_fill</code>).
+      최대 10초 / 100틱 대기, 시계가 우선.
+      <br><b>두 파라미터가 서로 반대 방향으로 작동한다.</b> <code>queue_fraction = 1.0</code> 은 게시 시점 표시 잔량 <b>전부</b> 뒤에 선다는 뜻이라
+      <b>가장 보수적</b>이고(FeatureProfile 쪽은 0.20 을 쓴다), <code>unexplained_fill_fraction = 1.0</code> 은 설명되지 않은 잔량 감소를
+      <b>전부 내 앞의 취소</b>로 인정한다는 뜻이라 <b>가장 낙관적</b>이다. 순 효과는 측정되지 않았다.</td></tr>
+    <tr><th>hold-through<span class="hint">호가가 변하면?</span></th><td>취소하지 않고 게시가에서 계속 기다린다.
+      코드 주석이 이유를 실측으로 적어 뒀다 — 취소 모델은 “가격이 불리하게 움직이는 순간 주문을 빼면 <b>역선택을 공짜로 회피</b>하게 되어 net 이 과대평가된다”.
+      취소 모델의 체결률 중앙값(~9%)이 실측 패시브 체결률(~45%)과 5배 어긋났고, hold-through 로 바꾸자 기존 “수익” 61건 중 27건만 살아남았다.</td></tr>
+    <tr><th>청산<span class="hint">어떻게 나가는가</span></th><td>정본 V9: gross <b>−120bps 시장가 손절</b>(BID1 시장가, 무조건 나감) ·
+      진입 후 <b>최고 ASK1 대비 −30bps</b> 에서 ASK1 추적 지정가(최우선 호가가 바뀌면 취소 후 재게시) ·
+      지정가 60초 대기 후 미체결이면 BID1 시장가 · 최대 보유 <b>900초</b> 후에도 미청산이면 BID1 시장가.
+      “안 팔린 거래를 통계에서 빼면 나쁜 거래만 사라진다”가 강제 청산의 이유다.
+      손절선을 <b>gross 기준</b>으로 잡는 이유도 명시돼 있다 — net 으로 잡으면 BID1 에 사는 순간 이미 −수수료에서 시작한다.</td></tr>
+    <tr><th>비용<span class="hint">무엇을 빼는가</span></th><td><b>스프레드는 빼지 않는다</b>(<code>spread_deduction_bps = 0.0</code>).
+      체결가가 실제 BID/ASK 에서 나오므로 이미 손익에 들어 있고, 또 빼면 이중 계상이기 때문이다.
+      명시비용만 <code>FEE_BPS = 23.0</code>(왕복 수수료·세금)을 뺀다. 그리고 <code>spread_accounting_audit</code> 가
+      모든 체결 행에서 <code>gross_bps − net_bps == 23.0</code> 항등식이 성립하는지 매번 검산한다 — 어긋나면 <code>COST_DUPLICATION</code> 으로 실패한다.</td></tr>
+    <tr><th>상태<span class="hint">무엇을 분모에 넣는가</span></th><td><code>FILLED</code> / <code>UNFILLED</code> / <code>CENSORED</code>(평가 창을 관측할 수 없어 채점 불가) / <code>BLOCKED</code>.
+      <code>decisions = FILLED + UNFILLED + CENSORED</code>, <code>scorable = FILLED + UNFILLED</code>.
+      생존분석의 <b>중도절단</b> 개념을 그대로 가져온 설계다.</td></tr>
+    <tr><th>원장 기록<span class="hint">결정 하나에 무엇을 남기는가</span></th><td>체결 여부와 손익만 남기지 않는다.
+      결정마다 <code>entry_tick</code>(게시) · <code>fill_tick</code>(체결) · <code>exit_tick</code> 을 따로 적고,
+      <b>게시–체결 사이의 역선택</b>을 <code>fill_slippage_bps</code> · <code>bid_move_bps</code> · <code>ask_move_bps</code> 로 분해한다.
+      여기에 <code>entry_spread_bps</code> · <code>exit_spread_bps</code> · <code>tick_size_bps</code>(bps 로 적힌 손절·비용이 몇 틱인지 읽는 기준) ·
+      <code>max_favorable_gross_bps</code> / <code>max_adverse_gross_bps</code>(MFE/MAE) ·
+      미체결의 원인을 큐 길이와 시간으로 가르는 큐 상태 · 신호가 체결 시점까지 살아 있었는지(<code>entry_signal_persisted_until_fill</code>)까지 남는다.</td></tr>
+    <tr><th>계좌<span class="hint">돈이 모자라면?</span></th><td><code>portfolio.py</code> 가 종목 간 <b>공용 현금</b>으로 실제 주문·부분 체결을 시간순(heapq)으로 처리하고,
+      호가 갱신마다 <code>(time, cash, reserved, available, equity)</code> 를 쌓아 equity curve 를 만든다.
+      별도로 <code>amount.py</code> 가 거래당 100만원 고정·비복리 환산으로 일별 손익과 <code>Sharpe = mean/std × √252</code> 를 낸다.</td></tr>
+    <tr><th>검증<span class="hint">표본을 어떻게 나누는가</span></th><td><b>롤링 워크포워드</b>. 창마다 발굴 1일 → 검증 1일 → OOS 5일(또는 7일)이고 날짜가 서로 겹치지 않는다.
+      W1 0316 / W2 0325 / W3 0403 / W4 0415 네 창 + <code>oos7</code> 세 창.
+      제약이 계약으로 박혀 있다 — <code>DECISION_TIME_CAUSAL_INPUTS_ONLY</code> · <code>ACTUAL_BID_ASK_AND_EXPLICIT_23BPS</code> ·
+      <code>DISJOINT_DISCOVERY_VALIDATION_FINAL_DATES</code> · <code>REFINEMENT_USES_DISCOVERY_ONLY</code> ·
+      <code>FULL_STRATEGY_FROZEN_BEFORE_VALIDATION</code> · <code>LONG_ONLY</code> · <code>CANONICAL_ENTRY_AND_EXIT_EXECUTION_FIXED</code>.
+      탐색은 전략당 Optuna 18 trial, 시드 고정.</td></tr>
+    <tr><th>재현<span class="hint">같은 결과가 다시 나오는가</span></th><td>실행마다 <code>runtime_identity</code> 에 git HEAD · 브랜치 · dirty 여부 ·
+      <code>status_sha256</code> · 파이썬/numpy/optuna/pandas/pyarrow 버전 · <b>소스 파일별 sha256</b> 을 박는다.
+      프로필도 <code>profile_sha256</code>, 파라미터 락도 <code>plan_sha256</code>, 수익 목표도 <code>profit_target_sha256</code> 로 지문을 남긴다.
+      여기에 사전등록(<code>prereg.sh freeze</code> → 주장 직전 <code>audit</code>)이 붙는다.</td></tr>
+    <tr><th>지표<span class="hint">무엇으로 좋다고 하는가</span></th><td>분모가 다른 수를 나란히 낸다 — <code>net_bps_total</code> ·
+      <code>net_bps_per_decision</code>(scorable) · <code>net_bps_per_fill</code> · <code>net_bps_per_day</code> · <code>fill_rate</code>.
+      그리고 (종목, 날) <b>블록 분해</b>로 총합 하나에 가려지는 쏠림을 드러낸다.
+      분모가 이름에 안 드러나는 <code>bps_per_attempt</code> 류는 <code>FORBIDDEN_METRIC_NAMES</code> 로 금지돼 있다.</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">실제 산출물 한 조각 — 마지막 워크포워드 창의 OOS 유닛 하나</div>
+  <p><code>runs/sandbox12_experiments_20260909/allstock_W4_0415/06_final/final_artifact.json</code> 의 유닛
+  <code>S1_FLOW_LIQ__D1</code>(OOS 5일, 전종목). 이 리포트가 다루는 개념들이 실제로 어떤 숫자로 나오는지 보여 주는 예다.</p>
+  <div class="table-scroll"><table><thead><tr><th style="width:210px">항목</th><th>값</th><th>읽는 법</th></tr></thead><tbody>
+    <tr><th>신호 틱 / 차단 틱</th><td>36,401 / 12,660</td><td>포지션 보유 중의 신호는 새 결정으로 세지 않는다</td></tr>
+    <tr><th>결정 (decisions)</th><td>23,741</td><td>= FILLED 4,020 + UNFILLED 19,539 + CENSORED 182</td></tr>
+    <tr><th>채점 가능 (scorable)</th><td>23,559</td><td>CENSORED 182 를 뺀 값 — 분모가 둘로 갈린다</td></tr>
+    <tr><th>체결률</th><td><b>16.93%</b></td><td>BID1 지정가 + hold-through + 큐 모델의 결과. 전량 체결을 가정한 문헌과 비교할 지점</td></tr>
+    <tr><th>gross 합</th><td>92,259.96 bps</td><td>비용 이전. 체결 4,020건</td></tr>
+    <tr><th>체결당 평균 gross</th><td><b>22.95 bps</b></td><td>수수료 문턱 <b>23.0 bps</b> 에 <b>0.05bps 모자란다</b></td></tr>
+    <tr><th>net 합</th><td><b>−200.04 bps</b></td><td>gross 전부가 사실상 수수료였다는 뜻이다</td></tr>
+    <tr><th>비용 회계 감사</th><td><code>gross_minus_net_max_gap_bps = 0.0</code>, 검사한 체결 4,020건</td><td>4,020건 전부에서 <code>gross − net == 23.0</code> 이 정확히 성립 — 비용 이중계상 없음</td></tr>
+    <tr><th>블록 분해</th><td>(종목,날) 블록 2,240개 · 양수 비율 40.9% · 중앙값 −14.70bps · 상위 3블록 제외 net −3,952bps · 최대 기여 종목 <code>073570</code> (절대 기여 0.97%)</td><td>총합 하나에 가려지는 쏠림을 드러낸다. 여기서는 쏠림이 없다</td></tr>
+    <tr><th>수익 목표 판정</th><td><code>success: false</code></td><td>실패를 실패로 기록한다</td></tr>
+    <tr><th>경로 정합</th><td><code>PARTIAL</code> (6개 중 3개 적중) · 낙관 편향: 예측 유리 3 vs 실제 유리 2</td><td>사전등록한 실행 경로 예측(체결률·슬리피지 부호 등)의 적중을 따로 기록. <b>선택에는 쓰지 않는다</b></td></tr>
+    <tr><th>지문</th><td><code>strategy_sha256 e23bf94d…</code> · <code>contract_sha256 482c80b2…</code> · <code>frozen_strategy_sha256 de4dbc57…</code> · <code>execution_profile CANONICAL_QUEUE_V9 / d0b91a03</code> · <code>strategy_changed_after_freeze: false</code> · <code>validation_used_for_selection: false</code></td><td>동결 이후 전략이 바뀌지 않았고 검증 구간을 선택에 쓰지 않았음을 산출물이 스스로 증명한다</td></tr>
+  </tbody></table></div>
+  <div class="callout"><b>이 한 유닛이 말해 주는 것.</b> 체결당 평균 gross 22.95bps 가 왕복 수수료 23bps 에 <b>0.05bps 모자라</b> 전체가 −200bps 로 끝났다.
+  조사한 문헌 상당수가 이 지점을 아예 만들지 않는다 — 수수료를 넣지 않거나(KRX RL 최적실행 · Cartea–Donnelly–Jaimungal · JAX-LOB),
+  전량 체결을 가정해 체결률 16.93%가 아니라 100%를 쓰거나(Guéant 계열), 봉 종가에 전량 체결시킨다(한투 backtester · Hummingbot).
+  <b>그 셋 중 하나만 해도 이 유닛은 “성공”으로 보고됐을 것이다.</b></div>
+
+  <div class="deepbar">같은 것 — 조사한 최고 수준 백테스트와 우리가 공유하는 것</div>
+  <div class="diff">
+    <div class="hd">항목</div><div class="hd">문헌·도구가 하는 것</div><div class="hd">우리 코드</div>
+
+    <div>큐 위치 모델</div>
+    <div>hftbacktest 의 <code>ProbQueueModel</code> 계열 — 내 앞 물량을 추정하고, 그 물량이 줄어야 체결시킨다.
+      실무 HFT 백테스트가 L2 와 갈라지는 지점.</div>
+    <div class="same">있다. 게시 시점 최우선 잔량 뒤에 선다고 가정하고, 반대편 주도 체결과 설명되지 않은 잔량 감소로만 큐를 깎는다.</div>
+
+    <div>매수/매도 주도 구분</div>
+    <div>Lee–Ready 이후 미시구조 실증의 기본. 지정가 매수의 큐를 소진시키는 것은 <b>매도 주도</b> 체결뿐이다.</div>
+    <div class="same">있다. 로더가 <code>askbid_type</code> 으로 <code>sell_volume</code>/<code>sell_min_price</code> 를 따로 모으고,
+      체결 방향과 가격 도달을 함께 본다.</div>
+
+    <div>실호가 체결 · 이중계상 금지</div>
+    <div>실행 문헌의 원칙 — 스프레드는 체결가에 이미 들어 있으므로 따로 빼면 두 번 문다.</div>
+    <div class="same">있다. 그것도 서술이 아니라 <b>감사 코드</b>로: <code>gross − net == FEE_BPS</code> 항등식을 매 실행 검산한다.</div>
+
+    <div>강제 청산 · 생존편향 차단</div>
+    <div>“열린 포지션을 통계에서 빼면 나쁜 거래만 사라진다”는 백테스트 위생의 기본.</div>
+    <div class="same">있다. 900초 뒤 무조건 시장가 청산 + <code>CENSORED</code> 상태로 관측 불가를 따로 표시.</div>
+
+    <div>표본 외 분리</div>
+    <div>Chen &amp; Velikov(JFQA 2023) "표본 내에서만 최적화 → 출판 이후·2005년 이후에서만 평가",
+      Cartea–Donnelly–Jaimungal(2018) 상반기 적합/하반기 시험, Cont–Kukanov(2017) 1~3월 보정/4월 평가.</div>
+    <div class="same">있다. 롤링 워크포워드 4창(+7일 OOS 3창), 발굴 1일 → 검증 1일 → OOS 5~7일,
+      그리고 <b>날짜 분리가 서술이 아니라 계약</b>이다(<code>DISJOINT_DISCOVERY_VALIDATION_FINAL_DATES</code>).</div>
+
+    <div>사전등록 문서</div>
+    <div>임상·심리학에서는 표준이지만, 조사한 <b>금융·실행·AI 문헌 어디에서도 사전등록 문서를 본 적이 없다.</b>
+      Chen &amp; Velikov(JFQA 2023)의 "표본 내에서만 최적화한다"가 가장 가까운데, 그것도 논문 본문의 서술이다.</div>
+    <div class="same">우리만 한다. <code>ChatReport/07_executable_spec/*/preregistration.md</code>에
+      <b>freeze 커밋 해시 · 코드 sha256 · H0/H1 · 문턱 격자 · 종목 목록 · 발굴/검증/OOS 날짜 · 시드까지 포함한 실행 명령</b>이 결과를 보기 전에 고정된다.
+      게다가 "이 판정규칙은 20260330~0401 결과를 <b>본 뒤에</b> 정했다. 그래서 그 날짜는 여기서 쓰지 않는다"처럼
+      <b>발굴 구간에서 본 것을 스스로 공개</b>한다. 실행 경로에 대한 예측(<code>fill_rate</code>·<code>fill_slippage_bps</code> 부호 등)까지 미리 적는다.</div>
+
+    <div>재현 지문</div>
+    <div>ACM/NeurIPS 재현성 체크리스트가 요구하는 환경 고정.</div>
+    <div class="same">있다(오히려 더 강함). git HEAD·dirty·소스 파일별 sha256·의존성 버전까지 산출물에 박는다.</div>
+  </div>
+
+  <div class="deepbar">다른 것 — 우리가 안 하는 것과, 우리만 하는 것</div>
+  <div class="diff">
+    <div class="hd">항목</div><div class="hd">문헌·도구가 하는 것</div><div class="hd">우리 코드</div>
+
+    <div>지연(latency)</div>
+    <div>hftbacktest 는 피드 지연과 주문 지연을 분리해 모델링하고(<code>IntpOrderLatency</code> 로 실측 왕복 지연을 보간),
+      NautilusTrader 도 <code>LatencyModel</code> 로 insert/update/delete 지연을 따로 준다.</div>
+    <div class="notsame">없다. <code>ledger.py</code>가 <code>post = int(record.entry_tick)</code> — 신호가 뜬 그 틱에 즉시 게시한다.
+      왕복 지연이 수십 ms 만 돼도 BID1 큐 순번이 달라지므로 우리 체결률은 <b>낙관 쪽으로 치우쳐 있을 수 있다</b>.
+      게다가 우리 원장의 <code>local_time</code>은 <code>HHMMSSffffff</code> <b>단일 시각</b>이라
+      (Databento 의 <code>ts_recv</code>/<code>ts_in_delta</code>, Tardis 의 <code>timestamp</code>/<code>local_timestamp</code> 같은
+      거래소-수신 시각 쌍이 없다) <b>지연을 데이터에서 뽑을 수 없다</b> — 상수 가정으로 시작할 수밖에 없다.</div>
+
+    <div>자기영향(self-impact)</div>
+    <div>ABIDES 계열은 다중 에이전트 상호작용으로 내 주문이 남의 행동을 바꾸게 한다. 재생 기반 백테스트의 구조적 한계에 대한 답이다.</div>
+    <div class="notsame">없다. 순수 재생이다. 다만 1주 단위 소액(거래당 100만원) 가정이라 영향이 작다는 변론은 가능하다.
+      기관 규모로 키우면 이 가정이 먼저 깨진다.</div>
+
+    <div>주문 단위 원장(L3)</div>
+    <div>LOBSTER·NASDAQ ITCH 는 주문 ID 가 붙어 추가·취소·체결을 직접 구분할 수 있다.</div>
+    <div class="notsame">없다. 프로필이 스스로 한계로 적어 뒀다 — “주문 추가·취소·수정이 이 데이터에 없다. 잔량 감소를 체결과 취소로 직접 가를 수 없다”.
+      그래서 <code>unexplained_fill_fraction</code> 이라는 <b>튜닝 가능한 가정</b>이 남는다. 이 값의 민감도를 보고하지 않으면 약점이다.</div>
+
+    <div>다중검정 보정</div>
+    <div>Deflated Sharpe Ratio·PBO(CSCV)·Romano–Wolf 는 “몇 번 시도했는가”를 성과에서 깎아 낸다.</div>
+    <div class="notsame">없다. Optuna 18 trial × 전략 수 × 정제 라운드 × 창 4개 — 실제 시행 횟수는 세고 있지만
+      <b>그 수를 성과 판정에 반영하는 통계량이 없다</b>. 날짜 분리와 사전등록으로 막고 있으나, 시행 횟수를 넣은 DSR 은 추가 여지다.</div>
+
+    <div>목적함수</div>
+    <div>대개 Sharpe·IS(implementation shortfall)·VWAP 편차처럼 <b>비율</b>이거나 벤치마크 대비 값.</div>
+    <div class="notsame">다르다. <code>net_bps_total</code> 은 <b>합</b>이라 거래를 줄이면 좋아진다 —
+      research-log 도 이 문제를 열린 항목으로 적어 뒀다. 분모가 다른 지표를 나란히 내는 것으로 완화하지만, 선택 기준 자체는 합이다.</div>
+
+    <div>중도절단(CENSORED)</div>
+    <div>조사한 어떤 백테스트 엔진·논문에서도 “평가 창을 관측할 수 없어 채점 불가” 를 <b>별도 상태</b>로 분리하는 것을 보지 못했다.
+      보통은 조용히 버리거나 마지막 값으로 채운다.</div>
+    <div class="same">우리만 한다. 생존분석의 중도절단을 백테스트 상태 기계에 넣어 <code>decisions</code> 와 <code>scorable</code> 의 분모를 갈랐다.</div>
+
+    <div>체결 가정의 실측 교정</div>
+    <div>큐 모델의 파라미터를 실측 체결률로 맞추는 절차를 명시한 문헌은 드물다.</div>
+    <div class="same">우리만 한다. 취소 모델의 체결률 중앙값(~9%) vs 실측 패시브 체결률(~45%) 을 비교해
+      <b>모델을 실측에 맞춰 갈아엎은 기록</b>이 코드 주석에 남아 있다.</div>
+
+    <div>게시–체결 역선택 분해</div>
+    <div>실행 문헌은 이 개념(adverse selection / fill slippage)을 정의하지만, 백테스트 엔진이 <b>결정마다</b> 이것을 열로 남기는 경우는 못 봤다.
+      보통 체결가와 손익까지만 남는다.</div>
+    <div class="same">우리만 한다. <code>fill_slippage_bps</code> · <code>bid_move_bps</code> · <code>ask_move_bps</code> 로
+      “게시한 뒤 시장이 어디로 갔길래 체결됐는가” 를 결정 단위로 되짚을 수 있다.
+      research-log 가 “BID1 지정가는 시장이 내려와야 체결되므로 <code>fill_slippage_bps</code> 의 POSITIVE 가 구조적으로 없다(162건 중 0건)” 를
+      찾아낸 것도 이 열 덕분이다.</div>
+
+    <div>실행 프로필의 지문화</div>
+    <div>대부분 설정 파일로 둔다.</div>
+    <div class="same">우리만 한다. 실행 프로필 자체를 sha256 으로 굳히고, 프로필이 바뀌면 기존 실험을 이어 돌리지 않는다.
+      <code>hidden_constants()</code> 로 “결과를 바꾸는데 계약 밖에 있던 상수” 목록을 명시적으로 관리한다.</div>
+  </div>
+
+  <div class="oneline"><b>한 줄 대조.</b> 우리 백테스트는 <b>L4(재생 + 큐 위치)</b> 에 서 있다 —
+  조사한 학술 논문 대부분(L0~L2)보다 위이고, <code>hftbacktest</code>·NautilusTrader 같은 실무 엔진과 같은 층이되
+  <b>지연 모델이 없다</b>는 점에서 그 아래다. 그리고 국내 증권사가 공개한 유일한 백테스트(한투 backtester, L2 일봉)와는 층이 두 개 다르다.
+  우리가 문헌보다 확실히 앞서는 것은 체결 모델이 아니라 <b>검증 위생</b>(날짜 분리 계약 · 사전등록 · 소스 해시 · 중도절단 · 비용 이중계상 감사)이다.</div>
+
+  <div class="mynote"><div class="mnhead">✍︎ 이 조사가 우리 코드에 남기는 세 가지 숙제</div><ul>
+    <li><b>지연을 넣어 보고, 넣기 전과 후의 체결률을 같이 보고한다.</b> 조사한 실무 엔진이 전부 하는 것이고, 우리에게만 없다.
+      상수 하나(왕복 ms)를 프로필에 넣고 <code>LimitOrder.post</code> 시각을 미루는 것으로 시작할 수 있다.</li>
+    <li><b><code>unexplained_fill_fraction</code> 의 민감도 곡선을 낸다.</b> 지금 1.0 인 이 값은
+      hftbacktest 의 확률 큐 모델에서 <code>1 − prob ≡ 1</code>, 즉 <b>설명되지 않은 잔량 감소를 전부 내 앞의 취소로 보는 가장 낙관적인 설정</b>이다
+      (hftbacktest 의 <code>RiskAdverseQueueModel</code> 은 정반대로 전부 내 뒤로 보고, <code>ProbQueueModel</code> 은 앞/뒤 물량 비율로 그 사이를 정한다).
+      반대로 <code>queue_fraction = 1.0</code> 은 가장 보수적이다. 두 낙관·보수가 상쇄되는지 재지 않으면
+      주문 ID 없는 L2 원장을 쓰는 한 이것이 우리 백테스트의 가장 큰 미확인 가정으로 남는다.</li>
+    <li><b>강한 신호에서 체결률이 떨어지는지 먼저 데이터로 확인한다.</b> Noble–Rosenbaum–Souilmi(2026)의
+      “신호가 셀수록 경쟁자도 몰리므로 체결확률이 낮아야 한다” 는 가정을 넣기 전에,
+      우리 원장의 결정 시점 신호 값 × <code>fill_rate</code> 교차로 <b>실제로 그런지 바로 잴 수 있다.</b></li>
+    <li><b>시행 횟수를 성과에 반영한다.</b> 이미 Optuna trial 수·정제 라운드·창 수를 전부 기록하고 있으므로,
+      Deflated Sharpe Ratio 의 입력(N, 왜도, 첨도, 표본 길이)을 채우는 데 추가 실험이 필요 없다.</li>
+  </ul></div>
+</section>

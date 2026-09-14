@@ -1,0 +1,90 @@
+{
+ "key": "finrate",
+ "title": "Fin-RATE: A Real-world Financial Analytics and Tracking Evaluation Benchmark for LLMs on SEC Filings",
+ "authors_short": "Yidong Jiang, Junrong Chen 외 · Tongji Univ. · UC San Diego · Yale Univ.(Rex Ying) · Goldman Sachs",
+ "venue": "KDD 2026 (Proceedings of the 32nd ACM SIGKDD Conference … V.2)",
+ "venue_verified": "Crossref DOI 10.1145/3770855.3817528 = 'Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2'(2026-08-08) · arXiv 2602.07294 journal_ref 'KDD 2026' · PDF 헤더 'KDD ’26, August 09–13, 2026, Jeju Island'(p.1). doi.org→ACM DL은 403(봇 차단)이라 Crossref 메타데이터로 확인",
+ "type": "QA 데이터셋/벤치마크(문서 근거형 금융 분석 QA + RAG 평가 + 오류 분류)",
+ "domain": "금융 / 미국 SEC 공시(10-K, 10-Q, 8-K, DEF 14A, 6-K 등)",
+ "data_scope": "EDGAR에서 43개 기업·36개 산업·2020–2025년 2,472개 공시를 15,311개 청크(평균 2,649단어)로 분할한 코퍼스 위에 DR-QA/EC-QA/LT-QA 각 2,500개, 총 7,500 QA(p.4, Table 12 p.14)",
+ "tags": [
+  "SEC filings",
+  "financial QA",
+  "cross-company comparison",
+  "longitudinal tracking",
+  "RAG",
+  "LLM-as-judge",
+  "error taxonomy"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2602.07294",
+  "pdf": "https://arxiv.org/pdf/2602.07294",
+  "proceedings": "https://doi.org/10.1145/3770855.3817528",
+  "github": "https://github.com/jyd777/Fin-RATE",
+  "huggingface": "https://huggingface.co/datasets/GGLabYale/Fin-RATE",
+  "website": null,
+  "verified": "arXiv abs 200, GitHub 200(qa/DR-QA.json 4.0MB·EC-QA.json 7.1MB·LT-QA.json 6.7MB raw로 수신·파싱, 각 2,500건), HF GGLabYale/Fin-RATE 200(카드는 열리나 datasets-server는 'No supported data files'; 카드가 가리키는 JunrongChen2004/Fin-RATE도 200). doi.org는 302→403."
+ },
+ "easy": {
+  "problem": "기존 SEC 공시 QA 벤치마크는 한 문서·한 해의 사실 추출이나 표 계산에 머물러, 애널리스트가 실제로 하는 '여러 회사 비교'와 '여러 해 추적'을 재지 못하고, 틀렸을 때 왜 틀렸는지(검색 실패인지, 환각인지, 연도 착오인지)도 구분하지 못했다(p.1-2).",
+  "how": "EDGAR 공시를 항목(Item) 경계로 청크화한 코퍼스를 만들고, DeepSeek-V3.2가 청크/요약을 보고 QA를 생성 → 정규식 필터 → DeepSeek-V3.2·Qwen3-235B 두 LLM이 독립 검증 → 사람 검수 → 채점 포인트(scoring points) 추출의 순으로 7,500개 QA를 만들었다(Figure 2 p.3, p.4). 17개 LLM을 정답 문맥/RAG 두 설정에서 GPT-5·DeepSeek-V3.2·Qwen3-235B 3심 판정으로 채점하고 13종 오류 분류로 실패 원인을 진단한다(p.5).",
+  "analogy": "한 회사의 사업보고서를 읽고 답하는 시험(DR)에서, 같은 업종 두 회사의 보고서를 나란히 놓고 차이를 말하는 시험(EC), 한 회사의 5년치 보고서를 놓고 변화를 추적하는 시험(LT)으로 난도를 올리고, 오답을 '수치 조작·회사 혼동·연도 착오' 같은 항목으로 분류하는 채점표까지 붙인 것이다."
+ },
+ "contributions": [
+  "SEC 공시 기반 3경로(DR-QA·EC-QA·LT-QA) 각 2,500개, 총 7,500 QA; EC-QA는 평균 5.6개, LT-QA는 3.0개 청크를 근거로 요구(p.4, Table 13 p.14: 평균 단어 수 802/43,674/35,698)",
+  "4범주 13유형 오류 분류(검색·생성·금융 수치/의미·질의 이해)와 5차원 Likert 채점을 결합한 진단형 평가(p.2, Appendix I p.15-16)",
+  "17개 LLM 평가: 정답 문맥에서 사람 전문가 92.40/82.68/85.88% 대비 최고 LLM은 GPT-5-websearch 42.96/43.64/43.52%, DR-QA만 Fin-R1 57.48%(Table 2 p.6); 금융 특화 모델은 EC-QA에서 1.27%로 붕괴(p.7)",
+  "RAG 설정에서 종단 정확도 27% 미만, EC-QA Missing Evidence 75.44%로 병목이 검색기임을 규명(p.8, Table 4 p.8, Figure 5 p.8); BM25/벡터 혼합이 Jaccard 0.01~0.06의 낮은 후보 중복으로 오히려 악화(p.8)",
+  "LLM 심판 3개의 가중 융합이 사람 판정과 88.82/90.41/90.46% 일치(Table 14 p.15)"
+ ],
+ "figures": [
+  {
+   "file": "figs/finrate_fig2.png",
+   "label": "Figure 2",
+   "page": 3,
+   "caption_ko": "데이터 구축 프레임워크. (1) 데이터 수집: 30 SIC·7 GICS 섹터·지역·규모로 회사를 고르고 EDGAR 공시를 heading-aware 청킹해 id/title/text/metadata 코퍼스를 만든다. (2) Q&A 생성·정제: 청크에 문서유형/GICS/항목별 Focus Guidance를 붙여 DR·EC·LT 세 갈래로 QA를 생성(EC·LT는 요약→선택 경유)하고, 정규식 필터(회사명·연도 언급·답변 가능성)와 LLM 필터(사실 정확성·완전성·계산 정확성·비교가능성)를 거쳐 사람 검증 후 채점 포인트를 생성한다.",
+   "alt": "Fin-RATE 코퍼스 구축과 QA 생성·필터링 파이프라인"
+  },
+  {
+   "file": "figs/finrate_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "세 태스크의 개요와 평가 능력. Detail & Reasoning('B의 2020년 3분기 자사주 매입액과 유동성 영향은?' → 텍스트 파싱·근거 위치 찾기·계산), Enterprise Comparison('A와 B의 2020년 COVID 위험 공시 차이는?' → 동종사 비교·공시 정렬·차이 진단), Longitudinal Tracking('B의 제품 포지셔닝이 2019→2020에 어떻게 바뀌었나?' → 추세 포착·변화 추적·논리 구성)을 대비시킨다.",
+   "alt": "Fin-RATE 세 태스크 예시 질문"
+  }
+ ],
+ "dataset": {
+  "construction": "코퍼스: 'Fin-RATE is built entirely from official filings retrieved via the U.S. SEC EDGAR database'(p.3); 10-K 수가 많은 회사를 우선하고 GICS 섹터별로 표집해 43개 기업, Markdown 변환 후 SEC 표준 Item 경계로 분할(p.3-4). 생성: 'the generation model (DeepSeek-V3.2) produces multiple candidate QAs under either chunk-level or document-level contexts'(p.4); DR-QA는 폼 유형별 Focus Guidance(10-K는 비율 분석, 10-Q는 분기 추세, 8-K는 중대사건 영향; Table 5 p.12), EC-QA는 같은 GICS 섹터·같은 회계연도 10-K의 Item 1A/7 등을 요약 후 비교 QA 생성(2단계), LT-QA는 회사–연도–항목 단위 요약 후 다년 비교 QA 생성(p.4). 검증: 'two structurally distinct and high-performing LLMs (DeepSeek-V3.2 and Qwen3-235B) independently assess each candidate QA' → Correct/Partial/Incorrect/Failure 라벨, 어느 하나라도 오류로 표시하면 폐기, Correct만 사람 검수로(p.4). 사람 검수 기준은 사실 정합·참조 청크 기여·수치 재계산(Appendix F p.14-15); 'For each QA type, this process is repeated iteratively until 2,500 valid QAs are retained'(p.4). 필터링 비율은 미보고. 각 QA에 채점 포인트(key_points)를 별도 생성.",
+  "size_format": "GitHub qa/DR-QA.json·EC-QA.json·LT-QA.json 각 2,500건(JSON 배열). DR 필드: question, answer(서술형 장문), source('chunk_based'), key_points(채점 포인트 리스트), doc_id, q_id; EC/LT는 doc_ids(복수), source(EC만). corpus/corpus.zip(청크 코퍼스)과 evaluation/qa_llm_judge.py, generation/qa_generation.py 동봉. 문서유형 분포: 10-K 72.92%, DEF-14A 8.65%, 10-Q 7.79%, 8-K 6.17%(Table 12 p.14).",
+  "samples": [
+   "[DR-QA] Q: \"What was the total amount spent by VALERO ENERGY CORP/TX on share repurchases during the fourth quarter of 2024, and what was the average price paid per share?\" | A(일부): \"According to the 2025 10-K filing, VALERO ENERGY CORP/TX spent approximately $264 million on share repurchases in the fourth quarter of 2024.\nThe average price paid per share during that period was $127.96.\nCalculation basis:\nThe table in the filing shows:\nTotal shares repurchased: 2,060,851\nAverage price per share: $127.96\nTota…\" | key_points[0]: \"The total amount spent on share repurchases in Q4 2024 must be stated as approximately $264 million.\" (출처: GitHub jyd777/Fin-RATE qa/DR-QA.json, q_id qa_1_000000, doc_id doc_000009)",
+   "[EC-QA] Q: \"In 2020, what were the key governance policies and internal control mechanisms reported by CADIZ_INC and HOUSTON_AMERICAN_ENERGY_CORP, and how do these compare in terms of effectiveness and their influence on company performance?\" | A(일부): \"In 2020, CADIZ_INC and HOUSTON_AMERICAN_ENERGY_CORP demonstrated distinct approaches to governance policies and internal controls, as per their Item 10 disclosures. CADIZ_INC explicitly reported that its disclosure controls and internal control over financial reporting were effective as of December …\" | doc_ids: ['doc_003213', 'doc_010823', 'doc_010834', 'doc_010835'] (출처: qa/EC-QA.json, q_id qa_3_000000)",
+   "[LT-QA] Q: \"How did AGILYSYS INC's strategic direction and business model evolve from its origins to its focus in 2019 and 2020?\" | A(일부): \"AGILYSYS INC's strategic direction and business model underwent a significant transformation over the years, culminating in an exclusive focus on the hospitality industry by 2019 and 2020. Originally, the company operated as a distributor of electronic components and enterprise computer solutions. T…\" | doc_ids: ['doc_007750', 'doc_007786'] (출처: qa/LT-QA.json, q_id qa_2_000000)",
+   "[논문 Figure 6 p.9 사례] Q: \"What was the current ratio for Journey Medical Corp in 2024 as mentioned in its 2025 10-K filing, and how did it compare to the previous year?\" | Gold: \"2023 ratio: 56,455 ÷ 41,868 = 1.35 / 2024 ratio: 48,179 ÷ 35,175 = 1.37\""
+  ],
+  "class": "B",
+  "class_reason": "질문이 특정 회사·연도·공시(항목)에 묶여 있고 근거 청크가 doc_id로 동봉되지만, 정답은 서술형 분석문(비교·추세·해석)이며 LLM 심판이 채점 포인트·Likert로 평가하므로 결정론적 계산값이 아니다. DR-QA 일부(자사주 매입액×평균단가, 연금자산 수익률 등)는 표에서 수치를 뽑아 계산하는 C-lite 성격이 있으나 답 형식이 자유 서술이라 전체적으로는 도메인 특화 문서근거 QA(B)로 본다.",
+  "release": "GitHub 공개(라이선스 필드 없음), HF 카드 라이선스 MIT. GitHub raw로 3개 QA 파일 전량 열람. HF GGLabYale 저장소는 datasets-server 미지원(파일 형식). 원 공시는 SEC 공개 자료.",
+  "contamination": "SEC 공시가 사전학습에 포함될 가능성을 README 한계 절에서 인정하며, closed-book/불일치 문맥 실험으로 근거 없이는 못 푼다고 주장(GitHub README). 논문 본문에는 별도 오염 통제 절 없음. 심판 자기선호(DeepSeek-V3.2가 생성·심판 겸임) 우려도 README에 기재.",
+  "evaluation": "정확성 라벨(Correct/Partial/Incorrect/Failure)·5차원 Likert(1–5)·오류 유형 귀속을 GPT-5·DeepSeek-V3.2·Qwen3-235B 가중 융합으로 산출(p.5, Appendix G-H p.15). 정답 문맥: 사람 92.40/82.68/85.88%, GPT-5-websearch 42.96/43.64/43.52%, Fin-R1 DR 57.48%(Table 2 p.6). 검색: BM25 DR R@10 41.16%, EC-QA 최고 R@10 9.73%(Table 3 p.7). RAG 종단: GPT-5 VF+R DR 26.20%, EC 10.80%, LT 14.00%(Table 4 p.8)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 공개 SEC EDGAR 공시(기존 공개 원문)를 새로 수집·청킹하고 QA는 전량 신규 생성(p.3-4).",
+  "q2_method": "② 회사 선정 기준(10-K 수·GICS 표집), 폼 유형, 청킹 규칙, 생성 모델(DeepSeek-V3.2), 검증 모델(DeepSeek-V3.2·Qwen3-235B), 사람 검수 기준(Appendix F)까지 명시. 다만 검수 인원·전문성·폐기율은 미기재.",
+  "q3_license": "③ 원문은 미국 정부 공개 자료(EDGAR); 데이터셋은 GitHub/HF 공개(HF 카드 MIT). 유료 DB·제휴 없음.",
+  "q4_relabel": "④ 공개 문서를 재라벨링한 것이 아니라 청크 기반으로 QA·채점 포인트를 새로 생성(태스크 맞춤).",
+  "q5_industry": "⑤ 대학(Yale·Tongji·UCSD) 주도, Goldman Sachs AI Research 저자·펀딩 참여(p.9 Acknowledgments). 기업 내부 데이터는 사용하지 않았고 결과물은 공개.",
+  "q6_constraints": "⑥ 저작권 제약이 낮은 공공 공시를 썼기에 공개에 장애 없음. 비미국·비상장·실시간 데이터 미포함은 README 한계로 명시.",
+  "q7_accept": "⑦ 공개 리뷰 없음(KDD). self-claim: 최초의 다문서·다기간·다기업 SEC 분석 벤치마크(Table 1 p.2), 13유형 오류 분류, 17개 모델·RAG 진단."
+ },
+ "review": null,
+ "limitations": "정답이 LLM(DeepSeek-V3.2) 생성 서술문이어서 채점 포인트 자체의 정확성이 사람 검수 품질에 좌우되며 검수 규모·일치도는 미보고. 생성·심판 모델이 겹쳐 자기선호 위험(README). 43개 기업·2020–2025로 범위가 좁고 10-K 편중(72.92%). EC/LT-QA 입력이 평균 3.5만~4.4만 단어라 컨텍스트 길이에 좌우되고, RAG 실험은 500개 표본·gold 청크 5개 이하로 제한(p.8). 수치 문항도 자유 서술이라 정확일치 채점이 불가능하다.",
+ "oneline": "SEC 공시 7,500 QA로 단일문서 추론·기업 간 비교·다년 추적을 LLM 3심 판정과 13유형 오류 분류로 진단하는 KDD 2026 벤치마크.",
+ "implications": [
+  "우리 온체인 QA처럼 '근거 레코드 동봉'을 하되, Fin-RATE는 답을 서술형으로 두어 채점 포인트 기반 LLM 판정이 필요해졌다. 결정론적 정답(정수/레코드)을 유지하는 우리 설계가 채점 비용과 심판 편향 면에서 유리함을 대조 사례로 인용할 수 있다.",
+  "EC/LT-QA에서 '엔티티 혼동(B1-2 22,885건)·시간 불일치(C3)'가 급증한 결과는, 여러 주소·블록 구간을 동시에 다루는 C형 문항에서 개체 혼동·구간 착오를 별도 오류 범주로 라벨링해 진단하도록 시사한다.",
+  "RAG 병목이 검색기(EC-QA Missing Evidence 75.44%)라는 결론은, 온체인 QA에서 evidence를 사전에 동봉하는 설정과 에이전트가 직접 원장을 조회하는 설정을 분리해 평가해야 함을 뒷받침한다.",
+  "생성 LLM과 검증 LLM을 다른 계열로 두고 어느 하나라도 오류 표시 시 폐기하는 이중 검증 후 사람 검수로 넘기는 절차는, 온체인 규약 문항의 자동 생성 시 품질 게이트로 차용할 만하다."
+ ],
+ "brief": false
+}

@@ -1,0 +1,31 @@
+{
+ "key": "symbolic_alpha_gap",
+ "title": "기호적 알파 채굴과 다중검정 보정의 교집합은 비어 있다",
+ "authors_short": "AlphaAgent · AlphaMemo · Alpha Singularity 외",
+ "venue": "arXiv 2502.16789 · 2606.20625 · 2606.29194 (2025–2026)",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2502.16789",
+  "github": "https://github.com/jarrettyu/AlphaMemo",
+  "github_extra": [
+   "https://github.com/trevorstephens/gplearn",
+   "https://github.com/astroautomata/PySR",
+   "https://github.com/ICT-FinD-Lab/alphagen"
+  ],
+  "verified": "arXiv API 로 세 편 확인. AlphaMemo star 10. gplearn star 1,881 BSD-3 · PySR star 3,750 Apache-2.0 · alphagen star 1,225 라이선스 없음"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "대부분 일간 팩터 수익률 재생이다.",
+  "data_short": "일간 팩터 데이터",
+  "fill_short": "대개 명시 없음",
+  "cost_short": "대개 없음",
+  "design": "**AlphaAgent** — 유전 프로그래밍이 \"face rapid alpha decay from overfitting and complexity\" 하는 문제를 (i) **AST 기반 유사도로 독창성 강제**, (ii) 가설–팩터 의미 정합, (iii) **AST 구조 제약으로 복잡도 통제** 로 푼다. **AlphaMemo** 는 AST diff 에서 \"어떤 편집 모티프가 되고 안 되는지\" 를 기억한다. **Alpha Singularity** 가 실패 모드를 가장 날카롭게 진단한다 — \"Automated alpha mining holds the scoring function fixed and varies the search algorithm over it. **A search that converges against a fixed scorer overfits whatever the scorer cannot penalize, a primary cause of the out-of-sample generalization gap.**\"",
+  "gap": "**세 편 어디에도 DSR·PBO·haircut·다중검정 보정이 없다.** AST 복잡도 벌점·독창성 정규화·봉인 홀드아웃으로 과적합을 다루는데, 이것들은 실재하고 유용하지만 선택편의 기계장치와는 **직교**한다. 도구 쪽도 같다 — `gplearn`·`PySR`·`alphagen` 모두 다중검정 통제가 없다."
+ },
+ "oneline": "기호 회귀로 알파를 캐는 문헌과 다중검정을 보정하는 문헌이 아직 만나지 않았다 — 그 교집합이 비어 있다는 것 자체가 기여 지점이다.",
+ "implications": [
+  "**우리 프로젝트가 정확히 그 교집합에 있다.** LLM + Optuna 로 진입식을 탐색하면서 시행 횟수를 전부 기록하고 있으므로, 유효 시행 수 기반 DSR 을 붙이는 것만으로 이 공백을 메울 수 있다.",
+  "\"고정된 채점자에 수렴하는 탐색은 그 채점자가 벌하지 못하는 것을 과적합한다\" 는 진단이 우리에게 그대로 해당한다 — 우리 채점자는 `net_bps_total` 이고, 그것이 벌하지 못하는 것은 **거래 횟수 감소**와 **체결 모형의 허점**이다."
+ ],
+ "resolution": "일봉 이상"
+}

@@ -1,0 +1,58 @@
+{
+ "key": "mars_lobbench",
+ "title": "MarS (ICLR 2025) · LOB-Bench (ICML 2025) — 생성모델로 시장을 만들고, 그 시장이 진짜인지 채점하는 두 축",
+ "authors_short": "Microsoft Research (MarS) · Nagy·Frey·Li·Sarkar·Vyetrenko·Zohren·Calinescu·Foerster (LOB-Bench)",
+ "venue": "ICLR 2025 (MarS) · ICML 2025 (LOB-Bench)",
+ "venue_verified": "MarS arXiv 2409.07486, ICLR 2025. LOB-Bench arXiv 2502.09172, ICML 2025. 저장소 microsoft/MarS(star 1,783, MIT)와 peernagy/lob_bench(star 45, LICENSE 404) 확인",
+ "type": "생성형 시장 시뮬레이터 + 그 평가 벤치마크",
+ "domain": "호가창 생성 · 상호작용 시뮬레이션",
+ "data_scope": "MarS: \"the **top 500 liquidity stocks in the Chinese stock market**, covering the period from **2017 to 2023** and comprising **16 billion order tokens**\". LLaMA2 기반, 32B(주문 모델)·10B(주문배치 모델) 토큰 스케일링 연구. LOB-Bench: LOBSTER 형식의 GOOG·INTC.",
+ "tags": [
+  "생성형 시장",
+  "자기영향 있음",
+  "판별자 ROC≈1",
+  "가중치 미공개"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2409.07486",
+  "github": "https://github.com/microsoft/MarS",
+  "github_extra": [
+   "https://github.com/peernagy/lob_bench"
+  ],
+  "website": "https://lobbench.github.io/",
+  "verified": "arXiv 200 · 두 저장소 200"
+ },
+ "easy": {
+  "problem": "재생 백테스트는 내 주문에 시장이 반응하지 않는다. 그러면 반응하는 시장을 **만들면** 되지 않을까?",
+  "how": "MarS 는 대규모 주문 토큰으로 언어모델을 학습시켜 다음 주문을 생성하고, 그 사이에 사용자의 주문을 청산소에 넣어 **매칭 결과를 다음 주문 생성의 조건으로 되먹인다.** LOB-Bench 는 그렇게 만든 시장이 진짜와 구분되는지 채점한다.",
+  "analogy": "게임 NPC 를 잘 만들어 진짜 상대처럼 반응하게 하는 것. 그리고 그 NPC 가 사람인지 아닌지 심판이 맞히는지 보는 것."
+ },
+ "contributions": [
+  "**MarS 의 자기영향 구현** — \"For each generated order x_i, the clearing house processes it against any j interactive orders (j ≥ 0) injected by the user. The results of this matching process, including the recent LOB, are then used to generate the next order.\" 명시적 충격 모형이 아니라 **되먹임 조건화**로 자기영향을 만든다.",
+  "MarS 의 문제의식 — \"Without an interactive environment, most existing financial RL works cannot model the realistic impact of market state caused by agent actions.\" 검증은 중국 상위 500종목의 시뮬레이션 궤적 11,591개(2023-03-09~07-12)와 62.4만 TWAP 궤적에서의 제곱근 법칙 확인. RL 데모는 −6bp → 2~6bp.",
+  "**LOB-Bench 의 결론이 이 분야의 현주소다.** L1·Wasserstein-1 거리를 스프레드·불균형·도착간격·취소시간·물량·깊이·레벨·OFI·조건부 OFI 에 대해 재고, **시장충격(6개 이벤트 타입의 가격반응함수)** 까지 넣고, 마지막으로 판별자를 학습시킨다. 결과: **판별자 ROC 가 약 1** — **현재의 모든 생성형 호가창 시뮬레이터는 실데이터와 자명하게 구분된다.**",
+  "LOB-Bench 는 '모델 탈선(model derailment)' 도 지목한다 — 언롤 지평이 길어질수록 발산이 커진다."
+ ],
+ "backtest": {
+  "rung": "L5",
+  "rung_reason": "생성된 배경 흐름이 사용자 주문이 바꾼 호가창에 조건화된다. 즉 자기영향이 있다. 다만 그 시장이 진짜와 구분된다는 것을 LOB-Bench 가 보인다.",
+  "data_short": "중국 상위 500종목 주문 토큰 160억 개",
+  "fill_short": "실제 청산소 매칭 + 생성 흐름 되먹임",
+  "cost_short": "다루지 않음",
+  "selfimpact": "**있다.** 이 시스템의 존재 이유다.",
+  "validation": "정형 사실 + Wasserstein 거리 + 판별자 ROC + 충격 반응함수, IQM 과 99% 부트스트랩 신뢰구간.",
+  "metrics": "MarS: 체결률 + 가격우위. LOB-Bench: 분포 거리와 판별자.",
+  "gap": "**MarS 의 대규모 가중치는 공개되지 않았다** — HuggingFace 에는 2M/5M/10M 파라미터 모델만 있다. 그리고 LOB-Bench 기준으로 현재 생성형 시뮬레이터는 전부 실데이터와 구분된다. Coletta 외(ICAIF 2023)는 한 걸음 더 나가 **적대적 전략이 생성형 시뮬레이터를 악용해 비현실적 초과수익을 낸다**는 것을 보였다."
+ },
+ "code": [
+  "[microsoft/MarS](https://github.com/microsoft/MarS) — star 1,783, MIT (소형 체크포인트만)",
+  "[peernagy/lob_bench](https://github.com/peernagy/lob_bench) — star 45, **LICENSE 404** · [리더보드](https://lobbench.github.io/)"
+ ],
+ "oneline": "재생의 자기영향 문제를 생성모델로 풀려는 시도의 최전선 — 그리고 아직 판별자가 전부 잡아낸다.",
+ "implications": [
+  "우리가 재생을 쓰는 한 자기영향은 남는다. 이 축의 대안이 아직 '판별자 ROC ≈ 1' 이라는 사실은 **지금 단계에서 재생 + 정직한 가정 서술이 합리적 선택**임을 뒷받침한다.",
+  "LOB-Bench 의 평가 목록(스프레드·불균형·도착간격·취소시간·깊이·OFI 분포 + 충격 반응함수)은 **우리 원장의 정형 사실을 점검하는 체크리스트로 그대로 쓸 수 있다** — 우리 데이터가 이 분포들에서 어디 있는지 한 번도 보고한 적이 없다.",
+  "\"적대적 전략이 시뮬레이터를 악용한다\" 는 Coletta 의 결과는 우리에게도 적용된다 — 탐색(Optuna)이 체결 모형의 허점을 찾아 이용하고 있지 않은지 확인할 필요가 있다."
+ ],
+ "resolution": "틱·메시지"
+}

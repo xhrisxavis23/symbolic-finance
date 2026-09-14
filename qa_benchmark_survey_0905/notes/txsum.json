@@ -1,0 +1,31 @@
+{
+ "key": "txsum",
+ "title": "TxSum: User-Centered Ethereum Transaction Understanding with Micro-Level Semantic Grounding",
+ "authors_short": "Peng et al. · HKUST (Guangzhou) · Wuhan University · Fudan University · University of North Texas 등",
+ "venue": "EMNLP 2026 (GitHub README self-claim) / arXiv 2512.06933 v4",
+ "venue_verified": "논문 PDF(v4, 'arXiv:2512.06933v4 [cs.CE] 31 Aug 2026', ACL 양식) 1-8쪽에 학회 표기 없음; GitHub sfofgalaxy/matex README 첫 줄 'Official implementation of TxSum … (EMNLP 2026)'만 확인 — ACL Anthology 등 공식 출처로는 미확인",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2512.06933",
+  "pdf": "https://arxiv.org/pdf/2512.06933",
+  "proceedings": null,
+  "github": "https://github.com/sfofgalaxy/matex",
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv PDF 다운로드 OK(1-8쪽 정독); GitHub 200(라이선스 없음, 0★, 최종 push 2026-08-26); 저장소 구성 baselines/·evaluation/LLMaaJudge.py·matex/(agents·core·tools·main.py)·README — 187건 데이터셋 파일은 저장소 목록·README에서 확인되지 않음(README는 sample_data/<case>/input.txt 형식으로 사용자가 직접 추적을 넣도록 안내)"
+ },
+ "domain": "이더리움 DeFi 트랜잭션 설명(토큰 흐름 단위 의미 주석 + 트랜잭션 요약; 블라인드 서명 방지)",
+ "dataset": {
+  "construction": "16명 Web3 사용자 인터뷰로 필요를 정의(p.1-2, App.A). 수집: '첫 sampled 500 Ethereum transactions from a full node over 2025', 전문가 정의 5개 의미 범주(스왑·대출/차입 사이클·스테이킹/위임·유동성 풀·복합/교차 프로토콜)에서 각 100건; 토큰 흐름 5개 미만·30개 초과 제거 → 187건(p.4). 각 건에 대해 아카이브 노드 전체 호출 추적, EigenPhi에서 토큰 전송·순잔액 변화·토큰흐름 그래프 수집. 주석: 'annotated by six graduate-level annotators whose research focuses on DeFi', 3개 고정 쌍이 62~63건씩 독립 주석 후 제3 주석자가 불일치 해소; 3단계(개요→토큰 흐름별 5속성 action_type·intent·mechanism·precondition·result 라벨링→3~4문장 요약, 'without invoking external knowledge, protocol reputations, or speculative intent')(p.4). 일치도: action_type Cohen κ 0.98, 자연어 4필드 BERTScore F1 > 0.91(p.4). 통계: 2,375 토큰흐름 주석, 건당 평균 12.7 흐름, 요약 평균 3.3문장(101.3 토큰), 단순 43·중간 90·복합 54, 관련 계약의 20.2%는 검증된 ABI 없음(p.4).",
+  "size_format": "187개 트랜잭션 × (트랜잭션 수준 3~4문장 요약 + 토큰 흐름별 5속성 주석 2,375개); 입력은 메타데이터·전체 호출 추적·ERC-20/721 전송 순서·순잔액 변화(p.3); action_type은 14개 표준 라벨(App. Table 5). 파일 형식·공개 위치 미확인.",
+  "samples": [
+   "[논문 §2.1 p.3 · 속성 예시] action_type: one of 14 financial primitives (e.g., redeem, deposit) · intent: \"swap out USDT for USDC\" · mechanism: \"UniswapV3#exactInput\" · precondition: \"USDC approved and balance > 10\" · result: \"+1500 USDC balance\"",
+   "[논문 Fig.1 p.2 · 예시 트랜잭션 서술] User's simple intent: 10 ETH → 25,000 DAI via Aggregator; actual execution: (1) 10 ETH to Aggregator Router → (2a) 6 ETH Uniswap V3 (ETH/USDC) → USDC → Uniswap V3 (USDC/DAI), (2b) 4 ETH SushiSwap (ETH/DAI), fees to Surplus Collector / Referral Proxy → (3) Net DAI (post-fees) to user",
+   "[논문 §4.2.3 p.8 · 사용자 위험 인식 응답 예시] \"unlimited approval granted to 0x...789\" (MATEX 조건) vs \"looks sketchy\" (Raw 조건)"
+  ],
+  "class": "C-lite",
+  "class_reason": "특정 실제 트랜잭션(해시)의 원시 추적·전송 로그를 입력으로 주고 토큰 흐름별 사실(결과 잔액 변화 등)을 주석했으므로 개체 지정·원자료 동봉·사실 결정론성은 C형에 가깝다. 그러나 산출물이 값이 아니라 자연어 요약·의미 라벨이고 판정은 LLM/전문가 pass-fail이라 계산형 QA는 아니며, 규약(예: 이벤트 디코딩)이 질문에 명시되지 않는다. 따라서 C-lite.",
+  "release": "GitHub sfofgalaxy/matex는 MATEX 프레임워크 코드·LLM 판정 스크립트만 확인되고 187건 데이터셋·주석 파일은 저장소에서 찾지 못함(README에도 다운로드 안내 없음) → 데이터 공개 여부 미확인; 라이선스 없음."
+ },
+ "oneline": "16명 인터뷰로 정의한 '토큰 흐름 단위 설명' 과제(TxSum)와 187건·2,375 흐름 주석 데이터, 불확실성 기반 검색·감사 다중 에이전트 MATEX(사용자 이해도 52.9→76.5%, 악성 거래 거부 36→88%)를 제안; GitHub README는 EMNLP 2026 채택을 주장하나 데이터 파일은 미확인.",
+ "brief": true
+}

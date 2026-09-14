@@ -1,0 +1,54 @@
+{
+ "key": "kiwoom_rest",
+ "title": "키움증권 공식 REST API 저장소 — 틱차트는 주지만 백테스터는 없다",
+ "authors_short": "키움증권 (Kiwoom Securities) 공식",
+ "venue": "공식 오픈소스 (GitHub)",
+ "venue_verified": "github.com/Kiwoom-Securities/Kiwoom-REST-API 의 README.md 를 raw 로 직접 열람(2026-09-09). 첫 줄 \"안녕하세요, 키움증권입니다\" 로 공식임을 명시. examples/국내주식/차트/ 폴더 목록과 get_domestic_stock_tick_chart.py 원문을 직접 확인. star 수는 GitHub API 호출 한도로 미확인",
+ "type": "증권사 공식 API 클라이언트 · 예제 · Postman · MCP 서버",
+ "domain": "국내주식·미국주식 시세/주문 API",
+ "data_scope": "REST 337개 API 스펙 + 파이썬 예제 362개(OAuth 2 · 국내주식 226 · 미국주식 134) + WebSocket 31개 + Postman 컬렉션 612 요청. 차트 API 28종 중 **틱차트가 실재한다**: `ka10079` 주식틱차트조회요청, 업종틱차트, 금현물틱차트.",
+ "tags": [
+  "증권사 공식",
+  "틱차트 API",
+  "MCP",
+  "백테스터 없음"
+ ],
+ "links": {
+  "github": "https://github.com/Kiwoom-Securities/Kiwoom-REST-API",
+  "website": "https://openapi.kiwoom.com/",
+  "verified": "README.md · examples/국내주식/차트/ 목록 · get_domestic_stock_tick_chart.py 모두 200 으로 열람"
+ },
+ "easy": {
+  "problem": "키움은 오랫동안 윈도우 전용 OCX(Open API+)로만 API 를 열어 왔다. 리눅스·맥·서버에서 못 쓰고 32bit 파이썬을 강요받는 구조였다.",
+  "how": "REST + WebSocket 으로 전면 재작성하고, 337개 API 스펙과 함수 단위 예제 362개, Postman 컬렉션, 그리고 AI 에이전트가 API 를 부를 수 있는 MCP 서버까지 공식 저장소에 올렸다. 인증은 PyPI CLI(`kwcli`)가 OS 자격증명 저장소에 키를 넣는 방식이다.",
+  "analogy": "부품 창고(API)를 아주 잘 정리해서 열어 줬지만, 그 부품으로 만든 자동차(백테스터)는 안 준다."
+ },
+ "contributions": [
+  "국내 증권사 중 **과거 틱 데이터를 REST 로 주는 몇 안 되는 곳**이다. `ka10079` 주식틱차트조회요청이 체결시간·현재가·거래량·시가·고가·저가·마지막틱갯수를 돌려준다.",
+  "다만 응답 필드가 OHLCV 라는 점이 중요하다 — **n틱봉(tick bar)** 이지, 주문 ID 가 붙은 메시지 단위 원장이 아니다. 호가(매수·매도 10단계) 과거 이력은 이 API 계열에 없다.",
+  "MCP 서버(`mcp_exec`, `mcp_spec`)와 `.mcpb` 번들을 공식 제공해 LLM 에이전트가 API 를 직접 호출하게 열어 뒀다.",
+  "CLI 소스(`kiwoom_cli/`)는 공개 저장소에 포함하지 않고 PyPI 바이너리로만 배포한다 — 부분 공개다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "백테스트 코드 자체가 없다. 저장소가 제공하는 것은 시세·주문 API 클라이언트와 예제이고, 시뮬레이션 계층은 사용자 몫이다. 모의투자(demo) 환경은 있지만 그것은 백테스트가 아니라 페이퍼 트레이딩이다.",
+  "data_short": "KRX 틱봉·분봉·일봉 (REST)",
+  "fill_short": "해당 없음 (백테스터 없음)",
+  "cost_short": "해당 없음",
+  "data": "틱차트(`ka10079`)·분봉·일/주/월/년봉 등 차트 API 28종. 응답은 모두 봉(bar) 형태. 실시간은 WebSocket 31종.",
+  "design": "백테스트 설계가 존재하지 않는다. 저장소 README 에 백테스트·시뮬레이션·성과지표에 대한 언급이 한 줄도 없고, 폴더 구조에도 그런 모듈이 없다.",
+  "validation": "해당 없음.",
+  "gap": "과거 **호가창** 이력을 주지 않는다. 틱차트도 봉으로 집계된 형태라 매수주도/매도주도 구분, 잔량, 큐 위치를 복원할 수 없다. 즉 이 API 만으로는 L3 이상의 백테스트를 만들 수 없고, 실시간 WebSocket 을 직접 수집해 쌓는 수밖에 없다."
+ },
+ "code": [
+  "[Kiwoom-Securities/Kiwoom-REST-API](https://github.com/Kiwoom-Securities/Kiwoom-REST-API) — 공식 REST/WebSocket 런타임 · 예제 362개 · Postman · MCP. `LICENSE.md` 존재(내용 미확인)",
+  "커뮤니티: [breadum/kiwoom](https://github.com/breadum/kiwoom) (구 OpenAPI+ 파이썬 래퍼), [dongbin300/KiwoomRestApi.Net](https://github.com/dongbin300/KiwoomRestApi.Net) (.NET 래퍼)"
+ ],
+ "limitations": "틱차트 API 의 조회 가능 기간·건수 상한을 이번 조사에서 확인하지 못했다(웹 검색 예산 소진). 예제 코드의 `MAX_PAGES = 10`, `REQUEST_DELAY_SECONDS = 0.2` 는 예제의 기본값이지 API 상한이 아니다.",
+ "oneline": "국내에서 과거 틱을 REST 로 주는 드문 창구지만, 그 틱은 호가 없는 봉이고 백테스터는 애초에 없다.",
+ "implications": [
+  "\"국내에서도 틱을 주긴 한다\" 와 \"국내에서 호가창 재생 백테스트를 할 수 있다\" 는 다른 말이다. 후자는 실시간 수집 없이는 성립하지 않는다 — 우리가 `tick_collector` 로 직접 모은 이유를 설명하는 근거가 된다.",
+  "우리 원장이 쓰는 `data_type==12`(호가 10단계) · `data_type==11`(체결) 조합은 증권사 공개 API 로는 과거분을 살 수 없다. 데이터 출처의 희소성이 이 연구의 방어선 중 하나다."
+ ],
+ "resolution": "해당 없음"
+}

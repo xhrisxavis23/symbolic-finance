@@ -1,0 +1,108 @@
+{
+ "key": "steerme",
+ "title": "STEER-ME: Assessing the Microeconomic Reasoning of Large Language Models",
+ "authors_short": "Narun K. Raman, Taylor Lundy, Thiago Amin, Jesse Perla, Kevin Leyton-Brown · University of British Columbia",
+ "venue": "NeurIPS 2025 Datasets & Benchmarks Track (poster)",
+ "venue_verified": "OpenReview jpwvhUSp2Y venue='NeurIPS 2025 Datasets and Benchmarks Track poster'(notes/search API) · neurips.cc/virtual/2025/poster/121497 페이지 제목 'NeurIPS Poster STEER-ME…'가 해당 OpenReview로 링크. 앞서 ICLR 2025 제출(g3nxy8N3bQ)은 Reject(6/5/5). 정독한 arXiv v2(2025-02-19)는 'Manuscript submitted for review to … EC'25' 표기(p.1)로 NeurIPS 최종본과 세부 수치가 다를 수 있음",
+ "type": "벤치마크(합성 객관식/자유서술 미시경제 문제) + 데이터 생성 프로토콜(auto-STEER)",
+ "domain": "경제학 / 비전략적 미시경제(수요·공급·생산·균형·후생)",
+ "data_scope": "58개 요소(5 설정·17 모듈, Table 1 p.5) × 최대 10 도메인 × 5 관점 × 최대 3 유형; 30개 인스턴스화 요소에 요소당 5,000–20,000 MCQA(p.6); HF narunraman/steer_me test 1,581,205행·train 11,570행; 평가는 27개 LLM·21,000 문항(p.4)",
+ "tags": [
+  "microeconomics",
+  "synthetic benchmark",
+  "auto-STEER",
+  "MCQA",
+  "free-text QA",
+  "data contamination",
+  "calibration"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2502.13119",
+  "pdf": "https://arxiv.org/pdf/2502.13119",
+  "proceedings": "https://openreview.net/forum?id=jpwvhUSp2Y",
+  "github": null,
+  "huggingface": "https://huggingface.co/datasets/narunraman/steer_me",
+  "website": "https://steer-benchmark.cs.ubc.ca/",
+  "verified": "arXiv abs 200, OpenReview forum 307(챌린지 페이지), neurips.cc 포스터 페이지 302→200, steer-benchmark.cs.ubc.ca 200(Streamlit 앱, JS 필요해 내용 미열람), HF narunraman/steer_me(OpenReview 제출 노트 dataset_URL)는 datasets-server로 test 100행 수신. GitHub 코드 저장소는 논문에 URL 없음(리뷰어도 평가 코드 미공개 지적)."
+ },
+ "easy": {
+  "problem": "LLM이 경제 조언·정책 시뮬레이션에 쓰이지만, 수요·공급·이윤극대화 같은 미시경제 기초를 얼마나 제대로 푸는지 폭넓게 재는 벤치마크가 없었고(기존 STEER는 게임이론에 치중), 고정 문제집은 학습 데이터 오염 위험이 있다(p.2-3).",
+  "how": "미시경제 추론을 58개 요소로 분류하고, 각 요소마다 사람이 쓴 골드 템플릿을 gpt-4o가 10개 도메인·5개 관점으로 스타일 변환한 뒤 사람이 수정하고, 템플릿마다 숫자를 무작위로 채워 프로그램으로 정답·보기를 계산하는 auto-STEER로 문제를 대량 생성했다(p.7-8). 27개 LLM을 0-CoT(보기 숨김/공개), 'No other option is correct' 삽입(CAR), 자유서술 등으로 평가했다.",
+  "analogy": "경제학 원론 문제집을 손으로 몇 문제 쓴 뒤, 같은 문제를 '헤드폰 구매'·'병원 예산'·'스포츠 용품' 등 배경과 화자만 바꿔 수천 개로 복제하고 숫자를 매번 새로 뽑는 자동 출제기다. 오래된 기출이 유출될 걱정 없이 매번 새 시험지를 찍는다."
+ },
+ "contributions": [
+  "비전략적 미시경제 58개 요소·5개 설정의 분류 체계(Table 1 p.5, Appendix A)와 최대 10 도메인·5 관점·3 유형의 조합 공간(p.6)",
+  "auto-STEER: 골드 템플릿 → LLM 스타일 변환(도메인·관점) → 사람 검수 → 요소당 100 템플릿 × 도메인·관점 = 30,000 템플릿(요소당 500개 표본 검사 99.88% 유효) → 템플릿당 20개 숫자 인스턴스 → (도메인,관점) 쌍당 1,000문항(p.7-8); 웹앱으로 이중 확인(Fig. 1 p.7)",
+  "27개 LLM·21,000문항 평가($12,439.54 API + 9.81 GPU-년, p.4): o1-preview만 13개 요소 전부에서 최고, 나머지는 요소별로 들쭉날쭉(p.10)",
+  "보기 대입 '치팅' 발견: gpt-4o Profit Maximization 정확도 shown 33.2%→hidden 27.1%(무작위 25%에 근접), 자유서술에서는 어떤 모델도 10% 미만(p.14); CAR에서 정답이 '해당 없음'일 때 claude-3-5-sonnet −20.5%p(p.14, Table 2 p.18)",
+  "지수 연산 능력과 하위 과제 성능 격차의 상관 r=0.774(p=1.23e-7)(p.11); 독점 자중손실에서 claude-3-5-sonnet 오답의 43.8%가 특정 잘못된 공식(Fig. 10 p.17)"
+ ],
+ "figures": [
+  {
+   "file": "figs/steerme_fig1.png",
+   "label": "Fig. 1",
+   "page": 7,
+   "caption_ko": "템플릿 AI 이중확인용 웹앱 화면. 왼쪽 4단계(템플릿 작성→생성→데이터셋 생성→검증)와 템플릿 디렉터리/파일(consumer_surplus) 선택, 오른쪽에 요약 통계(템플릿 37개, 정답 37, 오답 0)와 인스턴스화된 문제('수요함수 −0.37Q+7.45, 가격 0.36일 때 소비자잉여?' 보기 A 45.92/B 68.0/C 49.5/D 59.85)에 대한 OpenAI 모델의 단계별 풀이가 표시된다.",
+   "alt": "auto-STEER 템플릿 이중확인 웹앱"
+  },
+  {
+   "file": "figs/steerme_fig2.png",
+   "label": "Fig. 2",
+   "page": 8,
+   "caption_ko": "같은 소비자잉여 요소를 도메인·관점만 바꿔 생성한 두 템플릿. 위: Education 도메인·3인칭 여성('Sophie is buying textbooks… demand function {d_function}… price of textbooks is {price}'), 아래: Sports 도메인·3인칭 남성('John is purchasing hockey sticks…'). 빨간색은 테스트 시 채워지는 라벨 필드, 파란색은 관점 표현.",
+   "alt": "도메인·관점 스타일 변환 템플릿 예"
+  }
+ ],
+ "dataset": {
+  "construction": "'for each type we hand-wrote a set of gold-standard example templates that served as the seeds'(p.7) — 숫자 자리에 {cost} 같은 라벨 필드. 'We primarily leveraged gpt-4o to generate our benchmark'로 템플릿을 각 도메인으로 스타일 변환(라벨 필드 유지 지시), 'we hand-checked each of the outputted templates and edited them when necessary', 다시 5개 관점으로 변환해 유형당 최대 40개 도메인–관점 쌍(p.7). 추가 검사로 필드를 채운 문제를 LLM에 풀게 해 문구·값 오류를 잡되 난도 조정에는 쓰지 않음(p.7). 이어 LLM이 도메인·관점·필드를 고정한 채 어휘만 바꾼 템플릿 100개/요소를 생성해 30,000 템플릿, 'We then spot-checked 500 of the resulting templates for each element, and flagged 99.88% of the templates as valid'(p.8). 마지막으로 템플릿당 20개 무작위 값(수요곡선 기울기 음수 등 맥락 제약)으로 인스턴스화하고 'We programmatically solved each question and filled in the appropriate options and answer'(p.8). Appendix J.1: claude-3-5-sonnet으로 생성해도 성능 차 없음(p.7). HF 카드는 GPT-4와 Claude 사용, FTQA 답은 기호적으로 도출이라 기술.",
+  "size_format": "HF narunraman/steer_me(CSV): test 1,581,205행, train 11,570행. 필드: element, question_id, question_text, domain, type, difficulty_level, tags, options_list(4지 선다), correct_answer(0-index), original_question_id. 논문: 30개 인스턴스화 요소 × 5,000–20,000문항, 설정별 문항 수 Foundations 127,342 / Consumption 3,295,770 / Production 1,333,330 / Multi-Agent 750,060 / Welfare 698,367(Table 1 p.5; 평가 표본 21,000).",
+  "samples": [
+   "[element=law_of_demand, type=price_decrease, domain=consumer_goods, difficulty=0] question_text: \"Imagine I want to buy a new pair of headphones. Initially, the price is 879.08, and the quantity demanded is 5.0. If the price decreases to 557.49, what is the most likely new quantity demanded?\" | options_list: ['9.0', '5.98', '4.55', '2.99'] | correct_answer(index): 0.0 (출처: HF narunraman/steer_me, split test, question_id 0.0)",
+   "[element=law_of_demand, type=quantity_increase, domain=consumer_goods, difficulty=0] question_text: \"If I notice that the price of my favorite brand of coffee is 933.08 and I usually buy 1.0 bags weekly, what would be the most likely price that caused me to increase my purchase to 6.0 bags?\" | options_list: ['427.47', '863.33', '544.13', '221.98'] | correct_answer(index): 1.0 (출처: HF narunraman/steer_me, split test, question_id 30.0)",
+   "[논문 Fig. 6 p.14, Profit Maximization] Question: \"John manages a company that produces premium leather wallets. The production output depends on the capital (K) he invests, represented by the function 3.97K^0.45. At the moment, the wallets are sold at a price of 3.64, and John has an initial capital of K1 = 3.3. He needs to decide how much additional capital to invest for the next day’s market. John is aware of the potential price distribution for his wallets for the next day, represented by price 2.7 with probability 0.24, price 2.14 with probability 0.42, price 3.52 with probability 0.34. There is also a cost associated with increasing his capital, given by (K1 − K2)^2, and he applies a discount factor of 0.37 to future revenues. To maximize his profits, how much additional capital should John invest?\" A. 0.44 [Correct Answer.] B. 0.14 C. 1.1 D. 0.09",
+   "[논문 Fig. 2 p.8 템플릿] \"Sophie is buying textbooks for her university classes, her demand for textbooks at any given price is expressed by the following demand function {d_function}. What is Sophie's consumer surplus if the price of textbooks is {price}?\" (Domain: Education, Perspective: Third Person Woman)"
+  ],
+  "class": "B",
+  "class_reason": "경제학 원론 수준의 전문 지식(수요법칙·소비자잉여·이윤극대화)을 요구하는 계산형 객관식이지만, 파라미터가 무작위 합성값이고 실제 데이터 인스턴스(특정 기업·기간·원장)에 묶이지 않는다. 정답은 프로그램으로 결정론적으로 계산되나 '제공된 원자료에서 계산'이 아니라 문제 문장에 담긴 소수의 수치에서 공식으로 푸는 시험형이므로 B(도메인 특화 지식·계산 QA)로 본다. 일반 상식 수준(A)보다는 전문적이다.",
+  "release": "HF narunraman/steer_me 공개(라이선스 필드 없음, CSV). 모델 출력 전량을 steer-benchmark.cs.ubc.ca에서 공개한다고 주장(p.4)하나 리뷰어는 사이트가 전작 결과만 담고 있고 평가 코드가 미공개라고 지적. datasets-server로 test 100행 열람.",
+  "contamination": "핵심 설계 동기. auto-STEER로 새 도메인·관점·숫자의 문제를 계속 생성해 고정 문제집 암기를 무력화(p.3, p.7-8). 다만 리뷰어(ICLR 2025·NeurIPS)는 오염 완화 효과의 경험적 증거가 부족하다고 지적.",
+  "evaluation": "지표: exact-match·정규화 정확도, ECE·Brier·EPA 보정, 도메인/유형 견고성(p.9). 적응: 0-CoT hidden/shown, CAR, RPM, 자유서술(gpt-4o-mini가 답 추출, 정답의 98% 이내면 정답)(p.9). 결과: o1-preview가 13개 요소 모두 최고(p.10); gpt-4o Profit Maximization shown 33.2%→hidden 27.1%(p.14); CAR 정밀도/재현율 o1-preview 0.744/0.780, gpt-4o 0.698/0.704, claude-3-haiku F1 0.093(Table 2 p.18); Aggregation of Consumer Demand에서 답 자릿수 5→6일 때 claude-3-5-sonnet 정확도 38%→72%(p.15); 도메인 격차 예: 후생정리 요소에서 consumer goods vs technology 차이 claude-3-5-sonnet 0.657(p.19)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 사람 작성 템플릿 + gpt-4o 스타일 변환 + 프로그램 수치 채움으로 전량 합성(p.7-8).",
+  "q2_method": "② 생성 단계·모델(gpt-4o, 대조로 claude-3-5-sonnet)·검수 비율(요소당 500개 표본, 99.88%)·인스턴스화 규칙이 명시. 골드 템플릿 작성자 수·경제학 전문성은 미기재.",
+  "q3_license": "③ 오픈소스(HF, 라이선스 표기 없음). 외부 데이터 없음(합성). API 비용 $12,439.54(p.4).",
+  "q4_relabel": "④ 공개 데이터 재라벨링 아님; 태스크 맞춤 합성.",
+  "q5_industry": "⑤ 대학(UBC) 자체 구성, 기업 협업 없음(펀딩에 Facebook·Amazon 연구상 언급, p.19). 데이터 공개, 코드 일부 미공개.",
+  "q6_constraints": "⑥ 저작권·보안 제약 없음(합성). 평가 코드는 '인프라 사유'로 미공개(NeurIPS 리뷰어 jI6jKcDWgf 지적).",
+  "q7_accept": "⑦ NeurIPS 리뷰어(O4K5zMkovj, rating 6): 미시경제 벤치마크로 최초이자 경제학자 기준으로 '1년차 박사과정에 합리적'인 포괄성, 오염 완화와 자유서술 도입을 높이 평가; oyMI9WgsiT(4): 27개 LLM 대규모 평가와 auto-STEER의 생산성; jI6jKcDWgf(3): 58요소 분류의 해석력, MCQA/FTQA 병행으로 치팅 노출."
+ },
+ "review": {
+  "decision": "NeurIPS 2025 D&B Track poster (Accept); 이전 ICLR 2025 제출은 Reject",
+  "scores": "NeurIPS: 3/6/4 (jI6jKcDWgf conf 4 / O4K5zMkovj conf 4, 5→6 상향 / oyMI9WgsiT conf 5); 추가 리뷰·메타리뷰는 API 검색에 미노출. ICLR 2025(g3nxy8N3bQ): 6/5/5",
+  "praised": [
+   "미시경제 비전략 영역 최초의 체계적 벤치마크, 교과서 대비 포괄적 분류(경제학자 리뷰어)",
+   "auto-STEER 스타일 변환·수치 갱신으로 오염 완화와 커버리지 확대",
+   "MCQA와 FTQA 병행으로 보기 대입 등 지름길 전략을 정량화",
+   "27개 LLM, 대규모 자원 투입, 모델 출력 공개"
+  ],
+  "concerns": [
+   "최신 모델(o3)이 MCQA·FTQA 모두 90% 이상으로 거의 포화—벤치마크 수명 우려",
+   "수학 계산 정확도와 경제 추론을 분리하지 못함(수치 불안정이 오류 상당 부분)",
+   "GPT-4o가 생성·검증을 겸해 편향 전파 위험; 다른 생성 모델 검증이 3개 요소에 한정",
+   "FTQA 수치 정확일치 채점이 동치 답을 오채점할 수 있고 수작업 감사 부족",
+   "비용 $12.4k·~10 GPU-년으로 후속 연구 진입장벽; 평가 코드 미공개",
+   "이상화된 교과서 모형만 다뤄 실무 가치 제한, Mas-Colell 등 표준 커리큘럼 비대응"
+  ],
+  "why_accept": "리뷰어들이 '충분히 새롭고 영향력 있을 벤치마크'로 판단하고 저자 답변으로 우려가 완화됨(O4K5zMkovj 5→6 상향, oyMI9WgsiT '대부분 해소, LLM 경제 평가의 중요한 기초 단계'). 메타리뷰 본문은 미확보."
+ },
+ "limitations": "전략적·행동경제·거시 설정은 범위 밖. 합성 파라미터라 현실 데이터의 맥락·노이즈가 없고, 리뷰어 지적처럼 최신 추론 모델에는 포화 가능. 생성·검증에 같은 LLM(gpt-4o) 사용. 정독한 arXiv v2는 EC'25 제출본으로 NeurIPS 최종본(예: o3 결과)과 다르며, 요소 수(58) 대비 인스턴스화 요소 30·평가 요소 13–35로 부분 평가. 자유서술 채점은 gpt-4o-mini 추출에 의존.",
+ "oneline": "58개 미시경제 요소를 사람 템플릿→LLM 스타일 변환→무작위 수치 채움(auto-STEER)으로 수백만 문항 합성해 27개 LLM의 경제 추론과 보기 대입 치팅을 드러낸 NeurIPS 2025 D&B 벤치마크.",
+ "implications": [
+  "템플릿 + 무작위 파라미터 + 프로그램 정답 계산이라는 auto-STEER 구조는 온체인 QA에서 블록 구간·주소·문턱을 무작위로 바꿔 신선한 문항을 계속 찍어내는 오염 방지 설계의 직접적 선례다.",
+  "보기(옵션)를 주면 모델이 대입으로 '치팅'해 정확도가 부풀려진다는 발견(shown 33.2%→hidden 27.1%, FTQA <10%)은 우리 C형 문항이 객관식이 아닌 자유 수치 답(정수/소수 8자리)을 요구해야 하는 이유를 뒷받침한다.",
+  "정답 자릿수가 커질수록 모델이 더 신중해져 정확도가 오르는 현상(5→6자리에서 38%→72%)은, 토큰 최소단위 정수(큰 수) 답을 요구하는 우리 문항에서 자릿수 효과를 통제 변수로 봐야 함을 시사한다.",
+  "'수학 능력과 도메인 추론을 분리 못 한다'는 리뷰어 비판은 온체인 문항에서도 유효하므로, 이벤트 디코딩(도메인)과 합산/비율(산술) 단계를 별도 서브문항으로 나눠 채점하는 설계를 고려할 만하다."
+ ],
+ "brief": false
+}

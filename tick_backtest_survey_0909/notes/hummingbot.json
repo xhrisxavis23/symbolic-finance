@@ -1,0 +1,21 @@
+{
+ "key": "hummingbot",
+ "title": "Hummingbot — 가장 널리 쓰이는 오픈소스 마켓메이킹 봇, 그런데 백테스터는 1분봉 종가",
+ "authors_short": "Hummingbot Foundation",
+ "venue": "오픈소스 (Apache-2.0)",
+ "links": {
+  "github": "https://github.com/hummingbot/hummingbot",
+  "verified": "GitHub API 200 · star 19,928 · Apache-2.0. `hummingbot/strategy_v2/backtesting/` 직접 확인"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "`backtesting_resolution: str = \"1m\"` — OHLC 캔들. 마켓메이킹 봇인데 큐 모델이 없다.",
+  "data_short": "1분 캔들",
+  "fill_short": "**캔들 종가가 내 가격을 넘으면 전량 체결**",
+  "cost_short": "고정 `trade_cost` × 2",
+  "design": "포지션 실행기의 진입 조건이 `entry_condition = (df['close'] <= config.entry_price)`(매수). 고가/저가 터치도 아니고 **종가 교차**다 — 봉 기반 중에서도 약한 축이다. 수수료는 `cum_fees_quote = 2 * trade_cost * filled_amount_quote`.",
+  "gap": "**이 조사에서 평판과 실체의 격차가 가장 큰 도구다.** Hummingbot PMM 스프레드를 이 백테스터로 최적화하면 체결에 대해서는 아무것도 측정하지 않는 것이다."
+ },
+ "oneline": "마켓메이킹 봇의 백테스터가 캔들 종가로 체결을 정한다 — 스프레드 최적화 결과를 믿으면 안 되는 이유.",
+ "resolution": "초~분봉"
+}

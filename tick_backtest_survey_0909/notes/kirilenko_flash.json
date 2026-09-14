@@ -1,0 +1,22 @@
+{
+ "key": "kirilenko_flash",
+ "title": "The Flash Crash (Kirilenko · Kyle · Samadi · Tuzun)",
+ "authors_short": "Andrei Kirilenko · Albert Kyle · Mehrdad Samadi · Tugkan Tuzun",
+ "venue": "Journal of Finance 72(3), 967–998 (2017)",
+ "links": {
+  "proceedings": "https://doi.org/10.1111/jofi.12498",
+  "pdf": "https://www.repository.cam.ac.uk/handle/1810/270461",
+  "verified": "Cambridge Apollo 의 accepted version 200. WP 판본은 제목·초록·표 구성이 다르다(Tables I–VIII vs 출판본 I–V)"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "시뮬레이션도 없고, **출판본에는 손익 표 자체가 없다.**",
+  "data_short": "CFTC 감사추적 · E-mini S&P500 2010년 6월물 · 2010-05-03~06",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "design": "**흔히 잘못 알려진 사실 정정: 타임스탬프는 밀리초가 아니라 초 단위**이고, 같은 초 안의 순서는 시퀀스 ID 로만 구분된다. 양쪽 계정 식별자가 있고 15,000개 넘는 계정이 등장한다. 메시지 데이터가 아니어서 \"We do not study message-level data and, thus, do not observe activity for orders that did not execute.\" 분류는 룩어헤드가 없게 설계했다 — HFT/MM 지위를 5/3~5/5 로 고정하고 5/6 에 그대로 쓴다. 추론은 초 단위 재고–가격 강건 OLS 에 White(1980) 표준오차.",
+  "gap": "재현 불가능하고 저자들이 그렇게 적었다 — \"The source data is confidential… even though we have checked and re-checked our results, they are unlikely to be ever independently validated by other researchers.\""
+ },
+ "oneline": "규제기관 데이터로만 가능한 연구는 그 대가로 재현 가능성을 통째로 포기한다 — 저자들이 직접 그렇게 적었다.",
+ "resolution": "틱·메시지"
+}

@@ -1,0 +1,92 @@
+{
+ "key": "medcalc",
+ "title": "MedCalc-Bench: Evaluating Large Language Models for Medical Calculations",
+ "authors_short": "Khandekar*, Jin*, Xiong* et al. · NIH/NLM (Zhiyong Lu 교신) · UVA · UIUC · Yale 의대 등",
+ "venue": "NeurIPS 2024 Datasets & Benchmarks Track (Oral)",
+ "venue_verified": "papers.nips.cc 2024 목록 'MedCalc-Bench…' (hash 99e81750f3fdfcaf9613db2dbf4bd623, Datasets_and_Benchmarks_Track) 확인; OpenReview VXohja0vrQ (papercopilot nips2024: status=Oral, rating 7;8;8). openreview.net 직접 접근은 challenge로 차단",
+ "type": "벤치마크(의료 계산: 환자 노트 + 질문 → 수치/날짜 정답 + 단계별 설명)",
+ "domain": "임상 의학(MDCalc 인기 계산기 55종: 신장 기능·BMI·위험 점수·중증도 지수 등)",
+ "data_scope": "계산기 55종(규칙형 19·수식형 36), 테스트 1,047건(논문; 현재 GitHub CSV 1,100행) + 학습 10,053건(논문)/10,543(README); 노트 출처는 Open-Patients 18만 건(PMC-Patients 167,034·MedQA-USMLE 12,893·TREC CDS 90·TREC CT 125, Table 6 p.17) + 템플릿 합성 + 임상의 작성",
+ "tags": [
+  "medical",
+  "clinical-calculator",
+  "numerical-reasoning",
+  "patient-notes",
+  "attribute-extraction",
+  "template-explanation",
+  "deterministic-answer"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2406.12036",
+  "pdf": "https://arxiv.org/pdf/2406.12036",
+  "proceedings": "https://papers.nips.cc/paper_files/paper/2024/hash/99e81750f3fdfcaf9613db2dbf4bd623-Abstract-Datasets_and_Benchmarks_Track.html",
+  "github": "https://github.com/ncbi-nlp/MedCalc-Bench",
+  "huggingface": "https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0",
+  "website": null,
+  "verified": "arXiv PDF OK; GitHub 200 + raw datasets/test_data.csv(5.35MB, 1,100행) 다운로드·파싱 성공; HF ncbi/MedCalc-Bench-v1.0은 gated(manual)라 datasets-server 불가(API 메타: license cc-by-4.0 태그, 'kept for reproducibility… use version 1.2'); README는 후속 MedCalc-Bench-Verified(nikhilk7153) 안내; papers.nips.cc 200; OpenReview 차단"
+ },
+ "easy": {
+  "problem": "의사는 진료 중 크레아티닌 청소율·CHA2DS2-VASc 같은 '의료 계산기'를 자주 쓰는데, LLM이 환자 기록을 읽고 이런 값을 정확히 계산할 수 있는지 재는 벤치마크가 없었다. 기존 의료 QA는 객관식 지식 위주였다.",
+  "how": "MDCalc의 인기 계산기 55개를 고르고, 공개 환자 노트 18만 건에서 GPT-3.5/GPT-4로 적격 노트와 속성값을 뽑아 의료 전문가가 검증했다. 노트가 없는 계산기는 템플릿이나 임상의가 노트를 합성했고, 정답과 단계별 설명은 계산기별 파이썬 템플릿이 자동 생성했다.",
+  "analogy": "긴 진료 기록(원자료)을 주고 '이 환자의 점수를 공식대로 계산하라'는 실기 시험 — 공식 암기, 기록에서 숫자 찾기, 산술 세 가지를 동시에 본다."
+ },
+ "contributions": [
+  "의료 계산 능력을 겨냥한 최초의 벤치마크: 55개 계산기, 1,047건(노트·질문·정답·단계별 설명), 각 건 수동 검토(§2 p.3-4)",
+  "3단계 데이터 파이프라인: GPT-3.5-turbo 적격 노트 선별(32개 파라미터 추출 프롬프트, App A.1 p.18-24) → GPT-4 속성 추출 → 의료 전문가 검증·보강 → 템플릿 기반 설명 생성(App A.4 p.30-34)",
+  "8개 LLM × 3 프롬프트 평가: 최고 GPT-4 one-shot CoT 50.91%, zero-shot direct 20.82%, zero-shot CoT 37.92%(Table 2 p.6); 코드 인터프리터 추가 시 GPT-4 48.51%(Table 15 p.43)",
+  "오류 유형 분석(A 지식/B 추출/C 계산/D 기타): zero-shot CoT에선 지식 오류가 50%+, one-shot에선 추출·계산 오류 비중 증가(Table 4 p.8); GPT-4 오류 분류기 정확도 89%",
+  "학습셋 10,053건으로 Mistral-7B 10.79→49.19%, Llama-2-7B 1.53→45.75%(Table 14 p.41); CC-BY-SA 4.0 공개(p.36)"
+ ],
+ "figures": [
+  {
+   "file": "figs/medcalc_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "MedCalc-Bench 인스턴스 예시 두 건. 왼쪽은 규칙형(CHA2DS2-VASc 점수: 나이·성별 등 기준별 가점을 합산해 정수 7), 오른쪽은 수식형(알부민 보정 음이온 갭: 공식에 나트륨·염화물·중탄산·알부민 값을 대입해 19.25). 각 인스턴스는 환자 노트 → 질문 → 단계별 설명 → 최종 답의 4요소로 구성된다.",
+   "alt": "규칙형·수식형 의료 계산 인스턴스 예시"
+  }
+ ],
+ "dataset": {
+  "construction": "① 계산기 선정: MDCalc 'popular' 55종(규칙형 19·수식형 36; 날짜/기간 출력 3종 포함, §2.1 p.3). ② 노트 수집·속성 추출: Open-Patients 18만 건에 대해 GPT-3.5-turbo로 32개 파라미터 존재 여부를 JSON으로 추출해 후보 선별, MDCalc 적격 기준으로 임상 적격성 판정(CURB-65 예시 p.23-24), GPT-4로 계산기별 필요 속성 추출 — 'We kept the notes that had all of the numeric parameters needed … and enough categorical variables … such that 50% of the numeric and categorical attributes were present'(p.18). ③ 검증·보강: 'The extracted values were verified and corrected by medical professionals'(p.3); 적격 노트가 있는 계산기 34종은 최대 20건, 나머지 21종은 템플릿(Python random, QTc·MME·EDD 등 11종, App A.2 p.27-28) 또는 임상의가 사전 지정 값으로 20건씩 작성(HAS-BLED·Charlson 등 10종, App A.3 p.28-30; 지시문: 범주값은 직접 명명하지 말고 검사 수치로 암시). ④ 정답·설명: 계산기별 파이썬 구현이 정답을 계산하고 템플릿이 단계별 자연어 설명을 생성(Glasgow-Blatchford 예시 p.31-34). 학습셋 10,053건은 동일 절차이나 GPT-4 추출값을 수동 검증하지 않음(p.36).",
+  "size_format": "CSV 14열: Row Number, Calculator ID, Calculator Name, Category(lab test/physical/date/dosage/risk/severity/diagnosis), Output Type(decimal/integer/date), Note ID, Note Type(Extracted/Template/Synthetic), Patient Note, Question, Relevant Entities(dict), Ground Truth Answer, Lower Limit, Upper Limit(수식형 decimal은 ±5%), Ground Truth Explanation. GitHub CSV 1,100행 분포: lab test 380·risk 240·physical 240·severity 80·diagnosis 60·date 60·dosage 40; Extracted 677·Template 220·Synthetic 203; decimal 640·integer 400·date 60",
+  "samples": [
+   "[GitHub datasets/test_data.csv Row 1, Creatinine Clearance (Cockcroft-Gault)] Question: \"What is the patient's Creatinine Clearance using the Cockroft-Gault Equation in terms of mL/min? You should use the patient's adjusted body weight in kg instead of the patient's actual body weight if the patient is overweight or obese based on their BMI. If the patient's BMI's normal, set their adjusted body weight to the minimum of the ideal body and actual weight. If the patient is underweight, please set their adjusted body weight to their actual body weight. You should use the patient's medical values and health status when they were first admitted to the hospital prior to any treatment.\" Patient Note(발췌): \"An 87-year-old man was admitted to our hospital for anorexia … height, 163 cm; weight, 48 kg; …\" Relevant Entities: {'sex': 'Male', 'age': [87, 'years'], 'weight': [48.0, 'kg'], 'height': [163.0, 'cm'], 'creatinine': [1.4, 'mg/dL']} Ground Truth Answer: 25.2381 (Lower 23.97619, Upper 26.50001)",
+   "[GitHub CSV Row 501, Free Water Deficit] Question: \"What is the patient's free water deficit in terms of kg? The desired serum sodium concentration is 140 mEq/L. You should use the patient's medical values and health status when they were first admitted to the hospital prior to any treatment.\" Relevant Entities: {'age': [23, 'years'], 'weight': [142.0, 'lbs'], 'sex': 'Male', 'Sodium': [137.0, 'mmol/L']} Ground Truth Answer: -0.82813; Explanation(발췌): \"The formula for computing the free water deficit is (total body water percentage) * (weight) * (sodium/140 - 1) … Adult male: 60% …\"",
+   "[논문 Figure 1 p.2] Question: \"What is the patient's CHA2DS2-VASc score?\" Patient Note: \"A 68-year-old man with the left hemiparesis from 2 h previously visited the emergency room. His medical history included hypertension and bilateral emphysema due to heavy smoking. …\" Explanation: \"The patient is 68 years old. Because the age is between 65 and 74, one point added to the score, making the current total 0 + 1 = 1. …\" Final Answer: 7"
+  ],
+  "class": "C-lite",
+  "class_reason": "구체 개체(특정 환자 노트=원자료 동봉)와 결정론적 계산(계산기 구현으로 산출, ±5%/정확일치 채점)이라는 C의 핵심을 갖췄고 일부 질문은 규약(보정 체중 규칙, 목표 나트륨 140)을 명시한다. 그러나 계산 공식·가점 규칙 자체는 대부분 질문 밖(모델 지식)에 있고, 원자료가 단일 노트(수백 단어)라 다중 테이블·구간·문턱 판정이 없어 C-lite로 본다.",
+  "release": "GitHub 공개(테스트 CSV, 학습 CSV zip, 계산기 구현, 평가 코드) — 실제 CSV 열람·파싱 확인. 라이선스: 논문 CC-BY-SA 4.0(p.36, PMC-Patients 상속으로 비상업 재배포), HF v1.0 카드는 cc-by-4.0 태그이며 gated(manual). HF v1.0은 '재현용 보관, v1.2 사용 권장'; 별도 MedCalc-Bench-Verified 후속판 존재(README)",
+  "contamination": "명시적 방어 없음(공개 PMC 사례보고 노트 사용). 노트는 공개 데이터라 사전학습 노출 가능하나 정답은 계산기 산출값이라 암기 효과는 제한적. 학습/테스트 분리는 노트 단위",
+  "evaluation": "규칙형·날짜형은 정확 일치, 수식형 decimal은 정답 ±5% 구간(Lower/Upper Limit)이면 정답(§3.1 p.5). Table 2 p.6: GPT-4 one-shot CoT 50.91(Lab 51.68·Phys 77.50·Date 46.67·Dosage 37.50·Risk 33.75·Sev 27.50·Diag 53.33), Llama3-70B 39.45, GPT-3.5 34.86, PMC-LLaMA 6.97; zero-shot direct 최고 20.82(GPT-4/Llama3-70B). 속성 수가 늘수록 정확도 하락(Fig 2-3 p.44)"
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작. 노트는 기존 공개 코퍼스(PMC-Patients·MedQA·TREC) 재사용 + 템플릿·임상의 합성; 정답·설명은 신규 생성",
+  "q2_method": "출처·절차 매우 분명: Open-Patients 구성(Table 6), 추출 프롬프트 전문, 합성 지시문, 설명 템플릿 코드까지 부록 공개",
+  "q3_license": "TREC(정부 공개)·MedQA(MIT)·PMC-Patients(CC-BY-SA 4.0) 라이선스 검토 후 CC-BY-SA 4.0으로 공개(App B.1 p.36); 상업적 이용 불가",
+  "q4_relabel": "공개 노트를 그대로 쓰지 않고 task 맞춤으로 속성 추출·검증 후 계산 정답과 설명을 새로 부여(재라벨링)",
+  "q5_industry": "NIH 내부 연구 + 대학·의대 협업(임상의가 노트 합성·검증). 기업 협업 없음, 전량 공개",
+  "q6_constraints": "개인정보: 공개 사례보고·익명 비네트만 사용해 PHI 없음(Ethics p.10). 진단용 사용 금지 고지. 저작권 상속(CC-BY-SA)으로 비상업 조건 하 공개",
+  "q7_accept": "공개 리뷰 본문 미확인(점수 7/8/8, Oral). 논문 self-claim: 'first-of-its-kind dataset' for medical calculation, 수동 검토 1,047건, 지식·추출·산술 3능력 분해 평가, 오류 유형 분석"
+ },
+ "review": {
+  "decision": "Accept (Oral, Datasets & Benchmarks Track)",
+  "scores": "7/8/8 (rating), confidence 3/3/4 (papercopilot 집계)",
+  "praised": [
+   "리뷰 본문 미확인 — Oral 선정과 7/8/8 점수로 보아 의료 계산이라는 새 과제 정의, 전문가 검증된 결정론적 정답, 오류 분해 분석이 인정된 것으로 추정"
+  ],
+  "concerns": [
+   "리뷰 본문 미확인(HF 미러에 D&B 트랙 리뷰 부재, OpenReview 차단)"
+  ],
+  "why_accept": "미확인(점수·결정만 확인)"
+ },
+ "limitations": "수동 검증 비용 탓에 1,047건으로 작다(§4.3 p.8). 노트에 같은 항목이 여러 번 등장(입원 초기값 vs 이후 값)해 추출 대상이 모호할 수 있다. one-shot 예시로 성능이 크게 오르므로 few-shot이면 더 오를 수 있으나 규칙형 노트 합성 비용 때문에 미실시. 21개 계산기는 템플릿/임상의 합성 노트라 실제 기록과 분포가 다르다. 논문 수치(1,047·10,053)와 현재 저장소(1,100·10,543)가 달라 버전 관리에 유의해야 한다.",
+ "oneline": "환자 노트에서 값을 찾아 55종 임상 계산기 공식/규칙으로 수치를 산출하는 1,047건 벤치마크 — GPT-4도 one-shot CoT 50.9%에 그침(NeurIPS 2024 D&B Oral).",
+ "implications": [
+  "정답을 계산기 구현(코드)으로 산출하고 채점을 ±5%/정확일치로 명문화한 점은 우리 C형 셋의 '원장 쿼리로 계산한 정답 + decimal 자릿수·정수 판정 규약'과 직접 대응한다; Lower/Upper Limit 열처럼 허용 오차를 데이터에 내장하는 방식이 유용하다.",
+  "오류를 지식(A)/추출(B)/계산(C)으로 분해하고 최초 오류만 귀속시키는 프로토콜은, 우리 문항 실패를 '규약 이해 / 레코드 선택(이벤트 디코딩) / 집계 산술'로 분해해 보고하는 틀로 쓸 수 있다.",
+  "질문에 규칙 일부(보정 체중, 목표 나트륨 140)를 명시한 문항과 명시하지 않은 문항이 섞여 있는데, 우리 셋처럼 규약을 전문 명시하면 지식 오류를 배제하고 추출·계산 능력만 측정할 수 있다는 대비점을 보여준다.",
+  "Relevant Entities(추출된 중간값)를 필드로 동봉한 설계는 우리 셋의 evidence 레코드와 같은 역할 — 중간 근거를 공개하면 부분 점수·오류 진단이 가능하다."
+ ],
+ "brief": false
+}

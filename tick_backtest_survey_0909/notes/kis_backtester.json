@@ -1,0 +1,72 @@
+{
+ "key": "kis_backtester",
+ "title": "한국투자증권 open-trading-api / backtester — 국내 대형 증권사가 공개한 유일한 백테스트 엔진",
+ "authors_short": "Korea Investment & Securities (KIS Developers) 공식",
+ "venue": "공식 오픈소스 (GitHub, 2026)",
+ "venue_verified": "github.com/koreainvestment/open-trading-api 저장소를 직접 열람(2026-09-09). GitHub API로 star 1,596 · fork 827 · 최근 push 2026-08-26 · 언어 Python · SPDX 라이선스 필드 null(라이선스 파일 없음) 확인. 최신 README의 폴더 구조에 backtester/ 와 strategy_builder/ 가 실재하고, backtester/kis_backtest/ 하위 소스와 scripts/setup_lean_data.sh 를 raw.githubusercontent 로 직접 내려받아 확인",
+ "type": "증권사 공식 백테스트 시스템 (전략 DSL + Lean 코드생성 + Docker 실행 + 웹 UI + MCP 서버)",
+ "domain": "국내주식(KRX)·미국주식 기술적 전략 백테스트",
+ "data_scope": "KIS Open API `/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice`(TR `FHKST03010100`)로 받은 **일봉**을 CSV 로 떨어뜨려 Lean 데이터 디렉터리 `data/equity/krx/daily/{symbol}.csv` 에 넣는다. `KISDataProvider.get_history()` 가 받는 해상도는 `Resolution.DAILY` 와 `Resolution.MINUTE` 둘뿐이고, 그 외에는 `ValueError(f\"지원하지 않는 해상도: {resolution}\")`. 분봉은 `_get_minute_bars(symbol, end)` 에 주석으로 \"분봉은 단일 날짜\" 라고 못 박혀 있다. **틱·호가는 백테스트 경로에 아예 없다.**",
+ "tags": [
+  "증권사 공식",
+  "QuantConnect Lean",
+  "일봉",
+  "Docker",
+  "MCP"
+ ],
+ "links": {
+  "github": "https://github.com/koreainvestment/open-trading-api",
+  "github_extra": [
+   "https://github.com/koreainvestment/kis-ai-extensions"
+  ],
+  "website": "https://apiportal.koreainvestment.com/",
+  "verified": "저장소·README·backtester/README.md·codegen/generator.py·providers/kis/data.py·lean/executor.py·scripts/setup_lean_data.sh 모두 200 으로 열람"
+ },
+ "easy": {
+  "problem": "증권사가 API 만 열어 주면, 개인은 \"이 전략이 과거에 통했나\" 를 스스로 만들어 확인해야 한다. 그 부담을 줄이려고 한국투자증권이 전략 설계 → 백테스트 → 주문까지를 한 줄기로 묶어 공개했다.",
+  "how": "`strategy_builder` 에서 지표·조건을 골라 `.kis.yaml` 로 저장하면, `backtester` 가 그 YAML 을 QuantConnect **Lean** 알고리즘 파이썬 코드로 자동 생성하고, `quantconnect/lean:latest` 도커 컨테이너에서 돌린 뒤 결과 JSON 을 파싱해 HTML 리포트로 만든다. AI 에이전트가 이 과정을 대화로 부를 수 있게 MCP 서버(`kis_mcp`)도 같이 뒀다.",
+  "analogy": "증권사가 \"엔진(Lean)은 남의 것을 쓰고, 우리 시세를 넣는 연료 호스와 계기판만 우리가 만들었다\" 고 한 셈이다. 다만 그 호스에 흐르는 것은 틱이 아니라 하루 한 방울(일봉)이다."
+ },
+ "contributions": [
+  "이번 조사에서 확인한 범위에서, 국내 대형 증권사가 **자기 이름으로 백테스트 실행 코드를 공개한 유일한 사례**다. 키움(공식 REST 저장소)·NH(PLUG-OpenAPI)·LS·DB증권·삼성선물의 공개물은 API 클라이언트·샘플·Postman·MCP 까지이고 백테스트 엔진은 없다. 대신·미래에셋·삼성증권·토스는 공식 GitHub 조직 자체가 확인되지 않는다.",
+  "전략을 코드가 아니라 `.kis.yaml` 스키마로 적게 하고(`StrategySchema` → `LeanCodeGenerator` → Lean 파이썬), 같은 스키마를 실주문 신호 생성에도 재사용한다 — 백테스트와 실거래의 전략 정의를 하나로 유지하려는 설계다.",
+  "KRX 고유의 비용을 Lean 기본값 대신 직접 써 넣었다: `commission_rate = 0.00015`(0.015% 양방향), `tax_rate = 0.002`(0.2% 매도 시 증권거래세).",
+  "슬리피지도 KRX 호가단위(1/5/10/50/100/500/1000원) 계단을 그대로 구현한 `KRXSlippageModel` 을 넣었다 — 매수는 상위 유효 틱으로 올림, 매도는 하위 유효 틱으로 내림.",
+  "`kis-ai-extensions` (star 212, 2026-08 공개)로 전략설계→백테스트→주문 파이프라인을 Claude Code 등 AI 에이전트 스킬로 노출했다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "일봉 종가 기준 재생. 체결은 Lean 기본 주문 모델이 결정하고 호가창·큐·지연이 없다. 다만 수수료·거래세는 실제 값을 넣었고 슬리피지 모델도 있어 L2 중에서는 위쪽이다.",
+  "data_short": "KRX 일봉 (KIS API)",
+  "fill_short": "Lean 기본 · 일봉 종가",
+  "cost_short": "0.015% 수수료 + 0.2% 거래세 · 슬리피지 기본 0",
+  "data": "`AddData(KRXEquity, symbol_str, Resolution.Daily)` — 코드 생성기가 **Resolution.Daily 를 하드코딩**한다. 워밍업도 `SetWarmUp(warmup, Resolution.Daily)`. 벤치마크는 KOSPI 지수(`index/krx/daily/kospi.csv`). 초기 자본 기본값 1억원(`initial_capital = 100_000_000`).",
+  "design": "**과거 일봉 재생**. 사용자가 고른 지표 조건(골든크로스·RSI·MACD+볼린저 등 프리셋 10종 + 지표 80여 종)이 참이 되는 날 매수/매도 신호를 내고 Lean 이 그 신호로 주문을 낸다. 상호작용도, 호가창도 없다.",
+  "fill": "Lean 의 기본 주문 체결 모델을 그대로 쓴다. 저장소 문서·코드 어디에도 지정가 대기·부분체결·체결 확률에 대한 별도 설정이 없다. 즉 **일봉 하나에 한 번, 그날 가격에 원하는 수량이 다 체결된다**고 본다.",
+  "cost": "직접 정의한 `CustomFeeModel`: 매수는 `value × 0.00015`, 매도는 `value × (0.00015 + 0.002)`. 슬리피지는 `CodeGenConfig.slippage = 0.0` 이 **기본값이라 꺼져 있고**, 0보다 크게 주면 KRX 호가단위 계단으로 반올림한 `KRXSlippageModel` 이 붙는다.",
+  "latency": "없음. 일봉 단위라 지연이라는 개념이 성립하지 않는다.",
+  "selfimpact": "없음. 단일 에이전트 재생이다.",
+  "validation": "표본 분리·다중검정 장치가 없다. 제공되는 것은 `Grid/Random Search` **파라미터 최적화**뿐이고, 최적화한 구간과 평가 구간을 나누라는 안내가 문서에 없다 — 오히려 과최적화를 쉽게 만드는 방향이다.",
+  "metrics": "총수익률 · CAGR · 최대낙폭(MDD) · 샤프비율 · 승률 · Profit Factor, 그리고 KOSPI 대비 자산 추이 차트와 매수/매도 마커.",
+  "quotes": [
+   "# backtester/kis_backtest/codegen/generator.py\n@dataclass\nclass CodeGenConfig:\n    \"\"\"코드 생성 설정\"\"\"\n    market: str = \"krx\"  # krx, us\n    commission_rate: float = 0.00015  # 0.015%\n    tax_rate: float = 0.002  # 0.2% (KRX 매도세)\n    slippage: float = 0.0  # 슬리피지 (기본 0%)\n    initial_capital: float = 100_000_000  # 1억원",
+   "# backtester/kis_backtest/providers/kis/data.py\n        if resolution == Resolution.DAILY:\n            return self._get_daily_bars(symbol, start, end)\n        elif resolution == Resolution.MINUTE:\n            return self._get_minute_bars(symbol, end)  # 분봉은 단일 날짜\n        else:\n            raise ValueError(f\"지원하지 않는 해상도: {resolution}\")",
+   "# backtester/scripts/setup_lean_data.sh\nmkdir -p \"$DATA_DIR/equity/krx/daily\"\nmkdir -p \"$DATA_DIR/equity/usa/daily\"\nmkdir -p \"$DATA_DIR/forex/fxcm/daily\""
+  ],
+  "gap": "호가·체결(틱) 데이터가 백테스트 경로에 전혀 들어가지 않는다. 큐 위치·부분체결·지연·시장충격·자기영향 중 어느 것도 모델링하지 않고, 표본 외 검증 절차도 없다. 수수료 통화가 `CashAmount(fee, \"USD\")` 로 하드코딩돼 있는 점도 KRW 시장 백테스트로는 어색하다."
+ },
+ "code": [
+  "[koreainvestment/open-trading-api](https://github.com/koreainvestment/open-trading-api) — `backtester/`(Lean 연동 백테스트), `strategy_builder/`(전략 DSL·YAML), `examples_llm/`·`examples_user/`(API 예제), `postman/`. star 1,596 · fork 827 · **라이선스 파일 없음**",
+  "[koreainvestment/kis-ai-extensions](https://github.com/koreainvestment/kis-ai-extensions) — AI 에이전트용 스킬·MCP 확장. star 212 · 라이선스 명시 없음",
+  "엔진 본체는 [QuantConnect/Lean](https://github.com/QuantConnect/Lean) (Apache-2.0) 도커 이미지 `quantconnect/lean:latest`"
+ ],
+ "limitations": "라이선스가 명시돼 있지 않아 2차 이용의 법적 지위가 불분명하다. README 자체가 \"샘플 코드를 활용하여 제작한 고객님의 프로그램으로 인한 손해에 대해서는 당사에서 책임지지 않습니다\" 라고 못 박는다. 모의투자 키로 데이터를 모으면 \"체결 가능한 주문 수량(유동성)이 실제 시장보다 크게 제한되어 … 시세가 누락되거나 부정확하게 채워질 수 있습니다\" 라는 경고도 문서에 있다.",
+ "oneline": "국내 증권사가 공개한 유일한 백테스트 코드지만, 그 백테스트는 **일봉 종가 재생**이다 — 틱 백테스트의 선례가 아니라 그 부재의 증거다.",
+ "implications": [
+  "국내 증권사가 공개한 코드를 '틱 백테스트 선례' 로 인용할 수는 없다. 인용한다면 \"국내에는 틱 수준 공개 백테스트가 없다\" 는 대조군으로 써야 맞다.",
+  "다만 **비용 숫자는 그대로 받아 쓸 근거**가 된다: 수수료 0.015% 양방향 + 매도 거래세 0.2% 는 증권사 스스로 적어 둔 값이다. 우리 `FEE_BPS = 23.0`(왕복 명시비용)이 이 계열에 있다는 것을 보일 때 인용 가능하다.",
+  "`KRXSlippageModel` 의 호가단위 계단(1/5/10/50/100/500/1000원)은 우리 원장의 `day_tick_size_bps_median` 과 같은 것을 다른 방식으로 다룬 것이다. 우리는 실호가에서 체결하므로 이 근사가 필요 없다는 점이 차이다.",
+  "슬리피지 기본값이 0 이라는 사실은 \"국내 공개 도구의 기본 설정으로 나온 수익률은 비용 이전 값에 가깝다\" 는 서술의 1차 근거가 된다."
+ ],
+ "resolution": "일봉 이상"
+}

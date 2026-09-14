@@ -1,0 +1,57 @@
+{
+ "key": "brogaard_hendershott_riordan",
+ "title": "High-Frequency Trading and Price Discovery — 손익을 '체결 회계' 로 계산하고, 리베이트가 부호를 뒤집은 논문",
+ "authors_short": "Jonathan Brogaard · Terrence Hendershott · Ryan Riordan",
+ "venue": "Review of Financial Studies 27(8), 2267–2306 (2014)",
+ "venue_verified": "DOI 10.1093/rfs/hhu032. 출판 조판본 PDF 가 faculty.haas.berkeley.edu/hender/HFT-PD.pdf 에 공개(200)되어 전문 확인",
+ "type": "가격발견 상태공간 분해 + 체결 회계 손익",
+ "domain": "NASDAQ 고빈도 거래",
+ "data_scope": "NDA 로 잠긴 **NASDAQ HFT 데이터셋** — 120종목, 2008~2009 전 기간, 밀리초. **주문 ID·기업 ID 없음**. 체결마다 HH/HN/NH/NN 4상태 플래그만 붙는다. TAQ NBBO(시각 비동기)와 NASDAQ BBO(45일, 동기) 로 보완.",
+ "tags": [
+  "체결 회계",
+  "리베이트가 부호 반전",
+  "칼만 필터",
+  "NDA 데이터"
+ ],
+ "links": {
+  "pdf": "https://faculty.haas.berkeley.edu/hender/HFT-PD.pdf",
+  "proceedings": "https://doi.org/10.1093/rfs/hhu032",
+  "verified": "저자 PDF 200 전문 확인. 코드·데이터 미공개(NDA)"
+ },
+ "easy": {
+  "problem": "고빈도 트레이더가 가격발견에 기여하는가, 아니면 남의 정보를 앞질러 먹는가? 그리고 그들은 실제로 얼마를 버는가?",
+  "how": "가격을 영구·일시 성분으로 나누는 상태공간 모형을 종목-일마다 칼만 필터로 추정하고, 손익은 시뮬레이션이 아니라 **실제 체결의 현금흐름 합** 으로 계산한다.",
+  "analogy": "장부를 그대로 더한다 — 판 돈에서 산 돈을 빼고, 남은 재고는 종가로 친다."
+ },
+ "contributions": [
+  "손익 공식이 이 문헌의 표준이 됐다 — `Σ −(HFT^D_n) + INV_N · P_T`. 하루를 무포지션으로 시작해 무포지션으로 끝난다고 가정하고, 남은 재고는 **종가 NBBO 중간가**로 평가한다.",
+  "**리베이트가 결론의 부호를 바꾼다.** 유동성 공급 손익이 리베이트 전 종목-일당 **−$1,825**, 리베이트 후 **+$4,660**(t=5.01). 수수료 스케줄은 NASDAQ Equity Trader Archive 에서 6번의 변경을 반영했다 — 공격 $0.0025~$0.00295/주, 패시브 리베이트 $0.0025~$0.0028/주.",
+  "종료 재고 마크가 사실상의 취약점임을 각주 17 에서 스스로 밝힌다 — 대형주는 거래량의 5~7%, **소형주는 약 30%**. 정확히 그 지점에서 결과가 유의성을 잃는다.",
+  "표준오차는 종목·일 이중 클러스터(Petersen; Thompson). 표본 외 분할은 없다."
+ ],
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "시뮬레이션이 없다. 실제 체결 기록의 회계다. 다만 종료 재고를 종가 중간가로 평가하는 가정이 손익의 상당 부분을 결정한다.",
+  "data_short": "NASDAQ HFT 120종목 · 2008–09 · 밀리초",
+  "fill_short": "실제 체결 (시뮬레이션 없음)",
+  "cost_short": "**수수료·리베이트 반영** — 부호가 뒤집힘",
+  "design": "가격의 영구/일시 분해는 23,400개 1초 구간 위에서 종목-일별 칼만 필터 MLE. HFT 주문흐름 충격은 10초 시차 VAR 에서.",
+  "fill": "해당 없음.",
+  "cost": "maker/taker 를 실제 스케줄로 반영. **유효스프레드·실현스프레드는 논문 어디에도 나오지 않는다.**",
+  "validation": "종목×일 이중 클러스터 표준오차. 표본 외 없음.",
+  "metrics": "종목-일당 거래수익(달러), 영구/일시 가격성분 분해.",
+  "quotes": [
+   "We assume that for each stock and each day in our sample, HFTs and nHFTs start and end the day without inventories. […] The first term captures cash flows throughout the day, and the second term values the terminal inventory at the closing midquote."
+  ],
+  "gap": "체결 회계이므로 '다른 전략이었다면' 을 물을 수 없다. 종료 재고 마크가 소형주에서 결과를 흔든다."
+ },
+ "code": [
+  "**미공개.** 데이터는 NDA"
+ ],
+ "oneline": "탑티어의 '틱데이터 손익' 은 대개 시뮬레이션이 아니라 체결 회계다 — 그리고 리베이트를 넣느냐가 부호를 정한다.",
+ "implications": [
+  "우리 `FEE_BPS = 23.0` 을 왕복 상수로 두는 것은 이 논문 기준으로 거칠다. KRX 는 maker 리베이트가 없지만 **매수 수수료와 매도 수수료+거래세를 분리** 하면 진입·청산 각각의 기여를 볼 수 있다.",
+  "종료 재고 마크 문제는 우리에게도 있다 — 900초 강제 청산이 그 역할을 하는데, 우리는 시장가로 실제 청산하므로 마크가 아니라 체결이다. 이 점은 우리가 더 낫다."
+ ],
+ "resolution": "틱·메시지"
+}

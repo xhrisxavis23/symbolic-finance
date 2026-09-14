@@ -1,0 +1,64 @@
+{
+ "key": "harvey_liu_multiple_testing",
+ "title": "다중검정 문턱 논쟁 — t > 3.0 학파와 그 반론, 그리고 대량 탐색이 자산일 수 있다는 결과",
+ "authors_short": "Campbell Harvey · Yan Liu · Heqing Zhu / Andrew Chen · Tom Zimmermann / Jensen·Kelly·Pedersen",
+ "venue": "Review of Financial Studies 29(1), 5–68 (2016) 외",
+ "venue_verified": "HLZ DOI 10.1093/rfs/hhv059 Crossref 검증(권 29·호 1·페이지 5–68), OA PDF 확인. Chen & Zimmermann Critical Finance Review 11(2) 207–264, DOI 10.1561/104.00000112. Jensen–Kelly–Pedersen JF 78(5) 2465–2518, DOI 10.1111/jofi.13249. Harvey & Liu \"Backtesting\"(JPM 2015)의 권 번호는 Crossref 42(1) vs 2차 출처 41(1) 로 엇갈린다",
+ "type": "다중검정 보정 · 복제 가능성",
+ "domain": "횡단면 팩터 · 전략 선택",
+ "data_scope": "HLZ: 출판된 300여 개 횡단면 팩터. Chen & Dim: **채굴 전략 136,000개**. JKP: 글로벌 팩터 데이터.",
+ "tags": [
+  "t>3.0",
+  "haircut",
+  "경험적 베이즈",
+  "탐색이 자원"
+ ],
+ "links": {
+  "proceedings": "https://doi.org/10.1093/rfs/hhv059",
+  "pdf": "https://academic.oup.com/rfs/article-pdf/29/1/5/24450794/hhv059.pdf",
+  "github": "https://github.com/OpenSourceAP/CrossSection",
+  "github_extra": [
+   "https://github.com/chenandrewy/high-throughput-ap",
+   "https://github.com/bkelly-lab/ReplicationCrisis"
+  ],
+  "website": "https://people.duke.edu/~charvey/backtesting/Haircut_SR.m",
+  "verified": "HLZ OA PDF 200. Harvey 의 MATLAB 코드(Haircut_SR.m·Profit_Hurdle.m·sample_random_multests.m)와 Lucky Factors 코드 200. CrossSection star 1,041 GPL-2.0"
+ },
+ "easy": {
+  "problem": "팩터 300개가 출판됐는데 그중 진짜는 몇 개인가? 그리고 새 팩터는 t값이 얼마를 넘어야 믿을 만한가?",
+  "how": "Bonferroni·Holm·Benjamini–Hochberg–Yekutieli 를 팩터 문헌 전체에 적용해 문턱을 다시 계산한다.",
+  "analogy": "300명이 동전 던지기를 했으면, 20번 연속 앞면이 나온 사람이 한 명쯤 있는 게 정상이다. 그 사람을 초능력자로 부르지 않으려면 문턱을 올려야 한다."
+ },
+ "contributions": [
+  "**HLZ 의 결론: 관행적인 t = 2.0 문턱은 너무 느슨하고, 새 팩터는 대략 t > 3.0 을 넘어야 한다.** Chordia–Goyal–Saretto 는 3.8/3.4 를 제시한다.",
+  "**Harvey 는 코드를 공개한다** — `Haircut_SR.m`(다중검정 haircut), `Profit_Hurdle.m`, `sample_random_multests.m`, 그리고 Lucky Factors 의 최대통계량 부트스트랩 `FactorTests_boot.m`.",
+  "**반론 1 — Andrew Chen**: FDR 이 9~25% 에 불과하다. \"randomly selecting accounting ratios produces statistically significant predictability far more often than would occur if there were no predictability\" — 즉 귀무가설 대부분이 참이라는 HLZ 의 전제 자체를 데이터가 기각한다는 것이다.",
+  "**반론 2 — Chen & Zimmermann**: 출판편의를 보정해도 수익이 표본 내 대비 12.3% 만 작아진다. 그리고 319개 예측변수의 코드·데이터·`SignalDoc.csv`(원논문 t값 포함)를 전부 공개했다.",
+  "**반론 3 — Jensen·Kelly·Pedersen**: 계층 베이즈로 82.4% 가 복제된다(Benjamini–Yekutieli 로는 75.6%). \"having many factors can be a strength rather than a weakness\".",
+  "**대량 탐색에 가장 직접 관련된 결과 — Chen & Dim**: 채굴한 전략 136,000개의 **경험적 베이즈 상위 1%가 표본 외에서 연 5.7%** 를 벌었고, 이는 출판된 아노말리 200개의 연 5.9% 와 거의 같다. 그리고 \"multiple testing methods popular in finance fail to identify most out-of-sample performers.\" **즉 탐색의 크기는 부채이기만 한 것이 아니라 추정 자원일 수도 있다.**",
+  "**경제적 사전확률의 필요성** — Chordia–Goyal–Saretto 에서 210만 개 중 힉스 수준 문턱을 넘은 17개 중 하나가 `(dltis − pstkr)/mrc4` 였다. Arnott–Harvey–Markowitz 는 이를 \"leaves them with little or no economic foundation\" 이라 적는다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "성과 해석 방법론이다.",
+  "data_short": "출판 팩터 300+ / 채굴 전략 136,000",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "validation": "Bonferroni·Holm·BHY haircut, 최대통계량 부트스트랩, 계층 베이즈, 경험적 베이즈 축소.",
+  "gap": "이 논쟁의 본질은 **'무작위로 고른 후보가 귀무일 사전확률'** 에 대한 이견이다. 데이터로 결판나지 않는다."
+ },
+ "code": [
+  "[Haircut_SR.m · Profit_Hurdle.m · sample_random_multests.m](https://people.duke.edu/~charvey/backtesting/Haircut_SR.m) — Harvey 의 MATLAB",
+  "[Lucky Factors FactorTests_boot.m](https://people.duke.edu/~charvey/Lucky/FactorTests_boot.m)",
+  "[OpenSourceAP/CrossSection](https://github.com/OpenSourceAP/CrossSection) — 319 예측변수 + `SignalDoc.csv`. star 1,041, GPL-2.0 · [openassetpricing.com](https://www.openassetpricing.com/)",
+  "[chenandrewy/high-throughput-ap](https://github.com/chenandrewy/high-throughput-ap) — 채굴 전략 136,000개 + 경험적 베이즈. CC0",
+  "[bkelly-lab/ReplicationCrisis](https://github.com/bkelly-lab/ReplicationCrisis) — JKP 계층 베이즈. star 378"
+ ],
+ "oneline": "\"몇 번 시도했는가\" 를 성과에서 깎는 것이 표준이 됐지만, 탐색을 전부 기록하면 그 크기가 오히려 추정 자원이 된다는 반대 결과도 있다.",
+ "implications": [
+  "**Chen & Dim 의 결과가 우리에게 가장 희망적이다** — LLM + Optuna 로 수백~수천 개 전략을 만드는 것이 반드시 부채는 아니다. **단, 전부 기록하고 축소 추정을 적용할 때만** 그렇다.",
+  "우리는 이미 모든 후보와 그 `net_bps_total` 을 산출물로 남긴다. 경험적 베이즈 축소를 붙이는 데 추가 실험이 필요 없다.",
+  "**경제적 사전확률 요구는 우리 사전등록서가 이미 만족한다** — \"경제적 근거는 데이터보다 먼저 있었다. 이 실행 프로파일의 gross 는 대부분 진입 스프레드에서 나온다\" 처럼 근거를 먼저 적는다. `(dltis − pstkr)/mrc4` 류를 막는 장치다."
+ ],
+ "resolution": "일봉 이상"
+}

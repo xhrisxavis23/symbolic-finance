@@ -1,0 +1,56 @@
+{
+ "key": "pbo_cscv",
+ "title": "Pseudo-Mathematics and Financial Charlatanism / The Probability of Backtest Overfitting — 시행 횟수를 세지 않은 백테스트는 무의미하다",
+ "authors_short": "David H. Bailey · Jonathan Borwein · Marcos López de Prado · Qiji Jim Zhu",
+ "venue": "Notices of the AMS 61(5), 458– (2014) · Journal of Computational Finance (2016-09)",
+ "venue_verified": "Notices DOI 10.1090/noti1105 Crossref 검증(권 61·호 5·첫 페이지 458). PBO 논문 DOI 10.21314/JCF.2016.322, 발행 2016년 9월 — 흔히 인용되는 2017 은 틀렸고, Crossref 가 권·호·페이지를 null 로 반환해 '20(4): 39–69' 는 미검증이다. 저자 사이트의 프리프린트(davidhbailey.com)를 전문 확인",
+ "type": "백테스트 과최적화의 통계 이론",
+ "domain": "전략 선택 · 다중검정",
+ "data_scope": "이론. 적용은 임의의 성과 행렬 M(관측 T′ × 시행 N).",
+ "tags": [
+  "E[max_N]",
+  "최소 백테스트 길이",
+  "CSCV",
+  "비모수"
+ ],
+ "links": {
+  "pdf": "https://www.davidhbailey.com/dhbpapers/backtest-pseudo.pdf",
+  "proceedings": "https://doi.org/10.1090/noti1105",
+  "github_extra": [
+   "https://github.com/esvhd/pypbo"
+  ],
+  "verified": "저자 사이트 PDF 200 전문 확인. quantresearch.org/Software.htm 에 CSCV 코드가 있고 VPIN 코드는 없다"
+ },
+ "easy": {
+  "problem": "전략 설정을 여러 개 시도해 보고 가장 좋은 것을 고르면, 그 '가장 좋은 것' 의 성과에는 운이 섞인다. 얼마나 섞이나?",
+  "how": "진짜 샤프가 0인 전략 N개를 시도했을 때 **표본 내 최대 샤프의 기댓값**을 극값이론으로 구한다. 그리고 그 기댓값을 넘어야만 실력이라고 본다.",
+  "analogy": "동전 10개를 던져 가장 앞면이 많이 나온 동전을 '실력 있는 동전' 이라 부르는 것. 10개를 던졌다는 사실을 알아야 그 결과를 해석할 수 있다."
+ },
+ "contributions": [
+  "**명제 2.1 — 진짜 샤프가 0일 때 N회 시행의 표본 내 최대 샤프 기댓값:** `E[max_N] ≈ (1−γ)·Z⁻¹(1 − 1/N) + γ·Z⁻¹(1 − 1/(N·e))`, γ ≈ 0.5772(오일러-마스케로니), 상한 `√(2·ln N)`.",
+  "**그 숫자가 충격적이다** — \"if the researcher tries only **N = 10** alternative configurations of an investment strategy, he or she is expected to find a strategy with a **Sharpe ratio IS of 1.57**, despite the fact that all strategies are expected to deliver a Sharpe ratio of zero OOS.\"",
+  "**정리 3.1 — 최소 백테스트 길이(연):** `MinBTL ≈ [ ((1−γ)Z⁻¹(1−1/N) + γZ⁻¹(1−1/(Ne))) / E[max_N] ]² < 2·ln(N) / E[max_N]²`. 실무 규칙: \"if only **5 years of data** are available, **no more than 45 independent model configurations** should be tried, or we are almost guaranteed to produce strategies with an annualized Sharpe ratio IS of 1, but an expected Sharpe ratio OOS of zero.\"",
+  "**홀드아웃만으로는 부족하다고 명시한다** — \"because the hold-out method does not take into account the number of trials attempted before selecting a model, it cannot assess the representativeness of a backtest.\"",
+  "**CSCV(조합 대칭 교차검증)** — 성과 행렬을 행 방향으로 S개 부분행렬로 나누고 C(S, S/2) 가지 균형 분할을 전수한다. 각 분할에서 표본 내 1등의 **표본 외 상대 순위** ω_c 를 구해 λ_c = ln(ω_c/(1−ω_c)) 로 변환하고, `PBO = ∫_{−∞}^{0} f(λ)dλ` — 표본 내 최적 전략이 표본 외 중앙값 아래로 떨어질 확률이다. **비모수**이고 **어떤 성과 통계에도** 적용된다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "전략을 굴리는 방법이 아니라 굴린 결과를 해석하는 방법이다. 그러나 이 리포트의 모든 성과 숫자에 적용된다.",
+  "data_short": "이론 (성과 행렬)",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "validation": "CSCV 는 walk-forward(한 시장 국면만 시험)와 K-fold(거짓 IID 가정과 누출)의 문제를 동시에 피한다고 저자들이 주장한다.",
+  "gap": "N 은 **독립** 시행 수여야 하고, 상관된 시행에는 차원 축소(PCA)가 필요하다 — 저자들이 스스로 밝힌다. 그리고 실무에서 N 은 관측되지 않는다. 이것은 결함이 아니라 규범적 요구(시행 횟수를 보고하라)다."
+ },
+ "code": [
+  "[esvhd/pypbo](https://github.com/esvhd/pypbo) — PBO/CSCV 파이썬 구현",
+  "López de Prado 의 코드 모음 quantresearch.org/Software.htm 에 CSCV 포함"
+ ],
+ "oneline": "샤프를 보고할 때 시행 횟수를 함께 적지 않으면, 그 샤프는 해석 불가능한 숫자다.",
+ "implications": [
+  "**이 리포트가 조사한 논문 중 시행 횟수를 샤프와 함께 보고한 것은 하나도 없고, deflated Sharpe 를 낸 것도 하나도 없다.** Prata 외는 하이퍼파라미터 탐색의 절반이 발산했다고 적었고(큰 N), Gort 외는 2,700점 격자를 열거하며, Hendricks & Wilcox 는 12칸 중 최고를 초록에 썼다.",
+  "**우리는 N 을 알고 있다** — 창 4개 × 전략 30개 × Optuna 18~72 trial × 정제 라운드. 이 수를 성과와 함께 보고하는 것만으로도 조사한 문헌 전체보다 앞선다.",
+  "MinBTL 규칙을 우리에 대입하면 경고가 나온다 — 6주(약 0.12년) 데이터로 수백 개 설정을 시도하는 것은 이 기준에서 매우 위험하다. **다만 우리는 종목 2,661개 × 결정 23,741건이라 '연 단위 관측' 이 아니라 '결정 단위 관측' 이 분모다.** 어느 쪽이 맞는 분모인지 정하는 것이 우리가 답해야 할 질문이다."
+ ],
+ "resolution": "해당 없음"
+}

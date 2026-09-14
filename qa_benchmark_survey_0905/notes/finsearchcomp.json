@@ -1,0 +1,109 @@
+{
+ "key": "finsearchcomp",
+ "title": "FinSearchComp: Towards a Realistic, Expert-Level Evaluation of Financial Search and Reasoning",
+ "authors_short": "Liang Hu, Jianpeng Jiao, Jiashuo Liu, Yanle Ren, Zhoufutu Wen, Kaiyuan Zhang, Xuanliang Zhang 외 · ByteDance Seed · Columbia Business School(advisor Hongseok Namkoong)",
+ "venue": "ICLR 2026 Poster",
+ "venue_verified": "OpenReview 8AJbbbe2ni venue='ICLR 2026 Poster'(notes/search API 응답; forum 페이지는 봇 챌린지로 직접 열람 불가) · 리뷰 노트 vwSNCQkJCk/pIc63bmGEH/y5AjElf4q1 rating 4/6/6 + 메타리뷰 16meoq8yQq에 Reviewer 9TaR 원점수 8 기재",
+ "type": "에이전트 벤치마크(오픈도메인 금융 검색·추론 QA, LLM-as-judge)",
+ "domain": "금융 / 시장 데이터·기업 공시·거시 통계 검색",
+ "data_scope": "Global(영어, 서구 시장)·Greater China(중국어) 두 부분집합 635문항: T1 시간민감 244(134+110), T2 단순 과거 조회 219(119+100), T3 복합 과거 조사 172(84+88)(HF label 집계, Figure 4 p.10); 전문가 70명(주석 50+시니어 20) 약 180+60시간(p.8); 평가는 2025-08-01~20 실행(p.10)",
+ "tags": [
+  "financial search",
+  "agent benchmark",
+  "time-sensitive",
+  "LLM-as-judge",
+  "expert annotation",
+  "Greater China",
+  "web-enabled LLM"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2509.13160",
+  "pdf": "https://arxiv.org/pdf/2509.13160",
+  "proceedings": "https://openreview.net/forum?id=8AJbbbe2ni",
+  "github": "https://randomtutu.github.io/FinSearchComp/",
+  "huggingface": "https://huggingface.co/datasets/ByteSeedXpert/FinSearchComp",
+  "website": "https://randomtutu.github.io/FinSearchComp/",
+  "verified": "arXiv abs 200, HF 200(datasets-server로 635행 전량 수신), 프로젝트 페이지 randomtutu.github.io 200, OpenReview forum URL 307→200(내용은 챌린지 페이지). 논문 p.1의 'Github: https://randomtutu.github.io/FinSearchComp/'는 GitHub Pages 주소."
+ },
+ "easy": {
+  "problem": "애널리스트는 '어제 종가', '2020년 9월 스타벅스 총자산', '2010년 이후 S&P500이 가장 많이 오른 달' 같은 것을 매일 찾아야 하지만, 기존 금융 QA는 자료를 미리 주고 풀게 해서 '찾는 능력'을 재지 못했다(p.2-3).",
+  "how": "금융 전문가 50명이 T1(실시간 값, API 호출 코드로 정답 동적 생성), T2(공식 출처의 단일 시점 값), T3(다출처·다기간 계산) 문항을 만들고 다른 전문가가 답을 모르는 채로 다시 풀어 불일치 시 시니어 20명이 중재했다(p.6-8). 정답에 허용 오차·채점 요점을 붙여 LLM 심판이 0/1로 채점하고, 웹 제품 12개·API 9개를 평가했다(p.9-11).",
+  "analogy": "금융 리서치 신입에게 '지금 NVDA 가격', '2024년 중국 외채 순유입', '삼성 폴더블 발표 다음날 애플 시가가 전날 종가 대비 얼마나 움직였나'를 인터넷으로 찾아오라고 시키고, 선배가 미리 확인해 둔 답과 오차 범위로 채점하는 실무 시험이다."
+ },
+ "contributions": [
+  "완전 공개된 최초의 오픈도메인 금융 검색 에이전트 벤치마크 635문항, 3태스크 × 2지역, 결정론적 정답(허용 오차 포함)과 오픈소스 평가 하네스(p.3)",
+  "70명 전문가(Citadel·J.P. Morgan·CITIC 등 출신) 다단계 품질관리: 신뢰 출처 교차검증, 모호성 제거 규칙(정의 명시·범위 답·수정되는 지표 회피, Table 4 p.20-22), 블라인드 재풀이·시니어 중재(p.8)",
+  "21개 모델(웹 12·API 9) 평가: Global에서 Grok 4(web) 68.9%로 전문가 75.0에 6.1pp 차, Greater China는 DouBao(web) 1위이나 전문가 88.3 대비 34pp 이상 열세(p.2, Figure 1 p.1); T3는 Grok 4·GPT-5-Thinking 외 30점 미달(p.14, Figure 5 p.12)",
+  "검색 부착 시 T1/T2/T3 평균 +40.8/+29.0/+8.1점(p.12, Figure 6 p.13); 금융 플러그인이 T1을 31.9pp 개선(p.13); 모델 출신국별 자산 원산지 편향 분석(Figure 8 p.13)",
+  "LLM 심판이 사람 판정과 91.5–99.8% 일치(Table 3 p.10)"
+ ],
+ "figures": [
+  {
+   "file": "figs/finsearchcomp_fig2.png",
+   "label": "Figure 2",
+   "page": 6,
+   "caption_ko": "구축 과정 개요. 왼쪽 데이터 수집·처리: T1은 공개 금융 API로 시간민감 질문을 설계하고 정답을 동적으로 주는 샘플 API 호출을 제공, T2는 회사 공시·당국 웹사이트·금융 DB의 공식 출처로 계산 없는 단순 질문과 수작업 검증 답, T3는 다출처·추론·계산이 필요한 복합 질문과 수작업 검증 답. 오른쪽 품질관리 4단계: 석사 이상 전문가 50명+시니어 20명, 공시·DB·당국 사이트 교차검증, 모호성 완화(정의 명시·범위/허용오차·조정되는 지표 회피), 전문가 A/B 독립 풀이 후 불일치 시 시니어 검토·수정.",
+   "alt": "FinSearchComp 데이터 구축과 품질관리 흐름"
+  },
+  {
+   "file": "figs/finsearchcomp_fig3.png",
+   "label": "Figure 3",
+   "page": 9,
+   "caption_ko": "데이터 통계. (a) 답 유형 String 59.8%·Float 39.4%·Integer 0.8%, 채점 방식 In-Range 78.6%·Exact Match 21.4%. (b) 평균 프롬프트 길이 Global 35.1 vs Greater China 47.4, 답 길이 26.9 vs 50.5.",
+   "alt": "답 유형·채점 방식 분포와 프롬프트/답 길이"
+  }
+ ],
+ "dataset": {
+  "construction": "T1: 'Financial experts first mannually design questions asking for time-sensitive data that can be verified through API … we actually prepare the code for API calls that obtain real-time data points for each question'(p.7); 자산군별 허용 오차 설정. T2: 전문가가 공식 출처(공시·규제당국·통계국) 문서에서 데이터 포인트를 뽑아 질문·답을 만들거나 전문 금융 DB의 일관된 정의의 과거 데이터로 설계; 통계 수정 위험은 답 범위 또는 기준 시점 명시로 완화(p.7). T3: '(i) Financial experts design questions based on their real-world professional scenarios … (ii) Financial experts download tables from a verified and reliable financial database and annotate questions based on the tables' 후 표당 2–5문항으로 정제(p.8). 품질관리: 전문가 70명(50 주석·20 시니어, 석사 이상, 현업), 두 공식 출처 교차검증, 모호성 규칙(Static PE vs PE TTM 명시, 24시간 거래 자산 회피, GDP·비농업고용 등 수정되는 지표 회피 또는 범위 답), 'one or two other financial experts solve the question independently without access to the answer key' 후 불일치·모호 시 시니어 중재(p.8). 메타리뷰에 초기 주석자 일치 T2 89.8%·T3 80.0% 언급. 전문가 약 180시간+시니어 60시간(p.8). LLM 관여 없음(전량 사람 작성). 사람 기준선은 구축에 관여하지 않은 별도 전문가 50명이 검색 도구를 써서 풀어 산출(p.11).",
+  "size_format": "HF 635행(config default, split train). 필드: prompt_id('(T1)Time_Sensitive_Data_Fetching_001' 형식), prompt, response_reference(정답+허용오차/채점 요점, T1은 필답 요소·정밀도), judge_prompt_template, judge_system_prompt(중국어 0/1 채점 지침), label(6종 task×지역), ground_truth(T1만: RT_LAST/RT_DATE/RT_TIME JSON), time(T1 평가일), wind_ticker/akshare_ticker/yfinance_ticker(T1), response_reference_translate. 라이선스 cc-by-4.0(HF 카드).",
+  "samples": [
+   "[(T3)Complex_Historical_Investigation_001 / label=Complex_Historical_Investigation(Global)] prompt: \"How many dollars did Apple's (AAPL) stock price (unadjusted) open higher (or lower) the day after Samsung's launch event for its first consumer-available foldable smartphone in San Francisco? (Calculate the difference between the opening price on the next day and the closing price on the day of the event, accurate to two decimal places, using local time for each.)\" | response_reference: \"\"$0.23 lower\"\" (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)",
+   "[(T2)Simple_Historical_Lookup_501 / label=Simple_Historical_Lookup(Global)] prompt: \"As of the end of December 2024, what was the bank credit of commercial banks in the United States (data from July 18,2025 , seasonally adjusted, answer in billions of dollars, rounded to the nearest integer)?\" | response_reference: \"\"$17956 billion, rounding errors are allowed.\"\" (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)",
+   "[(T1)Time_Sensitive_Data_Fetching_005 / label=Time-Sensitive_Data_Fetching(Global)] prompt: \"latest NVDA stock price\" | response_reference: \"None\" | ground_truth: {\"NVDA___O\":{\"RT_TIME\":\"200000\",\"RT_LAST\":\"181.59\",\"RT_DATE\":\"20250813\"}} | time: 2025/8/14 | tickers: wind=NVDA.O, yfinance=NVDA | translate: \"Required Content: NVIDIA (NVDA) stock latest price (closing price on the latest trading day)\nAccuracy Requirements: Only rounding errors are allowed\" (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)",
+   "[(T2)Simple_Historical_Lookup_001 / label=Simple_Historical_Lookup(Greater China)] prompt: \"2024年全年中国外债净流入是多少？（单位：十亿美元）（数值保留1位小数）\" | response_reference: \"-47.9 十亿美元，答案允许1%的误差\" (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)",
+   "[(T3)Complex_Historical_Investigation_002 / label=Complex_Historical_Investigation(Greater China)] prompt: \"美国第42-第46任总统中，其所属党派次数少的那一个的次数的2000倍是我一个月能存的钱。按照聚汇数据网站上所显示的2024年7月重庆市的平均新房房价，请问我需要存几个月才能买一套60平方米的房子？（答案保留整数）\" | response_reference: \"188个月\n评分要点：\n学生答案中的数字必须与标准答案中的数字严格一致（整数位允许四舍五入引起的误差，学生回答187和189都对）。\" (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)",
+   "[(T1)Time_Sensitive_Data_Fetching_001 / label=Time-Sensitive_Data_Fetching(Greater China)] prompt: \"上海金午盘的最新基准价\" | response_reference: \"必答点：上海金SHAU.SGE午盘的最新基准价格（即最新交易日午盘收盘价）\n精度要求：允许误差范围绝对数值±15\" | ground_truth: {\"SHAU___SGE\": {\"RT_TIME\": \"195500\",\"RT_LAST\": \"775.51\",\"RT_DATE\": \"20250814\"}} | time: 2025/8/14 | tickers: wind=SHAU.SGE, yfinance=None (출처: HF ByteSeedXpert/FinSearchComp, config default, split train)"
+  ],
+  "class": "C-lite",
+  "class_reason": "T2·T3 질문은 개체(티커·지표)·시점/구간·단위·반올림 자리수·허용 오차·판정 규칙(예: '같은 방향으로 움직이지 않은 날 중 USD/CNY 최대 상승일')을 본문에 명시하고 정답이 공개 데이터에서 결정론적으로 정해져 참고 QA셋의 질문 형식과 매우 가깝다. 그러나 원자료(evidence)가 동봉되지 않아 에이전트가 오픈도메인 검색으로 찾아야 하고, T1은 답이 시간에 따라 변하며 데이터 제공자별 차이를 범위로 흡수하므로 '제공된 원자료에서 계산'이라는 C의 전제와 다르다. 따라서 T3는 C에 근접하되 전체는 C-lite.",
+  "release": "HF cc-by-4.0으로 635문항·채점 프롬프트 공개, 평가 하네스 오픈소스(프로젝트 페이지). HF datasets-server로 전량 열람. T1 정답은 평가 시점의 API 호출 결과(HF에는 2025-08-14 스냅샷 수록).",
+  "contamination": "T1은 실시간 값이라 암기 불가; T2/T3는 검색 없이도 파라메트릭 기억으로 0이 아닌 점수를 얻는다는 점을 인정(p.12). 리뷰어도 '검색 없이 풀리는 문항' 우려 제기. 별도 오염 통제 없음.",
+  "evaluation": "LLM-as-a-Judge 0/1, 루브릭·허용 오차 기반; 주류 주식/지수는 장 마감 후 평가, 기타 지수는 당일 고저 범위, FX는 고저 범위+버퍼(p.9). 심판-사람 일치 91.5–99.8%(Table 3 p.10). Global: Grok 4(web) 68.9%(p.2); 사람 75.0/88.3(Figure 1 p.1). 태스크별 사람 기준 T1 100/100, T2 73.3/81.1, T3 51.4/76.7; T3 최고 Grok 4(web) 51.2(Global), Greater China T3 최고 23.9(Figure 5 p.12). 검색 없는 API는 T1 0점(p.12)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 전문가 70명이 실무 시나리오·공식 출처·금융 DB 표에서 직접 작성(p.7-8).",
+  "q2_method": "② 태스크별 출처 유형(공개 API, 공시, 당국 사이트, 통계국, 금융 DB)과 검증 절차는 명시되나, 구체 DB명(Wind·AKShare·yfinance 티커 필드로 추정)과 문항별 출처 URL은 미공개.",
+  "q3_license": "③ HF cc-by-4.0. 전문가는 ByteDance Xpert 플랫폼(약 3,000명 전문가 풀)에서 조달(p.16). T1 정답은 공개 금융 API 의존.",
+  "q4_relabel": "④ 기존 데이터셋 재라벨링 아님; 공개 데이터에서 전문가가 질문·답을 신규 작성.",
+  "q5_industry": "⑤ ByteDance Seed 자체 구성(Xpert 플랫폼 활용) + Columbia Business School 자문; 문항 전량 공개, 단 정답의 원천 데이터 파일은 미동봉.",
+  "q6_constraints": "⑥ 유료 금융 DB 표에서 만든 T3 문항은 표 자체를 공개하지 않고 질문·답만 공개(라이선스 제약 추정; 리뷰어가 데이터 소싱·라이선스 세부 부족 지적). 저자는 공개 출처로 재현 가능하다고 답변(메타리뷰).",
+  "q7_accept": "⑦ 메타리뷰: 70명 전문가의 엄격한 큐레이션, 21개 모델 종합 평가, 잘 동기화된 3태스크 구조를 높이 평가; 리뷰어 y5AjElf4q1(rating 6, contribution 4)은 실시간 질의 처리·지역/제공자별 분석·오픈소스 하네스를 강점으로 꼽음."
+ },
+ "review": {
+  "decision": "ICLR 2026 Poster (Accept)",
+  "scores": "8/6/6/4 (rating; 메타리뷰 기재 9TaR=8, y5AjElf4q1=6(conf 5, contribution 4), pIc63bmGEH=6(conf 4), vwSNCQkJCk=4(conf 3, soundness 2))",
+  "praised": [
+   "70명 전문가 큐레이션과 다단계 품질관리",
+   "21개 모델(웹 12·API 9) 광범위 평가와 지역/제공자별 분석",
+   "시간민감(T1)·단일시점(T2)·다기간 종합(T3)으로 잘 동기화된 태스크 설계와 부록의 풍부한 예시",
+   "완전 오픈소스와 사람 전문가 대비 명확한 격차 제시"
+  ],
+  "concerns": [
+   "규모: 635문항을 2지역×3태스크로 나누면 부분집합 <150으로 통계적 견고성 제한",
+   "이진 0/1 채점이 검색 깊이·출처 선택·도구 사용 실패를 구분 못 함",
+   "에이전트 프레임워크 자체(계획·도구 선택·오류 복구)를 평가하지 않고 웹/API 엔드포인트만 비교",
+   "서구·중화권 편중, 일본·인도·신흥시장 부재",
+   "데이터 소싱·라이선스·주석자 시간/도구 세부 부족, 8월 20일 창의 계절성 미반영"
+  ],
+  "why_accept": "메타리뷰 요지: 저자가 심판 일관성(91.5–99.8%), 실패 모드 분석(stale data >70%, 플러그인 미사용 등), 초기 주석 일치(T2 89.8%, T3 80.0%), 공개 출처 재현성, 약 1,500문항 추가 확장 계획을 근거로 답변해 핵심 우려를 해소; 규모·지역·이진 채점 한계는 남지만 금융 에이전트 평가에 의미 있는 기여로 판단."
+ },
+ "limitations": "635문항으로 세부 비교엔 작고, T1 정답은 시점 의존이라 재현 시 재평가 필요(리뷰어 지적). 검색 결과 원문이 동봉되지 않아 실패 원인(검색 vs 추론)을 분리하기 어렵고 이진 채점이 이를 악화. Greater China 문항은 중국어·중국 데이터 제공자에 의존해 비중국 모델에 불리할 수 있음. 평가가 2025년 8월 1–20일 웹 제품 스냅샷이라 제품 업데이트에 따라 결과가 바뀐다(p.10). 예측·보고서 작성 같은 분석 업무는 범위 밖.",
+ "oneline": "전문가 70명이 만든 635개 금융 검색 문항(실시간·단일시점·다기간 계산)으로 웹 검색 LLM 에이전트를 사람 대비 채점하는 ICLR 2026 오픈도메인 벤치마크.",
+ "implications": [
+  "T3 문항(예: XAUUSD 일중 $80 이상 하락일 목록을 날짜순 표로, EUR/HKD/USD 중간환율 동조성 판정 후 최대 상승일의 세 값을 소수 4자리로)은 우리 C형 문항처럼 개체·구간·문턱·정렬·정밀도를 질문 본문에 모두 넣은 좋은 문장 템플릿이다.",
+  "'답을 범위/허용 오차로 정의하고 정의 기준(Static PE vs TTM)을 질문에 명시하며 수정되는 지표를 피하라'는 Table 4 주석 가이드는 온체인 QA에서 토큰 최소단위 정수·소수 8자리·문턱 판정을 명시하는 우리 규약과 같은 취지의 검증된 체크리스트다.",
+  "evidence를 동봉하지 않은 탓에 이진 채점만 가능해 리뷰어 비판을 받았다. 참고 QA셋처럼 evidence 레코드를 동봉하면 검색 실패와 계산 실패를 분리 채점할 수 있어 진단력이 높아진다는 논거로 쓸 수 있다.",
+  "블라인드 재풀이(다른 전문가가 답 없이 다시 풀기)+시니어 중재라는 검증 절차와 초기 일치율(T2 89.8%, T3 80.0%) 보고는 온체인 계산 문항의 독립 재계산 검증 프로토콜과 보고 형식의 본보기다."
+ ],
+ "brief": false
+}

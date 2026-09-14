@@ -1,0 +1,91 @@
+{
+ "key": "dmind",
+ "title": "DMind Benchmark: Toward a Holistic Assessment of LLM Capabilities across the Web3 Domain",
+ "authors_short": "Huang et al. · Zhejiang University · DMind.ai (Singapore) · Nanyang Technological University",
+ "venue": "KDD 2026 (Datasets & Benchmarks Track; Proceedings V.2)",
+ "venue_verified": "Crossref API로 DOI 10.1145/3770855.3817512 조회 → 제목 일치, container 'Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2', event \"KDD '26\" Jeju Island, published 2026-08-08; 논문 p.1 ACM 블록 'KDD '26, Jeju Island, Republic of Korea · ACM ISBN 979-8-4007-2259-2/2026/08 · https://doi.org/10.1145/3770855.3817512'; HF README 'accepted to the Dataset & Benchmark Track of KDD 2026'. dl.acm.org 직접 접속은 403(Cloudflare 챌린지)",
+ "type": "QA 벤치마크(객관식 3,150 + 루브릭 채점 주관식 388) + 에이전트 보조 평가",
+ "domain": "Web3 9개 하위영역: 블록체인 기초·인프라·스마트컨트랙트·DeFi·DAO·NFT·토큰경제·밈·보안 취약점",
+ "data_scope": "논문 기준 3,543문항(p.5, Fig.4 p.5 도메인별 374~417); HF 실측 객관식 CSV 3,150행 + 주관식 JSONL 388행 = 3,538(5개 차이). 원천은 39개 화이트리스트 Web3 소스 6.1GB 크롤(p.4); 특정 시점 온체인 원장 데이터는 없음",
+ "tags": [
+  "Web3 지식 QA",
+  "객관식",
+  "루브릭 주관식",
+  "LLM-as-judge",
+  "출처 추적",
+  "오염 저항",
+  "KDD 2026"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2504.16116",
+  "pdf": "https://arxiv.org/pdf/2504.16116",
+  "proceedings": "https://doi.org/10.1145/3770855.3817512",
+  "github": null,
+  "huggingface": "https://huggingface.co/datasets/DMindAI/DMind_Benchmark",
+  "website": null,
+  "verified": "arXiv PDF v4(2026-06-26) 12쪽 다운로드 OK; HF resolve URL test_data/objective/Defi.csv 307→200(340행)과 objective 9개 CSV·subjective 9개 JSONL 전부 다운로드; HF API(lastModified 2026-07-07, 카드 license 필드 없음); Crossref 200; dl.acm.org 403"
+ },
+ "easy": {
+  "problem": "MMLU·BIG-Bench 같은 범용 벤치마크는 EVM 디버깅, 익스플로잇 추론, 인센티브 분석 같은 Web3 특유의 적대적·프로토콜 중심 역량을 재지 못한다(p.2). Web3는 코드 오류가 곧 금전 손실로 이어지는 고위험 영역이라 도메인 전용 평가가 필요하다.",
+  "how": "39개 신뢰 소스를 크롤해 정제·중복제거·PII 삭제하고, CAMEL 기반 검색 에이전트와 NLI 검증기로 출처 신뢰도를 공동 추론해 후보 항목을 거른 뒤, 8년 이상 경력 전문가 5명이 문항을 만들고 문장 재구성·선택지 무작위화·이중 맹검 검토를 거쳤다(p.4-5). 객관식은 결정론적 채점, 주관식은 분해 루브릭으로 Claude-3.7-Sonnet이 채점한다(p.5).",
+  "analogy": "블록체인 개발자·감사자 채용 시험을 아홉 과목으로 만들고, 객관식은 OMR로, 서술형은 채점표를 든 전문 채점관(LLM)이 매기는 자격시험."
+ },
+ "contributions": [
+  "9개 Web3 도메인 3,543문항(객관식 단일/복수 선택 + 코드 감사·계산·시나리오 분석 등 11종 주관식)을 출처 URL·검증자와 함께 공개(p.1, p.5); HF 트렌딩 1위·2026-06 기준 13k 다운로드는 self-claim(p.1)",
+  "하이브리드 채점 프로토콜: 객관식 단일 2점/복수 3·1·0점, 주관식은 'Decomposed Semantic Evaluation' 루브릭 + Claude-3.7-Sonnet 판정 + 키워드 매칭 백업(p.5); 판정자 10종 교차검증 Pearson 0.954·ICC(2,k) 0.966(Table 3 p.9)",
+  "31개 LLM × 5회 실행 평가: GPT-5 Medium 77.6 최고, Mixtral 8x22B 54.2 최저(Fig.5 p.7); 토큰경제·밈·보안이 가장 약한 도메인(Fig.6 p.7, p.6)",
+  "오염 저항 실험: 전체 벤치마크 Q-A쌍으로 LoRA SFT해도 이득 ≤ +0.91(Table 4 p.9); IAA Krippendorff α 0.72~0.93(Table 5 p.11); 집계 방식 6종에 대한 순위 안정성 Spearman 0.91~0.97(Table 6 p.12)",
+  "도구 보강 에이전트 평가(LangChain/CAMEL × DeepSeek-V3.2/Claude-4.5-Haiku, Manus-1.6): 77.8~84.7로 zero-shot 대비 상승하지만 보안 도메인은 최고 79.5(Table 1 p.6, Table 2 p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/dmind_fig2.png",
+   "label": "Figure 2",
+   "page": 4,
+   "caption_ko": "DMind 프레임워크 한눈 보기: 9개 도메인 행, 객관식(Basic/Intermediate/Advanced × 단일/복수 선택, 선택지 순서 무작위화, 예시 문항 'Which of the following are implementation methods for Trustless Bridges…'), 주관식 9종 태스크(용어 매칭·DeFi 지표 시뮬레이션·DAO 절차 정렬·코드 취약점 식별·모델 설계 분석·밈 분석·영향 분석·취약점 해법·전략 수립), 실험(채점 편향·비용효율·IAA·오염 거부·성능) 및 기여(39개 커뮤니티 조사, 8년 경력 전문가 5명, 6.1GB→3,543문항, HF 트렌딩) 요약.",
+   "alt": "DMind 벤치마크 구조도: 도메인·객관식·주관식·실험·기여"
+  },
+  {
+   "file": "figs/dmind_fig3.png",
+   "label": "Figure 3",
+   "page": 4,
+   "caption_ko": "에이전트 검색·출처 인식 필터링 파이프라인 6단계: (1) 큐레이션된 소스 목록(Web3 소셜 플랫폼·프로젝트 사이트·백서) → (2) CAMEL 프레임워크 검색 에이전트가 시간창 트렌딩 토픽 시드를 LLM으로 확장해 제한된 질의 집합 생성 → (3) 화이트리스트 필터로 후보 증거 e_ij 수집 → (4) NLI 검증기가 지지 확률 p_ij·모순 확률 c_ij로 부호 있는 증거 점수 g_ij 산출 → (5) 항목 타당성 z_i와 소스 신뢰도 r_j를 교대 최적화로 공동 추론 → (6) 낮은 z_i 폐기, 높은 불일치는 수동 중재, 통과 항목은 하이브리드 중복제거·민감정보 삭제 후 질문·정답·출처 URL·검증자 표로 출력.",
+   "alt": "DMind 증거 검색·NLI 검증·공동 추론·필터링 파이프라인"
+  }
+ ],
+ "dataset": {
+  "construction": "3단계(전략적 수집·자동 전처리·전문가 큐레이션, p.4-5). 수집: 'a white-list of 39 authoritative Web3 information channels'에서 타임스탬프 크롤 6.1GB, 출처 URI·생성시각·저자 메타데이터 보존. 전처리: 정규식 노이즈 제거·유니코드 정규화, MinHash LSH 중복제거(Jaccard > 0.85), NER+패턴 규칙으로 PII·암호키 삭제. 에이전트 검색: CAMEL 프레임워크 검색 에이전트가 화이트리스트 소스에서 top-k 증거를 모으고 NLI 검증기의 지지/모순 확률로 항목 타당성 z_i와 소스 신뢰도 r_j를 공동 추론, 'Items with low z_i are discarded, and high-disagreement items are routed to manual arbitration'. 전문가 주석: 'A panel of five domain specialists, each with over eight years of experience in blockchain architecture and cryptoeconomics, conducted a manual review to distill high-value concepts into evaluation items'; 오염 완화로 'Paraphrasing and Randomization: specific questions were structurally rephrased, and option orders were randomized'; 'validated through double-blind peer review'. HF 행마다 review_status='Expert_Verified', expert 이름(예: Gang Zhao), source_url, license(CC-BY-4.0)가 붙어 있다. 필터링 비율(크롤→문항)은 논문에 수치 없음. LLM은 문항 생성이 아니라 검색·검증(CAMEL 에이전트, NLI)과 주관식 채점(Claude-3.7-Sonnet)에 관여.",
+  "size_format": "HF test_data/objective/*.csv 9개(Fundamentals 341, DAO 368, Defi 340, Infra 333, MEME 349, NFT 352, Security 372, SmartContract 340, Tokenomist 355 = 3,150행; 컬럼 No, classification, Question, Option A~D, Correct option, Multiple Choice or Not, domain, sub_topic, difficulty, ability_type, source_url, license, review_status, expert) + test_data/subjective/*.jsonl 9개(각 41행, Security 45, SmartContract 56 = 388행; 필드 question_type(calculation/code_audit/…), scenario, instructions, factors_to_consider, keywords, expected_insights, scoring_criteria[{criterion, points, key_points}], total_possible, domain, difficulty …). Defi.csv 난이도 Easy 62/Medium 43/Hard 235, 복수정답 139, ability_type Logical Reasoning 139·Knowledge Recall 125·Technical Analysis 76. 분할 없음(전량 test).",
+  "samples": [
+   "[HF test_data/objective/Defi.csv No=1] What does AMM stand for? | A. Automated Market Maker | B. Advanced Market Management | C. Automated Money Market | D. Asset Management Model | Correct: A | Basic · Easy · Knowledge Recall · source https://academy.binance.com/en/articles/what-is-an-automated-market-maker-amm · CC-BY-4.0 · Expert_Verified · Gang Zhao",
+   "[HF test_data/objective/Defi.csv No=5] What is the main characteristic of Flash Loans? | A. No collateral required | B. Must be repaid within the same transaction | C. Long-term borrowing | D. Low interest rates | Correct: B | Basic · Easy · source https://ethereum.org/en/developers/docs/mev/#flash-loans",
+   "[HF test_data/objective/Defi.csv No=107] What is the main advantage of the Concentrated Liquidity\" model compared to traditional AMMs in DeFi?\" | A. Capital efficiency improved 100-4000 times | B. Complete elimination of impermanent loss | C. Reduced gas fees | D. Simplified user experience | Correct: A | Advanced · Hard · Knowledge Recall",
+   "[HF test_data/subjective/Defi.jsonl 1행] question_type: calculation · scenario: Explain the differences between Automated Market Makers (AMM) and traditional order book trading · instructions: Compare the working principles， advantages， disadvantages， and applicable scenarios of AMM and order book trading mechanisms · factors_to_consider: [Liquidity provision mechanisms, Price discovery process, Slippage and price impact, Capital efficiency] · scoring_criteria: [{Mechanism explanation, 4pts}, {Comparison of advantages and disadvantages, 3pts}, {Application recommendations, 3pts}] · total_possible: 10",
+   "[HF test_data/subjective/SmartContract.jsonl 1행] question_type: code_audit · instructions: Identify the vulnerability in the smart contract and provide fixed code · contract_code: contract VulnerableBank { mapping(address => uint) public balances; function deposit() external payable {...} function withdraw(uint _amount) external { require(balances[msg.sender] >= _amount, \"Insufficient balance\"); (bool success, ) = msg.sender.call{value： _amount}(\"\"); require(success, \"Transfer failed\"); balances[msg.sender] -= _amount; } } · vulnerability_type: reentrancy · scoring_criteria: [{identifies_vulnerability_type, 2pts}, {follows_checks_effects_interactions, 3pts}, …]"
+  ],
+  "class": "B",
+  "class_reason": "객관식은 'What does AMM stand for?'처럼 시험형 지식 문항(A 수준)부터 고급 개념 문항까지 지식 회상·논리 추론 위주이고, 주관식(calculation·code_audit·scenario_analysis 등)도 개념 설명·코드 감사·전략 수립형이다. 특정 주소·블록 구간·온체인 원자료에 묶인 문항이 없고 답은 지식·루브릭 기반이므로 도메인 특화 지식 QA(B)로 분류한다(일부 Easy 문항은 A).",
+  "release": "HF DMindAI/DMind_Benchmark 공개, 실제 다운로드 확인. HF 카드에 license 메타 없음(행별 license 열은 출처 라이선스 'CC-BY-4.0'); 논문 자체는 CC BY-NC-ND 4.0(p.1). 공개 범위는 'only the question, the gold answer, the original source URL, and the responsible verifier'이며 크롤 원문은 미배포(p.5). 평가 코드(api/, Makefile, models.yml)도 동일 HF 저장소.",
+  "contamination": "문장 재구성·선택지 순서 무작위화(p.5); 전체 벤치마크 Q-A쌍으로 QwQ-32B·Qwen3-32B·DeepSeek-R1-Distill-Llama-70B를 LoRA SFT해도 E0→E4 이득 ≤ +0.91(Table 4 p.9)로 암기 효과가 작다고 주장; 출처·시각 메타데이터 보존.",
+  "evaluation": "객관식: 단일 정답 2점, 복수 정답은 완전 3점·부분(오답 미포함) 1점·오답 포함 0점(p.5); 주관식: 원자 기준별 가중 루브릭을 Claude-3.7-Sonnet이 채점, 키워드 매칭 백업(p.5); 종합 DMind Index 0~100. 결과(Fig.5 p.7, 5회 평균): GPT-5 Medium 77.6, GPT-5 Low 77.3, GPT-5 High 77.3, Claude Sonnet 4 76.9, Claude Opus 4 76.3 … Llama 4 Scout 55.1, Mixtral 8x22B 54.2; 도메인별(Fig.6 p.7) 기초·인프라 강세, 토큰경제·밈·보안 약세(예: GPT-5 Medium Security 68.6, Meme 65.7). 에이전트 설정 Manus-1.6 84.7(Table 1 p.6). 비용-성능 Pareto(Fig.7 p.8)."
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작(공개 소스 크롤 + 전문가 문항 작성).",
+  "q2_method": "출처 화이트리스트 39개 채널(기술 문서 저장소·거버넌스 포럼·개발자 미디어·프로젝트 공식 계정·백서)에서 크롤, 각 문항에 source_url 기록(p.4-5, HF 행). 개별 소스 목록 전문은 논문에 없음(Fig.2에 RootData·PANews·Foresight News 등 로고).",
+  "q3_license": "오픈 공개(HF). 문항별 license 열은 출처 기준 CC-BY-4.0; 데이터셋 카드 자체 라이선스 필드는 없음; 'released, licensed, and maintained by DMind.ai'(p.9).",
+  "q4_relabel": "공개 문서를 그대로 쓰지 않고 전문가가 개념을 추출해 문항·선택지·루브릭을 새로 작성하고 재구성·무작위화(p.5).",
+  "q5_industry": "학계(ZJU·NTU) + 기업(DMind.ai) 협업; 'The dataset associated with this work was developed with funding and resource support from DMind.ai'(p.9). 기업 내부 데이터가 아닌 공개 소스 기반이며 문항은 공개.",
+  "q6_constraints": "저작권·프라이버시: 크롤 원문 미배포, PII·키 삭제, 출처 URL만 공개(p.5, p.9). 이중 사용(취약점 탐색) 우려로 안전하지 않은 조언에 감점(p.9). 그럼에도 문항·정답·채점 코드 공개.",
+  "q7_accept": "KDD는 공개 리뷰 없음. 논문 self-claim: 출처 추적·오염 인식 파이프라인, 객관/주관 분리 하이브리드 채점과 교차판정 검증, 31개 모델 대규모 진단·비용 분석·오염 저항 실험(p.2 기여 목록). 부록 B의 IAA 연구는 'during the rebuttal period'에 수행했다고 명시(p.11) → 리뷰어가 주관식 채점 신뢰성·편향을 문제 삼았음을 시사."
+ },
+ "review": null,
+ "limitations": "논문 자체 한계(p.9): 화이트리스트·전문가 작성에 따른 커버리지 편향(신흥 프로토콜·비영어권), zero-shot 고정 디코딩만 평가, 루브릭 자동 채점이 '그럴듯하지만 안전하지 않은 조언'을 과대평가할 수 있음, 벤치마크 형식 과적합 위험. 추가 관찰: 'Which DeFi protocol ranks highest in TVL'처럼 시점 의존 문항에 날짜가 없고, 온체인 원장 인스턴스·계산형 문항이 없어 시점 특정 계산 능력은 측정하지 못한다. 논문 3,543 vs HF 3,538 문항 수 불일치. 주관식 판정자가 상용 Claude-3.7-Sonnet이라 재현 비용·판정자 편향 문제(교차판정으로 완화 주장).",
+ "oneline": "39개 소스 크롤→NLI 검증→전문가 작성으로 만든 Web3 9개 도메인 3,5xx문항 지식·추론 QA 벤치마크(객관식+루브릭 주관식)로, KDD 2026 D&B 트랙 채택이 DOI로 확인된다.",
+ "implications": [
+  "DMind는 '무엇을 아는가'(지식·개념·코드 감사)를 재고 우리 세트는 '주어진 원장에서 무엇을 계산해내는가'를 재므로 직접 경쟁이 아니라 보완 관계다. 관련 논의에서 DMind를 'Web3 지식 QA의 대표', 우리 세트를 '온체인 결정론적 계산 QA'로 위치시킬 수 있다.",
+  "출처 URL·검증자·라이선스·난이도·ability_type을 행마다 붙이는 메타데이터 스키마(HF CSV)는 우리 60문항에도 그대로 적용할 만하다(예: 각 문항에 evidence 테이블·블록 구간·규약 버전·검증자 필드).",
+  "오염 저항을 '전체 세트로 LoRA SFT해도 ≤+0.91'로 실증한 방식(Table 4 p.9)은 우리 세트의 강점(값이 원장에서 계산되므로 암기 불가)을 같은 실험 설계로 보여줄 수 있는 템플릿이다.",
+  "KDD D&B 트랙 채택과 rebuttal 중 IAA 연구 추가(p.11)는 리뷰어가 채점 신뢰성 근거를 요구했음을 시사한다. 우리 세트는 결정론적 채점이 강점이므로 '판정자 불필요'를 명시적으로 부각하고, 대신 문항 검증(3인 교차검증·재계산 일치율) 수치를 준비해야 한다."
+ ],
+ "brief": false
+}

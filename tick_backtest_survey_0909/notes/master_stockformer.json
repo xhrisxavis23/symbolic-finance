@@ -1,0 +1,26 @@
+{
+ "key": "master_stockformer",
+ "title": "MASTER (AAAI 2024) · StockFormer (IJCAI 2023) — 일봉·비용 0 으로 초과수익을 보고하는 계열",
+ "authors_short": "Li 외 (MASTER) · Gao·Wang·Yang (StockFormer)",
+ "venue": "AAAI 2024 · IJCAI 2023, pp. 4766–4774",
+ "links": {
+  "github": "https://github.com/SJTU-DMTai/MASTER",
+  "github_extra": [
+   "https://github.com/gsyyysg/StockFormer"
+  ],
+  "proceedings": "https://doi.org/10.24963/ijcai.2023/530",
+  "verified": "MASTER star 531 MIT · StockFormer star 355 · Crossref 200"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "일봉 재생. MASTER 는 **비용 모형이 아예 없다**(본문에서 'transaction' 이 한 번 나오는데 \"computation cost\" 다).",
+  "data_short": "**일봉** — MASTER: CSI300/CSI800, StockFormer: CSI-300·NASDAQ-100·암호화폐",
+  "fill_short": "일간 가격 즉시 체결",
+  "cost_short": "MASTER **없음** · StockFormer 있다고만 하고 **수치 미기재**",
+  "design": "MASTER 는 시장 정보로 종목 간 상관을 조절하는 트랜스포머로 일간 상위 30종목 재조정. StockFormer 는 SAC 로 일간 포트폴리오 가중치. StockFormer 는 학습/테스트만 있고 **검증 분할이 없다**(CSI-300 학습 1,935일 / 테스트 728일).",
+  "validation": "단일 시간 분할. MASTER 는 5회 실행, StockFormer 는 시드 3개.",
+  "gap": "**일간 상위 30종목 재조정을 비용 0 으로 보고하는 것이 이 조사에서 가장 명백한 무비용 결과다.** 회전율이 높은 전략일수록 비용이 결론을 뒤집는다는 것은 Chen–Velikov 가 정량화했다(월 회전율 30% × 지불 스프레드 111bp = 32bp)."
+ },
+ "oneline": "탑티어 AI 학회의 일봉 트레이딩 논문은 여전히 비용을 안 넣거나 수치를 안 밝힌다.",
+ "resolution": "일봉 이상"
+}

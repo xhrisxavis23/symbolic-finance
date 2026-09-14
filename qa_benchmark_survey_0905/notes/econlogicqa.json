@@ -1,0 +1,31 @@
+{
+ "key": "econlogicqa",
+ "title": "EconLogicQA: A Question-Answering Benchmark for Evaluating Large Language Models in Economic Sequential Reasoning",
+ "authors_short": "Yinzhu Quan, Zefang Liu(공동1저자) · Georgia Institute of Technology",
+ "venue": "EMNLP 2024 Findings",
+ "venue_verified": "Crossref DOI 10.18653/v1/2024.findings-emnlp.125, container 'Findings of the Association for Computational Linguistics: EMNLP 2024'",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2405.07938",
+  "pdf": "https://arxiv.org/pdf/2405.07938",
+  "proceedings": "https://doi.org/10.18653/v1/2024.findings-emnlp.125",
+  "github": null,
+  "huggingface": "https://huggingface.co/datasets/yinzhu-quan/econ_logic_qa",
+  "website": null,
+  "verified": "arXiv abs 200, HF 200(datasets-server로 test 3행·train/val 행수 확인); ACL Anthology 페이지 직접 열람은 미실시(Crossref로 확인)"
+ },
+ "domain": "경제·비즈니스·공급망 뉴스 기반 사건 순서 추론(영어)",
+ "dataset": {
+  "construction": "Kaggle의 2011–2022 CNN 뉴스 데이터셋(CC0)에서 business 범주 기사를 골라 'we utilize the GPT-4 to automatically generate questions by extracting key points from news articles'(p.2); 프롬프트는 짧은 시나리오 + 4개 사건을 논리/시간 순으로 배열하는 객관식을 원문 참조 없이 독립적으로 만들도록 지시(p.2-3). 사람 검토로 순서 오류 수정·민감 기사 제외, 복수 정답·순서 불명확 문항 제거: 'In total, 204 questions are removed from the initial pool of 854 questions'(p.3) → 650문항.",
+  "size_format": "HF CSV: train 390 / val 130 / test 130 = 650. 필드: Question, A, B, C, D, Answer(예: 'D, A, C, B'). 라이선스 cc-by-nc-sa-4.0(HF 카드).",
+  "samples": [
+   "Question: \"In the context of the ongoing conflict in Ukraine, social media platforms are grappling with how to handle disinformation spread by Russian government accounts. Arrange the following events in the logical order they would occur based on standard business practices and the principles of digital content moderation.\" A: \"Social media platforms label Russian government accounts for transparency.\" B: \"Social media platforms come under pressure to crack down on accounts linked to the Kremlin.\" C: \"Social media platforms remove individual posts by Russian government accounts that violate platform rules.\" D: \"Russian government accounts spread disinformation on social media platforms.\" | Answer: \"D, A, C, B\" (출처: HF yinzhu-quan/econ_logic_qa, split test, row 0)",
+   "Question: \"What is the correct sequence of events in the development of a commercially viable nuclear fusion reactor, as described in the scenario?\" A: \"Billionaires such as Jeff Bezos, Peter Thiel, and Paul Allen invest in different fusion development companies.\" B: \"The International Thermonuclear Experimental Reactor (ITER) project in Cadarache, France, begins construction.\" C: \"The ITER project ramps up activity, with several 33-foot-tall, 86-ton drain tanks arriving from the United States.\" D: \"The ITER project experiences design changes and construction delays, resulting in rising costs.\" | Answer: \"B, A, C, D\" (출처: HF yinzhu-quan/econ_logic_qa, split test, row 1)",
+   "[논문 Table 1 p.3] Question: \"Costco, a major retailer, is taking steps to control its chicken supply chain to maintain the price of its popular rotisserie chickens. Arrange the following events in the logical sequence based on Costco's strategy.\" A. Costco recruits farmers to grow chickens for them. B. Costco opens a $450 million poultry complex in Nebraska. C. Costco faces supply challenges and cost pressures in the poultry industry. D. Costco decides to keep its rotisserie chickens at $4.99 despite competitors increasing their prices. Correct Order: D, C, A, B"
+  ],
+  "class": "A",
+  "class_reason": "뉴스 기반 사건 4개를 논리 순서로 배열하는 객관식으로 일반인 수준의 상식·경제 논리를 묻는다. 특정 데이터 인스턴스나 계산 없이 GPT-4가 생성한 텍스트에 사람 검수를 더한 형태이며, 정답은 순열 문자열(exact match).",
+  "release": "HF 공개(cc-by-nc-sa-4.0), 실제 행 열람. 평가: 정확도, GPT-4-Turbo 1-shot 56.92%가 최고, 오픈 모델은 Mistral-7B-Instruct-v0.3 39.23%(Table 2 p.4)."
+ },
+ "oneline": "CNN 비즈니스 기사에서 GPT-4가 만든 '사건 4개 논리 순서 배열' 객관식 650문항(사람 검수로 854→650)으로 LLM의 경제 순차 추론을 재는 EMNLP 2024 Findings 벤치마크.",
+ "brief": true
+}

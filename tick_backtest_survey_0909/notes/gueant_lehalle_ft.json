@@ -1,0 +1,63 @@
+{
+ "key": "gueant_lehalle_ft",
+ "title": "Guéant · Lehalle · Fernandez-Tapia — 실제 틱으로 되감은 첫 마켓메이킹 백테스트, 그리고 그 백테스트의 각주",
+ "authors_short": "Olivier Guéant · Charles-Albert Lehalle · Joaquin Fernandez-Tapia",
+ "venue": "SIAM J. Financial Mathematics 3(1), 740–764 (2012) · Mathematics and Financial Economics 7(4), 477–507 (2013)",
+ "venue_verified": "DOI 10.1137/110850475 · 10.1007/s11579-012-0087-0 를 Crossref 로 검증. arXiv 1106.3279 · 1105.3115 전문 확인",
+ "type": "확률제어 청산·마켓메이킹 + 실틱 재생 백테스트",
+ "domain": "지정가 청산 · 재고 관리",
+ "data_scope": "2012 논문: **AXA (Euronext Paris), 2010-11-05 의 5분 구간 두 개와 2010-11-08 의 2시간 구간 하나.** 2013 논문: **France Télécom, 2012-03-15, 10:00–16:00 — 한 종목 하루.** 데이터 벤더는 명시 없음.",
+ "tags": [
+  "실틱 재생",
+  "지정가 청산",
+  "표본 극소",
+  "전량 체결 가정"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1106.3279",
+  "github_extra": [],
+  "proceedings": "https://doi.org/10.1137/110850475",
+  "verified": "arXiv 1106.3279 · 1105.3115 전문 내려받아 백테스트 절 직접 확인"
+ },
+ "easy": {
+  "problem": "Avellaneda–Stoikov 계열 이론을 실제 시장 데이터에 대 보면 어떻게 되나? 아무도 안 하고 있었다.",
+  "how": "실제 체결·최우선호가 스트림을 시간순으로 되감으며, 에이전트가 낸 지정가 호가에 체결이 닿으면 체결된 것으로 처리한다. 호가는 틱 단위로 반올림한다.",
+  "analogy": "이론으로 계산한 낚싯대 위치를, 그날 물고기가 실제로 지나간 기록 위에 겹쳐 보는 것. 다만 물고기가 지나가면 무조건 잡혔다고 친다."
+ },
+ "contributions": [
+  "이 계열 이론을 **실제 틱 위에서 처음 돌려 본** 사례다. 그 자체로 의미가 있다.",
+  "2013 논문은 순진한 최우선호가 트레이더와 비교해 일중 손익 €1,200~1,400 vs −€600~+€600 을 보고한다.",
+  "동시에 백테스트의 가정을 각주로 **명시적으로 고백한다** — 이 정직함이 이후 문헌의 기준이 됐다.",
+  "\"adaptations of our results are in use at Cheuvreux\" 라고 적어, 실무 적용 사실을 밝힌다(검증 불가)."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "실데이터 재생이지만 큐도 지연도 없고, 체결이 닿으면 **전량** 체결로 친다.",
+  "data_short": "AXA 2일 · France Télécom 1일 (Euronext)",
+  "fill_short": "체결이 내 호가에 닿으면 **전량**",
+  "cost_short": "없음 (수수료·리베이트 미반영)",
+  "data": "체결별 데이터 + 최우선호가. 표본이 **하루~이틀, 한 종목**이다.",
+  "design": "시간순 재생. 주문 크기는 평균 거래 크기(ATS, 1,105주)로 고정하고 Δt 동안 유지한다.",
+  "fill": "각주가 전부를 말한다 — \"In the backtests we do not deal with quantity and priority issues in the order books and supposed that our orders were always entirely filled.\" 2013 논문도 같다 — \"we assumed that our orders were entirely filled when a trade occurred at or above the ask price quoted by the agent.\"",
+  "cost": "없다.",
+  "latency": "없다.",
+  "selfimpact": "없다.",
+  "validation": "**없다.** 표본 외 구간이 없고, 위험회피 계수 γ 는 \"재고가 −10~10 사이에 머무는 임의의 값\" 으로 골랐다.",
+  "metrics": "**집계 통계가 아예 없다.** 시계열 그림 세 장이 결과의 전부다(2012). 2013 논문도 그림 세 장 + 일중 손익 범위.",
+  "quotes": [
+   "In the backtests we do not deal with quantity and priority issues in the order books and supposed that our orders were always entirely filled.",
+   "we assumed that our orders were entirely filled when a trade occurred at or above the ask price quoted by the agent."
+  ],
+  "gap": "표본이 하루~이틀이라 성과의 통계적 의미를 말할 수 없다. 그리고 전량 체결 가정은 마켓메이킹 백테스트에서 가장 큰 낙관 요인이다 — 실제로는 큐 뒤에 서서 못 먹는 경우가 대부분이다."
+ },
+ "code": [
+  "공개 코드 없음"
+ ],
+ "limitations": "A·k 를 스프레드와 무관하게 고른 것을 저자들이 스스로 모형 오설정으로 인정한다.",
+ "oneline": "\"실데이터로 백테스트했다\" 는 문장의 실제 내용이 한 종목 하루·전량 체결·그림 세 장일 수 있음을 보여 주는 사례.",
+ "implications": [
+  "우리 백테스트가 2,661종목 × 6주 × 큐 모델이라는 사실은 이 계열과 비교하면 규모·사실성 양쪽에서 크게 앞선다. 관련연구에서 이 대비를 쓸 수 있다.",
+  "반대로 배울 점도 있다 — 이들은 가정을 각주로 **명시**했다. 우리 프로필의 `queue.limits` 목록이 같은 역할을 한다."
+ ],
+ "resolution": "틱·메시지"
+}

@@ -1,0 +1,83 @@
+<figure class="paperfig" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px 10px">
+<span class="figsrc">그림 2 · 큐 모델의 핵심 분기 — “설명되지 않은 잔량 감소” 를 누구 앞의 취소로 볼 것인가</span>
+<svg viewBox="0 0 1040 400" width="100%" role="img" aria-label="지정가 주문의 큐 위치 모델 세 가지 비교">
+  <defs>
+    <style>
+      .h{font:800 13px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#0f172a}
+      .t{font:400 11.5px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#475569}
+      .m{font:600 11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#0f172a}
+      .k{font:700 11px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#fff}
+      .cap{font:700 11.5px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#334155}
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- 상황 -->
+  <text class="h" x="16" y="22">상황 — BID1 에 지정가 매수를 걸었다</text>
+  <rect x="16" y="34" width="470" height="26" rx="5" fill="#e2e8f0"/>
+  <rect x="16" y="34" width="330" height="26" rx="5" fill="#94a3b8"/>
+  <rect x="346" y="34" width="34" height="26" rx="5" fill="#0f766e"/>
+  <text class="k" x="181" y="52" text-anchor="middle">내 앞 물량 (ahead)</text>
+  <text class="k" x="363" y="52" text-anchor="middle">내</text>
+  <text class="t" x="435" y="52" text-anchor="middle">뒤 물량</text>
+  <text class="t" x="500" y="45">게시 시점 표시 잔량 전체 = prev_depth</text>
+  <text class="t" x="500" y="61">우리 설정 <tspan class="m">queue_fraction = 1.0</tspan> → 표시 잔량 <tspan font-weight="700">전부</tspan> 뒤에 선다 (가장 보수적)</text>
+
+  <!-- 한 틱 뒤 -->
+  <text class="h" x="16" y="94">한 틱 뒤 — 잔량이 줄었다. 그런데 그중 일부는 체결로 설명되지 않는다</text>
+  <rect x="16" y="106" width="470" height="26" rx="5" fill="#f1f5f9" stroke="#cbd5e1" stroke-dasharray="3 3"/>
+  <rect x="16" y="106" width="250" height="26" rx="5" fill="#94a3b8"/>
+  <rect x="266" y="106" width="60" height="26" rx="5" fill="#fca5a5"/>
+  <rect x="326" y="106" width="54" height="26" rx="5" fill="#fdba74"/>
+  <text class="k" x="141" y="124" text-anchor="middle">남은 잔량</text>
+  <text class="t" x="296" y="124" text-anchor="middle" font-size="10" fill="#7f1d1d">체결</text>
+  <text class="t" x="353" y="124" text-anchor="middle" font-size="10" fill="#7c2d12">???</text>
+  <text class="t" x="500" y="118"><tspan fill="#b91c1c" font-weight="700">체결(eligible)</tspan> = 내 가격에 도달한 <tspan font-weight="700">반대편 주도</tspan> 체결 — 직접 관측된다</text>
+  <text class="t" x="500" y="134"><tspan fill="#c2410c" font-weight="700">???</tspan> = <tspan class="m">prev_depth − depth − eligible</tspan> — 취소인지 미관측 체결인지 <tspan font-weight="700">가릴 수 없다</tspan></text>
+
+  <line x1="20" y1="150" x2="1020" y2="150" stroke="#e2e8f0"/>
+  <text class="h" x="16" y="176">이 “???” 를 어디에 배분하느냐가 큐 모델을 가른다</text>
+
+  <!-- 세 갈래 -->
+  <g>
+    <rect x="16" y="192" width="325" height="150" rx="10" fill="#f8fafc" stroke="#cbd5e1"/>
+    <rect x="16" y="192" width="325" height="30" rx="10" fill="#334155"/>
+    <text class="k" x="30" y="212">전부 내 뒤에서 취소됐다 (보수적)</text>
+    <text class="cap" x="30" y="242">hftbacktest <tspan class="m">RiskAdverseQueueModel</tspan></text>
+    <text class="m" x="30" y="264">front = min(front, new_qty)</text>
+    <text class="t" x="30" y="286">내 앞 물량은 체결로만 줄어든다.</text>
+    <text class="t" x="30" y="304">전체 잔량이 내 앞 물량보다 작아질 때만</text>
+    <text class="t" x="30" y="322">clamp 된다 → <tspan font-weight="700" fill="#0f172a">체결이 가장 늦게 난다</tspan></text>
+  </g>
+
+  <g>
+    <rect x="357" y="192" width="326" height="150" rx="10" fill="#f0fdf4" stroke="#86efac"/>
+    <rect x="357" y="192" width="326" height="30" rx="10" fill="#15803d"/>
+    <text class="k" x="371" y="212">앞/뒤 물량 비율로 나눈다 (중간)</text>
+    <text class="cap" x="371" y="242">hftbacktest <tspan class="m">ProbQueueModel</tspan></text>
+    <text class="m" x="371" y="262">prob = f(back)/(f(back)+f(front))</text>
+    <text class="m" x="371" y="278">front −= (1−prob)·chg</text>
+    <text class="t" x="371" y="300"><tspan class="m">f</tspan> 는 <tspan class="m">x^n</tspan> 또는 <tspan class="m">log(1+x)</tspan>.</text>
+    <text class="t" x="371" y="318">내가 앞쪽일수록 취소가 앞에서 났다고 본다</text>
+  </g>
+
+  <g>
+    <rect x="699" y="192" width="325" height="150" rx="10" fill="#fffaf0" stroke="#f0d79c" stroke-width="2"/>
+    <rect x="699" y="192" width="325" height="30" rx="10" fill="#c79a3a"/>
+    <text class="k" x="713" y="212">전부 내 앞에서 취소됐다 (낙관적)</text>
+    <text class="cap" x="713" y="242">우리 코드 <tspan class="m">framework/fill.py</tspan></text>
+    <text class="m" x="713" y="264">ahead −= unexplained · chg</text>
+    <text class="m" x="713" y="280">unexplained = 1.0</text>
+    <text class="t" x="713" y="302">= ProbQueueModel 에서 <tspan class="m">1−prob ≡ 1</tspan>,</text>
+    <text class="t" x="713" y="320">즉 <tspan font-weight="700" fill="#0f172a">이 축에서 가장 낙관적인 끝</tspan></text>
+  </g>
+
+  <line x1="341" y1="360" x2="699" y2="360" stroke="#64748b" marker-end="url(#ar)" marker-start="url(#ar)"/>
+  <text class="t" x="520" y="380" text-anchor="middle">보수 ←— 같은 데이터, 같은 상황. 배분 가정 하나가 체결률을 정한다 —→ 낙관</text>
+</svg>
+<figcaption>주문 ID 가 없는 L2 원장에서는 잔량 감소를 체결과 취소로 <b>직접 가를 수 없다.</b> 그래서 모든 큐 모델은 이 배분을 가정으로 정한다.
+우리 코드는 이 축에서 가장 낙관적인 끝(<code>unexplained_fill_fraction = 1.0</code>)에 있고, 동시에 대기 위치 축에서는 가장 보수적인 끝(<code>queue_fraction = 1.0</code>,
+표시 잔량 전부 뒤)에 있다 — 두 가정의 순 효과는 아직 측정되지 않았다.</figcaption>
+</figure>

@@ -1,0 +1,61 @@
+{
+ "key": "opd_aaai2021",
+ "title": "Universal Trading for Order Execution with Oracle Policy Distillation (AAAI 2021) — 시드 6개와 유의성 검정은 하는데, 체결은 분봉 평균가",
+ "authors_short": "Yuchen Fang · Kan Ren · Weiqing Liu · Dong Zhou · Weinan Zhang · Jiang Bian · Yong Yu · Tie-Yan Liu (SJTU · MSRA)",
+ "venue": "AAAI 2021, 35(1), 107–115",
+ "venue_verified": "DOI 10.1609/aaai.v35i1.16083 Crossref 검증(권·호·페이지 일치). arXiv 2103.10860",
+ "type": "강화학습 최적 실행 + 오라클 정책 증류",
+ "domain": "중국 A주 일중 집행",
+ "data_scope": "\"The dataset contains (i) **minute-level price-volume market information** and (ii) the order amount of every trading day for each instrument from **Jan. 1, 2017 to June 30, 2019**.\" 학습 2017-01-01~2019-02-28 / 검증 2019-03-01~\"2019-04-31\"(원문 오탈자, 4월은 30일까지) / 테스트 2019-05-01~06-30. 검증·테스트는 계산자원 제약으로 CSI 800 만 남긴다.",
+ "tags": [
+  "분봉",
+  "오라클 증류",
+  "시드 6개",
+  "비용 무시"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2103.10860",
+  "proceedings": "https://doi.org/10.1609/aaai.v35i1.16083",
+  "website": "https://seqml.github.io/opd/",
+  "github": "https://github.com/microsoft/qlib",
+  "verified": "Crossref 200 · 프로젝트 페이지 200 · Qlib 의 examples/rl_order_execution 200"
+ },
+ "easy": {
+  "problem": "하루치 주문을 언제 얼마씩 쪼개 낼지 배우고 싶은데, 미래를 모르는 에이전트는 학습이 어렵다.",
+  "how": "미래를 아는 '교사(oracle)' 정책을 먼저 학습시키고, 과거만 보는 '학생' 정책에 증류한다. 추론 시점에는 교사를 쓰지 않으므로 미래 정보 누출이 없다.",
+  "analogy": "정답지를 본 선배가 푸는 법을 후배에게 가르치되, 시험장에는 후배만 들여보내는 것."
+ },
+ "contributions": [
+  "오라클 정책 증류로 학습 신호를 강화하되 추론에서는 미래 정보를 쓰지 않는다 — 룩어헤드를 구조로 막았다.",
+  "**시드 6개로 평균과 표준편차를 보고하고 유의성 검정도 한다** — \"The final performances of RL policies we present below are calculated over the test dataset averaging the results from **six policies trained with the same hyper-parameter and six different random seeds**.\" 이 조사의 AI 군에서 드문 규율이다.",
+  "지표를 잘 골랐다 — 가격우위 PA(bp)와 **이익-손실 비율 GLR = E[PA|PA>0] / E[PA|PA<0]**. 평균만 보지 않는다.",
+  "기준선이 충실하다 — TWAP·VWAP·Almgren-Chriss·DDQN(Ning 외)·PPO(Lin & Beling)."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "분봉 평균가 즉시 체결. 호가창·큐·스프레드가 없다.",
+  "data_short": "중국 A주 **분봉** · 2017-01~2019-06",
+  "fill_short": "**분봉 평균가**(市場 VWAP)에 즉시 체결",
+  "cost_short": "**명시적으로 무시**",
+  "design": "하루 지평. 행동은 목표 물량 Q 의 비율(이산). 목적은 `arg max Σ (q_{t+1}·p_{t+1})` s.t. `Σ q_{t+1} = Q`.",
+  "fill": "각주 2 — \"We define 'market price' as the averaged transaction price of the whole market at one time which has been widely used in literature.\" 즉 분봉 평균가를 받는다. 스프레드 지불도, 호가 소비도 없다.",
+  "cost": "**본문이 명시한다** — \"(i) the temporary market impact has been adopted as a reward penalty and we assume that the market is resilient and will bounce back to the equilibrium at the next timestep. **(ii) We either ignore the commissions and exchange fees** as these expense is relatively small fractions for the institutional investors that we are mainly aimed at.\"",
+  "latency": "없다.",
+  "selfimpact": "일시 충격을 보상 벌점으로만 반영하고 다음 스텝에 회복한다고 본다.",
+  "validation": "**시드 6개 + 유의성 검정.** 다만 시간 분할은 단일이다(워크포워드 아님). 검증 구간 표기에 오탈자가 있다.",
+  "metrics": "PA(bp) = 10⁴·평균(전략 평균체결가 / 시장 평균가 − 1) · GLR · 보상.",
+  "quotes": [
+   "(i) the temporary market impact has been adopted as a reward penalty and we assume that the market is resilient and will bounce back to the equilibrium at the next timestep. (ii) We either ignore the commissions and exchange fees as these expense is relatively small fractions for the institutional investors that we are mainly aimed at."
+  ],
+  "gap": "분봉 평균가 체결은 낙관적이다 — 실제로는 그 평균가를 받으려면 그 분 내내 균등 집행해야 하고 스프레드를 낸다. 비용 없음, 단일 분할."
+ },
+ "code": [
+  "프로젝트 페이지 [seqml.github.io/opd](https://seqml.github.io/opd/) · 파이프라인은 [microsoft/qlib `examples/rl_order_execution`](https://github.com/microsoft/qlib/tree/main/examples/rl_order_execution)"
+ ],
+ "oneline": "시드·유의성·룩어헤드 방지는 모범적인데 체결 가정이 분봉 평균가라 성과 숫자의 층이 다르다.",
+ "implications": [
+  "**시드 6개 + 표준편차 + 유의성 검정** 은 우리가 바로 도입할 수 있는 규율이다. 우리는 Optuna 시드를 고정할 뿐 시드 간 분산을 내지 않는다.",
+  "GLR(이익-손실 비율)은 우리 `profit_factor` 와 같은 계열이고 우리도 이미 계산한다. 평균 하나로 고르지 않는다는 점에서 방향이 같다."
+ ],
+ "resolution": "초~분봉"
+}

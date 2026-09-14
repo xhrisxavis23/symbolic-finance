@@ -1,0 +1,49 @@
+{
+ "key": "deflated_sharpe",
+ "title": "The Deflated Sharpe Ratio — 시행 횟수·왜도·첨도·표본 길이를 한꺼번에 깎는다",
+ "authors_short": "David H. Bailey · Marcos López de Prado",
+ "venue": "Journal of Portfolio Management 40(5), 94–107 (2014)",
+ "venue_verified": "DOI 10.3905/jpm.2014.40.5.094 Crossref 검증(권 40·호 5·페이지 94–107). SSRN 프리프린트 10.2139/ssrn.2460551. 저자 사이트 무료 전문 확인",
+ "type": "성과 통계 보정",
+ "domain": "전략 성과 평가",
+ "data_scope": "이론 + 적용 예시",
+ "tags": [
+  "DSR",
+  "극값이론 문턱",
+  "비정규성",
+  "시행 분산 필요"
+ ],
+ "links": {
+  "pdf": "https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf",
+  "proceedings": "https://doi.org/10.3905/jpm.2014.40.5.094",
+  "verified": "저자 PDF 200 전문 확인"
+ },
+ "easy": {
+  "problem": "샤프 비율은 두 가지로 부풀려진다 — 여러 번 시도해서 고른 것(선택 편의)이고, 수익률이 정규분포가 아니면서 표본이 짧기 때문이다.",
+  "how": "귀무가설을 '샤프 = 0' 이 아니라 **'실력이 0일 때 기대되는 최대 샤프'** 로 바꾼다. 그리고 왜도·첨도·표본 길이로 검정통계량을 보정한다.",
+  "analogy": "반 1등의 점수를 평가할 때, '0점이 기준' 이 아니라 '전부 찍었을 때 1등이 받을 점수' 를 기준으로 삼는 것."
+ },
+ "contributions": [
+  "**문턱:** `ŜR₀ = √Var[{ŜR_n}] · ( (1−γ)Z⁻¹(1−1/N) + γZ⁻¹(1−1/(Ne)) )` — PBO 논문과 같은 극값이론 식이되, 단위분산 대신 **시행 간 추정 샤프의 분산**으로 스케일한다.",
+  "**DSR:** `DSR = Z[ ( (ŜR − ŜR₀)·√(T−1) ) / √(1 − γ̂₃·ŜR + ((γ̂₄−1)/4)·ŜR²) ]` — T 는 표본 길이, γ̂₃ 는 왜도, γ̂₄ 는 첨도.",
+  "저자들의 요약 — \"DSR deflates SR by taking into consideration five additional variables: the non-Normality of the returns, the length of the returns series, the variance of the SRs tested, as well as the number of independent trials involved in the selection.\"",
+  "Harvey & Liu 의 Benjamini-Hochberg 기반 문턱과의 관계도 밝힌다 — 저자들은 그것이 \"analogous to the role played by our E[max{ŜR_n}]... which we derived through Extreme Value Theory\" 라고 적는다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "성과 해석 도구다.",
+  "data_short": "성과 시계열 + 시행 분포",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "gap": "**N 하나가 아니라 시행들의 샤프 분산 `Var[{ŜR_n}]` 이 필요하다** — 즉 시도 전체의 분포를 남겨 둬야 한다. 시행 간 샤프 분포의 정규성을 가정하고, N 은 여전히 실무에서 관측되지 않는다. 저자들이 탐색 내역을 공개하지 않으면 이 장치는 작동하지 않는다."
+ },
+ "code": [
+  "[esvhd/pypbo](https://github.com/esvhd/pypbo) 와 저자 코드 모음(quantresearch.org)에 관련 구현"
+ ],
+ "oneline": "샤프를 깎는 데 필요한 것은 시행 '횟수' 만이 아니라 시행 '분포' 다 — 그래서 탐색 내역을 버리면 안 된다.",
+ "implications": [
+  "**우리는 DSR 의 입력을 전부 이미 가지고 있다.** Optuna 는 모든 trial 의 목적함수 값을 저장하므로 `Var[{ŜR_n}]` 을 바로 계산할 수 있고, `amount.py` 가 일별 손익에서 샤프를 이미 낸다(√252 연환산). 왜도·첨도만 추가하면 된다 — **추가 실험 없이 계산 가능한 항목이다.**",
+  "우리 지표는 샤프가 아니라 `net_bps_total` 이 선택 기준이므로, DSR 을 그대로 쓰려면 목적함수를 샤프 계열로 바꾸거나 `net_bps_per_fill` 의 t통계로 유사 보정을 만들어야 한다. 어느 쪽이든 시행 분포가 필요하다는 점은 같다."
+ ],
+ "resolution": "해당 없음"
+}

@@ -1,0 +1,90 @@
+{
+ "key": "oceanbench",
+ "title": "OceanGPT: A Large Language Model for Ocean Science Tasks",
+ "authors_short": "Bi, Zhang(Ningyu) et al. · Zhejiang University · Donghai Laboratory (Huajun Chen 교신)",
+ "venue": "ACL 2024 Long (Main)",
+ "venue_verified": "ACL Anthology 2024.acl-long.184 페이지 200, 제목 'OceanGPT: A Large Language Model for Ocean Science Tasks' 확인(Bangkok, August 2024). OpenReview 없음(ACL)",
+ "type": "도메인 LLM(OceanGPT) + 지시 데이터 생성 프레임워크(DoInstruct) + 벤치마크(OceanBench, 15과제 개방형 생성)",
+ "domain": "해양과학(과학·연구, 자원·개발, 생태·환경, 기술·공학, 생활·문화)",
+ "data_scope": "OceanBench 15과제(Analysis·Judgment·Open-ended Generation·Recommendation·Summary·Identification·QA·Commonsense·Classification·Letter Writing·Extraction·Description·Editing·Transformation·Others), HF 파일 10,344행(Table 1 p.6 합계는 11,426); 훈련용 지시 데이터 15만+ (Figure 4 p.5), 사전학습 코퍼스 67,633문서(p.3)",
+ "tags": [
+  "ocean-science",
+  "domain-LLM",
+  "instruction-generation",
+  "multi-agent",
+  "gpt-3.5-turbo",
+  "open-ended-generation",
+  "GPT-4-judge"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2310.02031",
+  "pdf": "https://arxiv.org/pdf/2310.02031",
+  "proceedings": "https://aclanthology.org/2024.acl-long.184/",
+  "github": "https://github.com/zjunlp/KnowLM",
+  "huggingface": "https://huggingface.co/datasets/zjunlp/OceanBench",
+  "website": "http://oceangpt.zjukg.cn/",
+  "verified": "arXiv PDF OK(v8, 2024-09-03); ACL Anthology 200; HF zjunlp/OceanBench 200 + datasets-server rows 수신(split train, 10,344행, text 필드에 JSON); GitHub zjunlp/KnowLM 200(논문 본문에 직접 링크는 없음, 모델은 HF zjunlp/OceanGPT-7B-v0.1); 웹사이트는 미확인"
+ },
+ "easy": {
+  "problem": "해양과학은 자료가 방대하고 세분화되어 일반 LLM이 해양학자의 요구를 충족하지 못한다. 해양 도메인 지시 데이터와 평가 벤치마크가 없었다.",
+  "how": "해양 문헌 67,633편으로 LLaMA-2를 계속 사전학습하고, gpt-3.5-turbo 에이전트들이 전문가 역할(생성기·문헌 추출기·검사기·토론)로 협업해 15만 건 지시 데이터를 만들어 미세조정(DoInstruct). 같은 시드에서 자동 생성해 전문가가 검증한 OceanBench로 GPT-4 및 사람 평가를 했다.",
+  "analogy": "해양학 교수 여러 명의 역할을 맡은 챗봇들이 문제집을 함께 만들고 서로 검토한 뒤, 그 문제집으로 학생(OceanGPT)을 가르치고 시험을 보는 것."
+ },
+ "contributions": [
+  "최초의 해양 도메인 LLM OceanGPT(LLaMA-2 7B 기반, A800 6장 7일 사전학습 + LoRA 미세조정, p.6·Table 2 p.12) 공개",
+  "DoInstruct: 시드셋을 gpt-3.5-turbo 에이전트가 진화·보강(Evolving Generator), BM25로 검색한 문헌에서 미세조정된 gpt-3.5가 지시 추출(Literature Extractor), 규칙 제약 검사기와 토론 에이전트로 품질 관리 → 15만+ 지시(§3.2 p.3-5, Algorithm 1 p.5)",
+  "OceanBench: 15과제 약 1만 건 개방형 벤치마크, 시드에서 자동 생성 후 중복 제거·전문가 수동 검증(§4.2 p.6), HF 공개(MIT)",
+  "GPT-4 쌍대 비교(위치 편향 보정) + 사람 평가(학생 5명·200건·$500)로 OceanGPT가 vicuna-1.5-7b·llama2-chat-7b·chatglm2-6b 대비 15과제 중 12/14/15 승(Figure 5 p.7)",
+  "로봇 코드 지시를 훈련에 포함해 Gazebo 시뮬레이터에서 수중 로봇 제어 명령 생성(Figure 9 p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/oceanbench_fig3.png",
+   "label": "Figure 3",
+   "page": 4,
+   "caption_ko": "DoInstruct 절차. 상단의 Instruction Seed Dataset을 두 갈래로 확장한다: 왼쪽은 공학자·생물학자·기상학자 등 전문가 역할 에이전트(gpt-3.5-turbo)가 샘플을 반복 진화(Enrich and Refine)시키는 Evolving Agent, 오른쪽은 전문가 주석 코퍼스로 gpt-3.5-turbo를 미세조정해 BM25로 검색한 해양 문헌에서 고품질 후보를 지시로 추출하는 Literature Extractor. 하단에서 규칙 제약 검사 에이전트(Inspector), 토론 기반 품질 관리, 로봇 코드 합성을 거쳐 최종 Ocean Instructions가 된다.",
+   "alt": "DoInstruct 다중 에이전트 지시 생성 절차"
+  },
+  {
+   "file": "figs/oceanbench_fig1.png",
+   "label": "Figure 1",
+   "page": 1,
+   "caption_ko": "OceanGPT의 능력 예시. 해저 케이블 부설 절차, 남중국해 어업 자원, 해양 표준화의 산업 기여 같은 해양 질문에 대해 모델이 생성한 서술형 답을 보여주며, 왼쪽 아이콘은 선박·연구·수산·로봇 등 다루는 영역을 상징한다.",
+   "alt": "OceanGPT 질의응답 예시"
+  }
+ ],
+ "dataset": {
+  "construction": "시드: '수십 명의 해양과학 배경 주석자'가 주제별 대표 예시를 직접 작성한 뒤 LLM이 유사 샘플을 대량 생성, 전부 수동 확인 — 'The entire process is very time-consuming, with all the experts spending a total of four days to validate the seed data'; 시드셋은 5대 범주·500+ 하위범주·1만+ 샘플(p.4). 확장: gpt-3.5-turbo 에이전트 3역할(진화 생성기, 문헌 추출기, 규칙 검사기) + 토론 QC(Table 5 p.14 프롬프트)로 15만+ 지시 생성; 품질 관리는 훈련된 전문가가 10% 무작위 표본을 검사, IAA 0.82(p.5). OceanBench: 'Our evaluation samples are automatically generated from the seed dataset and have undergone deduplication and manual verification by experts'(p.6); 'we further sample part of data and ask domain experts to evaluate the quality (those disagreed cases or bad cases will be manually fixed by domain experts.)'. 벤치마크와 훈련셋 간 중복은 질문 키워드 해시 비교 + gpt-3.5 표본 점검으로 제거(수백 건, App A p.13). 생성 모델명은 gpt-3.5-turbo(fine-tuning 비용 약 $154.8, p.13). 필터링 비율 미공개.",
+  "size_format": "HF zjunlp/OceanBench: 단일 OceanBench.txt(JSON lines), 필드 task_type·input·output, 10,344행(datasets-server num_rows_total). 논문 Table 1 p.6 과제별 건수: QA 1,230·Description 1,246·Recommendation 1,089·Extraction 1,078·Editing 1,075·Commonsense 1,024·Open-ended 930·Classification 895·Analysis 674·Judgment 655·Identification 464·Transformation 401·Letter Writing 359·Others 157·Summary 149. 분할 없음(전부 평가용)",
+  "samples": [
+   "[HF row0] {\"task_type\": \"Analysis\", \"input\": \"Analyze the impact of marine environmental dynamics processes on the wave environment.\", \"output\": \"The dynamic processes of the oceanic environment have a significant influence on the wave conditions, such as the temperature of seawater, salinity, and ocean current affecting the height and frequency of waves. Meanwhile, the wave conditions can further impact the dynamics of ocean current and tides.\"}",
+   "[HF row1] {\"task_type\": \"Analysis\", \"input\": \"Analyze the causes of ship accidents in the east china sea area.\", \"output\": \"The main causes of ship accidents in the East China Sea area include severe weather, challenging navigation, improper vessel maintenance, and human negligence, among others. …\"}",
+   "[논문 Table 7 p.16, Question Answering] Input: \"What is three-dimensional digital ocean modeling technology?\" Output: \"Three-dimensional marine digital modeling technology involves the use of advanced remote sensing, lidar, sonar, and other detection technologies to acquire surface and subsurface oceanographic topographic data. …\"",
+   "[논문 Table 7 p.16, Judgment] Input: \"Is active intervention suitable for maintaining the coral reef ecosystem?\" Output: \"Active intervention can protect coral reef ecosystems, such as through artificial restoration, controlling sea water pollution, controlling carbon emissions, and reasonable development of coral reefs. Therefore, the coral reef ecosystem is suitable for active intervention and maintenance.\""
+  ],
+  "class": "B",
+  "class_reason": "해양 도메인 지식을 묻는 개방형 서술 생성 과제로, 특정 데이터 인스턴스·구간·판정 규약이 없고 정답이 결정론적 값이 아니라 참조 서술이다. 채점도 GPT-4 쌍대 선호/사람 선호로 이뤄져 A/B 중 전문 지식 서술형인 B에 해당한다.",
+  "release": "OceanBench HF 공개(MIT, 텍스트 1파일) — 실제 행 열람 확인. 모델 OceanGPT-7B-v0.1 및 2B/8B 후속 HF 공개(p.6 각주). 훈련 지시 데이터 15만 건·시드셋·사전학습 코퍼스의 공개 여부는 논문에서 미확인. HF 행 일부에 정치적 서술(row2, 영유권 주장)이 섞여 있어 품질 편차 존재",
+  "contamination": "벤치마크-훈련셋 간 키워드 해시 기반 중복 제거 + gpt-3.5 표본 검사(App A p.13). 평가 대상 베이스라인 모델에 대한 방어는 없음",
+  "evaluation": "과제 수준: GPT-4가 두 모델 출력을 쌍대 비교(순서 교환 2회 합산)해 다수 표본에서 이기면 승; 인스턴스 수준 승률(Figure 10 p.12: vs vicuna 0.60 / llama2-chat 0.65 / chatglm2 0.84). 사람 평가: 200건 순위 매기기. 결과 Figure 5 p.7: 자동 12/14/15승, 사람 12/13/14승. 에이전트 기여도(품질·전문성·다양성 1~5점) Figure 7 p.7"
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작(전문가 시드 + LLM 자동 생성 + 전문가 검증); 사전학습 코퍼스는 기존 오픈액세스 문헌",
+  "q2_method": "생성 절차(Algorithm 1, 프롬프트 Table 3-5)는 공개되나 시드 주석자 수('수십 명')·검증 표본 크기·필터링 비율·문헌 출처 목록은 불명확",
+  "q3_license": "OceanBench MIT(HF 카드). 사전학습 문헌은 '오픈액세스'라고만 서술, 목록 미공개",
+  "q4_relabel": "기존 공개 QA를 재사용하지 않고 task(15유형) 맞춤으로 신규 생성",
+  "q5_industry": "대학+연구소(Donghai Laboratory, 저우산 해양연구센터) 자체 구성; 기업 협업 없음. 벤치마크 공개, 훈련 데이터 공개 여부 미확인",
+  "q6_constraints": "저작권 문헌 원문은 미공개(정제 코퍼스 비공개); 벤치마크는 생성물이라 공개. 데이터 편향·환각을 한계로 명시(p.9)",
+  "q7_accept": "공개 리뷰 없음(ACL). self-claim: 최초 해양 LLM, 다중 에이전트 지시 생성 프레임워크의 범용성, 자동+사람 평가에서 베이스라인 대비 우위, 초보적 embodied 능력"
+ },
+ "review": null,
+ "limitations": "벤치마크가 시드에서 LLM(gpt-3.5-turbo)으로 생성되어 평가 데이터가 훈련 데이터와 같은 생성 분포를 공유하며, 참조 답변 품질 검증 절차(표본 크기·기준)가 불투명하다. 정답이 없는 개방형 과제라 GPT-4 판정에 의존한다. 비교 대상이 7B급 일반 챗 모델 3종뿐이며 GPT-4 등 강력한 모델과의 비교가 없다. HF 파일 행수(10,344)와 Table 1 합계(11,426)가 불일치한다. 저자도 데이터 분포 편향과 환각을 한계로 든다(p.9).",
+ "oneline": "gpt-3.5-turbo 다중 에이전트(DoInstruct)로 만든 해양과학 지시 데이터로 학습한 OceanGPT와, 같은 시드에서 생성·전문가 검증한 15과제 개방형 벤치마크 OceanBench(ACL 2024).",
+ "implications": [
+  "시드 문항을 전문가가 쓰고 LLM이 변형·확장한 뒤 전문가가 표본 검사(IAA 0.82)하는 구조는 우리 C형 60문항을 템플릿 변형으로 늘릴 때의 최소 QC 절차(표본률·IAA 보고)로 참고할 만하다.",
+  "역할별 에이전트(생성·문헌 추출·규칙 검사·토론)를 나눈 설계 중 '규칙 제약 검사기'는 우리 문항의 필수 요소(주소·블록 구간·디코딩 규약·문턱 명시) 체크리스트를 자동 검사하는 에이전트로 옮길 수 있다.",
+  "개방형 서술 벤치마크는 GPT-4 판정 의존이라는 약점이 있으므로, 우리 셋처럼 결정론적 정답·evidence를 두는 것이 평가 신뢰성 면에서 차별점임을 대비적으로 보여준다.",
+  "벤치마크-훈련셋 키워드 해시 중복 제거처럼, 우리도 문항 템플릿과 공개 예시(문서·튜토리얼) 간 중복을 점검해 공개하는 것이 좋다."
+ ],
+ "brief": false
+}

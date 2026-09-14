@@ -1,0 +1,21 @@
+{
+ "key": "lean_engine",
+ "title": "QuantConnect Lean",
+ "authors_short": "QuantConnect",
+ "venue": "오픈소스 (Apache-2.0)",
+ "links": {
+  "github": "https://github.com/QuantConnect/Lean",
+  "verified": "GitHub API 200 · star 21,545 · Apache-2.0 · C# · push 2026-09-08. `Common/Orders/Fills/FillModel.cs` 와 `EquityFillModel.cs` 직접 확인"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "`Resolution.Tick` 을 지원하지만 **체결 로직은 봉 기반**이다. 큐도 지연도 없다.",
+  "data_short": "틱·호가봉·분봉·일봉",
+  "fill_short": "봉의 저가가 지정가를 뚫으면 **전량** 체결",
+  "cost_short": "거래소별 수수료 모델 약 35종 + 슬리피지 모델 4종",
+  "design": "이 조사에서 **수수료 생태계가 가장 풍부하다** — InteractiveBrokers·Binance·Bybit·Coinbase·Kraken·Alpaca·Schwab·Zerodha·dYdX 등 거래소별 `FeeModel`. 슬리피지도 `VolumeShareSlippageModel`·`MarketImpactSlippageModel`·`ConstantSlippageModel`·`AlphaStreamsSlippageModel`.",
+  "gap": "체결 코드가 솔직하다. `FillModel.cs`: `if (prices.Low < limitPrice) { fill.Status = Filled; fill.FillPrice = Math.Min(prices.High, limitPrice); fill.FillQuantity = quantity; }`. 더 정교한 `EquityFillModel.cs` 에는 TODO 가 그대로 남아 있다 — `// assume the order completely filled` / `// TODO: Add separate DepthLimited fill partial order quantities based on tick quantity / bar.Volume available.` **한국투자증권 backtester 가 쓰는 엔진이 바로 이것이다.**"
+ },
+ "oneline": "다자산 실거래 플랫폼으로는 훌륭하고 수수료 모델은 최고 수준이지만, 지정가 체결은 봉 터치 전량 체결이다.",
+ "resolution": "일봉 이상"
+}

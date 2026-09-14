@@ -1,0 +1,24 @@
+{
+ "key": "korea_community_oss",
+ "title": "국내 커뮤니티 오픈소스 — pykrx · FinanceDataReader · pyupbit",
+ "authors_short": "개인 개발자 (sharebook-kr, FinanceData 등)",
+ "venue": "커뮤니티 오픈소스",
+ "links": {
+  "github": "https://github.com/sharebook-kr/pykrx",
+  "github_extra": [
+   "https://github.com/FinanceData/FinanceDataReader",
+   "https://github.com/sharebook-kr/pyupbit"
+  ],
+  "verified": "각 저장소 존재 확인. star 수는 GitHub API 호출 한도로 미확인"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "이 도구들은 데이터 리더이고 백테스터가 아니다. 이것들을 쓴 국내 커뮤니티 백테스트는 사실상 전부 일봉 재생(L2)이다.",
+  "data_short": "KRX 일별 · 업비트 체결/호가",
+  "fill_short": "대개 종가 체결",
+  "cost_short": "대개 고정 bps 또는 없음",
+  "design": "`pykrx` 는 KRX 웹을 긁어 일별 시세·투자자별 거래·공매도를 준다. `FinanceDataReader` 는 국내외 일별 시세를 통합한다. 둘 다 **틱이 아니다.** 국내에서 틱 원장을 무료로 받을 수 있는 사실상 유일한 시장은 암호화폐이고, `pyupbit` 가 그 창구다 — 우리 `tick_collector_pyupbit` 이 여기 있는 이유다."
+ },
+ "oneline": "국내 주식 커뮤니티 백테스트의 데이터 상한이 '일봉' 인 이유는 도구가 아니라 데이터 유통 구조에 있다.",
+ "resolution": "일봉 이상"
+}

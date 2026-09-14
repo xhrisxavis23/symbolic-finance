@@ -1,0 +1,101 @@
+{
+ "key": "agmmu",
+ "title": "AgMMU: A Comprehensive Agricultural Multimodal Understanding Benchmark",
+ "authors_short": "Gauba*, Pi*, Man†, Pang†, Adve, Wang · UIUC (AIFARMS·Center for Digital Agriculture) · Rice · CMU",
+ "venue": "NeurIPS 2025 Datasets & Benchmarks Track (Poster)",
+ "venue_verified": "papercopilot nips2025 목록: id MQPZPtv8GG, track 'Datasets & Benchmarks', status=Poster, rating 5;5;5;5, primary_area AL/ML data and benchmarks for life sciences. arXiv v2(2025-07-24)는 'Preprint' 표기. openreview.net 직접 접근 차단, HF 리뷰 미러 없음",
+ "type": "벤치마크(농업 VQA: MCQ 746 + 개방형 OEQ 746) + 개발용 지식베이스(AgBase 57k)",
+ "domain": "농업·원예(해충 식별, 종 식별, 질병 분류, 증상 기술, 관리 지침)",
+ "data_scope": "USDA Cooperative Extension(AskExtension) 2013-2024 실제 이용자–전문가 대화 116,231건에서 추출; 평가셋 MCQ 746 + OEQ 746(1,742개 후보에서 사람 검증 통과), AgBase 57,079(초록)/57,387(기여 항목) 사실",
+ "tags": [
+  "agriculture",
+  "VQA",
+  "real-user-questions",
+  "expert-answers",
+  "LLM-extracted",
+  "GPT-4o-generated",
+  "human-verified",
+  "LLM-as-judge"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2504.10568",
+  "pdf": "https://arxiv.org/pdf/2504.10568",
+  "proceedings": "https://openreview.net/forum?id=MQPZPtv8GG",
+  "github": "https://github.com/AgMMU/AgMMU",
+  "huggingface": "https://huggingface.co/datasets/AgMMU/AgMMU_v1",
+  "website": "https://agmmu.github.io/",
+  "verified": "arXiv PDF OK; GitHub 200(README, data/6k_evalset_wbg.json 22MB 원대화 range 요청으로 열람); HF 200, API 메타(license 'cc', webdataset), datasets-server rows는 429/HTML로 실패했으나 파일 agmmu_e_filtered_hf1.json을 range 요청으로 직접 열람; 웹사이트·OpenReview 미확인"
+ },
+ "easy": {
+  "problem": "농부·원예가가 올린 사진과 질문에 VLM이 전문가처럼 정확한 사실(해충 이름, 병명, 관리법)을 답할 수 있는지 재는 벤치마크가 없었다. 기존 농업 데이터는 전문가가 큐레이션한 깨끗한 이미지라 실제 이용자 분포와 다르다.",
+  "how": "USDA 인증 전문가가 답한 실제 상담 11.6만 건을 LLaMA-70B로 분류하고 LLaMA-405B로 핵심 사실을 추출한 뒤, GPT-4o가 MCQ(오답 3개)와 OEQ로 바꾸고 사람이 충실성·확신도·이미지 품질·보기 타당성을 검수했다. 나머지 사실은 AgBase로 미세조정에 쓴다.",
+  "analogy": "농촌 상담소의 실제 문의 기록을 시험지로 바꾼 것 — 사진 보고 '이 벌레 이름은?'을 객관식과 주관식으로 묻고, 전문가 답변을 정답으로 삼는다."
+ },
+ "contributions": [
+  "실제 이용자–USDA 전문가 대화 116,231건에서 만든 최초의 실세계 농업 VLM 벤치마크: MCQ 746 + OEQ 746, 5개 지식 유형 균형(Figure 3 p.6)",
+  "4단계 큐레이션 파이프라인(LLaMA-70B 분류 → LLaMA-405B 사실 추출 → GPT-4o QA 생성 → 사람 검증 4기준)과 프롬프트 전문 공개(App B, Figure A-D)",
+  "AgBase 57,079건 지식베이스로 LLaVA-1.5-7B LoRA 미세조정 시 OEQ 평균 최대 +11.6%p(Figure 6 p.9)",
+  "12개 VLM 제로샷 평가: OEQ 평균 GPT-o4-mini 37.0, Gemini 1.5 Pro 41.7, 오픈소스 최고 LLaMA-3.2-11B 24.9; MCQ는 86.5/82.4/78.3(Table 2 p.7)",
+  "오류 분석 171건: 지식 오류가 최다(Gemini 48.6%, LLaMA 42.9%, GPT-o4 51.1%), 지각 오류 22-38%, CoT로 교정 16-27%(§4.4 p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/agmmu_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "AgMMU의 5가지 지식 유형(해충 식별·종 식별·질병 분류·관리 지침·증상 기술)별 실제 문항 예시. 윗줄은 4지선다 MCQ(정답 굵게), 아랫줄은 짧은 구로 답하는 OEQ로, 이용자가 직접 찍은 저품질·다양한 화각의 사진이 그대로 쓰인다.",
+   "alt": "AgMMU MCQ/OEQ 예시 그리드"
+  },
+  {
+   "file": "figs/agmmu_fig2.png",
+   "label": "Figure 2",
+   "page": 5,
+   "caption_ko": "데이터 큐레이션 파이프라인. 왼쪽 실제 이용자 질문(수양버들 잎의 갈색 반점·구멍 사진)과 전문가 답변에서, 1-2단계에서 종·하위도메인 분류와 지식 추출(시각 설명·해충 유형·관리 지침)을 하고, 3-4단계에서 GPT-4o가 MCQ('willow leaf beetle' 정답 + 오답 3개)와 OEQ('Weeping willow')를 만들어 사람이 검증한다.",
+   "alt": "AgMMU 4단계 큐레이션 파이프라인"
+  }
+ ],
+ "dataset": {
+  "construction": "① 분류: LLaMA-70B가 각 대화를 7개 하위도메인(disease advice, weed management, pests control, growing advice, environmental stress, nutrient deficiency, generic identification, other)으로 태깅하고 주 생물 개체를 추출, 'growing advice'와 'other'는 이미지 무관이라 제외(§3.2 p.5). ② 지식 추출: LLaMA-405B가 하위도메인별 프롬프트(수작업 in-context 예시 포함, Figure C-D)로 species identification·disease identification·symptom/visual description·management instructions·insect/pest identification 사실을 JSON으로 추출. ③ QA 생성: 'We use GPT-4o to format agricultural facts into QA pairs'; 'We prompt it to generate three wrong answers and use the extracted fact as the ground truth'(p.5-6); 관리 정보 없는 대화, 'unclear' 등 불확실 용어, 'lab'·'arborist' 등 외부 의뢰 답변 제거. ④ 사람 검증: Faithfulness·Certainty·Quality·MCQ Feasibility 4항목 체크(App B.4 p.9-10), 'resulting in 746 highest-quality MCQ and OEQ questions in AgMMU from 1742 samples'(p.6). 개인정보(이름·성별·위치 등)는 자동+수동으로 제거. AgBase는 367,331 QA-이미지 쌍에서 흔한 비종(tree, bee, weed…) 태그를 필터링해 57,079건(App C p.11).",
+  "size_format": "HF AgMMU/AgMMU_v1: agmmu_e_filtered_hf1.json(평가; 필드 faq-id, qtype, images[], question_background, question, options[4], answer), agmmu_ft_hf1.json(AgBase), images.tar.gz + images_ft.tar.gz.part-aa~ak. GitHub data/6k_evalset_wbg.json(원대화: title, created, state, county, question, answer[] 등). 평가는 MCQ 746·OEQ 746(문항 수 동일, 같은 사실에서 파생)",
+  "samples": [
+   "[HF agmmu_e_filtered_hf1.json 1번째] faq-id 766423, qtype \"insect/pest\", question_background: \"The following question has this background information:\\nbackground info: the tree is a 20-year-old weeping blue spruce, had Needle Cast and was treated with a fungicide spray, … species: blue spruce\\nlocation: Delaware County,Ohio\\ntime: 2021-08-09 11:57:17\", question: \"What insect is indicated by this image?\", options: [\"fir budworm\", \"gypsy moth caterpillar\", \"pitch mass borer\", \"pine sawyer beetle\"], answer: \"pitch mass borer\"",
+   "[HF 2번째] faq-id 601861, qtype \"management instructions\", question: \"What management practice should be employed to reduce the chance of anthracnose returning next year?\", options: [\"clean up the fallen leaves around the shrub\", \"apply a layer of mulch over the fallen leaves\", \"water the shrub more frequently during dry spells\", \"use a high-nitrogen fertilizer to boost plant growth\"], answer: \"clean up the fallen leaves around the shrub\"",
+   "[HF 6번째] faq-id 787620, qtype \"symptom/visual description\", question: \"What symptoms are visible on the plant in the image?\", answer: \"growths on and around the stems and branches, fruit rotting quickly in these areas\"",
+   "[GitHub README 예시 OEQ/MCQ] question: \"What insect is indicated by the image?\", options: [\"roseslug sawflies\", \"japanese beetle\", \"spotted lanternfly nymph\", \"gypsy moth larva\"], answer: \"roseslug sawflies\", background: \"plant is in a balcony container, has been sprayed with Neem oil with no effect, plant is Eden White Climber / species: rose / location: Montgomery County,Maryland / time: 2023-07-19\""
+  ],
+  "class": "B",
+  "class_reason": "이미지+배경정보를 보고 전문 농업 지식(해충·병명·관리법)을 답하는 지식형 VQA로, 구체 개체(사진·지역·날짜)는 있으나 답은 계산이 아니라 전문가 답변에서 추출한 사실이며 판정 규약·문턱은 없다. MCQ는 A에 가깝고 OEQ는 B.",
+  "release": "HF 공개(라이선스 태그 'cc'; 원천 Extension 데이터는 CC-BY-SA 4.0이라고 논문 명시 p.4), 이미지 tar 포함; 원대화 6k JSON은 GitHub에 공개. 평가·채점 스크립트 공개. 실제 HF JSON 파일 열람 확인",
+  "contamination": "원천 대화가 공개 웹(ask.extension.org)이라 사전학습 노출 가능성 있으나 논문은 별도 방어를 서술하지 않음. 평가셋과 AgBase는 대화 단위로 비중복(p.4)",
+  "evaluation": "MCQ: 문자 매칭 정확도. OEQ: GPT-4.1 LLM-as-judge(SimpleQA 방식; 단답형은 correct/incorrect/partially/not attempted, 다문장형은 문장 단위 분해 채점 후 정규화, 조화평균 점수, §4.2 p.7, 프롬프트 Figure E-H). Table 2 p.7: OEQ 평균 GPT-o4-mini 37.0·Gemini 1.5 Pro 41.7·Claude 3 Haiku 18.4·LLaMA-3.2-11B 24.9·LLaVA-1.5-7B 12.8; MCQ 86.5/82.4/63.8/78.3/69.0. 보기 수 4→6이면 GPT-4o 정확도 5-10%p 하락(Figure I p.9)"
+ },
+ "seven_questions": {
+  "q1_source": "기존 공개 데이터(AskExtension 대화·이미지) 기반 신규 제작",
+  "q2_method": "출처(Cooperative Extension, 2013-2024)·파이프라인·프롬프트·검증 기준 모두 공개; 검증자 수·IAA는 미공개",
+  "q3_license": "원천은 USDA 지원 비영리 서비스로 CC-BY-SA 4.0(p.4); AskExtension이 원 이미지·대화 제공에 협조(Acknowledgements). HF 라이선스 태그 'cc'",
+  "q4_relabel": "원대화를 그대로 쓰지 않고 LLM으로 사실 추출·QA 변환 후 사람 검증(재라벨링)",
+  "q5_industry": "대학 컨소시엄(AIFARMS) 자체 구성; 기업 협업 없음. 가공 데이터만 배포(원대화 개인정보 제거)",
+  "q6_constraints": "개인정보 보호를 위해 이름·성별·주소 제거, 얼굴 이미지 검수(p.6); 원천 대화 원문은 재배포하지 않고 가공본만 배포한다고 명시",
+  "q7_accept": "공개 리뷰 본문 미확인(4명 모두 rating 5, Poster 채택). self-claim: 실세계 이용자 질문 기반 최초 농업 VLM 벤치마크, MCQ+OEQ 이중 형식, 대규모 AgBase로 개선 가능성 실증"
+ },
+ "review": {
+  "decision": "Accept (Poster, Datasets & Benchmarks Track)",
+  "scores": "5/5/5/5 (rating), confidence 4/4/4/3 (papercopilot 집계)",
+  "praised": [
+   "리뷰 본문 미확인 — 전원 borderline(5)에서 채택된 점으로 보아 실세계 데이터 출처와 공개 파이프라인의 가치는 인정되었으나 강한 지지는 없었던 것으로 추정"
+  ],
+  "concerns": [
+   "리뷰 본문 미확인(OpenReview 차단, NeurIPS 2025 리뷰 미러 없음)"
+  ],
+  "why_accept": "미확인(점수·결정만 확인)"
+ },
+ "limitations": "평가셋이 746쌍으로 작고 사람 검증자 수·일치도가 보고되지 않는다. 정답이 전문가 답변에서 LLM이 추출한 사실이라 추출 오류가 정답에 스며들 수 있다. OEQ 채점이 GPT-4.1 판정에 의존한다. 저자는 AgBase의 RAG 활용 미탐색과 평가 모델 범위 제한을 한계로 든다(App E p.11). 이미지가 이용자 촬영이라 품질 편차가 크고 다중 이미지 문항이 섞여 있다.",
+ "oneline": "USDA 전문가 상담 11.6만 건에서 LLaMA·GPT-4o로 추출·변환하고 사람이 검증한 농업 VQA 746 MCQ+746 OEQ 벤치마크와 57k 지식베이스 AgBase(NeurIPS 2025 D&B).",
+ "implications": [
+  "실제 이용자 질문 분포를 그대로 쓴 뒤 지식 유형별로 균형을 맞춘 설계(Figure 3)는, 우리 C형 셋의 문항 유형(잔액 변화·run/ratio·out_of_scope) 분포를 실제 분석가 질의 로그에 근거해 잡는 근거 자료로 참고할 만하다.",
+  "MCQ(보기 제공)와 OEQ(보기 없음)를 같은 사실에서 파생시켜 두 형식의 점수 격차(86.5 vs 37.0)를 보여준 점은, 우리 셋도 '정답 후보 제시형'과 '자유 계산형'을 병행하면 지식 vs 계산 능력을 분리 측정할 수 있음을 시사한다.",
+  "정답이 LLM 추출 사실인 탓에 사람 검증 4기준(충실성·확신도·품질·보기 타당성)을 두었는데, 우리 셋은 정답을 원장에서 결정론적으로 재계산할 수 있어 검증 비용이 훨씬 낮다는 차별점이 있다.",
+  "question_background(지역·날짜·종)를 별도 필드로 둔 구조는 우리 문항의 메타(블록 구간·주소·토큰)를 구조화 필드로 분리해 두는 데이터 스키마 설계와 상통한다."
+ ],
+ "brief": false
+}

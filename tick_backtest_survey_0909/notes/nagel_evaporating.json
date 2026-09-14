@@ -1,0 +1,57 @@
+{
+ "key": "nagel_evaporating",
+ "title": "Evaporating Liquidity (Nagel) — 비용을 안 빼는 것이 옳은 백테스트, 그리고 그 이유",
+ "authors_short": "Stefan Nagel (Chicago Booth)",
+ "venue": "Review of Financial Studies 25(7), 2005–2039 (2012)",
+ "venue_verified": "DOI 10.1093/rfs/hhs066. NBER WP 17653 와 저자 PDF 모두 200 으로 확인. 저자 공개 수익률 시계열로 Table 1 을 3자리까지 재현(평균 0.2966%/일, 표준편차 0.5558, SR 8.47 vs 논문 0.30/0.56/8.44)",
+ "type": "유동성 공급 수익률 측정 (일간 반전 전략)",
+ "domain": "미국 주식 단기 반전",
+ "data_scope": "**CRSP 일간**. NYSE/AMEX/Nasdaq, 1998-01~2010-12, 주가 ≥ $1. 출판본과 인터넷 부록 어디에도 'TAQ' 라는 단어가 없다 — **틱데이터를 쓰지 않는다.**",
+ "tags": [
+  "유동성 공급자 관점",
+  "체결가 vs 중간가",
+  "Stambaugh 편의",
+  "데이터 공개"
+ ],
+ "links": {
+  "pdf": "https://www.nber.org/papers/w17653",
+  "proceedings": "https://doi.org/10.1093/rfs/hhs066",
+  "data": "https://voices.uchicago.edu/stefannagel/files/2021/06/allretout.csv",
+  "verified": "NBER 200 · 수익률 CSV 200(65,901B, 3,266행) 내려받아 재현 확인"
+ },
+ "easy": {
+  "problem": "위기에 유동성이 마르면 유동성을 공급하는 쪽의 기대수익이 오른다. 그것을 어떻게 재나?",
+  "how": "전날 시장 대비 많이 떨어진 종목을 사고 오른 종목을 파는 반전 전략을 매일 종가에 재조정한다. 이 전략의 수익이 곧 유동성 공급의 대가다.",
+  "analogy": "값이 급히 흔들릴 때 반대편을 받아 주는 노점상의 수입을 재는 것. 노점상은 스프레드를 **내는** 쪽이 아니라 **버는** 쪽이다."
+ },
+ "contributions": [
+  "**비용을 빼지 않는 것이 이 논문에서는 옳다.** 경제 주체가 유동성 **공급자** 이기 때문이다. 그래서 전략을 두 번 돌린다 — 체결가(바운스 포함 = 마켓메이커 수입)와 CRSP 종가 중간가(Nasdaq 만, 바운스 제거). 중간가 수익이 체결가 수익의 **약 절반**이다.",
+  "연환산 샤프 **8.44**(체결가) / **4.50**(중간가). 이 숫자는 거래 가능성 주장이 아니라 프리미엄 측정치임이 서술로 분명하다.",
+  "Newey-West 일간 20래그·월간 3래그, **Stambaugh(1999) 편의 점검**, 그리고 이 문헌에서 드문 **진짜 시간 분할** — 2007년 6월까지로 예측회귀를 적합해 2007~2010 위기 수익률을 예측한다.",
+  "수익률 시계열을 공개해 재현이 가능하다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "일간 종가 재생. 틱이 아니고 체결 모형도 없다. 다만 체결가/중간가 두 판본을 나란히 내어 스프레드 바운스를 **측정** 한다 — 가정하고 넘어가지 않는다.",
+  "data_short": "CRSP 일간 · 1998–2010",
+  "fill_short": "종가 체결 가정 (체결가 판본 / 중간가 판본)",
+  "cost_short": "**의도적으로 미차감** (공급자가 스프레드를 번다)",
+  "design": "Lehmann(1990) 가중치 `w ∝ −(R_{i,t−1} − R_{m,t−1})`, 정확히 $1 롱/$1 숏으로 정규화, 매일 종가 재조정. t−1…t−5 다섯 하위전략의 평균으로 보고. 조건부 베타 헤지로 기계적 시장노출 제거.",
+  "cost": "차감하지 않는다. 대신 체결가·중간가 두 판본의 차이가 바운스의 크기를 보여 준다.",
+  "validation": "Newey-West 20/3 · Stambaugh 편의 점검 · **2007-06 이전 적합 → 위기 구간 예측**.",
+  "metrics": "일간 평균수익 · 표준편차 · 연환산 샤프.",
+  "quotes": [
+   "If calculated based on transaction prices, the reversal strategy returns represent the returns of a hypothetical representative liquidity supplier whose limit orders or quotes always get executed at the closing transaction price… the market-making sector does not pay the bid-ask spread, but instead earns the non-adverse selection component of the bid-ask spread."
+  ],
+  "gap": "\"항상 종가에 체결된다\" 는 가정이 그대로 남는다. 큐·체결확률·시장충격은 없다."
+ },
+ "code": [
+  "코드 없음. **일간 수익률 시계열은 공개**: [allretout.csv](https://voices.uchicago.edu/stefannagel/files/2021/06/allretout.csv)"
+ ],
+ "oneline": "비용을 안 뺀 샤프 8.44 가 정당할 수 있다 — 단, 내 전략의 주체가 유동성을 공급하는 쪽일 때만.",
+ "implications": [
+  "**우리 전략은 BID1 지정가로 들어가므로 공급자 쪽이다.** 그런데 우리는 스프레드를 손익에 넣고(체결가 기준) 수수료를 뺀다 — Nagel 의 '체결가 판본' 에 비용을 더 뺀 셈이라 더 보수적이다. 이 대비를 명시하면 우리 net 정의를 방어할 수 있다.",
+  "체결가/중간가 두 판본을 나란히 내는 방식은 우리도 쓸 수 있다 — `net_bps` 옆에 '중간가 기준 수익' 을 같이 내면 우리 수익 중 얼마가 스프레드 포획이고 얼마가 방향 예측인지 갈라진다. research-log 의 '4차 gross 는 전부 진입 스프레드에서 나왔다' 관측이 정확히 이 질문이다."
+ ],
+ "resolution": "일봉 이상"
+}

@@ -1,0 +1,68 @@
+{
+ "key": "aquilina_budish_oneill",
+ "title": "Quantifying the High-Frequency Trading Arms Race — 진 사람까지 보이는 메시지 데이터, 그리고 이 문헌에서 유일하게 공개된 틱 파이프라인",
+ "authors_short": "Matteo Aquilina · Eric Budish · Peter O'Neill (FCA · Chicago Booth)",
+ "venue": "Quarterly Journal of Economics 137(1), 493–564 (2022)",
+ "venue_verified": "DOI 10.1093/qje/qjab032 Crossref 검증. 저자 홈페이지 출판본 PDF 200 전문 열람. 코드 저장소 github.com/ericbudish/HFT-Races 200, Harvard Dataverse doi:10.7910/DVN/ZFDWDZ API 로 파일 2개 확인",
+ "type": "메시지 원장 기반 경주(race) 재구성 + 시가평가",
+ "domain": "런던증권거래소 지연 차익거래",
+ "data_scope": "FCA 가 **Section 165 요청**으로 확보한 LSE 의 **인바운드 + 아웃바운드 전체 메시지**. 2015-08-17~10-16 중 **43 거래일**(9/7 손상), **FTSE 350 전종목**, 약 15,000 종목-일, **약 22억 메시지**. 거래소 방화벽 밖 광탭의 단일 하드웨어 시계로 **100나노초** 스탬프. **UserID·FirmID·매칭엔진 OrderID 존재.**",
+ "tags": [
+  "메시지 원장",
+  "실패한 주문",
+  "정보 지평",
+  "코드 공개",
+  "표준오차 없음"
+ ],
+ "links": {
+  "pdf": "https://ericbudish.org/wp-content/uploads/2022/02/Quantifying-the-High-Frequency-Trading-Arms-Race.pdf",
+  "proceedings": "https://doi.org/10.1093/qje/qjab032",
+  "github": "https://github.com/ericbudish/HFT-Races",
+  "data": "https://doi.org/10.7910/DVN/ZFDWDZ",
+  "verified": "PDF 200 · GitHub 200 · Dataverse API 로 Code_and_Data_Appendix.pdf(450,827B)와 HFT-Races.zip(651,836B) 확인"
+ },
+ "easy": {
+  "problem": "호가창 데이터로는 '이긴 주문' 만 보인다. 취소하려다 늦은 주문, 체결 못 한 IOC — 즉 **진 사람** 은 안 보인다. 그런데 지연 경주의 크기는 진 사람 쪽에 있다.",
+  "how": "거래소가 받은 모든 메시지와 내보낸 모든 응답을 규제기관 권한으로 확보해, 같은 종목·가격·방향에서 여러 UserID 가 아주 짧은 시간 안에 몰려 일부는 성공하고 일부는 실패한 **경주** 를 재구성한다.",
+  "analogy": "육상 경기 기록에 1등만 남는 것이 아니라, 출발선에 선 모든 선수와 그들의 기록이 남아 있는 것."
+ },
+ "contributions": [
+  "**시뮬레이션한 트레이더가 없다.** 실제 경주 가격과 실제 표시 잔량·체결량·취소량을 쓰고, **10초 뒤 중간가**로 시가평가한다.",
+  "'정보 지평(Information Horizon)' 을 실측 매칭엔진 지연 중앙값(약 150μs) + **관측된 최소 반응시간 29μs** 로 정의하고 500μs 로 상한(4% 미만에서만 구속, 평균 202μs·표준편차 73).",
+  "결과: FTSE 100 평균 종목당 **하루 537 경주**, 평균 지속 **79μs**(최빈 5~10μs), 참가자 약 3.3명, 90%가 take 로 끝난다. **거래일의 0.0001% 에 불과한 시간에 거래대금 가중 기준 22% 가 일어난다.** 지연 차익거래 세금 0.42bp, 경주를 없애면 유동성 비용 약 17% 감소.",
+  "**이 문헌에서 코드를 공개한 유일한 사례다.** Python 3 + R, BSD-3/GPL-3, 인공 테스트 데이터와 **범용 메시지 스키마**를 함께 제공해 자기 피드로 돌릴 수 있게 했다.",
+  "왜 실제 체결로 손익을 계산하지 않고 시가평가를 쓰는지 설명한다 — LSE 데이터만 있어 다른 거래소에서의 청산을 볼 수 없고, 기업이 경주마다 포지션을 정리하지 않고 포트폴리오 단위로 재고를 관리할 수 있기 때문이다."
+ ],
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "시뮬레이션이 아니다. 실제 체결·실패 기록을 그대로 쓴다. 다만 손익은 10초 뒤 중간가 시가평가라 실현 손익은 아니다.",
+  "data_short": "LSE 전체 메시지 · FTSE 350 · 43일 · 100ns",
+  "fill_short": "실제 체결 기록 (시뮬레이션 없음)",
+  "cost_short": "경주 가격이 반대 호가라 반스프레드가 암묵 반영 · 수수료는 배제하고 이유를 밝힘",
+  "data": "인바운드·아웃바운드 양방향. **실패한 행동**(취소 실패·만료 IOC)이 들어 있다는 것이 결정적이다.",
+  "design": "재구성 + 시가평가. 경주 = 같은 종목·가격·방향에서 2인 이상의 UserID 가 정보 지평 안에 몰려 일부는 성공하고 일부는 실패한 사건.",
+  "fill": "실제 기록.",
+  "cost": "각주 27 이 수수료 배제를 정당화한다 — 거래소의 한계처리비용이 0 이면 무시하는 것이 타당하고, 어차피 LSE 수수료는 고빈도 참가자 공격주문 0.15bp, 패시브 0 이라 평균 경주 이익 대비 작다. LSE 에는 리베이트가 없다.",
+  "latency": "실측. 매칭엔진 지연 중앙값 약 150μs, 최소 반응시간 29μs.",
+  "selfimpact": "해당 없음(시뮬레이션이 아니므로).",
+  "validation": "**주요 결과에 표준오차가 없다.** 회귀는 외삽 모형뿐이고 **n=43일** 의 단순 OLS 에 Student-t p값이다. 저자들이 명시적으로 \"설정 불확실성이 표본 불확실성을 압도한다\" 며 신뢰구간 대신 민감도 격자에서 나온 **밴드(0.20~0.74bp)** 를 보고한다. '표본 외' 는 다른 연도·국가로의 외삽이지 홀드아웃이 아니다.",
+  "metrics": "경주 건수 · 지속시간 · 참가자 수 · 경주 내 거래 비중 · 지연 차익거래 세금(bp) · 유동성 비용 감소율.",
+  "quotes": [
+   "As in BCS, we compute profits as the signed difference between the price in the race and the midpoint in the near future, which has the interpretation of the mark-to-market value for the asset in the race.",
+   "Because our data include firm identifiers, it would seem possible to use the actual trades made by participants to realize their profits rather than using mark-to-market profits… First, we only have data from the LSE, so we do not observe when positions are closed by trades on other venues. Second, firms may not unwind positions after each race, but may instead manage inventory risk on a portfolio basis."
+  ],
+  "gap": "LSE 단일 거래소라 다른 곳에서의 청산을 못 본다. 표준오차가 없다. 원자료는 Section 165 로 받은 것이라 절대 공유할 수 없다."
+ },
+ "code": [
+  "[ericbudish/HFT-Races](https://github.com/ericbudish/HFT-Races) — Python 3 + R, BSD-3/GPL-3. `ArtificialTestData/`, `Code_and_Data_Appendix.pdf`, **범용 메시지 스키마** 포함",
+  "Harvard Dataverse [doi:10.7910/DVN/ZFDWDZ](https://doi.org/10.7910/DVN/ZFDWDZ) 미러"
+ ],
+ "limitations": "원자료 재현 불가. 43일 표본.",
+ "oneline": "데이터가 '실패한 주문' 을 담으면 시뮬레이션 자체가 필요 없어진다 — 그리고 그때 비로소 코드를 공개할 수 있다.",
+ "implications": [
+  "**우리 원장에 없는 것이 정확히 이것이다** — 주문 추가·취소·실패. 그래서 우리는 큐를 추정해야 하고, 이 논문은 그 추정이 왜 필요한지의 반대편 증거가 된다.",
+  "데이터를 못 주는 대신 **범용 스키마와 인공 테스트 데이터로 코드를 공개** 한 방식은 우리가 그대로 따라 할 수 있다. KRX 원장은 재배포 불가지만, 스키마 + 합성 샘플 + 백테스트 코드는 공개 가능하다.",
+  "\"설정 불확실성이 표본 불확실성을 압도하므로 신뢰구간 대신 민감도 밴드를 보고한다\" 는 태도는 우리 `unexplained_fill_fraction` 민감도 보고 방식의 근거로 인용할 수 있다."
+ ],
+ "resolution": "틱·메시지"
+}

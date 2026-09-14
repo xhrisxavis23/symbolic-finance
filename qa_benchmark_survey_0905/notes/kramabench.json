@@ -1,0 +1,31 @@
+{
+ "key": "kramabench",
+ "title": "KramaBench: A Benchmark for AI Systems on Data-to-Insight Pipelines over Data Lakes",
+ "authors_short": "Lai, Vitagliano, Zhang et al. · MIT CSAIL · University of Arizona",
+ "venue": "ICLR 2026 Poster",
+ "venue_verified": "OpenReview 검색 API forum fZfUdeCC5X venue='ICLR 2026 Poster'(공식 리뷰 rating 4/4/6/6, 메타리뷰 'Decision. Accept (poster)'); arXiv 2506.06541v3(2026-03-05) 헤더 'Published as a conference paper at ICLR 2026'; arXiv comments 필드는 비어 있음",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2506.06541",
+  "pdf": "https://arxiv.org/pdf/2506.06541",
+  "proceedings": "https://openreview.net/forum?id=fZfUdeCC5X",
+  "github": "https://github.com/mitdbg/KramaBench",
+  "huggingface": "https://huggingface.co/datasets/eugenie-y/KramaBench",
+  "website": null,
+  "verified": "arXiv PDF(30쪽) 다운로드, GitHub README·workload/ 디렉터리(archeology.json, astronomy.json, biomedical.json, environment.json, legal.json, wildfire.json 등)·legal-tiny.json·environment-tiny.json raw 실제 열람, HF 200, OpenReview forum 307→200"
+ },
+ "domain": "6개 도메인 데이터 레이크 — 고고학, 천문학, 생의학, 환경과학(매사추세츠 해변 수질), 법률(FTC Consumer Sentinel 사기 신고), 산불 예방",
+ "dataset": {
+  "construction": "출판된 연구·보고서에서 (1) 데이터 분석으로 얻은 정량·그래프 결과가 있고 (2) 공개 데이터셋 기반이며 (3) 이종·노이즈 입력의 다단계 파이프라인이 필요한 것을 골라 4단계로 큐레이션(p.4): Step 1 Task Curation — 연구 결과를 재현해 문제로 만들고 제작자가 파이프라인을 구현; Step 2 Cross-Contributor Validation — 다른 기여자가 독립 구현, 제3자가 비교·모호성 해소 후 참조 파이프라인 확정; Step 3 Key Functionality Identification — \"We draft a list of these key functionalities for each task using the reference pipeline via instruction-tuning GPT-o3 and manually polish the outputs\"; Step 4 Sub-task Curation — \"We transform each sub-task description into a prompt via instruction tuning a local instance of Gemma3-27b and manual inspection. The target answers to each sub-task are manually verified using the reference pipeline\". 데이터 누출 연구용으로 20% 과제의 식별자·수치를 합성값으로 바꾼 'obscured inputs'를 만들어 비공개(p.2, p.8). 답 유형별 채점: 문자열 정확/근사(LLM 심판, 사람과 84% 일치), 수치 정확/근사(1/(1+RAE)), 리스트 정확/근사(F1)(p.4 Table 3).",
+  "size_format": "104 tasks / 633 sub-tasks, 1,764 파일(1.7GB), 24 출처, 6 도메인(Archeology 12, Astronomy 12, Biomedical 9, Environment 20, Legal 30, Wildfire 21; Hard 비율 60.58%; p.4 Table 2). GitHub workload/<domain>.json 필드: id, query, answer, answer_type(numeric_exact/numeric_approximate/string_approximate/list_exact…), runtime, data_sources[], subtasks[{id, step, query, answer, answer_type, data_sources}], deepresearch_subset[]. 데이터는 data/ 폴더(재배포 제한 출처는 원본 링크만).",
+  "samples": [
+   "[GitHub workload/legal-tiny.json id legal-hard-1, answer_type numeric_approximate] query: \"Report the average number of reported identity thefts for all metropolitan areas that are larger than one million in population in 2023. - If you don't have their population size in 2023, use two years where you know the censuses (or an estimate of the censurs) and linearly interpolate between them to estimate the 2023 population size.  - Be sure to robustly match the names of metropolitan areas: Use only the city and state portion of the name, ignoring suffixes like 'Metropolitan Statistical Area' or 'MSA' and normalizing punctuation. Drop entries where there's no match in the html for the areas fraud reports. Round to 4 decimal places\" answer: 12964.8727; data_sources: [\"metropolitan_statistics.html\", \"State MSA Identitiy Theft Data/\"]; subtask legal-hard-1-1: \"What files do you need to read to answer the above question? If you need all files of a directory `my_dir`, list it as `my_dir/*`\" → [\"metropolitan_statistics.html\", \"State MSA Identity Theft Data/*\"]",
+   "[workload/environment-tiny.json id environment-easy-1, numeric_exact] query: \"What percentage (to 3 decimal places) of water samples collected from Massachusetts beaches during the 2013 bathing season exceeded bacterial standards, leading to temporary closures?\" answer: 4.796; subtasks: \"How many rows are marked to have 'Violation's?\" → 738; \"What is the total number of samples?\" → 15388; \"What is the percentage of water samples with violations? Round to 3 decimal places.\" → 4.796 (step 설명: \"Filter to rows whose 'Violation' column equals 'yes', using a case-insensitive comparison\")",
+   "[논문 p.9 environment-q17] \"What is the seasonal bacteria exceedance rate of Chatham's Bucks Creek Beach in the June, July, Aug of 2016? Impute missing values with median of the month in non-missing years.\"; [GitHub README 예시] \"What is the average Potassium in ppm from the first and last time the study recorded people in the Maltese area?\""
+  ],
+  "class": "C",
+  "class_reason": "질문 안에 구체 구간(2023년, 2016년 6–8월)·개체(Chatham's Bucks Creek Beach)·문턱(인구 100만 초과)·처리 규칙(선형 보간, 이름 정규화·접미사 제거, 불일치 행 삭제, 중앙값 대체, 소수 4자리)이 명시되고, 답은 동봉된 데이터 레이크(1,764 파일)에서 결정론적으로 계산되며 sub-task별 중간 정답이 증거처럼 붙어 있어 우리 C형과 가장 닮았다. 다만 easy 문항은 규약이 얇고 문자열 근사 답은 LLM 심판이 채점한다.",
+  "release": "GitHub·HF 공개(workload JSON·데이터·참조 파이프라인·평가 하네스; 재배포 제한 데이터는 원본 링크로 안내, p.11 윤리 진술). obscured inputs 20%는 비공개. 저장소 LICENSE 파일 없음(GitHub API license=None) — 라이선스 미확인. 결과(p.7 Table 5): 최고 smolagents DR(Claude-3.7) 전체 55.83%, Oracle 입력 62.81%, DS-Guru few-shot GPT-o3 24.98%, 인간 76.75%."
+ },
+ "oneline": "6개 도메인 실제 데이터 레이크(1,764 파일) 위에서 논문 결과를 재현하는 104개 다단계 파이프라인 과제(633 sub-task)로, 질문에 보간·정규화·반올림 규칙이 명시되고 최고 에이전트도 55.8%에 그친다(ICLR 2026 Poster).",
+ "brief": true
+}

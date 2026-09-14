@@ -1,0 +1,77 @@
+<figure class="paperfig" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px 10px">
+<span class="figsrc">그림 1 · 이 리포트의 분류 축</span>
+<svg viewBox="0 0 1040 430" width="100%" role="img" aria-label="백테스트 사실성 사다리 L0에서 L6까지, 각 층에서 무엇이 체결을 결정하는지">
+  <defs>
+    <style>
+      .lb{font:700 13px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#0f172a}
+      .sm{font:400 11.5px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#475569}
+      .ex{font:400 11px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#64748b}
+      .ax{font:700 11px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#94a3b8;letter-spacing:.06em}
+      .tag{font:800 11.5px system-ui,-apple-system,"Noto Sans KR",sans-serif;fill:#fff}
+    </style>
+  </defs>
+
+  <text class="ax" x="16" y="20">무엇이 체결을 결정하는가 →</text>
+
+  <!-- L0 -->
+  <rect x="16" y="34" width="1008" height="46" rx="8" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <rect x="16" y="34" width="76" height="46" rx="8" fill="#64748b"/>
+  <text class="tag" x="54" y="62" text-anchor="middle">L0</text>
+  <text class="lb" x="106" y="52">시뮬레이션 없음</text>
+  <text class="sm" x="106" y="70">체결이라는 개념이 없다. 회귀·이벤트 스터디로 계수와 인과만 본다</text>
+  <text class="ex" x="620" y="62">Kirilenko 외 <tspan font-style="italic">Flash Crash</tspan> (JF 2017) · Hasbrouck–Saar · 국내 증권사 API 저장소 전부</text>
+
+  <!-- L1 -->
+  <rect x="16" y="86" width="1008" height="46" rx="8" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <rect x="16" y="86" width="76" height="46" rx="8" fill="#7c3aed"/>
+  <text class="tag" x="54" y="114" text-anchor="middle">L1</text>
+  <text class="lb" x="106" y="104">모형 몬테카를로</text>
+  <text class="sm" x="106" y="122">체결은 <tspan font-weight="700">베르누이 추첨</tspan>. 호가 깊이의 함수인 확률로 온다</text>
+  <text class="ex" x="620" y="114">Avellaneda–Stoikov (QF 2008, 실데이터 0줄) · Bertsimas–Lo · mbt_gym</text>
+
+  <!-- L2 -->
+  <rect x="16" y="138" width="1008" height="46" rx="8" fill="#fffbeb" stroke="#fde68a"/>
+  <rect x="16" y="138" width="76" height="46" rx="8" fill="#b45309"/>
+  <text class="tag" x="54" y="166" text-anchor="middle">L2</text>
+  <text class="lb" x="106" y="156">무영향 재생</text>
+  <text class="sm" x="106" y="174">가격이 내 호가에 <tspan font-weight="700">닿기만 하면 전량 체결</tspan>. 큐도 비용도 지연도 없다</text>
+  <text class="ex" x="620" y="166">Guéant 계열 · Cartea–Donnelly–Jaimungal 기본 · KRX RL 최적실행 · 한투 backtester</text>
+
+  <!-- L3 -->
+  <rect x="16" y="190" width="1008" height="46" rx="8" fill="#ecfeff" stroke="#a5f3fc"/>
+  <rect x="16" y="190" width="76" height="46" rx="8" fill="#0e7490"/>
+  <text class="tag" x="54" y="218" text-anchor="middle">L3</text>
+  <text class="lb" x="106" y="208">재생 + 실호가·비용</text>
+  <text class="sm" x="106" y="226">실제 BID/ASK 에서 체결하고 수수료·리베이트를 뺀다. 큐 위치는 없다</text>
+  <text class="ex" x="620" y="218">Budish–Cramton–Shim (QJE 2015) · Cont–Kukanov (QF 2017) · Spooner 외</text>
+
+  <!-- L4 -->
+  <rect x="16" y="242" width="1008" height="52" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
+  <rect x="16" y="242" width="76" height="52" rx="8" fill="#15803d"/>
+  <text class="tag" x="54" y="273" text-anchor="middle">L4</text>
+  <text class="lb" x="106" y="262">재생 + 큐 위치 · 지연</text>
+  <text class="sm" x="106" y="281">내 앞 물량을 세고, <tspan font-weight="700">그 물량이 실제로 줄어야</tspan> 체결된다</text>
+  <text class="ex" x="620" y="266">hftbacktest · NautilusTrader 1.223+ · Moallemi–Yuan · 큐 반응 모형</text>
+  <text class="ex" x="620" y="283" font-weight="700" fill="#15803d">Noble–Rosenbaum–Souilmi (2026) · ← 우리 코드 (지연 없음)</text>
+
+  <!-- L5 -->
+  <rect x="16" y="300" width="1008" height="46" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <rect x="16" y="300" width="76" height="46" rx="8" fill="#b91c1c"/>
+  <text class="tag" x="54" y="328" text-anchor="middle">L5</text>
+  <text class="lb" x="106" y="318">상호작용 시뮬레이션</text>
+  <text class="sm" x="106" y="336">내 주문이 남의 행동을 바꾼다. 대신 시장이 <tspan font-weight="700">합성</tspan>이다</text>
+  <text class="ex" x="620" y="328">ABIDES / ABIDES-Gym · Balch 외 (2019) IABS · MarS · 생성형 world agent</text>
+
+  <!-- L6 -->
+  <rect x="16" y="352" width="1008" height="46" rx="8" fill="#e2e8f0" stroke="#94a3b8"/>
+  <rect x="16" y="352" width="76" height="46" rx="8" fill="#1e293b"/>
+  <text class="tag" x="54" y="380" text-anchor="middle">L6</text>
+  <text class="lb" x="106" y="370">실집행</text>
+  <text class="sm" x="106" y="388">시뮬레이션이 없다. 대신 반사실을 못 묻고 재현도 불가능하다</text>
+  <text class="ex" x="620" y="380">Aquilina–Budish–O'Neill (QJE 2022) · Menkveld · Kyle–Obizhaeva · AQR $1.7조</text>
+
+  <text class="ax" x="1024" y="420" text-anchor="end">위로 갈수록 “좋은” 것이 아니다 — 문제에 맞는 층이 있을 뿐이고, 어느 층인지 밝히지 않는 것이 결함이다</text>
+</svg>
+<figcaption>등급은 <b>데이터 해상도가 아니라 체결을 결정하는 규칙</b>으로 매겼다. 밀리초 원장을 쓰고도 “즉시 전량 체결” 이면 L2 이고,
+1분 캔들만 있어도 큐 소진 물량으로 체결을 정하면 L3 다.</figcaption>
+</figure>

@@ -1,0 +1,107 @@
+{
+ "key": "climaqa",
+ "title": "ClimaQA: An Automated Evaluation Framework for Climate Question Answering Models",
+ "authors_short": "Manivannan et al. · UC San Diego (Rose Yu, Taylor Berg-Kirkpatrick 교신)",
+ "venue": "ICLR 2025 Poster",
+ "venue_verified": "OpenReview goFpCuJalN (papercopilot ICLR2025 목록: status=Poster, primary_area=datasets and benchmarks; HF 미러 smallari/openreview-iclr2025-peer-reviews-RAW decision=Accept). openreview.net 직접 접근은 봇 차단(challenge)으로 실패",
+ "type": "벤치마크(과학 QA: MCQ·자유서술·빈칸) + 자동 벤치마크 생성 프레임워크(ClimaGen)",
+ "domain": "기후과학(대기물리·에어로졸·구름·지구통계 등 대학원 교재 수준)",
+ "data_scope": "대학원 기후과학 교재 18권(Table 4 p.16)에서 5권을 문항 생성용으로 선정; ClimaQA-Gold 566문항(MCQ 245·Freeform 161·Cloze 160, Table 2 p.5) 전문가 검증 + ClimaQA-Silver 3,000문항(각 1,000) 합성",
+ "tags": [
+  "climate-science",
+  "textbook-QA",
+  "LLM-generated",
+  "expert-validated",
+  "MCQ",
+  "freeform",
+  "cloze",
+  "RAG-evaluation"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2410.16701",
+  "pdf": "https://arxiv.org/pdf/2410.16701",
+  "proceedings": "https://openreview.net/forum?id=goFpCuJalN",
+  "github": "https://github.com/Rose-STL-Lab/genie-climaqa",
+  "huggingface": "https://huggingface.co/datasets/Rose-STL-Lab/ClimaQA",
+  "website": null,
+  "verified": "arXiv PDF 다운로드 OK; GitHub 200; HF UCSD-GENIE/ClimaQA는 Rose-STL-Lab/ClimaQA로 리네임됨(307→200), datasets-server rows 수신(config Gold/Silver, split mcq/ffq/cloze); OpenReview는 challenge로 차단(점수는 papercopilot·HF 미러로 확인)"
+ },
+ "easy": {
+  "problem": "LLM이 기후과학 질문에 얼마나 과학적으로 정확하게 답하는지 평가할 벤치마크가 없었다. 기존 과학 QA셋은 사람이 전부 만들거나(비싸고 작음) LLM이 전부 만들어(환각·오류) 신뢰하기 어렵다.",
+  "how": "대학원 교재 조각을 시드로 GPT-3.5-turbo가 문항을 만들고 '추론'·'가설 시나리오' 단계로 진화시킨 뒤, 기후과학자가 웹앱에서 검수해 Gold셋을 만든다. 검수 라벨로 GPT-4o-mini 판별기를 학습시켜 사람 없이 Silver셋 3,000문항을 뽑는다.",
+  "analogy": "교수님이 직접 문제를 다 내는 대신, 조교(LLM)가 교재로 문제를 뽑아오고 교수님은 채점만 한 뒤, 그 채점 기준을 배운 자동 검수기가 나머지 문제은행을 걸러내는 방식."
+ },
+ "contributions": [
+  "ClimaQA-Gold(566문항, 전문가 검증)·ClimaQA-Silver(3,000문항, 합성) 공개 — MCQ·Freeform·Cloze 3형식 × Base/Reasoning/Hypothetical 3복잡도(Table 2 p.5)",
+  "ClimaGen: 교재 시드 컨텍스트 + RAG + 프롬프트로 QA 생성→복잡도 진화→전문가 주석→불확실성 기반 능동 샘플링으로 GPT-4o-mini 평가기 미세조정(신뢰도>0.85 샘플 50% 확률 제거)해 완전 자동화(§4, p.7-8)",
+  "평가지표 제안: Freeform용 Factual Accuracy(GPT-4o-mini 사실 함의 분류기, Climate-Fever 제로샷 81%, p.6) 및 Cloze용 Phrase Similarity(USE 임베딩, 문맥창 4, p.6)",
+  "8개 모델 패밀리 × default/few-shot/RAG(source·held-out)/continued pre-training/Silver 미세조정 비교: gpt-4o MCQ 85.71→rag-source 92.79(Table 3 p.9); 대부분 모델이 Reasoning MCQ에서 약함, RAG(source)가 CP·SFT보다 우수",
+  "생성 문항의 약 25%를 생성 모델 자신도 컨텍스트가 있어도 틀림(자기 불일치, p.7); 전문가 검증 통과율 MCQ 245/292, Freeform 161/181(Table 10 p.25)"
+ ],
+ "figures": [
+  {
+   "file": "figs/climaqa_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "ClimaGen 자동 벤치마크 생성 파이프라인. 교재(Scientific Textbooks)에서 시드 컨텍스트를 뽑아 QA 생성기(LLM)가 기본 문항을 만들고 Evolution 단계에서 추론·가설 복잡도를 더한다. 생성물은 도메인 전문가 주석(Annotation)으로 검증되어 준합성 벤치마크(Gold)가 되고, 사람 라벨로 능동 학습된 Evaluator 모델이 이후 검증을 자동화해 Silver셋을 만든다.",
+   "alt": "ClimaGen 파이프라인 개요도"
+  },
+  {
+   "file": "figs/climaqa_fig3.png",
+   "label": "Figure 3",
+   "page": 5,
+   "caption_ko": "벤치마크의 세 가지 과학 QA 과제 형식 예시. MCQ(4지선다), Freeform(2문장 이내 서술형 답), Cloze(<MASK> 자리에 과학 용어 채우기)를 각각 실제 문항으로 보여준다.",
+   "alt": "MCQ·Freeform·Cloze 문항 예시"
+  }
+ ],
+ "dataset": {
+  "construction": "① 교재 18권을 약 2,000자 겹침 청크로 나눠 벡터DB에 저장, 무작위 시드 청크 + 코사인 유사도로 검색한 추가 청크를 GPT-3.5-turbo 생성기에 투입(§4.2 p.7). ② 프롬프트(App A.4 p.21-24)로 MCQ(stem·정답·오답 3개)/Freeform/Cloze용 과학 진술문을 만들고, 'multi-step reasoning'·'hypothetical scenario' 프롬프트로 문항을 진화시킴(Figure 2 p.4). ③ 수작업 규칙 + LLM 자기 불일치 감사로 1차 필터 — 'approximately 25% of the multiple-choice questions were incorrectly answered by the same model even when the contexts were provided'(p.7). ④ 기후과학자 3인(감사의 글 p.11)이 웹앱에서 MCQ/Freeform 정오를 판정하고 Cloze는 마스킹할 과학 용어를 선택(§4.3 p.8); 기각 사유 분포는 Figure 7 p.25. ⑤ Silver: 전문가 라벨(MCQ 292개 중 245 valid, Freeform 181개 중 161 valid, Table 10 p.25)로 GPT-4o-mini를 VALID/INVALID 분류기로 미세조정, 불확실성 기반 능동 샘플링 적용; 'around 85% of MCQs and around 90% of freeform QAs were valid'(p.8), 평가기 도입으로 MCQ 정밀도 +10%, Freeform +5%(App A.5.2). Cloze 마스킹은 160개 전문가 예시로 미세조정한 별도 모델이 자동 수행(App A.5.3 p.26).",
+  "size_format": "Gold: MCQ 245(+기각 47 포함 292행 공개, Validation 플래그)·Freeform 161(+20 기각 포함 181행)·Cloze 160; Silver: MCQ/Freeform/Cloze 각 1,000. HF 필드: Question, Options(a)~d) 문자열, '--------------------' 구분), Answer, Complexity(BASE/REASONING/HYPOTHETICAL), Validation(bool). config=Gold|Silver, split=mcq|ffq|cloze (parquet/CSV 기반)",
+  "samples": [
+   "[HF Rose-STL-Lab/ClimaQA Gold/mcq row0] Question: \"Why does the reflectivity increase between points 3 and 4 in the vertical profile of radar data for stratiform precipitation?\" Options: a) Due to the reduction in relative humidity below cloud, causing evaporation of raindrops. b) As a result of the snowflakes becoming more compact and collapsing due to increased terminal velocity. c) Due to the reduction in size of snowflakes as they melt and acquire a liquid layer. d) Because of the increase in the concentration of ice crystals in that layer. Answer: c, Complexity: REASONING, Validation: true",
+   "[HF Gold/ffq row0] Question: \"Why does the atmosphere emit only 16 W m−2 to space but 342 W m−2 towards Earth’s surface?\" Answer: \"The fact that the atmosphere emits only 16 W m−2 to space but 342 W m−2 towards Earth’s surface is due to the vertical density gradient in the atmosphere.\" Complexity: BASE",
+   "[HF Gold/cloze row1] Question: \"Aerosol <MASK> from the atmosphere to the oceans can enhance ocean productivity and carbon uptake, providing a feedback mechanism that can have a long-term effect on climate.\" Answer: \"deposition\"",
+   "[HF Gold/mcq row1] Question: \"How did the increase in anthropogenic aerosol impact the South Asian monsoon during the second half of the twentieth century?\" Options: a) Increasing the global monsoon precipitation by around 8% b) Strengthening the Walker Circulation over the Indian Ocean c) Enhancing the summer monsoon circulation d) Causing a further weakening of the summer monsoon. Answer: d, Complexity: HYPOTHETICAL"
+  ],
+  "class": "B",
+  "class_reason": "교재 지식에 기반한 도메인 특화 지식·설명형 QA로, 특정 데이터 인스턴스(ID·구간)나 판정 규약이 질문에 들어 있지 않다. 답은 교재 문장에 근거한 사실/추론이며 원자료(교재 청크)는 저작권으로 미공개라 재계산 대상이 아니다. Silver의 Calculus of Variations 문항 등 일부는 A(일반 시험형)에 가깝다.",
+  "release": "Gold·Silver 모두 HF에 공개(Rose-STL-Lab/ClimaQA, 구 UCSD-GENIE/ClimaQA; HF 카드 라이선스 apache-2.0; CSV 6개 파일; datasets-server로 실제 행 열람). 코드·웹UI·평가 스크립트 GitHub 공개. 교재 원문은 저작권으로 미공개(References로 재구성 가능, p.11 Reproducibility)",
+  "contamination": "문항 생성용 5권과 나머지 13권을 분리해 continued pre-training은 13권만 사용('reducing the risk of data contamination', p.8); RAG도 rag-source/rag-held-out으로 분리 평가. 별도 시간 분할·비공개 테스트셋은 없음",
+  "evaluation": "MCQ: 정확도(첫 토큰 옵션 문자). Freeform: BLEU·BERTScore·Factual Accuracy(GPT-4o-mini 함의 분류, 시그모이드 T=5). Cloze: Exact Match·Phrase Similarity. 결과: gpt-4o default MCQ 85.71%, rag-source 92.79%, Cloze EM 53.12/71.88(Table 3 p.9); Freeform Factual Accuracy 최고 0.86(gpt-3.5-turbo-rag-source, Table 5 p.17); BLEU·BERTScore는 생성 모델(gpt-3.5-turbo)에 편향되나 Factual Accuracy는 그렇지 않음(p.10)"
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작(교재 기반 LLM 생성 + 전문가 검증). 교재 자체는 기존 출판물",
+  "q2_method": "출처 분명: 교재 18권 목록(Table 4 p.16, 대기물리 교수의 가상 서가에서 선별), 생성 프롬프트 전문(App A.4), 검증 절차·통계(App A.5) 공개",
+  "q3_license": "교재는 저작권물이라 원문 미공개; QA셋은 HF 공개(apache-2.0). 타기관 협의 없음",
+  "q4_relabel": "기존 공개 데이터 재사용이 아니라 교재에서 task 맞춤으로 신규 생성·전문가 재라벨(정오 판정, 마스킹 용어 선택)",
+  "q5_industry": "학계 자체 구성(UCSD, 정부 과제 지원). 기업 협업 없음",
+  "q6_constraints": "저작권 제약으로 교재 텍스트는 비공개, 생성된 QA만 공개; API 키(OpenAI) 필요 및 전문가 입력 필요로 완전 재현엔 변동성 존재(p.11)",
+  "q7_accept": "리뷰어들이 높이 산 점: 기후과학 최초의 전문가 검증 벤치마크, 합성 생성+전문가 검증의 결합으로 확장 가능한 벤치마크 제작 프레임워크, 3과제×3복잡도 설계, 명확한 서술(리뷰 본문 참조)"
+ },
+ "review": {
+  "decision": "Accept (Poster)",
+  "scores": "8/6/6/8/6 (rating), confidence 4/3/5/3/4, soundness 3/3/2/3/3, contribution 3/3/2/4/2, presentation 3/3/2/3/3 (papercopilot 집계)",
+  "praised": [
+   "'ClimaQA stands out as a pioneering benchmark specifically tailored for climate science' — 도메인 전문가와 합성 QA 생성을 결합한 독창성",
+   "Gold의 전문가 검증과 Silver의 체계적 생성으로 고품질·확장성 확보; 합성 스케일링으로 새 연구 결과 반영 가능",
+   "MCQ·Freeform·Cloze 3과제와 3단계 복잡도로 특정 문항 형식 편향을 줄이고 세밀한 능력 진단 가능",
+   "논문 구성과 그림이 명확해 방법론이 투명"
+  ],
+  "concerns": [
+   "Silver 문항 일부는 고급 모델을 시험하기에 복잡도가 부족할 수 있음; Gold는 수동 검증 의존으로 확장성 한계(복수 전문가 교차검증 제안)",
+   "Climate Crisis·SciQAG-24D 등 기존 벤치마크와의 정량 비교 부재; Freeform 평가를 GPT-4o-mini 단일 판정기에 의존; 교재 18권·5권 선정 기준 불명",
+   "교재 5권만 사용해 맥락 다양성 제한, Gold 규모가 작아 자동 주석의 일반화 제한; BLEU·BERTScore가 생성 모델(GPT-3.5-turbo)에 편향",
+   "'W2: lack of experimental validation that the QA pairs in the benchmark are scientifically meaningful', 'W3: Lack of detailed information about the data source', 케이스 스터디·수식 기호 설명 부족 등 서술 결함(conf 5 리뷰어, rating 6)"
+  ],
+  "why_accept": "전문가 검증 Gold + 자동화 Silver라는 실용적 조합과 다형식·다복잡도 설계, Factual Accuracy·Phrase Similarity 지표 제안, RAG/CP/SFT 비교 실험의 완결성이 평가됨(평균 6.8, 최저 6으로 거부 의견 없음). 리뷰 본문은 HF 미러(smallari/openreview-iclr2025-peer-reviews-RAW)에서 확인, 메타리뷰 본문은 미확인"
+ },
+ "limitations": "문항 생성에 5권만 사용해 주제 다양성이 제한되고, 전문가 주석 규모(수백 문항)가 작아 자동 평가기 성능이 제약된다(p.10). 생성 모델(gpt-3.5-turbo)의 자기 불일치로 약 25% 오류가 나 검증 의존도가 높다. Freeform 지표는 무관하지만 사실인 답에 높은 점수를 주는 등 한계가 있다(App A.2.3 p.20). 논문 본문에 Gold MCQ/Freeform 수치 표기가 서로 엇갈린다(Table 2: MCQ 245·Freeform 161 vs p.8 본문 '245 freeform, 161 MCQ'). 교재 원문 비공개로 완전 재현이 어렵다.",
+ "oneline": "대학원 기후 교재에서 LLM이 문항을 만들고 기후과학자가 검증한 Gold 566문항 + 자동 검증기로 뽑은 Silver 3,000문항 벤치마크와 그 생성 프레임워크(ClimaGen).",
+ "implications": [
+  "LLM 생성 문항의 약 25%가 생성 모델 스스로도 못 푸는 오류였다는 점(p.7)은, 우리 C형 문항도 LLM으로 초안을 만들면 결정론적 재계산(원장 쿼리)으로 정답을 반드시 교차검증해야 함을 시사한다.",
+  "전문가 라벨로 판별기를 학습해 'valid/invalid' 필터를 자동화한 설계는, 우리 문항의 '규약 명시 여부·계산 가능성' 검수를 소수 사람 라벨 → 분류기로 확장하는 데 응용 가능하다.",
+  "Base/Reasoning/Hypothetical 3단계 복잡도 태깅처럼, 우리 60문항도 '단순 집계 / 다단계 규칙(run·ratio) / out_of_scope 판정'으로 난이도 축을 명시하면 모델 능력 진단이 세밀해진다.",
+  "rag-source vs rag-held-out 분리 실험은 '정답 근거 데이터를 주었을 때 vs 안 주었을 때'를 나누는 평가 설계의 참고가 된다(우리 셋은 evidence 레코드 동봉 여부로 두 설정을 만들 수 있음)."
+ ],
+ "brief": false
+}

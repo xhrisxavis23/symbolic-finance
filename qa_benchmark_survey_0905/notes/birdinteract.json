@@ -1,0 +1,107 @@
+{
+ "key": "birdinteract",
+ "title": "BIRD-INTERACT: Re-imagining Text-to-SQL Evaluation for Large Language Models via Lens of Dynamic Interactions (기반 데이터셋: LiveSQLBench-Base-Full-v1)",
+ "authors_short": "Huo, Xu, Li et al. · The University of Hong Kong · Google Cloud · BIRD Team",
+ "venue": "ICLR 2026 Oral",
+ "venue_verified": "OpenReview 검색 API forum nHrYBGujps venue='ICLR 2026 Oral'(공식 리뷰 rating 8/8/8/6, 메타리뷰 존재); arXiv 2510.05318 comments 'ICLR 2026 Oral'; PDF v3 헤더 'Published as a conference paper at ICLR 2026'. LiveSQLBench는 논문 없음(HF 카드 'Paper (coming soon)'), GitHub bird-bench/livesqlbench 200",
+ "type": "인터랙티브 text-to-SQL 벤치마크·에이전트 환경(사용자 시뮬레이터 포함) + 기반이 되는 단일턴 text-to-SQL 벤치마크(LiveSQLBench)",
+ "domain": "도메인 무관 관계형 DB(PostgreSQL 22개 DB: solar_panel, crypto_exchange, insider_trading, museum_artifact, alien(전파신호), disaster_relief, mental_health 등)",
+ "data_scope": "BIRD-Interact Full 600 tasks(BI 410 / DM 190, 22 DB), Lite 300 tasks(BI 195 / DM 105, 18 DB), task당 sub-task 2개·ambiguity 3.89~5.16개·상호작용 13회(p.5 Table 1); LiveSQLBench-Base-Full-v1 600 tasks(SELECT 410 / Management 190), 22개 신규 DB(DB당 ~127열), 계층적 지식베이스(HKB) kb.jsonl 동봉",
+ "tags": [
+  "text-to-SQL",
+  "interactive-benchmark",
+  "user-simulator",
+  "ambiguity-injection",
+  "hierarchical-knowledge-base",
+  "CRUD",
+  "PostgreSQL",
+  "test-case-evaluation"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2510.05318",
+  "pdf": "https://arxiv.org/pdf/2510.05318",
+  "proceedings": "https://openreview.net/forum?id=nHrYBGujps",
+  "github": "https://github.com/bird-bench/BIRD-Interact",
+  "huggingface": "https://huggingface.co/datasets/birdsql/bird-interact-lite",
+  "website": "https://bird-interact.github.io/",
+  "verified": "arXiv PDF(49쪽) 다운로드, GitHub README·HF 두 데이터셋 README·datasets-server rows(bird-interact-lite dev 5행, livesqlbench dev 5행) 실제 수신, bird-interact.github.io·livesqlbench.ai 200, OpenReview forum 307→200 · huggingface 보조 링크: https://huggingface.co/datasets/birdsql/livesqlbench-base-full-v1 · website 보조 링크: https://livesqlbench.ai"
+ },
+ "easy": {
+  "problem": "text-to-SQL 벤치마크는 대부분 '완벽하게 명시된 한 문장 → SELECT 한 개'로 평가하지만, 실제 사용자는 모호하게 묻고, 실행 오류가 나면 고치고, 후속 질문을 던지며, INSERT/UPDATE/DDL도 요구한다. 기존 다중턴 데이터셋은 대화 기록이 고정돼 있어 모델의 상호작용 전략을 보상하지 못한다.",
+  "how": "LiveSQLBench의 명확한 단일턴 과제(질문+정답 SQL+테스트 케이스+HKB)를 출발점으로, 12명의 전문 주석자가 질문의 구체 조건(문턱·수식·정렬)을 지우거나 HKB 지식 노드를 마스킹해 모호성을 주입하고, 각 모호성에 정답 SQL 조각을 '해명 출처'로 붙인다. 후속 sub-task도 추가한다. 평가 때는 2단계 함수 구동 사용자 시뮬레이터(질문을 AMB/LOC/UNA 행동으로 분류 후 응답)가 해명을 제공하고, c-Interact(정해진 대화 프로토콜)와 a-Interact(에이전트가 예산 안에서 DB 탐색·질문·제출을 선택) 두 모드에서 테스트 케이스 통과율로 채점한다.",
+  "analogy": "완성된 주문서로 요리를 시키는 대신, 손님이 '맵지 않게 그때 그 요리'라고 모호하게 주문하고 요리사가 몇 번 되물어 정확한 레시피를 복원해야 통과하는 실기 시험이다."
+ },
+ "contributions": [
+  "DB 환경(실행 가능한 PostgreSQL + 메타데이터 + 계층적 지식베이스) 위에 ground-truth 유출을 막는 2단계 함수 구동 사용자 시뮬레이터를 결합한 상호작용 환경(p.2–3, p.5); UserSim-Guard 2,100문항에서 UNA(답변 불가) 질문 실패율을 최대 67.4%→2.7%로 낮춤(p.9, p.38–39 Table 11)",
+  "c-Interact(대화 프로토콜)와 a-Interact(에이전트, 9개 행동·비용 예산) 두 평가 설정과 예산 제약 인식 테스트(p.5–6)",
+  "CRUD 전 범위 900 tasks(Full 600 + Lite 300), 각 task는 모호한 우선 sub-task + 후속 sub-task, 실행 가능한 테스트 케이스로 검증; 전문가 300건 평가 수용률 97.3%(SQL 정확성 98.7%, 모호성 주석 95.3%; p.41)",
+  "7개 프런티어 모델 평가: GPT-5가 c-Interact 8.67%, a-Interact 17.00%(Full, 후속 sub-task 기준) — 상호작용 모드가 성공을 좌우하고, Memory Grafting·Interaction Test-time Scaling으로 상호작용 능력의 중요성 입증(p.7–9)",
+  "LiveSQLBench(BIRD-SQL Pro v0.5): 22개 신규 DB·600 tasks(410 SELECT/190 CRUD), HKB 다중홉 지식, hidden test 순환, GT는 이메일로만 배포(HF README)"
+ ],
+ "figures": [
+  {
+   "file": "figs/birdinteract_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "과제 개요. 왼쪽: 사용자 과제(sub-task q1 '긴급 관리가 필요한 유물을 계산·순위화하는 함수 작성', q2 '가장 긴급한 유물의 최근 위험평가 등급과 보존우선순위'), 주석된 모호성('need urgent care'→ORDER BY AVS DESC, 'AVS'→IF*CPI)과 DB 메타데이터·지식베이스(AVS 정의가 누락됨). 오른쪽: 시스템이 스키마를 읽고 KB에서 AVS를 못 찾자 사용자 시뮬레이터에 두 번 질문(Ask)해 해명(Clarify)을 얻고, 함수 SQL을 제출→문법 오류 피드백→수정 제출→테스트 케이스 통과→후속 sub-task까지 해결하는 6회 상호작용.",
+   "alt": "BIRD-Interact 과제 예시: 모호성 주석, 사용자 시뮬레이터와의 Ask/Clarify/Submit 상호작용, 테스트 케이스 검증"
+  },
+  {
+   "file": "figs/birdinteract_fig2.png",
+   "label": "Figure 3",
+   "page": 6,
+   "caption_ko": "두 평가 설정. 상단 Environment: (a) DB 메타데이터 파일(schema.txt, kb.jsonl, cols_meaning.jsonl)과 지식베이스 문서(예: AOI = 대기 투명도 × (1 − 상대습도/100)), (b) 시스템 행동 9종과 비용(지식·컬럼 의미 검색 0.5, 스키마·전체 지식·SQL 실행 1, Ask 2, Submit 3), (c) 2단계 사용자 시뮬레이터(LLM 파서가 AMB/LOC/UNA로 분류 후 LLM 생성기가 응답; 'some'→LIMIT 5, 'info'→SELECT name, id). 하단: c-Interact는 모호성 해소→디버깅→후속 질문의 고정 흐름(보상 0.7/0.5, +0.3/+0.2), a-Interact는 예산 제약 하 자유로운 행동-관찰 루프(보상 {0, 0.7, 1}).",
+   "alt": "BIRD-Interact 환경 구성요소, 행동 비용, 사용자 시뮬레이터, c-/a-Interact 보상 구조"
+  }
+ ],
+ "dataset": {
+  "construction": "기반: LiveSQLBench의 단일턴 과제(질문·정답 SQL·테스트 케이스·HKB·PostgreSQL 덤프). 주석자 12명은 33명 후보 중 1주 튜토리얼과 자격시험(20개 과제, 통과 90% 이상)을 거쳐 선발(p.20–21). 모호성 주입: \"(1) Superficial user query ambiguities … intent-level ambiguities, where the user language is vague (e.g., 'elderly people'), and implementation-level ambiguities, where the user's intent is clear but the implementation details (e.g., decimal precision) are under-specific. (2) Knowledge ambiguities … (i) one-shot knowledge ambiguity, where isolated knowledge entries are removed. (ii) knowledge chain breaking, where intermediate nodes in multi-hop knowledge chains are masked … (3) Environmental ambiguities: LIVESQLBENCH databases already contain natural noise, such as NULL in critical fields\"(p.4). \"Each injected ambiguity is paired with a corresponding SQL snippet from the ground-truth query as a clarification source\"(p.4); 품질 규칙은 '해명 없이는 풀 수 없고, 해명이 주어지면 정확히 복원 가능'(p.25). 후속 sub-task는 6개 유형 분류(Constraint Change, Topic Pivot, Attribute Change, Result-based, Aggregation, State-Dependent; p.29 Table 8). 테스트 스크립트: BI는 soft exact-match(주석·DISTINCT·ROUND 제거 후 실행 결과 비교, order 조건 맵), DM은 사례별 후조건 검증 스크립트(p.24). 사람 평가: 전문가 10명이 300건 검토, 수용률 97.3%(p.40–41). LLM은 논문 교정에만 사용, 주석·과제 생성은 전부 사람(p.20 부록 B, 윤리 진술 p.11). LiveSQLBench 자체는 BIRD 팀이 CSV 기반으로 DB를 구축하고 HKB 기반 명확한 질의·정답 SQL을 주석(HF README; 별도 논문 없음).",
+  "size_format": "BIRD-Interact Full 600 / Lite 300(HF bird-interact-lite: bird_interact_data.jsonl 719KB, 18개 DB 폴더; 필드 instance_id, selected_database, query(명확 버전), amb_user_query, user_query_ambiguity{critical_ambiguity[], non_critical_ambiguity[]}, knowledge_ambiguity[], follow_up{query, type, difficulty_tier, conditions}, category(Query/Management), conditions{decimal, distinct, order}, difficulty_tier, preprocess_sql, clean_up_sqls; sol_sql·external_knowledge·test_cases는 공개본에서 빈 배열). LiveSQLBench-Base-Full-v1: livesqlbench_data.jsonl 550KB, 22개 DB 폴더(*_schema.txt, *_kb.jsonl, *_column_meaning_base.json); 필드 instance_id, selected_database, query(구어체), normal_query(명시적), category, high_level, conditions; sol_sql·external_knowledge·test_cases는 이메일 요청 시 제공. 통계(p.5 Table 1): 질의 토큰 40.22(Lite)/32.95(Full), SQL 토큰 361.52/252.21, 모호성/task 5.16/3.89.",
+  "samples": [
+   "[LiveSQLBench HF livesqlbench_data.jsonl instance solar_panel_2, category Query, high_level true] query: \"I need to know the financial hit from plants with recurring warranty issues—the ones whose warranty status is 'claimed' and have had three or more claims logged against them. Can you figure out the total lifetime revenue loss for them, but only count ones where we know their go-live date and degradation? Just assume they all have 15 years left, produce 500,000 kwh a year, and we sell the power at 12 cents. Give me the grand total.\" normal_query: \"Calculate the total projected lifetime revenue loss for all plants that are flagged for Warranty Claim Risk. For this calculation, only include plants where the commissioning date and cumulative degradation are known. For the projection, assume a remaining lifetime of 15 years, an average annual energy production of 500,000 kwh, and an energy price of $0.12/kwh. Present the total loss as a single value.\"",
+   "[LiveSQLBench solar_panel_3, conditions {decimal: 2}] query: \"If we could magically cool the panels for snapshot pv945724 down to 25 degrees celsius, what would its power output be? Give me the temperature-corrected performance in watts, with two decimal points.\" normal_query: \"For the snapshot 'pv945724', calculate the temperature-corrected performance. Use a reference temperature of 25°c. Display the result in watts, rounded to two decimal places.\"",
+   "[LiveSQLBench solar_panel_4, conditions {decimal: 2}] query: \"For the maintenance event pv937101, did the repair cost more than the revenue we lost during the downtime? To figure that out, you'll have to clean up the revenue loss text by stripping out any '$' or ',' characters. Tell me the maintenance cost to revenue impact ratio, just the number, rounded to two decimals.\"",
+   "[BIRD-Interact-lite HF instance alien_4, Query, Moderate] query(명확 버전): \"Which observatory stations are discovering the most potential technosignatures? For each station, display the observatory name, how many signals meet our technosignature criteria, their average TOLS score, average BFR values, and what percentage of all detected technosignatures they've found. I need this ranked by the stations with the most discoveries first.\" amb_user_query: \"Which observatory stations are discovering the most potential candidate signals? For each station, display the observatory name, how many signals meet our detection thresholds, their average origin score, average frequency ratios, and what percentage of all detected candidates they've found. I need this ranked.\" user_query_ambiguity.critical_ambiguity: [{\"term\": \"candidate signals\", \"sql_snippet\": \"WHERE p.TechSigProb > 0.7 AND p.NatSrcProb < 0.3 AND p.ArtSrcProb < 50 AND s.BwHz/(s.CenterFreqMhz * 1000000) < 0.001\", \"type\": \"knowledge_linking_ambiguity\"}, {\"term\": \"detection thresholds\", \"sql_snippet\": \"p.TechSigProb > 0.7 AND p.NatSrcProb < 0.3 AND p.ArtSrcProb < 50\", \"type\": \"semantic_ambiguity\"}, {\"term\": \"origin score\", \"sql_snippet\": \"p.TechSigProb * (1 - p.NatSrcProb) * p.SigUnique * (0.5 + p.AnomScore/10) AS TOLS\", \"type\": \"knowledge_linking_ambiguity\"}]; knowledge_ambiguity: [{\"term\": \"Technological Origin Likelihood Score (TOLS)\", \"sql_snippet\": \"p.TechSigProb * (1 - p.NatSrcProb) * p.SigUnique * (0.5 + p.AnomScore/10) AS TOLS\", \"deleted_knowledge\": 3}]",
+   "[BIRD-Interact-lite alien_1, Moderate] query: \"I want to analyze how the Signal-to-Noise Quality Indicator (SNQI) varies across different weather conditions. For each weather condition, give weather condition name, the average SNQI, the median SNQI, and count how many analyzable signals there are. Sort the result by average SNQI in descending order.\" amb_user_query: \"I want to analyze how the signal quality varies across different atmospheric conditions. For each condition, give condition name, the average quality value, the median quality value, and count how many usable signals there are. Sort the result by average value.\" critical_ambiguity: \"signal quality\"→\"s.SnrRatio - 0.1 * ABS(s.NoiseFloorDbm) AS SNQI\", \"good signals\"→\"COUNT(*) FILTER (WHERE SNQI > 0) as analyzable signals\"; follow_up.query: \"How does the Atmospheric Observability Index (AOI) vary across different weather conditions? For each weather condition, provide: Weather condition name, Average AOI, Median AOI, Count of valid observations (AOI > 0), Sorted by average AOI in descending order.\""
+  ],
+  "class": "C",
+  "class_reason": "LiveSQLBench의 normal_query는 구체 개체(snapshot pv945724, 'solar plant west davidport'), 가정값(15년·500,000 kWh·$0.12), 문턱(청구 3회 이상, AOI > 0), 전처리 규약('$'·',' 제거), 소수 자릿수를 질문 안에 명시하고 답은 동봉 DB에서 테스트 케이스로 결정론적으로 검증되므로 C형이다. BIRD-Interact는 같은 문항에서 문턱·수식을 일부러 지워 사용자 시뮬레이터에게 되묻게 하므로 '규약이 질문 밖(HKB 또는 대화)으로 옮겨진 C형'이며, 정답 SQL 조각이 해명 출처로 문항에 구조적으로 붙어 있다. 두 경우 모두 우리 셋처럼 도메인 규약(TOLS·SNQI 수식, 문턱 0.7/0.3/50)이 명시적 규칙으로 존재한다.",
+  "release": "CC BY-SA 4.0(HF 카드, GitHub 배지, p.23 Table 5). 공개 jsonl에는 sol_sql·test_cases·external_knowledge가 비어 있고 bird.bench25@gmail.com 이메일로 자동 발송(크롤링 방지). DB 덤프는 Google Drive, Docker 이미지(Base/Full DB, 평가 환경) 제공. HF datasets-server에서 실제 행 열람 확인.",
+  "contamination": "GT SQL·테스트 케이스를 공개 파일에서 제외하고 이메일로만 배포(HF README). LiveSQLBench는 릴리스마다 새 DB·hidden test를 두고 이전 hidden test를 다음 공개 dev로 순환('Truly Live & Hidden Test'). BIRD-Interact는 각 실행마다 PostgreSQL Docker를 재초기화해 결정론적 평가(p.11).",
+  "evaluation": "지표: sub-task별 Success Rate(테스트 케이스 전부 통과 시 1), Normalized Reward(c-Interact: 1차 sub-task 0.7/디버깅 후 0.5, 2차 0.3/0.2; a-Interact: 둘 다 통과 1.0, 1차만 0.7; p.23–24). 예산: c-Interact 해명 턴 τ=m_amb+λ_pat(기본 λ=3), a-Interact B=6+2·m_amb+2·λ_pat, 행동 비용 0.5~3(p.6, p.30 Table 9). 결과(Full, p.7 Table 2): c-Interact 우선 sub-task SR 최고 Gemini-2.5-Pro 25.00%(후속 16.33%, Reward 20.92), GPT-5 14.50%/8.67%; a-Interact GPT-5 29.17%/17.00%(Reward 25.52), Claude-Sonnet-4 27.83%/12.67%. Lite(p.35 Table 10): c-Interact O3-Mini 37.33%/24.33%, a-Interact Claude-Sonnet-3.7 34.00%/17.67%. 실패 50건 분석: 80% 이상이 불완전한 모호성 해소(p.35–36)."
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작. BIRD 팀 자체 LiveSQLBench(신규 DB·질의)를 기반으로 모호성·후속 과제를 새로 주석.",
+  "q2_method": "주석자 선발·훈련·자격시험, 모호성 분류 체계, 해명 출처 규칙, 테스트 스크립트, 사람 평가(300건)까지 부록 C·G·H·Q에 상세 기술. LiveSQLBench DB의 원천 CSV 출처는 HF README에 '광범위하고 정기적으로 갱신되는 CSV 데이터셋'이라고만 적혀 구체 출처는 미확인.",
+  "q3_license": "CC BY-SA 4.0 오픈소스. Google Cloud와 HKU 공동(저자 소속·연구비, p.11).",
+  "q4_relabel": "기존 공개셋 재사용이 아니라 자체 LiveSQLBench 과제를 task 맞춤으로 변형(모호성 주입·후속 과제·테스트 케이스 재주석).",
+  "q5_industry": "학계(HKU)+기업(Google Cloud) 협업이나 기업 내부 데이터가 아닌 자체 구축 DB를 공개. GT는 이메일 배포로 준공개.",
+  "q6_constraints": "저작권 제약 언급 없음(Spider 2.0의 BigQuery/Snowflake 라이선스 문제와 대비해 자유 이용을 강조, p.23). GT·테스트 케이스는 자동 크롤링 방지 목적으로만 비공개.",
+  "q7_accept": "ICLR 2026 Oral. 리뷰어·AC가 높이 산 점: 단일턴→다중턴·상태 의존 상호작용으로 평가 패러다임 전환, ground-truth 유출을 막는 2단계 함수 구동 시뮬레이터, CRUD·HKB·모호성 주입을 갖춘 과제 설계, 최신 모델도 크게 실패한다는 명확한 증거."
+ },
+ "review": {
+  "decision": "Accept (Oral), ICLR 2026",
+  "scores": "rating 8/8/8/6 (confidence 3/4/4/4; soundness 3/4/3/… presentation 4/3/3/…)",
+  "praised": [
+   "단일턴 SELECT 평가와 실제 대화형 DB 사용 사이의 간극을 메운 현실적 벤치마크(리뷰어 전원, 메타리뷰)",
+   "AMB/LOC/UNA로 먼저 분류하는 2단계 함수 구동 사용자 시뮬레이터가 GT 유출을 막고 통제 가능(rating 8 리뷰어 2인, 메타리뷰)",
+   "CRUD 전 범위·HKB·메타데이터·SQL 조각 기반 해명 출처 등 정교한 주석(rating 8)",
+   "GPT-5도 8.67%에 그친다는 결과가 분야에 경종(rating 6)"
+  ],
+  "concerns": [
+   "one-shot knowledge ambiguity와 knowledge chain breaking 구분, 'implementation-level ambiguity' 전제가 개념적으로 약함(rating 8 리뷰어 W1·W2, 메타리뷰)",
+   "상용 API 비용(task당 최대 $0.67)과 단일 실행(temperature=0)으로 통계적 견고성·재현성 우려, 주석 비용·IAA 보고 부족(rating 8·6, 메타리뷰)",
+   "시뮬레이터가 지나치게 합리적·예측 가능해 실제 사용자 행동을 반영 못 하며, pass/fail 지표는 실패 원인을 진단하지 못함(rating 6)"
+  ],
+  "why_accept": "메타리뷰: 단일턴 SQL 생성에서 현실적 다중턴·상태 의존 상호작용으로 옮겨 '주요 간극'을 메웠고, GT 유출을 막는 견고한 시뮬레이터와 CRUD·지식베이스·원칙적 모호성 주입을 갖춘 포괄적 과제 설계, 그리고 최신 모델이 크게 뒤처진다는 명확한 실증이 있어 채택(Oral)."
+ },
+ "limitations": "저자 명시(p.20 부록 A): text-to-SQL 도메인에 한정. 모든 모델을 비용 때문에 1회만 실행해 분산 미보고(p.30). 사용자 시뮬레이터가 사전 주석된 모호성과 GT SQL AST에 의존해 예측 밖 질문에는 약하고, 이상화된 사용자만 재현한다(리뷰). 공개 파일에 정답 SQL·테스트 케이스가 없어 이메일 절차를 거쳐야 재현 가능하며, LiveSQLBench DB의 원천 데이터 출처는 문서화가 약하다.",
+ "oneline": "LiveSQLBench의 명확한 SQL 과제에서 문턱·수식·지식을 일부러 지워 사용자 시뮬레이터와 되묻게 만든 900개 대화형 CRUD text-to-SQL 벤치마크로, GPT-5도 Full 세트에서 8.67%(c)/17.00%(a)에 그친다(ICLR 2026 Oral).",
+ "implications": [
+  "LiveSQLBench normal_query는 우리 C형 문항과 같은 문법(개체 ID + 가정값·문턱 + 전처리 규약 + 소수 자릿수)이며, 'conditions{decimal, distinct, order}' 메타필드로 채점 규약을 구조화한다 — 우리 셋도 반올림·정렬·중복 처리 규약을 메타필드로 분리하면 채점기와 문항이 깔끔히 분리된다.",
+  "BIRD-Interact는 '규약을 질문에서 빼면 어떤 능력이 측정되는가'를 보여준다. 우리 셋의 각 문항에서 규약(topic0, indexed 파라미터, 문턱 0.05)을 마스킹한 변형을 만들면 온체인 도메인용 대화형/에이전트 확장을 자연스럽게 제안할 수 있다.",
+  "정답을 실행 가능한 테스트 케이스(soft EM + 후조건 스크립트)로 검증하고 GT는 이메일로만 배포하는 오염 방어는, 우리 evidence 레코드 동봉 + 정답 비공개 리더보드 설계의 참고 모델이다.",
+  "메타리뷰가 지적한 '단일 실행·비용·주석 IAA 미보고'는 우리 셋 논문에서 IAA(BIRD-Interact는 93.3~93.5%)와 채점 재현성을 선제적으로 보고해야 할 항목이다."
+ ],
+ "brief": false
+}

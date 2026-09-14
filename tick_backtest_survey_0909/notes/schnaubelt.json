@@ -1,0 +1,64 @@
+{
+ "key": "schnaubelt",
+ "title": "Deep RL for the optimal placement of cryptocurrency limit orders (Schnaubelt) — 큐와 실제 수수료를 함께 넣은 유일한 집행 논문, 그리고 그 결과가 수수료 차익이었다는 고백",
+ "authors_short": "Matthias Schnaubelt (FAU Erlangen-Nürnberg)",
+ "venue": "European Journal of Operational Research 296(3), 993–1006 (2022)",
+ "venue_verified": "DOI 10.1016/j.ejor.2021.04.050 Crossref 검증. 무료 전문은 FAU Discussion Papers No. 05/2020, EconStor handle 10419/216206 (37쪽) 로 확보해 전량 확인",
+ "type": "강화학습 지정가 배치 (암호화폐)",
+ "domain": "BTC/ETH 지정가 집행",
+ "data_scope": "**18개월, 2018-01-01 ~ 2019-06-30, 원자료 약 264GB.** 거래소·시장쌍: BitFinex BTC/USD·ETH/USD·ETH/BTC, Kraken BTC/USD, Coinbase BTC/USD — 세 BTC/USD 거래소가 해당 기간 BTC/USD 지정가 거래대금의 **약 65%**. 체결 8,797만(BitFinex BTC/USD)·6,483만(Kraken)·7,431만(Coinbase)·3,277만(ETH/USD) 등 **총 3억 건 이상 체결과 350만 개 이상 호가창 상태.** 다만 호가창은 **API 폴링으로 1분마다 재구성**된 것이고 메시지 단위가 아니다.",
+ "tags": [
+  "큐 앞 물량 모델링",
+  "거래소별 maker/taker",
+  "롤링 전진검증",
+  "결과가 수수료 차익"
+ ],
+ "links": {
+  "proceedings": "https://doi.org/10.1016/j.ejor.2021.04.050",
+  "pdf": "https://www.econstor.eu/bitstream/10419/216206/1/1696077540.pdf",
+  "verified": "Crossref 200 · EconStor PDF 확보(37쪽) 전문 확인. 저자 코드 미공개 — 논문의 유일한 GitHub 링크는 제3자 stable-baselines"
+ },
+ "easy": {
+  "problem": "지정가를 어디에 걸어야 하나? 너무 공격적이면 스프레드를 내고, 너무 소극적이면 체결이 안 돼 결국 시장가로 사야 한다.",
+  "how": "가상 지정가 거래소를 만들어 **2단계 가격-시간 우선순위 매칭**을 구현했다. 1단계는 대기 호가와 즉시 매칭, 2단계는 잔여 주문을 가상 호가창에 넣고 t~t+1 사이의 **실제 체결 스트림**으로 채운다.",
+  "analogy": "줄을 서되, 내 앞에 이미 더 좋은 가격으로 서 있는 사람들을 실제로 세어서 그만큼 기다리게 하는 것."
+ },
+ "contributions": [
+  "**큐 앞 물량을 명시적으로 모델링한다** — \"Same-side orders in the order book at time t with equal or better limit prices are given priority, since these would have been matched before our newly submitted order. **Effectively, these orders increase the volume of our own limit order.**\" 부분체결이 설계상 자연스럽게 나온다.",
+  "**거래소별 실제 수수료를 넣었다**(표 1, bp): BitFinex **maker 10 / taker 20**, Kraken **16 / 26**, Coinbase **0 / 30**. 호가단위도 거래소별로 반영.",
+  "**롤링 전진검증**: 6개월 학습 → 다음 3개월 표본 외 평가 → 3개월씩 전진, **겹치지 않는 검증 구간 4개**를 (거래소, 시장, v₀) 조합마다. 표본 외 구간의 **모든 관측을 정확히 한 번씩** 에피소드 시작점으로 쓴다.",
+  "특징 표준화가 인과적이다 — 과거 1,440개 관측(24시간) 롤링 평균/표준편차. FI-2010 관행보다 낫다.",
+  "결과: PPO 가 **학습-테스트 분할 × 거래소-시장 조합의 89.06%** 에서 최고. 즉시 시장가 대비 총 거래비용 **최대 −37.71%**(10 BTC), 20 BTC 26.95%, 50 BTC 23.72%. 매수/매도 대칭 검증도 통과(10 BTC 매수 −15.7637bp vs 매도 −15.7672bp).",
+  "**그리고 자기 결과를 스스로 해체한다** — 아래 인용."
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "큐 앞 물량 + 부분체결 + 거래소별 maker/taker + 롤링 전진검증. 지연이 0이고 호가창이 1분 폴링이라 최상단은 아니다.",
+  "data_short": "3개 거래소 · 18개월 · 체결 3억 건",
+  "fill_short": "2단계 가격-시간 우선순위 + **큐 앞 물량 반영**",
+  "cost_short": "**거래소별 maker/taker 실제 요율** (0~16 / 20~30 bp)",
+  "design": "T = 4 스텝(각 1분) MDP. 이산 행동은 지정가 가격. 마지막 스텝은 강제 시장가(p_{T−1} = −∞). 알고리즘은 표 기반 Q학습·DDQN·PPO(stable-baselines).",
+  "fill": "1단계 즉시 매칭(호가를 걸어 올라감) → 2단계 잔여분을 가상 호가창에 넣고 실제 체결 스트림으로 채움. 같은 가격대의 더 좋은 조건 대기 주문을 **내 주문 앞 물량으로 더한다.**",
+  "cost": "거래소별 실제 maker/taker 요율. **이것이 결과를 지배한다.**",
+  "latency": "**0으로 가정하고 명시한다.** 히든/아이스버그 유동성도 없다(BitFinex 만 지원).",
+  "selfimpact": "없다. 영구 충격도, 타 참가자 반응도 없다. 대신 v₀ 를 분당 평균 거래량 수준으로 **의도적으로 작게** 잡아 그 가정을 지킨다.",
+  "validation": "**롤링 전진검증 4창.** 이 조사의 집행 문헌에서 최상급.",
+  "metrics": "총 구현부족(bp)을 **원(raw) 구현부족과 실현 거래소 수수료로 분해**. 기준선은 submit-and-leave · 즉시 시장가 · 시간가중.",
+  "quotes": [
+   "Same-side orders in the order book at time t with equal or better limit prices are given priority, since these would have been matched before our newly submitted order. Effectively, these orders increase the volume of our own limit order.",
+   "we note that – due to the elevated role of exchange commissions in overall shortfalls – differences in total shortfalls between strategies are driven by differences in realized exchange commissions rather than differences in raw implementation shortfalls."
+  ],
+  "gap": "**핵심 결과가 미시구조 타이밍이 아니라 maker/taker 수수료 차익이다.** 10 BTC 에서 집행비용의 약 10%만이 원 구현부족이고, 물량이 커지면 수수료가 50% 이상을 차지한다. 그리고 **수수료 이전(raw) 구현부족만 보면 순진한 시간가중 전략이 이긴다.** 호가창이 1분 폴링, 지연 0, 히든 유동성 없음."
+ },
+ "code": [
+  "**저자 코드 미공개.** 데이터는 사설 API 스크랩"
+ ],
+ "oneline": "\"비용을 제대로 모델링했다\" 는 것이 곧 좋은 결과를 뜻하지 않는다 — 여기서는 그 비용 모델링 자체가 결과 전부였다.",
+ "implications": [
+  "**우리 목적함수의 위험을 정확히 비추는 사례다.** `net_bps_total` 은 gross 에서 23bps 를 뺀 값이므로, 거래를 줄이면 좋아진다 — 즉 우리 최적화도 '수수료를 덜 내는 쪽' 으로 밀릴 수 있다. research-log 가 이미 이것을 열린 항목으로 적어 뒀다.",
+  "**해법도 여기 있다: gross 와 net 을 분해해서 나란히 보고하는 것.** 우리는 이미 `gross_bps_total` 과 `net_bps_total` 을 둘 다 낸다. 마지막 OOS 유닛에서 gross 92,260 · net −200 이었다는 것이 정확히 이 분해다.",
+  "큐 앞 물량을 \"내 주문 물량에 더한다\" 는 구현은 우리 `ahead = qfrac × depth` 와 같은 발상이다. 다만 우리는 표시 잔량 전부를, 이 논문은 더 좋은 조건의 대기 주문만 센다.",
+  "롤링 전진검증 4창은 우리 워크포워드 4창과 같은 구조다 — 국제 저널 수준의 검증 설계를 우리가 이미 하고 있다는 근거로 쓸 수 있다."
+ ],
+ "resolution": "틱·메시지"
+}

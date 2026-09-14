@@ -1,0 +1,22 @@
+{
+ "key": "almgren2005_impact",
+ "title": "Direct Estimation of Equity Market Impact (Almgren · Thum · Hauptmann · Li)",
+ "authors_short": "Robert Almgren 외 (Citigroup)",
+ "venue": "Risk (2005-07)",
+ "links": {
+  "pdf": "https://www.cis.upenn.edu/~mkearns/finread/costestim.pdf",
+  "verified": "워킹페이퍼 PDF 200. Risk 는 Crossref 미색인이라 페이지 범위 미확인"
+ },
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "사람이 실제로 집행한 주문에 대한 사후 회귀. 시뮬레이션이 아니다.",
+  "data_short": "**Citigroup 실주문 682,562건 → 필터 후 29,509건** · 2001-12~2003-06",
+  "fill_short": "실제 체결 (중간가는 NYSE TAQ 로 보완)",
+  "cost_short": "영구 `I = γσ(X/V)(Θ/V)^{1/4}` · 일시 `J = I/2 + sgn(X)·η·σ·(X/VT)^{3/5}`",
+  "design": "S&P500 한정, VWAP 주문 제외(약 16%), 16:10 이후 제외(약 10%), 체결 2건 이상·1,000주 이상·ADV 0.25% 이상. 체결 횟수 중앙값 약 5회, 지속 중앙값 약 30분.",
+  "validation": "적합 지수 α = 0.891 ± 0.10, δ = 0.267 ± 0.22, **β = 0.600 ± 0.038 — 제곱근 법칙 β = 1/2 가 95% 에서 기각된다.** γ = 0.314 ± 0.041(t=7.7), η = 0.142 ± 0.0062(t=23). 그리고 결정적 문장: \"The R² values for these regressions are typically less than one percent.\"",
+  "gap": "표본 외 백테스트를 약속했으나 — \"We hope to provide out-of-sample backtests in a future paper.\" — **그런 논문은 Almgren 의 발표 목록에 없다.** 데이터는 사내 전용."
+ },
+ "oneline": "시장충격 계수를 실집행으로 추정한 표준 참조 — 그런데 R² 가 1% 미만이고, 약속한 표본 외 백테스트는 20년째 나오지 않았다.",
+ "resolution": "실집행 기록"
+}

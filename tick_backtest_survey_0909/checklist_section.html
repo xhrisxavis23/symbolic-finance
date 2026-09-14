@@ -1,0 +1,110 @@
+<section id="checklist">
+  <h2>방어 가능한 틱 백테스트 체크리스트 — 그리고 우리 코드의 충족 여부
+    <span class="vtag">항목마다 출처를 달았다. 오른쪽 열은 <code>/home/dgu/tick/proj_claude_tick_finance/framework</code> 정본을 소스 기준으로 채점한 것이다</span></h2>
+
+  <div class="how"><b>표기.</b>
+  <span class="pill tagL4" style="font-weight:800">충족</span> 코드에 있다 ·
+  <span class="pill tagL2" style="font-weight:800">부분</span> 있으나 불완전하거나 보고하지 않는다 ·
+  <span class="pill tagL5" style="font-weight:800">없음</span> 구현돼 있지 않다 ·
+  <span class="pill tagL0">해당없음</span> 우리 설정에서 성립하지 않는다.</div>
+
+  <div class="deepbar">(A) 데이터 위생</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:52px">#</th><th style="width:400px">요구사항</th><th style="width:180px">출처</th><th>우리 코드</th></tr></thead><tbody>
+  <tr><th>A1</th><td><b>이벤트마다 시각 두 개</b>(거래소 시각·수신 시각)를 들고, 특징은 수신 시각으로 계산하고 체결은 거래소 시각으로 판정한다. 시각이 하나뿐인 계열은 마이크로초 룩어헤드를 구조적으로 피할 수 없다.</td><td>hftbacktest <code>docs/data.rst</code></td>
+      <td><span class="pill tagL5">없음</span> 원장의 <code>local_time</code>은 <code>HHMMSSffffff</code> <b>단일 시각</b>이다. 다만 우리는 자가 수집이라 수신 시각 계열이고, 거래소 시각과의 차이를 데이터에서 복원할 수 없다.</td></tr>
+  <tr><th>A3</th><td><b>라벨 지평으로 purge 하고, embargo 는 특징의 기억 길이로 잡는다.</b> 금융 특징은 계열상관을 갖기 때문이다. <code>h ≈ 0.01T</code> 기본값은 일봉 세계의 값이다.</td><td>López de Prado, AFML Ch.7 / "10 Reasons" Pitfall #8</td>
+      <td><span class="pill tagL4">충족</span> purge/embargo 가 아니라 <b>날짜 자체를 분리</b>한다(<code>DISJOINT_DISCOVERY_VALIDATION_FINAL_DATES</code>). 라벨 겹침이 원천적으로 없어 더 강하다.</td></tr>
+  <tr><th>A4</th><td><b>시계가 아니라 거래량·거래대금 시계로 표본한다.</b> 시간 바는 한산할 때 과표본·활발할 때 과소표본하고 계열상관·이분산·비정규를 만든다.</td><td>Easley·López de Prado·O'Hara (JPM 2012); Vyetrenko 외 §2.4</td>
+      <td><span class="pill tagL4">충족</span> 바를 만들지 않는다. <b>호가 갱신을 그대로 격자로 쓰고</b> 체결을 그 위에 누적한다 — 사실상 이벤트 시계다.</td></tr>
+  <tr><th>A5</th><td><b>단일가·시간외 프린트를 연속 계열에서 제외한다.</b> 종가 프린트는 종가 직전 매수/매도호가에 붙어 있어, 종가로 마킹하고 시가로 거래하는 신호는 기계적으로 반스프레드를 벌어들인다.</td><td>Bogousslavsky &amp; Muravyev (JFM 2023); NYSE TAQ 조건코드</td>
+      <td><span class="pill tagL4">충족</span> <code>SESSION_END = 152000000000</code> — 15:20 이후 종가 단일가를 연속 체결로 계산하지 않는다고 로더에 주석까지 달려 있다.</td></tr>
+  <tr><th>A6</th><td><b>거래정지·가격제한 상태를 마스킹하고 절대 전진 채움하지 않는다.</b> 정지 해제 후 스프레드가 두 배 이상 벌어지고 변동성이 아홉 배까지 뛴다.</td><td>Christie·Corwin·Harris (JF 2002); LULD NMS Plan Assessment</td>
+      <td><span class="pill tagL2">부분</span> 거래정지는 <code>InsufficientQuoteData</code>로 '실패가 아니라 부재'로 처리한다. 그러나 <b>KRX 상·하한가(±30%) 상태는 따로 다루지 않는다</b> — Qlib 이 중국 A주에 대해 하는 <code>check_stock_limit</code> 같은 장치가 없다.</td></tr>
+  <tr><th>A8</th><td><b>Point-in-time 유니버스</b> — 상장폐지·정리매매 종목을 그 시점에 존재했던 대로 포함한다.</td><td>Shumway (JF 1997)</td>
+      <td><span class="pill tagL4">충족</span> 날짜 폴더의 parquet 을 그대로 훑는다(창마다 2,656~2,661종목). 사후 필터가 없어 생존편향이 구조적으로 없다.</td></tr>
+  <tr><th>A11</th><td><b>과도한 정제를 하지 마라.</b> "Overscrubbing data is a serious form of risk. Models developed on over-scrubbed data are likely to find real-time trading a chaotic experience."</td><td>Falkenberry (2002)</td>
+      <td><span class="pill tagL4">충족</span> 로더가 하는 정제는 세션 경계와 유효 호가 확인뿐이다.</td></tr>
+  <tr><th>A12</th><td><b>야간·단일가 수익률을 일중 계열에 이어 붙이지 마라.</b></td><td>Barardehi 외 (RAPS 2021)</td>
+      <td><span class="pill tagL4">충족</span> 하루 안에서 진입·청산이 끝난다(최대 보유 900초). 오버나이트가 없다.</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">(B) 체결 사실성 — 이 리포트가 가장 무게를 두는 축</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:52px">#</th><th style="width:400px">요구사항</th><th style="width:180px">출처</th><th>우리 코드</th></tr></thead><tbody>
+  <tr><th>B1</th><td><b>큐 위치를 명시적으로 모델링한다.</b> 큐 앞과 평균 위치의 차이가 <b>0.21~0.26틱</b>으로 스프레드에 맞먹고, 게다가 역선택은 큐 위치가 뒤일수록 <b>커진다</b>(0.57~0.89틱). 순진한 가정은 양방향으로 틀린다 — 체결이 너무 많고, 그 체결이 모델보다 나쁘다.</td><td>Moallemi &amp; Yuan (SSRN 2996221)</td>
+      <td><span class="pill tagL4">충족</span> <code>BEST_QUOTE_QUEUE</code>. 게시 시점 최우선 잔량 전부 뒤에 서고(<code>queue_fraction = 1.0</code>), 반대편 주도 체결과 설명되지 않은 잔량 감소로만 큐를 깎는다.</td></tr>
+  <tr><th>B2</th><td><b>스쳤다고 다 체결시키지 말고, 엔진의 기본값을 감사하라.</b> NautilusTrader 는 <code>prob_fill_on_limit = 1.0</code>, <code>prob_slippage = 0.0</code>, <code>liquidity_consumption = False</code>(같은 표시 잔량이 여러 주문을 동시에 체결시킴)로 출하된다.</td><td>nautilus_trader <code>fill-models.md</code></td>
+      <td><span class="pill tagL2">부분</span> 우리는 스쳐도 체결시키지 않는다(<code>price_move_alone_does_not_fill</code>). 그러나 <b>같은 잔량이 동시에 열린 여러 결정을 체결시키는지 확인하는 장치가 없다</b> — Nautilus 의 <code>liquidity_consumption</code>, BCS 의 그림자 호가창에 해당하는 것이 우리에게 없다.</td></tr>
+  <tr><th>B3</th><td><b>지연 가정을 훑고 범위 전체를 보고하라.</b> 같은 전략·데이터·구간에서 지연 모델만 바꿨을 때 샤프가 <b>−0.198 / +1.536 / −0.377</b> — 알파를 하나도 안 건드리고 <b>1.73 샤프가 흔들린다.</b> 가능하면 실측 지연을 보간해 쓴다.</td><td>hftbacktest <code>Impact of Order Latency.ipynb</code></td>
+      <td><span class="pill tagL5">없음</span> <code>post = int(record.entry_tick)</code> — 신호 틱에 즉시 게시한다. 그리고 A1 때문에 지연을 데이터에서 뽑을 수도 없어 <b>상수 가정으로 시작할 수밖에 없다.</b></td></tr>
+  <tr><th>B4</th><td><b>경주에서 진다고 가정하라.</b> 거래일의 0.0001%에 거래대금의 22%가 몰리고, 경주 안의 실현스프레드는 <b>−1.93bp</b>(경주 밖 +0.15bp)이며, 상위 6개 회사가 승리의 80% 이상을 가져간다. 신호가 셀수록 체결확률이 낮아야 한다.</td><td>Aquilina·Budish·O'Neill (QJE 2022); Noble·Rosenbaum·Souilmi (2026)</td>
+      <td><span class="pill tagL5">없음</span> 신호 강도와 체결확률을 독립으로 둔다. <b>다만 이것은 데이터로 먼저 확인할 수 있다</b> — 결정 시점 신호 값 × <code>fill_rate</code> 교차.</td></tr>
+  <tr><th>B5</th><td><b>단기 신호는 체결가가 아니라 중간가로 백테스트하라.</b> 반전 전략 수익이 체결가 0.30%/일(샤프 8.44) vs 중간가 0.18%/일(샤프 4.50) — "only about half as big".</td><td>Nagel (RFS 2012)</td>
+      <td><span class="pill tagL0">해당없음</span> 우리는 유동성 <b>공급</b> 쪽이라 바운스를 버는 것이 맞다. 다만 <b>중간가 기준 판본을 나란히 내지 않는다</b> — 수익 중 얼마가 스프레드 포획이고 얼마가 방향 예측인지 가르려면 필요하다.</td></tr>
+  <tr><th>B6</th><td><b>maker/taker 수수료를 시변 스케줄로 다뤄라.</b> 미국 거래소는 5년간 34회, 평균 7.4주마다 요율을 바꿨다. 수수료가 Virtu 2015년 거래수익의 <b>30.7%</b>였고, "Fees turn out to be of first-order importance for the profitability of the HFT."</td><td>SEC 84 FR 5202; Baron 외 (JFQA 2019); Menkveld (JFM 2013)</td>
+      <td><span class="pill tagL2">부분</span> <code>FEE_BPS = 23.0</code> <b>왕복 상수 하나</b>다. KRX 는 maker 리베이트가 없어 단순하지만, 매수 수수료와 매도 수수료+거래세(0.2%)를 분리하지 않아 진입·청산의 기여를 못 가른다.</td></tr>
+  <tr><th>B8</th><td><b>가격충격을 넣어라 — 재생은 그것을 만들 수 없다.</b> 재생에서는 가격이 기준선으로 되돌아오고, 상호작용 시뮬에서는 새 수준에서 안정된다. <b>내가 거래한 뒤의 되돌림으로 돈을 버는 식은 구조적으로 의심스럽다.</b></td><td>Balch 외 (2019); Coletta 외 (ICAIF 2021); Tóth 외 (PRX 2011)</td>
+      <td><span class="pill tagL5">없음</span> 순수 재생이다. 거래당 100만원 가정으로 변론은 가능하지만, <b>주문 크기 대비 최우선 잔량 비율을 보고한 적이 없다.</b></td></tr>
+  <tr><th>B9</th><td><b>시장 중앙값이 아니라 전략 자신의 스프레드로 비용을 매겨라.</b> 2014년 아노말리 전략이 실제 지불한 평균 스프레드는 <b>67bp</b>로 NYSE 평균 16bp의 4배가 넘는다.</td><td>Chen &amp; Velikov (JFQA 2023)</td>
+      <td><span class="pill tagL4">충족</span> 체결가가 <b>실제 BID/ASK</b>에서 나오므로 전략이 실제로 지불한 스프레드가 손익에 들어 있다. 게다가 <code>entry_spread_bps</code>·<code>exit_spread_bps</code>를 결정마다 기록한다.</td></tr>
+  <tr><th>B11</th><td><b>엔진을 검증하고 실거래와 대조하라.</b> 실거래-백테스트 괴리의 두 원인은 지연과 큐 모델이다. "begin trading with a small size and align the results first."</td><td>hftbacktest 디버깅 문서; Arnott-Harvey-Markowitz #4a</td>
+      <td><span class="pill tagL5">없음</span> 실행부가 없다. 대조 계획도 없다.</td></tr>
+  <tr><th>B12</th><td><b>시뮬레이터의 사실성을 정형 사실로 먼저 측정하라</b> — 20분 이후 수익률 자기상관 부재, 팻테일, 변동성 군집, 장기기억(β ∈ [0.2, 0.4]), 주문 크기 멱법칙, 일중 U자, 충격 곡선.</td><td>Vyetrenko 외 (2019); LOB-Bench (ICML 2025)</td>
+      <td><span class="pill tagL2">부분</span> 우리는 시뮬레이터가 아니라 재생이라 '생성 사실성' 문제는 없다. 그러나 <b>우리 원장이 이 분포들에서 어디 있는지 한 번도 보고한 적이 없다</b> — LOB-Bench 의 목록을 그대로 점검표로 쓸 수 있다.</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">(C) 통계적 타당성</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:52px">#</th><th style="width:400px">요구사항</th><th style="width:180px">출처</th><th>우리 코드</th></tr></thead><tbody>
+  <tr><th>C1</th><td><b>탐색을 계측하라 — 시행마다 정체성과 샤프를 함께 기록한다.</b> DSR 은 N 뿐 아니라 <code>V[{ŜR_n}]</code>이 필요하고, PBO/CSCV 는 동기화된 손익 행렬 전체가 필요하다. <b>둘 다 사후에 복원할 수 없다.</b></td><td>Bailey &amp; López de Prado (2014); Bailey 외 (JCF 2016)</td>
+      <td><span class="pill tagL4">충족</span> Optuna study 가 모든 trial 의 목적함수 값을 보존하고, 후보마다 원장과 <code>metrics</code>가 남는다. <b>재료는 이미 다 있다.</b></td></tr>
+  <tr><th>C2</th><td><b>원시 시행이 아니라 유효 시행 수를 보고하라.</b> 후보의 <b>수익률 계열</b>을 클러스터링해 K 를 쓴다. ρ̄ = 0.99 면 10⁶ 시행이 ~10⁴ 로 줄고 E[max]가 4.87 → 3.86 이 된다. <b>수식 문자열이 아니라 수익률을 클러스터링해야 한다.</b></td><td>López de Prado &amp; Lewis (QF 2019)</td>
+      <td><span class="pill tagL5">없음</span> 계산해 본 적이 없다. <code>purgedcv</code>의 <code>effective_n_trials</code>를 그대로 붙일 수 있다.</td></tr>
+  <tr><th>C3</th><td><b>시작 전에 MinBTL 을 확인하라.</b> 5년 데이터는 E[max SR] = 1 에서 독립 시행 약 45개를 감당한다.</td><td>Bailey 외 (Notices AMS 2014) 정리 3.1</td>
+      <td><span class="pill tagL2">부분</span> <b>여기가 우리의 가장 아픈 지점이다.</b> 달력으로는 6주(약 0.12년)뿐이다. 다만 우리 분모는 연 단위가 아니라 <b>결정 23,741건 × 종목 2,661개</b>다 — <b>어느 분모가 맞는지 정하는 것이 우리가 답해야 할 질문</b>이고, 아직 답하지 않았다.</td></tr>
+  <tr><th>C4</th><td><b>샤프가 아니라 DSR 을 보고하라</b> — ŜR, T, 왜도, 첨도, <code>V[{ŜR_n}]</code>, 유효 N, 표본 주기를 모두 밝힌다.</td><td>Bailey &amp; López de Prado (JPM 2014)</td>
+      <td><span class="pill tagL5">없음</span> <code>amount.py</code>가 <code>Sharpe = mean/std × √252</code>를 이미 내므로 <b>추가 실험 없이 계산 가능</b>하다.</td></tr>
+  <tr><th>C5</th><td><b>CSCV 로 PBO 를 보고하라</b> — S 를 공개하고 로짓 분포를 그린다.</td><td>Bailey 외 (JCF 2016) Algorithm 2.3</td>
+      <td><span class="pill tagL5">없음</span> 손익 행렬은 있다(후보 × 날짜).</td></tr>
+  <tr><th>C6</th><td><b>MinTRL 을 보고하고, 그것이 달력 불변임을 밝혀라.</b> 표본을 잘게 쪼갠다고 필요한 트랙레코드가 짧아지지 않는다 — 연환산 SR 2 에 대해 일봉·30분·1분 모두 약 170 거래일이 필요하다.</td><td>Bailey &amp; López de Prado (J. Risk 2012) §4</td>
+      <td><span class="pill tagL5">없음</span> <b>그리고 이것이 C3 의 경고를 강화한다</b> — 틱으로 관측 수를 늘려도 필요한 <b>달력 길이</b>는 줄지 않는다.</td></tr>
+  <tr><th>C7</th><td><b>CPCV 와 워크포워드를 함께 돌리고 점 추정 대신 경로 분포를 보고하라.</b> 통제 비교에서는 CPCV 가 이겼지만, 워크포워드만이 실거래와 대조 가능하다.</td><td>Arian·Norouzi·Seco (KBS 2024); Joubert 외 (JPM 2024)</td>
+      <td><span class="pill tagL2">부분</span> 워크포워드 4창 + OOS7 3창을 돌린다. 창별 결과를 남기지만 <b>경로 분포로 보고하지는 않는다.</b> 틱 빈도에서 CPCV 의 불연속 블록 학습은 오히려 위험하다는 반론이 우리 편이다.</td></tr>
+  <tr><th>C8</th><td><b>보존한 상위 후보군에 최대통계량 부트스트랩을 추가하라</b>(Reality Check / SPA / StepM). 후보 상관을 곱셈 상수가 아니라 <b>정확히</b> 다루는 유일한 장치다.</td><td>White (2000); Hansen (2005); Romano &amp; Wolf (2005)</td>
+      <td><span class="pill tagL5">없음</span> <code>arch.bootstrap</code>의 <code>SPA</code>·<code>StepM</code>·<code>MCS</code>를 그대로 쓸 수 있다.</td></tr>
+  <tr><th>C10</th><td><b>보정을 누출 탐지로 착각하지 마라.</b> "a deliberately leaky oracle posting a Sharpe ratio of 35 survives Deflated Sharpe and probability-of-backtest-overfitting testing completely." 구조적 가드레일과 통계적 보정은 <b>보완재</b>다.</td><td>Gençay (arXiv 2608.27734)</td>
+      <td><span class="pill tagL4">충족</span> 구조적 가드레일이 우리 강점이다 — <code>DECISION_TIME_CAUSAL_INPUTS_ONLY</code>가 계약으로 박혀 있고, 날짜 분리와 동결이 코드로 강제된다.</td></tr>
+  <tr><th>C11</th><td><b>보고할 격자를 사전에 선언하고, 그 바깥의 넓은 탐색도 함께 공개하라.</b> 숨은 탐색이 10 → 1,000 으로 넓어지면 실제 선택 손상은 0.066 → 0.141 로 커지는데 <b>보고되는 PBO 는 0.54 → 0.10 으로 떨어진다.</b></td><td>Boutgajouft (SSRN 7346738, 미심사)</td>
+      <td><span class="pill tagL2">부분</span> 사전등록서가 격자를 선언하고 <b>"이 규칙은 20260330~0401 결과를 본 뒤에 정했다"고 자백까지 한다.</b> 그러나 그 이전 캠페인의 전체 시도 수를 <b>숫자로 세지는 않는다.</b></td></tr>
+  <tr><th>C12</th><td><b>음성 대조를 돌려라.</b> 합성·치환 데이터에서 파이프라인이 아무것도 못 찾는지 확인한다.</td><td>López de Prado Pitfall #10; Arian 외</td>
+      <td><span class="pill tagL5">없음</span> Nagel 의 자기상관 부호 반전 검정이 여기 해당한다. <b>우리 경우 의심 지점이 분명하다 — gross 가 대부분 진입 스프레드에서 나온다면, 가설이 아니라 실행 프로필이 수익을 만들고 있을 수 있다.</b></td></tr>
+  <tr><th>C13</th><td><b>탐색이 전수이고 전부 기록됐다면 FWER 통제보다 경험적 베이즈 축소를 고려하라.</b> 채굴 전략 136,000개의 축소 상위 1%가 표본 외 연 5.7% — 출판된 아노말리 200개의 5.9%와 거의 같다.</td><td>Chen &amp; Dim (arXiv 2311.10685)</td>
+      <td><span class="pill tagL5">없음</span> 재료는 있다(창 4개 × 후보 30개 × trial 전부).</td></tr>
+  <tr><th>C15</th><td><b>t값이 아니라 경제적 사전확률을 요구하라.</b> 210만 개 중 힉스 수준 문턱을 넘은 17개 중 하나가 <code>(dltis − pstkr)/mrc4</code>였다.</td><td>Chordia·Goyal·Saretto (RFS 2020); Arnott 외 (2019)</td>
+      <td><span class="pill tagL4">충족</span> 사전등록서가 "경제적 근거는 데이터보다 먼저 있었다"로 시작하고, 가설이 자연어 주장(claims)과 특징의 대응으로 적힌다.</td></tr>
+  <tr><th>C16</th><td><b>7항목 프로토콜을 따르라</b> — 특히 #2(성공·실패한 모든 모형 기록), #3(윈저화 규칙 사전 선언, 하나만 시도), #4c(표본 외가 비용까지 포함해 실거래를 대표하는가), #7(대부분 실패할 것을 예상).</td><td>Arnott·Harvey·Markowitz (JFDS 2019)</td>
+      <td><span class="pill tagL2">부분</span> #3·#4c·#7 은 만족한다(실패를 <code>success: false</code>로 기록). <b>#2 의 '전부' 를 숫자로 세는 것만 없다.</b></td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">(D) 보고</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:52px">#</th><th style="width:400px">요구사항</th><th style="width:180px">출처</th><th>우리 코드</th></tr></thead><tbody>
+  <tr><th>D1</th><td><b>gross 와 net 을 나란히 내고, 그 net 이 아직 빠뜨린 것을 명시하라</b>(가격충격·큐 위치·지연·대차·자금).</td><td>Arnott 외 #4c; Chen &amp; Velikov</td>
+      <td><span class="pill tagL4">충족</span> <code>gross_bps_total</code>·<code>net_bps_total</code>을 함께 내고 <code>gross − net == 23.0</code> 항등식을 매 실행 감사한다. <b>빠뜨린 것(지연·자기영향)은 프로필의 <code>queue.limits</code>에 적혀 있다.</b></td></tr>
+  <tr><th>D2</th><td><b>기간별 편측 회전율을 밴딩 전후로 보고하라.</b> (s,S) 무거래 밴드가 회전율 41%·비용 42%를 줄인다.</td><td>Novy-Marx &amp; Velikov (RFS 2016)</td>
+      <td><span class="pill tagL2">부분</span> <code>fills</code>·<code>fill_rate</code>·<code>decisions</code>를 내므로 회전율은 유도 가능하지만 직접 보고하지 않는다. 밴딩(진입 후 재진입 금지)은 <code>blocked_while_holding</code>이 부분적으로 한다.</td></tr>
+  <tr><th>D3</th><td><b>손익분기 운용규모로 캐파를 보고하라.</b></td><td>Korajczyk &amp; Sadka (JF 2004)</td>
+      <td><span class="pill tagL5">없음</span> 거래당 100만원 고정이고 규모를 키웠을 때의 붕괴점을 재지 않았다. B8 과 같은 실험으로 함께 답할 수 있다.</td></tr>
+  <tr><th>D4</th><td><b>기간별 분해</b> — 경로별 샤프 분포, 연·국면별, 그리고 <b>세션별</b>(개장/중반/마감). 일중 계절성 때문에 통합 수치는 중요한 것을 전부 가린다.</td><td>López de Prado Pitfall #9; Vyetrenko 외 §2.4</td>
+      <td><span class="pill tagL2">부분</span> (종목, 날) <b>블록 분해</b>가 있다(양수 비율·중앙값·상위3 제외·최대기여 종목). 그러나 <b>세션별 분해가 없다</b> — 09:00~15:20 을 하나로 본다.</td></tr>
+  <tr><th>D5</th><td><b>시행 수·시행 샤프 분산·유효 시행 수를 부록이 아니라 결과표에 넣어라.</b> "a backtest which does not report the number of trials N… makes it impossible to assess the risk of overfitting."</td><td>Bailey 외 (Notices AMS 2014)</td>
+      <td><span class="pill tagL5">없음</span> <b>이것 하나만 고쳐도 조사한 문헌 전체보다 앞선다</b> — 조사 대상 중 시행 수를 샤프와 함께 보고한 논문이 하나도 없었다.</td></tr>
+  <tr><th>D6</th><td><b>지배적 가정에 대한 민감도 곡선</b> — 지연·큐 모델·수수료·스프레드·참여율. 최고점이 아니라 범위를 보고한다.</td><td>hftbacktest 지연 노트북; Cai 외 (OpenPM)</td>
+      <td><span class="pill tagL5">없음</span> <b>우리 최우선 과제다.</b> <code>unexplained_fill_fraction</code>·<code>queue_fraction</code>·지연 상수 세 축의 곡선이 필요하다.</td></tr>
+  <tr><th>D9</th><td><b>대조 계획을 명시하라</b> — 진짜 표본 외는 실거래에만 있다.</td><td>Arnott 외 #4a</td>
+      <td><span class="pill tagL5">없음</span></td></tr>
+  <tr><th>D10</th><td><b>발견 시점의 주장 통계량을 기록하는 시그널 레지스트리를 유지하라</b>(<code>SignalDoc.csv</code> 패턴).</td><td>Chen &amp; Zimmermann (CFR 2022)</td>
+      <td><span class="pill tagL4">충족</span> <code>agent_memory.json</code>(502 항목)과 창별 산출물이 발견 시점의 주장·파라미터·지문을 전부 남긴다.</td></tr>
+  </tbody></table></div>
+
+  <div class="oneline"><b>채점 요약.</b> 데이터 위생 <b>대부분 충족</b> · 체결 사실성 <b>큐는 충족, 지연·자기영향·경주는 없음</b> ·
+  통계적 타당성 <b>구조적 가드레일은 최상급이나 시행 횟수 보정이 전무</b> · 보고 <b>gross/net 분해와 레지스트리는 충족, 민감도 곡선과 시행 수 보고가 없음</b>.
+  그리고 <b>없음으로 표시된 항목 대부분이 추가 데이터 없이 계산 가능하다</b> — 재료는 이미 산출물에 다 있고, 빠진 것은 그것을 집계해 보고하는 코드뿐이다.</div>
+</section>

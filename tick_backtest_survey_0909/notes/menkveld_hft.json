@@ -1,0 +1,23 @@
+{
+ "key": "menkveld_hft",
+ "title": "High frequency trading and the new market makers (Menkveld)",
+ "authors_short": "Albert J. Menkveld (VU Amsterdam)",
+ "venue": "Journal of Financial Markets 16(4), 712–740 (2013)",
+ "links": {
+  "pdf": "https://papers.tinbergen.nl/11076.pdf",
+  "proceedings": "https://doi.org/10.1016/j.finmar.2013.06.006",
+  "verified": "출판본은 유료·OA 사본 없음. Tinbergen WP TI 11-076 200 으로 확인. WP 와 출판본의 참여율 수치가 다르다(14.4% vs 8.1%/64.4%)"
+ },
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "실제 체결 회계. 시뮬레이션 없음.",
+  "data_short": "Chi-X + Euronext · 네덜란드 지수종목 · 2007-01~2008-06",
+  "fill_short": "실제 체결 (브로커 ID 익명 매칭으로 HFT 한 곳 특정)",
+  "cost_short": "**수수료·리베이트·청산비용 전부 반영**",
+  "design": "Sofianos 식 회계 항등식 — 이익 = 실현 포지셔닝 손익 − 공격주문에서 낸 스프레드 + 패시브 주문에서 번 스프레드. 거래당 **€0.88 = €1.55 순스프레드 − €0.68 포지셔닝 손실**. 포지셔닝 손실이 모든 종목에서 음수라, \"낡은 호가를 낚아챈다\" 는 서사와 반대다. 샤프 9.35(자본비용 미부과) → 무위험 + 6% 프리미엄을 물리면 5.88.",
+  "cost": "Euronext 거래당 €0.60 + 0.05bp, Chi-X **maker-taker 공격 0.30bp · 패시브 리베이트 0.20bp**. 순스프레드가 Chi-X €2.52 vs Euronext €1.11 로 갈리는데, 그 €1/거래 차이가 거의 전부 리베이트에서 온다.",
+  "gap": "이 조사에서 가장 이식 가치가 큰 경고 — 공격주문 총스프레드가 Euronext −€1.26 인데 Chi-X 는 +€3.21 이다. 저자는 이를 \"an artefact of the accounting that takes the midquote in the incumbent market as a reference price\" 라고 설명한다. **분할시장에서 단일 거래소 중간가를 기준으로 삼으면 비용 귀속의 부호가 뒤집힌다.**"
+ },
+ "oneline": "리베이트와 기준 중간가 선택이 마켓메이킹 손익의 부호를 정한다 — KRX 는 단일 거래소라 후자 문제는 없지만, NXT 출범 뒤에는 생긴다.",
+ "resolution": "틱·메시지"
+}

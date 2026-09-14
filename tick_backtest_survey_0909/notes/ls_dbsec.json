@@ -1,0 +1,21 @@
+{
+ "key": "ls_dbsec",
+ "title": "LS증권 · DB증권 · 대신증권 · 삼성선물 · 미래에셋",
+ "authors_short": "각 사 공식 개발자 포털",
+ "venue": "공식 API 포털 (공식 GitHub 없음)",
+ "links": {
+  "website": "https://openapi.ls-sec.co.kr/",
+  "docs": "https://openapi.dbsec.co.kr/testbed-sample",
+  "verified": "LS증권·DB증권·삼성선물 포털 존재 확인. 각 사 공식 GitHub 조직은 확인되지 않음"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "다섯 곳 모두 공식 백테스트 코드 공개가 확인되지 않는다.",
+  "data_short": "각 사 시세 API",
+  "fill_short": "해당 없음",
+  "cost_short": "—",
+  "design": "LS증권(구 이베스트)은 DLL 기반 XingAPI 에서 HTTP 기반 OPEN API 로 이행 중이며 공식 포털(openapi.ls-sec.co.kr)을 운영한다. 대신증권 CREON Plus 는 여전히 32bit 윈도우 COM 이다. 미래에셋은 HTS Kairos 에 붙이는 Plug-in(AnyLink) 방식이고, 삼성증권은 기관 대상 유료 API 로 알려져 있다. DB증권과 삼성선물은 자체 개발자 포털에 파이썬 샘플을 둔다. **공식 저장소·백테스터는 모두 없고, GitHub 에 있는 것은 개인이 만든 래퍼다** (`xorrhks0216/LsApiHelper`, `teranum/ls-openapi-samples`, `gyusu/Creon-Datareader`, `hspan/creon` 등)."
+ },
+ "oneline": "국내 중견 증권사 라인은 공식 GitHub 조차 없고, 생태계를 개인 개발자 래퍼가 떠받치고 있다.",
+ "resolution": "해당 없음"
+}

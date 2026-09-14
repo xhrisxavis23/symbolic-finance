@@ -1,0 +1,23 @@
+{
+ "key": "frazzini_trading_costs",
+ "title": "Trading Costs (Frazzini · Israel · Moskowitz) — 1.7조 달러 실집행 기록으로 TAQ 기반 비용 추정을 반박",
+ "authors_short": "Andrea Frazzini · Ronen Israel · Tobias Moskowitz (AQR)",
+ "venue": "미출판 워킹페이퍼 (SSRN 3229719, 2018-08) · 관련 SSRN 2294498",
+ "links": {
+  "ssrn": "https://papers.ssrn.com/abstract=3229719",
+  "verified": "Crossref 에 SSRN 레코드만 존재. AQR 자체 페이지도 Working Paper 로 표기. 동료심사 저널 게재 이력 없음"
+ },
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "실제 집행 기록 그 자체. 시뮬레이션 없음.",
+  "data_short": "**$1.7조 실체결** · 1998-08~2016-06 · 선진 21개 시장 · 약 1만 종목",
+  "fill_short": "실제 체결가 (99.9% 완결, 평균 지평 1일 미만)",
+  "cost_short": "Perold 구현부족 · 제곱근 충격모형",
+  "design": "레코드마다 매수/매도, 개시 시점 시장가, 수량, 주당 체결가, 그리고 **거래 유형**(신규 롱/롱 청산/신규 숏/숏 청산)이 있다. 대부분 패시브로 체결돼 \"the effective bid-ask spread across all trades averages less than 0.015% per year in the U.S.\" — 비용의 대부분은 가격충격이다. log-log 회귀 계수는 0.35(R²=95%)지만 **과적합을 피하려고 제곱근(0.5)으로 고정**했다.",
+  "cost": "%DTV 의 제곱근. **TAQ 기반 추정과의 격차가 이 논문의 핵심이다** — DTV 2% 에서 자기 모형 13.73bp vs TAQ 제곱근 27.09 vs TAQ 선형(Breen–Hodrick–Korajczyk) 44.89. DTV 10% 에서는 32.34 vs **223.31** — \"almost an order of magnitude larger\". 이유: \"aggregated daily TAQ data captures the average trader, which includes informed insiders, retail traders, liquidity demanders, and impatient traders, who face much higher costs than those of a patient trader.\"",
+  "validation": "ITG·도이체방크·JP모간·ANcerno 비용 데이터, 그리고 뱅가드 S&P500 펀드와 iShares 러셀2000 ETF 의 실현 비용에 대한 표본 외 검정.",
+  "gap": "데이터가 AQR 사내 블로터라 재현 불가. 동료심사를 거치지 않았다."
+ },
+ "oneline": "\"TAQ 로 잰 비용\" 은 참을성 없는 평균 트레이더의 비용이지 인내심 있는 집행자의 비용이 아니다 — 그 격차가 10배까지 벌어진다.",
+ "resolution": "실집행 기록"
+}

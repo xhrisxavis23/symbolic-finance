@@ -1,0 +1,56 @@
+{
+ "key": "ning_jaimungal",
+ "title": "Double Deep Q-Learning for Optimal Execution (Ning · Lin · Jaimungal) — 호가창을 가지고 있으면서 중간가로 체결한다",
+ "authors_short": "Brian Ning · Franco Ho Ting Lin · Sebastian Jaimungal (Toronto)",
+ "venue": "Applied Mathematical Finance 28(4), 361–380 (2021/2022)",
+ "venue_verified": "DOI 10.1080/1350486X.2022.2077783 Crossref 검증(권 28·호 4·페이지 361–380). published-print 2021-07-04 · published-online 2022-06-15 로 어긋나 있어 '2021/2022' 로 표기. arXiv 1812.06600",
+ "type": "DDQN 최적 실행",
+ "domain": "미국 대형주·ETF 집행",
+ "data_scope": "9종목(AAPL·AMZN·FB·GOOG·INTC·MSFT·NTAP·SMH·VOD), **2017-01-02 ~ 2018-03-30 전 거래일**. \"We use the full limit order book information to extract the **midprice at the end of each second**.\" 일중 변동이 큰 시간대를 피해 11–12시·12–13시·13–14시를 따로 분석. **데이터 벤더는 논문에 없다.**",
+ "tags": [
+  "호가창 보유 후 중간가 사용",
+  "대형틱 가정",
+  "적합 벌점",
+  "분할 미기재"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1812.06600",
+  "proceedings": "https://doi.org/10.1080/1350486X.2022.2077783",
+  "verified": "Crossref 200 · arXiv 전문 확인. 공개 코드 없음"
+ },
+ "easy": {
+  "problem": "정해진 수량을 한 시간 안에 팔아야 한다. 다섯 번에 나눠 낼 때 각각 얼마씩 낼까?",
+  "how": "DDQN 으로 매 구간의 시장가 주문 수량을 정한다. 지평 T=1시간, N=5 구간, Q₀=20 랏.",
+  "analogy": "한 시간짜리 시계를 다섯 칸으로 나누고 각 칸에서 몇 개를 던질지 정하는 것."
+ },
+ "contributions": [
+  "**호가창 전체를 가지고 있으면서 그것을 버린다.** 근거는 대형틱 가정이다 — \"The share prices in our data are 'small' relatively to the tick size, and hence the spread is typically 1 tick – such stocks are called large tick stocks. Therefore, **we approximate all execution prices by the mid-price and ignore the spread. We avoid the cost associated with walking the LOB by applying a penalty on the size of any one order**.\"",
+  "비용 대신 **적합된 이차 벌점** 하나를 쓴다: `P&L = Σ x·p − a·(x_T/M)²`, a = 0.01 — \"based on the liquidity of the stock and the trader's estimated transaction costs\" 로 **전체 데이터에서 표본 내 보정**한다.",
+  "결과(TIPQV 특징, 중앙값/평균 bp, 승률): VOD **15.72 / 15.43 (99.2%)** · INTC 11.96 / 11.40 (97.8%) · NTAP 10.05 / 9.64 · MSFT 5.89 / 5.95 (94.8%) · SMH 4.90 / 4.86 · AAPL 2.68 · FB 2.29 / 2.26 (64.3%) · **GOOG −0.40 / +0.05 (47.2%)** · **AMZN −0.02 / −0.15 (49.9%)**.",
+  "**실패한 두 종목이 정확히 대형틱 가정이 깨지는 고가주다.** 초록의 \"대부분의 종목에서 우수\" 는 9개 중 7개라는 뜻이고, 나머지 둘은 0과 구분되지 않는다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "중간가 재생. 스프레드도 큐도 부분체결도 역선택도 없고, 비용 대신 표본 내 적합된 이차항 하나가 있다.",
+  "data_short": "9종목 초 단위 중간가 · 2017-01~2018-03",
+  "fill_short": "**중간가**, 스프레드 무시",
+  "cost_short": "적합된 이차 벌점 a = 0.01 (표본 내 보정)",
+  "latency": "없다.",
+  "selfimpact": "없다 — \"we assume the trader's actions do not directly effect the price process during training\".",
+  "validation": "**본문에서 'training set'·'test set'·'hold-out' 을 찾을 수 없다. 학습/테스트 분할이 문서화돼 있지 않다.** 하이퍼파라미터는 \"cannot be tuned with cross-validation\" 이라고 적혀 있다. 시드 보고 없음.",
+  "metrics": "`ΔP&L = (모델 − TWAP)/TWAP × 10⁴` 를 시간대별로 평균·중앙값·표준편차·GLR·P(ΔP&L>0) 로.",
+  "quotes": [
+   "The share prices in our data are 'small' relatively to the tick size, and hence the spread is typically 1 tick – such stocks are called large tick stocks. Therefore, we approximate all execution prices by the mid-price and ignore the spread. We avoid the cost associated with walking the LOB by applying a penalty on the size of any one order"
+  ],
+  "gap": "중간가 재생 + 표본 내 적합 벌점의 조합은 집행 문제를 사실상 없애는 것에 가깝다. 실제 반스프레드를 넣으면 AAPL·FB 의 2~5bp 는 남지 않을 가능성이 높다. 시간대도 손으로 골랐고, 표본 외 분할이 문서에 없다."
+ },
+ "code": [
+  "공개 코드 없음"
+ ],
+ "oneline": "\"대형틱이니 스프레드를 무시해도 된다\" 는 가정이 결과 대부분을 만든다 — 그리고 그 가정이 깨지는 두 종목에서 성과가 사라진다.",
+ "implications": [
+  "**우리 원장에도 `tick_size_bps` 가 있으므로 같은 가정의 타당성을 종목별로 검증할 수 있다.** KRX 는 가격대별 호가단위 계단이 커서 대형틱/소형틱 스펙트럼이 넓다 — 이 논문의 실패 패턴(고가주에서 무너짐)이 우리 블록 분해에도 나타나는지 볼 가치가 있다.",
+  "비용을 '적합된 벌점' 으로 대체하는 것과 우리처럼 '실호가 체결 + 명시 수수료 23bps + 항등식 감사' 로 가는 것의 차이가 크다. 대조로 인용할 수 있다."
+ ],
+ "resolution": "초~분봉"
+}

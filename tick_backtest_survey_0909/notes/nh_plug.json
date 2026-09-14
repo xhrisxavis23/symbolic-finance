@@ -1,0 +1,53 @@
+{
+ "key": "nh_plug",
+ "title": "NH투자증권 NAMUH PLUG (PLUG-OpenAPI) — 2026년 8월 출시, SDK·MCP 뿐",
+ "authors_short": "NH투자증권 (NH Investment & Securities) 공식",
+ "venue": "공식 오픈소스 (GitHub, 2026-08~)",
+ "venue_verified": "nhplug.com/intro 에서 공식 GitHub 링크 github.com/PLUG-OpenAPI 를 확인하고 조직 페이지를 직접 열람(2026-09-09). 공개 저장소는 nhplug-mcp(TypeScript, star 11) · nhplug-sdk(Python, star 10) · .github 세 개",
+ "type": "증권사 공식 REST OpenAPI + 파이썬 SDK + MCP 서버",
+ "domain": "국내·해외주식, 파생, 채권, 금현물 시세/주문",
+ "data_scope": "포털이 내세우는 서비스는 실시간 시세 · 통합 계좌관리 · 투자정보 · 주문 · 차트데이터. \"정교한 전략 검증과 데이터 시각화를 위한 시계열 데이터\" 라고만 적혀 있고 해상도·기간은 인트로 페이지에 명시가 없다.",
+ "tags": [
+  "증권사 공식",
+  "2026 신규",
+  "SDK·MCP",
+  "백테스터 없음"
+ ],
+ "links": {
+  "github": "https://github.com/PLUG-OpenAPI",
+  "website": "https://www.nhplug.com/intro",
+  "verified": "nhplug.com/intro 200 · github.com/PLUG-OpenAPI 200 으로 저장소 3개 확인"
+ },
+ "easy": {
+  "problem": "NH 의 기존 QV Open API 는 윈도우 COM/OCX 기반이라 서버·리눅스에서 쓰기 어려웠고, 공식 저장소도 없어 커뮤니티가 Rust 래퍼(`bekker/qvopenapi-rs`)를 따로 만들 정도였다.",
+  "how": "2026년 8월 10일 REST 방식 OpenAPI 'Namuh PLUG'·'N2 PLUG' 를 내면서 별도 포털(nhplug.com)과 공식 GitHub 조직(PLUG-OpenAPI)을 열었다. 파이썬 SDK 와 AI 대화용 MCP 서버를 샘플로 공개했다.",
+  "analogy": "키움과 같은 방향 — 창고 문은 열었는데 조립 설명서(백테스터)는 아직 없다."
+ },
+ "contributions": [
+  "국내 대형 증권사 중 가장 늦게(2026-08) REST OpenAPI 로 전환하면서, 처음부터 공식 GitHub 조직을 함께 열었다.",
+  "국내주식 API 거래 수수료 0.01% · 해외주식 0.09% 라는 낮은 수수료를 API 전용으로 내걸었다 — 백테스트의 비용 가정에 직접 영향을 주는 숫자다.",
+  "`nhplug-mcp`(AI 대화로 시세·계좌 조회) · `nhplug-sdk`(파이썬 SDK, 종목마스터 파서, AI 규칙) 두 개가 공개물의 전부다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "백테스트 관련 저장소·모듈이 없다. 자동매매·퀀트 개발은 \"SDK 에 내 프로그램을 넣기\" 방식으로 안내한다.",
+  "data_short": "차트데이터 (해상도 미명시)",
+  "fill_short": "해당 없음",
+  "cost_short": "API 수수료 국내 0.01% · 해외 0.09%",
+  "design": "없음.",
+  "validation": "없음.",
+  "gap": "백테스트 엔진, 체결 시뮬레이션, 성과 지표 어느 것도 공개하지 않는다. 과거 호가·체결 데이터 제공 여부도 인트로 페이지에서 확인되지 않는다."
+ },
+ "code": [
+  "[PLUG-OpenAPI/nhplug-sdk](https://github.com/PLUG-OpenAPI/nhplug-sdk) — 파이썬 SDK · 샘플 · 종목마스터 파서 (star 10, 2026-09-08)",
+  "[PLUG-OpenAPI/nhplug-mcp](https://github.com/PLUG-OpenAPI/nhplug-mcp) — MCP 서버 (TypeScript, star 11, 2026-09-08)",
+  "커뮤니티(구 QV API): [bekker/qvopenapi-rs](https://github.com/bekker/qvopenapi-rs), [odumag99/pynamuh](https://github.com/odumag99/pynamuh)"
+ ],
+ "limitations": "출시 한 달 남짓이라 API 가이드·테스트베드의 세부(과거 데이터 기간, 틱 제공 여부)를 이번 조사에서 확인하지 못했다. 포털의 API가이드/테스트베드 페이지는 로그인 뒤에 열리는 것으로 보인다.",
+ "oneline": "국내 2위권 증권사의 2026년 신규 OpenAPI 도 백테스트는 공개하지 않았다 — 한투가 예외임을 확인시켜 준다.",
+ "implications": [
+  "\"국내 대형 증권사 중 백테스트 코드를 공개한 곳은 한국투자증권 하나\" 라는 문장을 쓰려면 NH·키움을 이렇게 각각 확인해 둬야 한다. 이 노트가 그 근거다.",
+  "API 전용 수수료 0.01%(국내)는 우리 `FEE_BPS = 23.0`(왕복 23bps) 가정이 보수적임을 보이는 대조 숫자다 — 다만 증권거래세 0.2%(20bps)가 매도에 붙는다는 점이 왕복 비용의 대부분을 설명한다."
+ ],
+ "resolution": "해당 없음"
+}

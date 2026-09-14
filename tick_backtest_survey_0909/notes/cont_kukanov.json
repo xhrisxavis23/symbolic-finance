@@ -1,0 +1,56 @@
+{
+ "key": "cont_kukanov",
+ "title": "Optimal Order Placement in Limit Order Markets (Cont & Kukanov) — 큐를 세고 리베이트를 넣고 시간으로 분할한, 실행 문헌의 드문 정석",
+ "authors_short": "Rama Cont · Arseniy Kukanov (Imperial · Columbia)",
+ "venue": "Quantitative Finance 17(1), 21–39 (2017)",
+ "venue_verified": "DOI 10.1080/14697688.2016.1190030 · arXiv 1210.1625 전문 확인",
+ "type": "다거래소 지정가/시장가 배분 최적화 + 실틱 백테스트",
+ "domain": "미국 주식 주문 배치",
+ "data_scope": "TAQ. **MSFT, NASDAQ 과 BATS Z 두 거래소. 보정 2012-01~03, 평가 2012-04** — 진짜 시간 분할이다.",
+ "tags": [
+  "큐 소진 체결",
+  "부분체결",
+  "리베이트",
+  "시간 분할"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1210.1625",
+  "proceedings": "https://doi.org/10.1080/14697688.2016.1190030",
+  "verified": "arXiv 전문 200"
+ },
+ "easy": {
+  "problem": "같은 주식이 여러 거래소에 있다. 어디에 얼마를 지정가로 걸고, 얼마를 시장가로 칠 것인가?",
+  "how": "체결 물량 분포를 추정해 기대 비용을 최소화하는 배분을 풀고, 실제 TAQ 로 되감아 균등 분할과 비교한다.",
+  "analogy": "여러 줄 중 어디에 몇 명을 세울지 정하는 문제. 줄마다 앞에 선 사람 수와 처리 속도가 다르다."
+ },
+ "contributions": [
+  "**이 계열에서 유일하게 큐 위치와 부분체결을 함께 넣은 진짜 거래 백테스트다.** 체결 규칙: \"a buy limit order L placed behind a queue of Q shares at the best bid is filled if the volume of sell market orders during its placement horizon (T = 1 minute) is larger than Q. The execution is complete if the volume… exceeds Q by more than L, otherwise it is a partial execution.\"",
+  "비용을 명시적으로 넣는다 — 리베이트 NASDAQ 0.2¢/주, BATS 0.25¢/주, taker 수수료 0.29¢, 반스프레드 0.50¢. 리베이트는 '실효' 값으로, 거래소별 역선택 벌점을 **뺀** 값이다.",
+  "보정 3개월 / 평가 1개월의 시간 분할. λ=0.5 에서 최적 비용 0.38¢ vs 균등분할 0.55¢(중간가 대비, 분당 2,000주 목표).",
+  "한계를 스스로 적는다 — \"our limit order fill estimates are conservative as they do not include possible order cancelations from the front of a bid queue… To simplify our simulation we restricted it to one-minute samples where the best quotes did not change up or down.\""
+ ],
+ "backtest": {
+  "rung": "L3",
+  "rung_reason": "큐 소진량으로 체결을 정하고 부분체결·리베이트를 넣는다. 지연은 없고 자기영향도 없다. 그리고 **최우선호가가 안 움직인 1분 구간만** 쓴다는 선택 제약이 있다.",
+  "data_short": "TAQ MSFT · NASDAQ+BATS · 2012 Q1 보정 / 4월 평가",
+  "fill_short": "1분 동안 반대편 시장가 물량 > 앞 큐 Q 면 체결 (초과분만큼 부분체결)",
+  "cost_short": "리베이트 0.2~0.25¢ · taker 0.29¢ · 반스프레드 0.50¢",
+  "latency": "없다.",
+  "selfimpact": "없다. 순수 재생이다.",
+  "validation": "**시간 분할** (1~3월 보정 → 4월 평가).",
+  "metrics": "중간가 대비 주당 비용(센트).",
+  "quotes": [
+   "our limit order fill estimates are conservative as they do not include possible order cancelations from the front of a bid queue… To simplify our simulation we restricted it to one-minute samples where the best quotes did not change up or down."
+  ],
+  "gap": "**최우선호가가 변하지 않은 1분 구간만 쓰는 것이 심각한 선택 제약이다** — 가격이 움직이는 순간이 바로 역선택이 일어나는 순간인데 그것을 뺐다. 종목도 MSFT 하나."
+ },
+ "code": [
+  "공개 코드 없음"
+ ],
+ "oneline": "큐·부분체결·리베이트·시간 분할을 다 갖춘 드문 백테스트 — 다만 가격이 움직이는 구간을 빼서 역선택을 통째로 피했다.",
+ "implications": [
+  "**우리 hold-through 와 정확히 반대 선택이다.** 이들은 호가가 안 움직인 구간만 쓰고, 우리는 호가가 움직여도 주문을 빼지 않는다. 두 선택 모두 역선택을 다루는 방식인데, 우리 쪽이 보수적이다 — 이 대비는 우리 설계를 방어하는 좋은 인용이다.",
+  "'앞 큐에서의 취소를 넣지 않아 보수적' 이라는 이들의 고백이, 우리 `unexplained_fill_fraction = 1.0`(앞 큐 취소를 **전부** 인정)과 정반대 극단임을 보여 준다. 두 극단 사이 어디가 맞는지가 우리가 재야 할 것이다."
+ ],
+ "resolution": "틱·메시지"
+}

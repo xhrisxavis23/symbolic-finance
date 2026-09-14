@@ -1,0 +1,91 @@
+{
+ "key": "sportsmetrics",
+ "title": "SportsMetrics: Blending Text and Numerical Data to Understand Information Fusion in LLMs",
+ "authors_short": "Hu et al. · University of Central Florida · Tencent AI Lab · Emory University (Fei Liu)",
+ "venue": "ACL 2024 Long (Main)",
+ "venue_verified": "ACL Anthology 2024.acl-long.17 페이지 200, 제목 'SportsMetrics: Blending Text and Numerical Data to Understand Information Fusion in LLMs' 확인(Bangkok, August 2024). OpenReview 없음(ACL)",
+ "type": "벤치마크(장문 경기 기록 → 수치 집계·적대적 규칙 변경·요약문 빈칸 채우기)",
+ "domain": "스포츠 데이터 분석(NBA 농구·NFL 미식축구 play-by-play)",
+ "data_scope": "ESPN 아카이브 NBA 28,492경기 + NFL 5,867경기(2002-2023) 중 각 100경기를 테스트셋으로 무작위 선정; NBA 평균 466플레이·6,229토큰(최대 7,322), NFL 173플레이·6,166토큰(최대 7,659)(§4 p.6)",
+ "tags": [
+  "sports",
+  "numerical-reasoning",
+  "long-context",
+  "information-fusion",
+  "adversarial-rules",
+  "play-by-play",
+  "working-memory",
+  "deterministic-ground-truth"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2402.10979",
+  "pdf": "https://arxiv.org/pdf/2402.10979",
+  "proceedings": "https://aclanthology.org/2024.acl-long.17/",
+  "github": "https://github.com/YebowenHu/SportsMetrics",
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv PDF OK(v2 2024-06-16); ACL Anthology 200; GitHub YebowenHu/SportsMetrics 200(MIT, data/NBA 14파일·data/NFL 5파일, 각 2-4MB JSON) — reasoning-team_points_tracking.json, conflict-one_point_rule.json(range 요청), planning-game_recap.json(전체 47KB) 실제 열람. 논문 본문에 GitHub 링크는 없고 GitHub API 검색으로 찾음(README가 ACL'24 논문·arXiv 명시). HF 없음"
+ },
+ "easy": {
+  "problem": "LLM이 긴 텍스트(경기 중계 기록)와 수치(선수·팀 통계)를 섞어 읽고, 개체를 연결해 숫자를 집계하며, 규칙이 바뀌거나 기록이 뒤섞여도 정확히 계산할 수 있는지를 평가할 방법이 없었다.",
+  "how": "ESPN의 NBA/NFL play-by-play(시각·행동)와 팀-선수 표를 주고 팀 득점·11개 핵심 통계를 JSON으로 채우게 한다. 적대적 변형으로 '모든 득점 1점' 규칙, 선수 소속 교환, 플레이 순서 섞기·비득점 플레이 삭제/복제, 선수 이름 SF 캐릭터 치환을 만들고, 경기 요약문의 빈칸(득점·리바운드)을 작업기억 JSON을 만들어 채우게 한다.",
+  "analogy": "농구 중계 기록지를 처음부터 끝까지 읽고 스코어보드를 손으로 계산하는 시험 — 그런데 시험관이 갑자기 '오늘은 3점슛도 1점'이라 하거나 선수 명단을 바꿔치기해도 규칙대로 다시 세야 한다."
+ },
+ "contributions": [
+  "4가지 신규 과제(새 규칙 적응, 장문 기록, 뒤섞인 서사, 요약문 핵심 통계 분석)로 LLM의 수치 추론·정보 융합 능력을 평가하는 SportsMetrics 제안(§3 p.3-5)",
+  "정답이 실제 박스스코어·규칙 변형 후 재계산값으로 결정론적으로 주어지며, NBA Game Score·NCAA Passing Efficiency 공식(Figure 3 p.3)으로 통계 추적을 단일 점수로 종합",
+  "7개 LLM 평가: GPT-3.5-Turbo-1106이 ΔPoints 9.45·ΔNewRule 14.10·ΔSwap 13.53·ΔShuffle 9.89로 최고, 표준(4-8k) 모델은 ΔPoints 70-94(Table 2 p.6); NFL은 GPT-4-1106 ΔYards 34.77 최고(Table 3 p.7)",
+  "적대적 분석: 선수 이름을 바꾸면 모든 모델 성능 급락 → LLM이 사전학습의 선수 이름 지식으로 점수를 추정한다는 증거(Figure 7 p.8); 비득점 플레이 추가 시 성능 하락",
+  "요약문 빈칸 채우기: 3단계 작업기억(JSON) 프로토콜 제안, 최고 Claude-2.1 16.72%(Figure 8 p.8); 오픈소스 데이터 공개(MIT)"
+ ],
+ "figures": [
+  {
+   "file": "figs/sportsmetrics_fig1.png",
+   "label": "Figure 1",
+   "page": 1,
+   "caption_ko": "NBA 경기 play-by-play 입력 예시. 시각·선수 행동(슛 성공/실패, 리바운드, 블록)이 시간 역순으로 나열되고, 득점 행동은 색으로 표시되며 오른쪽 점선 원의 팀 누적 득점(77→95)은 LLM에 숨긴다. 아래에 팀-선수 표와 빈칸이 뚫린 경기 요약문(Jalen Duren had __ points…)이 붙는다.",
+   "alt": "NBA play-by-play 및 빈칸 요약문 예시"
+  },
+  {
+   "file": "figs/sportsmetrics_fig2.png",
+   "label": "Figure 2",
+   "page": 2,
+   "caption_ko": "적대적 시나리오 개요. 왼쪽 위: 득점 규칙 변경(2점·3점 슛을 모두 1점으로), 왼쪽 아래: 팀-선수 표에서 선수 소속을 교환(Patrick Williams↔Cade Cunningham)하되 play-by-play는 그대로 둠, 오른쪽: LLM이 play-by-play와 소속 표를 읽어 팀별 핵심 통계 JSON(득점·리바운드·어시스트)을 Before→After로 갱신하는 과제.",
+   "alt": "새 규칙·선수 교환·통계 갱신 시나리오"
+  }
+ ],
+ "dataset": {
+  "construction": "원자료: ESPN.com의 NBA/NFL play-by-play('typically written by ESPN’s sports journalists'), 팀-선수 소속, 박스스코어 수집; 'We reached out to ESPN as necessary to ensure adherence to their data policies'(p.3). 득점 행동과 팀 점수는 LLM에 비공개. 정답 생성은 전부 규칙 기반 계산: (1) 통계 추적 — 박스스코어의 11개 통계(팀 득점·FGM·FGA·FTM·FTA·공격/수비 리바운드·스틸·어시스트·블록·파울; 턴오버는 기록 누락으로 제외, 각주 p.4)와 Game Score, NFL은 패싱 야드·TD·INT·완성/시도와 Passing Efficiency. (2) New Scoring Rule — 'each action is worth only 1 point … Ground-truth scores under this rule are obtained by counting the total number of scoring actions to determine each team’s total points'(p.5). (3) Player Swapping — 팀-선수 표에서 n명(1~5)의 소속을 무작위 교환, 'Ground-truth team scores … are calculated by summing individual player scores under their new affiliations'(p.5). (4) Shuffle/Robustness — 확률 p∈{-50%,-20%,0,+20%,+50%}로 비득점 플레이를 삭제(음수)/복제(양수)한 뒤 전체 플레이 순서를 섞되 타임스탬프 순서는 유지; 논문 표의 ΔShuffle은 p=0.2 복제+셔플. NFL은 n명(1~4) 선수 이름을 SF 캐릭터명으로 치환(총점 불변). (5) 요약문 채우기 — ESPN 경기 요약(recap)의 핵심 통계 수치를 '___'로 마스킹. LLM은 JSON으로 답해야 하며 4-8k 모델은 쿼터별로 나눠 합산(p.4). 사람 주석·LLM 생성 없음.",
+  "size_format": "GitHub data/NBA: reasoning-team_points_tracking·reasoning-key_stats_tracking·conflict-one_point_rule·conflict-swap_{one..five}_players·robustness-duplicate_{20,50}·robustness-remove_{-20,-50}·robustness-shuffled_pbp·planning-game_recap(100경기 dict: recap, masked_recap 등); data/NFL: reasoning-key_stats_tracking·robustness-{1..4}_fiction_names. 인스턴스 필드: gameID, start_quarter, end_quarter, sys_msg, prompt, player_affiliation, game_input(['Time\\tPlay', [플레이 행…]]), ground_truth(dict). 각 파일 100경기",
+  "samples": [
+   "[GitHub data/NBA/reasoning-team_points_tracking.json 첫 인스턴스] gameID \"401267409\", prompt: \"Initially, you are given a JSON object where all values are set to 0. Based on the provided play-by-play breakdown and team-player data, you will update the game points in the provided JSON format.\\n{\\n  \\\"Indiana Pacers\\\": 0,\\n  \\\"Toronto Raptors\\\": 0\\n}\\n\", player_affiliation: \"Toronto Raptors: stanley johnson, og anunoby, aron baynes, fred vanvleet, … Indiana Pacers: domantas sabonis, justin holiday, doug mcdermott, myles turner, malcolm brogdon, …\", game_input: [\"Time\\tPlay\", [\"12:00\\tAron Baynes vs. Myles Turner (Fred VanVleet gains possession)\", \"11:38\\tMyles Turner blocks Stanley Johnson's two point shot\", …, \"11:20\\tAron Baynes makes layup (Fred VanVleet assists)\", \"11:04\\tMyles Turner misses free throw 1 of 2\", …, \"10:44\\tNorman Powell makes 23-foot three point jumper (Stanley Johnson assists)\", …]]",
+   "[GitHub data/NBA/conflict-one_point_rule.json 첫 인스턴스] gameID \"400489111\", prompt: \"In our modified version of the game, every scoring action, regardless of its type, will now be worth exactly one point. This includes field goals, free throws, dunks, layups, tip-ins, three-point shots, and alley-oops. \\nPlease adhere strictly to our modified scoring rules and update the total points for each team based on the play-by-play breakdown and team-player data. Update the game points in the provided JSON format.\\n{\\\"Denver Nuggets\\\": 0, \\\"New York Knicks\\\": 0}\\n\"; game_input 예: \"11:40\\tRandy Foye makes driving layup\", \"10:37\\tTy Lawson makes 25-foot  three point jumper \", \"10:06\\tWilson Chandler makes free throw 1 of 2\"",
+   "[GitHub data/NBA/planning-game_recap.json, key 400489111] masked_recap: \"The Nuggets hung on for a ___-___ victory over their former star player and his struggling New York Knicks on Friday night. Ty Lawson scored ___ points for the Nuggets, who sent the Knicks to their eighth consecutive loss. Randy Foye added ___ points and provided the defense on Anthony's last shot, …\" / recap: \"The Nuggets hung on for a 97-95 victory … Ty Lawson scored 22 points … Randy Foye added 17 points …\"",
+   "[논문 Figure 4 p.4, 시스템 프롬프트] \"You are a helpful assistant tasked with analyzing sports games. You have been given play-by-play breakdowns of a basketball game between two teams. The \\\"Time\\\" column shows the exact time on the game clock when each play took place. … Team players are listed in two rows, each row representing one of the two basketball teams involved in the game.\""
+  ],
+  "class": "C",
+  "class_reason": "구체 개체(gameID·팀·선수 표)와 원자료(수백 행의 play-by-play 레코드)가 질문에 동봉되고, 답(팀 득점·통계 JSON)은 그 레코드를 규칙대로 집계한 결정론적 정수다. New Rule·Swap 변형은 판정 규약('모든 득점 행동=1점', 바뀐 소속표)을 질문 안에 명시해 참고 QA셋의 C 정의에 가장 가깝다. 다만 기본 추적 과제는 득점 규칙(2/3/1점)이 상식에 의존하고 문턱 판정·다중 테이블 조인이 없어 그 부분은 C-lite 성격이다.",
+  "release": "GitHub 공개(MIT), NBA 14·NFL 5 과제 파일 각 100경기, 로더(sportsmetrics.py)·OpenAI 평가 스크립트 포함 — 실제 파일 열람 확인. 전체 28,492/5,867경기 원자료는 미공개(ESPN 데이터 정책 준수 언급). HF 없음",
+  "contamination": "play-by-play는 'dynamic narratives that LLMs cannot easily memorize'(p.2)라고 주장하나 별도 방어 없음; 선수 이름 SF 치환 실험으로 암기 의존 정도를 측정(Figure 7)함으로써 오염 영향을 진단",
+  "evaluation": "예측 JSON과 실제 박스스코어(또는 규칙 변형 후 재계산값)의 평균 절대 차이 Δ: NBA ΔPoints·ΔGScore·ΔNewRule·ΔSwap·ΔShuffle(Table 2 p.6), NFL ΔYards·ΔATT·ΔCOMP·ΔTD·ΔINT·ΔPE(Table 3 p.7); 요약문 빈칸은 정확도(%). 결과: GPT-3.5-Turbo-1106 ΔPoints 9.45/ΔNewRule 14.10/ΔSwap 13.53/ΔShuffle 9.89, Gemini-Pro ΔGScore 32.30, GPT-4-1106 ΔGScore 51.97(JSON의 79%가 0/null); 표준 모델 ΔPoints 70.77-94.34, Llama-2-13B ΔNewRule 83.04; 요약문 채우기 Claude-2.1 16.72%·GPT-4 11.24%·Mistral-7B 7.94%(Figure 8 p.8)"
+ },
+ "seven_questions": {
+  "q1_source": "기존 공개 웹 자료(ESPN 아카이브)를 수집해 신규 과제로 구성",
+  "q2_method": "출처(ESPN.com play-by-play·박스스코어·recap)와 변형 규칙은 분명; 크롤링 방식·기간 세부는 논문에 없음",
+  "q3_license": "ESPN 데이터 정책 준수를 위해 'reached out to ESPN as necessary'(p.3); 저장소는 MIT, 단 원자료 저작권 귀속은 별도 명시 없음",
+  "q4_relabel": "사람 라벨 없음; 공개 기록을 그대로 쓰되 규칙 변형·마스킹·셔플로 task 맞춤 재구성하고 정답은 재계산",
+  "q5_industry": "학계+기업 연구소(Tencent AI Lab) 공동; 테스트용 100경기×과제 파일 공개, 전체 수집본은 미공개",
+  "q6_constraints": "ESPN 데이터 정책(저작권) 제약 아래 표본만 공개; 논문 본문에 데이터 링크가 없고 GitHub는 별도 공개",
+  "q7_accept": "공개 리뷰 없음(ACL). self-claim: 정보 융합·수치 추론을 위한 새로운 정량 평가 메커니즘, 암기 불가한 동적 서사, 규칙 변경·노이즈·이름 치환으로 지식 충돌 진단"
+ },
+ "review": null,
+ "limitations": "NBA·NFL만 다뤄 다른 종목으로의 일반화가 미검증이고, 규칙 변경·셔플 같은 극단 시나리오는 실무와 거리가 있으며 점수 체계의 타당성은 다른 도메인에서 검증되지 않았다(§6 p.9). 턴오버는 기록 누락으로 추적에서 제외해 박스스코어 값을 빌려 쓴다(각주 p.4). 100경기 표본이라 통계적 신뢰구간이 넓고, 4-8k 모델은 쿼터 분할 합산이라 장문 모델과 조건이 다르다. 논문 본문에 데이터 공개 링크가 없어 재현 시 저장소를 별도로 찾아야 한다.",
+ "oneline": "ESPN play-by-play 기록을 주고 팀 득점·통계를 JSON으로 집계시키되, 득점 규칙 변경·선수 소속 교환·순서 셔플·이름 치환으로 규칙 준수와 수치 융합을 시험하는 NBA/NFL 벤치마크(ACL 2024).",
+ "implications": [
+  "원자료(수백 행 로그)를 질문에 동봉하고 규약(모든 득점 1점, 바뀐 소속표)을 명시해 정답을 결정론적으로 재계산한 New Rule/Swap 과제는 우리 온체인 C형(블록 구간 로그 + 디코딩 규약 + 문턱)과 구조가 가장 유사한 선례다.",
+  "'선수 이름을 SF 캐릭터로 바꾸면 성능이 급락'한 실험은 LLM이 사전지식(유명 주소·토큰 심볼)으로 답을 추정할 위험을 보여주므로, 우리 셋도 주소·토큰 라벨을 익명화한 변형을 두어 순수 계산 능력을 분리 측정할 필요가 있다.",
+  "비득점 플레이 복제/삭제로 밀도를 조절한 것처럼, 우리 셋도 무관 이벤트(다른 토큰의 Transfer, 실패 tx)를 섞는 비율을 조절해 난이도 축을 만들 수 있다.",
+  "정답을 단일 값이 아니라 여러 통계의 가중합(Game Score)으로 종합 채점한 방식은, 우리의 record/list형 답(받은/보낸/순변화 세 값)을 하나의 편차 지표로 요약하는 채점 설계에 참고된다."
+ ],
+ "brief": false
+}

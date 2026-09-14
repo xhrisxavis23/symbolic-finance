@@ -1,0 +1,32 @@
+{
+ "key": "cryptoanalystbench",
+ "title": "CryptoAnalystBench: Failures in Multi-Tool Long-Form LLM Analysis",
+ "authors_short": "Eswaran et al. · Sentient Labs · UC San Diego",
+ "venue": "arXiv 2602.11304 (Preprint)",
+ "venue_verified": "arXiv only — PDF p.1 'arXiv:2602.11304v1 [cs.IR] 11 Feb 2026', 하단 'Preprint.'",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2602.11304",
+  "pdf": "https://arxiv.org/pdf/2602.11304",
+  "proceedings": null,
+  "github": "https://github.com/sentient-agi/CryptoAnalystBench",
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv PDF 다운로드 OK(1-8쪽 정독); GitHub 200(Apache-2.0, 12★); raw data/dataset.csv 실제 다운로드(198행, 컬럼 query·tags); README 열람"
+ },
+ "domain": "크립토·DeFi 애널리스트형 장문 질의(프로젝트 리서치·시장 데이터·온체인 흐름·매크로 서사·트레이딩 전략 등 11개 범주)",
+ "dataset": {
+  "construction": "실제 서비스 트래픽에서 5단계로 큐레이션(Table 1 p.6): 1) 필터링(과도하게 긴 지시·2~3단어 질의 제거) → 2) 클러스터링(~2,000개, 11개 애널리스트 범주로 의미 군집) → 3) 다양성 선택(~650, 'LLM-assisted removal of near-duplicates differing only in entities') → 4) 난이도 필터(~350, 검색·도구 없이 답할 수 있는 기초 개념 질문 제거) → 5) 전문가 큐레이션(198, 범주 비율 유지·복합 추론 요구). 'queries are drawn from real user traffic'(p.5), PII·민감 질의 제거, 'The released benchmark contains only de-identified prompts and does not include user metadata'(p.6). 정답 없음: 'Time-robust question framing: questions are designed to remain meaningful over time (answers may vary, but the question remains valid)'(p.6). 평가는 에이전트 하네스 응답을 LLM-as-judge 4차원(시간 적합성·데이터 일관성·깊이·관련성, 1~10) + 인용 검증 파이프라인으로 채점(p.8); 인간 전문가와 가중 Cohen κ 0.35~0.42(Table 5 p.8)로 낮음.",
+  "size_format": "GitHub data/dataset.csv 198행, 컬럼 query, tags; 태그 분포(실측): Project & Fundamental Research 36, Market Data & Price Discovery 34, On-Chain Analytics & Flows 33, Macro & Narrative Context 23, Trading & Strategy Design 19, Crypto Concepts & How-To 16, Comparative & Performance Analysis 14, Meme Coins 10, Security & Risks 10, NFTs 2, Default / General Analysis 1. 정답·근거 없음; 판정 루브릭·인용 검증 스크립트(citation_hallucination_check.py)·오류 분류(run_error_taxonomy.py) 동봉.",
+  "samples": [
+   "[GitHub data/dataset.csv · tag=On-Chain Analytics & Flows (논문 Table 2 p.6에도 인용)] Are ETH whales accumulating today?",
+   "[GitHub data/dataset.csv · tag=Comparative & Performance Analysis] Can you analyze the correlation between BTC and ETH price movements over the last 30 days?",
+   "[GitHub data/dataset.csv · tag=Crypto Concepts & How-To] What are the current daily withdrawal limits and network fees on Bitget for an unverified (No-KYC) account?",
+   "[논문 Table 2 p.6 · Market Data & Price Discovery] Filter tokens with 100M–1B market cap and >10% 24h gain"
+  ],
+  "class": "B",
+  "class_reason": "실사용자 질의 그대로라 '오늘 고래가 매집 중인가'처럼 개체·기간이 느슨하고, 정답이 없으며 시간에 따라 답이 바뀌는 자문·분석형 질문이다. 원자료 동봉·결정론적 계산이 없어 도메인 특화 지식·분석 QA(B)로 분류한다.",
+  "release": "GitHub sentient-agi/CryptoAnalystBench 공개(Apache-2.0), dataset.csv·평가 파이프라인·루브릭 실제 열람; 모델 응답 로그는 저장소 목록에서 확인되지 않음."
+ },
+ "oneline": "Sentient의 실제 사용자 트래픽에서 5단계 큐레이션한 198개 정답 없는 크립토 애널리스트 질의와 LLM-judge·인용 검증 파이프라인, 7종 오류 분류를 공개한 프리프린트(Apache-2.0).",
+ "brief": true
+}

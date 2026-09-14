@@ -1,0 +1,54 @@
+{
+ "key": "balch_replay_vs_iabs",
+ "title": "How to Evaluate Trading Strategies: Single Agent Market Replay or Multiple Agent Interactive Simulation? — 두 방식을 같은 조건에서 맞붙인 실험",
+ "authors_short": "Tucker Balch · Mahmoud Mahfouz · Joshua Lockhart · Maria Hybinette · David Byrd (J.P. Morgan AI Research · UGA · Georgia Tech)",
+ "venue": "arXiv 1906.12010 (2019-06-28)",
+ "venue_verified": "arXiv 1906.12010 전문 확인. JPMorgan 사이트에도 호스팅. 저널·학회 게재 여부는 미확인",
+ "type": "백테스트 방법론 비교 실험",
+ "domain": "시장충격 측정",
+ "data_scope": "LOBSTER 메시지 파일 하루, 09:30~10:30 — **86,615 이벤트, 41,844 고유 주문 ID, 매도 신규지정가 22,222 · 매수 19,333**. 신규 지정가 41,554건의 평균 도착 간격 866ms, 취소 38,791건은 928ms. **종목명과 날짜가 논문에 없다.**",
+ "tags": [
+  "재생 vs 상호작용",
+  "쌍 실험",
+  "충격 영구성",
+  "시드 통제"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1906.12010",
+  "verified": "arXiv 200 전문 확인"
+ },
+ "easy": {
+  "problem": "같은 주문을 (a) 과거 데이터를 되감는 방식과 (b) 인공 참가자들이 반응하는 방식에서 각각 내면, 결과가 얼마나 다른가?",
+  "how": "두 환경을 같은 매칭엔진 위에 세우고, 같은 주문을 같은 시각에 반복해서 넣어 중간가 궤적을 비교한다.",
+  "analogy": "같은 돌을 (a) 녹화된 호수 영상 위에 던지는 것과 (b) 실제 물이 있는 호수에 던지는 것."
+ },
+ "contributions": [
+  "재생 쪽 구성: ExchangeAgent(실제 매칭엔진) + **MarketReplayAgent**(과거 주문 스트림을 유동성으로 재생) + 실험 에이전트. 개장 호가창은 메시지 스트림에 없는 초기 주문 때문에 L2 스냅샷으로 부트스트랩하고, 히든·가시 체결 메시지는 해당 대기주문의 취소로 변환한다.",
+  "실험: 최우선 잔량의 200% 크기 시장가를 09:45:00~09:53:15 동안 5초마다, 매수 100 + 매도 100(200회 시뮬). 이어 크기를 **50%·200%·300%·1000%** 로 훑으며 각 40회(총 160회).",
+  "IABS 쪽: 1,000 시간단위, 포아송 도착, 평균회귀 펀더멘털, **ZI 에이전트 100명**(베이지안 가치 신념 + 사적 가치 벡터 + Wang–Wellman 전략 문턱 η). 충격 에이전트는 최우선 호가 1% 이내 유동성을 t=200 에 전부 먹는다. **전역 시드를 공유한 실험–대조 쌍 100개(200회 시뮬)**, 에이전트마다 별도 PRNG.",
+  "**결과가 핵심이다.** 재생에서는 충격이 기준선으로 되돌아온다(매도는 완전히, 매수는 부분적으로). IABS 에서는 \"the price stabilize[s] at a new level in each set of experiments, suggesting that the impact of the order is longer lasting or even permanent. This corresponds more closely with existing impact models.\"",
+  "메커니즘 셋을 제시한다 — 호가창이 얇아졌고, ZI 에이전트의 보유량과 사적 가치가 바뀌었고, 전략 문턱 η 때문에 새 스프레드에서 거래한다.",
+  "인식론적 겸손도 적었다 — \"it is not feasible in a real market to conduct experiments that definitively evaluate the impact of orders on the market: We can never know how the market would have proceeded without the experimental order being present.\""
+ ],
+ "backtest": {
+  "rung": "L5",
+  "rung_reason": "재생(L2~L3)과 다중 에이전트(L5)를 같은 실험 안에서 비교한다. 이 조사에서 두 층의 차이를 **숫자로** 보여 주는 유일한 작업.",
+  "data_short": "LOBSTER 1일 1시간 (종목·날짜 미명시) + 합성 ZI 100명",
+  "fill_short": "실제 매칭엔진 FIFO (양쪽 공통)",
+  "cost_short": "다루지 않음",
+  "selfimpact": "재생 = 없음 / IABS = 있음. 그 차이가 결과다.",
+  "validation": "쌍 실험 + 에이전트별 PRNG 로 \"다른 에이전트의 행동 변화가 무작위 섭동이 아니라 바뀐 시장 환경에서 온 것\" 임을 보장한다.",
+  "metrics": "재생 기준선으로 정규화한 1ms 간격 중간가 궤적.",
+  "gap": "IABS 의 배경 에이전트가 합성이라 '어느 쪽이 진짜 시장에 가까운가' 는 여전히 미해결이다. 종목·날짜 미공개."
+ },
+ "code": [
+  "ABIDES 기반 — [abides-sim/abides](https://github.com/abides-sim/abides) · [jpmorganchase/abides-jpmc-public](https://github.com/jpmorganchase/abides-jpmc-public)"
+ ],
+ "oneline": "재생에서는 충격이 사라지고 상호작용에서는 남는다 — 백테스트 방식이 결론의 성질을 바꾼다는 것을 통제 실험으로 보인 논문.",
+ "implications": [
+  "우리 백테스트에서 진입 뒤 가격이 되돌아오는 것이 **시장의 성질인지 재생의 인공물인지** 구분이 안 된다. 이 논문이 그 질문의 형식이다.",
+  "쌍 실험 + 시드 통제 설계는 우리도 쓸 수 있다 — 같은 신호·같은 시드로 `order_qty` 만 바꿔 돌리면 우리 규모에서 자기영향이 언제부터 문제가 되는지 하한을 잡을 수 있다.",
+  "우리 거래 규모(거래당 100만원)가 최우선 잔량 대비 몇 %인지는 원장의 게시 시점 잔량으로 바로 계산된다. 그 숫자를 보고해야 '자기영향 무시' 가정을 정당화할 수 있다."
+ ],
+ "resolution": "틱·메시지"
+}

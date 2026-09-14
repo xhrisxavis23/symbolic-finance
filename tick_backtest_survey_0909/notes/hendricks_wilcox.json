@@ -1,0 +1,23 @@
+{
+ "key": "hendricks_wilcox",
+ "title": "Hendricks & Wilcox (IEEE CIFEr 2014) — \"최대 10.3% 개선\" 은 12칸 중 최고 칸이다",
+ "authors_short": "Dieter Hendricks · Diane Wilcox (Witwatersrand)",
+ "venue": "IEEE CIFEr 2014",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1403.2229",
+  "proceedings": "https://doi.org/10.1109/CIFEr.2014.6924109",
+  "verified": "OpenAlex 로 conference-paper 확인 · arXiv 전문"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "틱에서 만든 **5분 격자** 위의 Almgren-Chriss 배율 조정. 큐·지연·수수료 없음.",
+  "data_short": "TRTH JSE ALSI 166종목 · 2012년 · 5호가 → **5분 집계**",
+  "fill_short": "5분 평균가",
+  "cost_short": "**Almgren-Chriss 일시충격만, 영구충격 ρ = 0**",
+  "design": "스프레드·거래량 상태에 따라 AC 궤적을 β ∈ [0, 2](0.25 간격)로 스케일하는 표 기반 Q학습. 보고는 SBK·AGL·SAB 3종목. 학습 2012-01~06 / 테스트 2012-07~12. 호가창 참여율 상한 20%.",
+  "validation": "단일 분할, 시드 없음.",
+  "gap": "**초록의 \"up to 10.3% on average\" 는 12개 행 중 최고 행이고, 그 행의 8개 시간대 성분은 {23.9, −1.4, 4.7, 13.4, 1.8, 3.3, 1.8, 35.1} 로 두 이상치가 지배한다.** 나머지 11개 행은 1.1~9.8% 이고 개별 칸은 **−26.1%·−25.2%·−24.3%** 까지 내려간다. 저자들도 \"This result may be biased due to the assumption of order book resilience\" 라고 적었다. 상태 세분화를 늘려도 개선이 없어 \"market dynamics may not be fully represented by volume and spread state attributes\" 라고 인정한다."
+ },
+ "oneline": "격자를 훑고 최고 칸을 초록에 쓰는 것 — Bailey 외가 E[max_N] 으로 형식화한 현상의 교과서적 사례.",
+ "resolution": "초~분봉"
+}

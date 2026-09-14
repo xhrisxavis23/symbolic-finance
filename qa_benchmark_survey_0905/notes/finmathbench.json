@@ -1,0 +1,31 @@
+{
+ "key": "finmathbench",
+ "title": "FinMathBench: A Formula-Driven Benchmark for Evaluating LLMs’ Math Reasoning Capabilities (Crossref 제목 기준; 정식 부제 미확인)",
+ "authors_short": "미확인(Crossref 저자 미조회) · Ant Group/Alipay(GitHub ant-research, 패키지 com.alipay.FinMathBench)",
+ "venue": "AAAI 2026",
+ "venue_verified": "Crossref DOI 10.1609/aaai.v40i37.40358, container 'Proceedings of the AAAI Conference on Artificial Intelligence', published 2026-03-14. arXiv 미등재(제목 검색 무결과). 논문 PDF 미확보—본 요약은 GitHub 저장소(README·prompt·paper_samples)만 근거",
+ "links": {
+  "arxiv": null,
+  "pdf": null,
+  "proceedings": "https://doi.org/10.1609/aaai.v40i37.40358",
+  "github": "https://github.com/ant-research/FinMathBench",
+  "huggingface": null,
+  "website": null,
+  "verified": "GitHub 200(README·README_ZH·prompt/*.txt·paper_samples/question_n1~n4.xlsx raw 수신, n1·n3 파싱); Crossref 메타데이터 확인; AAAI OJS·doi.org 직접 열람 미실시"
+ },
+ "domain": "금융 수학(은행 자격시험·재무분석 공식 등) / 중국어",
+ "dataset": {
+  "construction": "Java 생성기(Data-Generator)가 공식 라이브러리(formula_base_l1.xlsx 등, 난도 L1/L2)에서 공식과 파라미터 범위를 읽어 무작위 값을 채우고 Groovy 식으로 정답을 계산한 뒤, LLM(LLMInvoker; 모델명 README 미기재)에 system.txt 프롬프트로 '공식·주어진 조건·구하는 목표'를 주어 특정 도메인 배경의 서술형 문제를 작성시킨다. 프롬프트 제약: 공식·파라미터 목록 노출 금지, 정밀도 지정 금지, 주어진 수치는 그대로 포함, 단리/복리 명시, 그리고 '干扰信息(교란 정보)'를 장황하게 넣되 풀이에 영향 없게 할 것. N1(단일 공식)~N4(공식 4개 결합) 난도, 결과는 xlsx로 저장하고 '자동으로 생성 문제의 정확성·계산가능성을 검증'(README). 사람 검수 여부는 README에 없음.",
+  "size_format": "paper_samples: question_n1.xlsx 30문항, n2/n3(20문항)/n4 각 xlsx(샘플). 필드: question(중국어 서술문+Markdown 표), groundTruth, expressionGroovy(예: 'I = P * r * t'), textZhcn(공식 한글화 아닌 중문 설명), actualParameterList, parameterList(범위·정수 여부), promptSystem/promptUser, category(예: 银行从业资格), level(L1/L2), source(manual/synthesis3). 전체 벤치마크 규모는 논문 미확보로 미확인.",
+  "samples": [
+   "[N1, name=单利计算, category=银行从业资格, level=L1, formula: 利息 = 本金 * 年利率 * 期限] question: \"某银行2025年推出一款定期存款产品。一位客户在办理业务时咨询了不同投资渠道的风险收益特征，理财经理在分析该客户的投资组合时提及了股票市场波动性、期货杠杆效应以及外汇汇率变动对资产配置的影响，但客户最终决定将部分资金存入该银行以保证本金安全。已知该客户存入的本金为2464.884万元，存款采用单利计息方式，到期后获得的利息总额为14,582,253.744元。该行各期限存款利率及近期市场参考数据如下表所示：\n\n| 产品类型       | 起存金额（元） | 参考年利率 | 市场对比指标        |\n|----------------|----------------|------------|---------------------|\n| 三月期结构性   | 50000          | 3.25%      | SHIBOR三个月4.21%   |\n| 半年期保本理财 | 100000         | 4.58%      | 国债逆回购3.67%     |\n| 一年以上大额存单 | 200000         | 9.86%      | 沪深300指数PE12.3倍 |\n\n根据该银行系统自动生成的计息凭证及客户签署的《存款协议补充条款》，请问该客户这笔定期存款的实际存续期限是多少年？\" | groundTruth: 6 (출처: GitHub ant-research/FinMathBench paper_samples/question_n1.xlsx 1행)",
+   "[N3, names=市盈率（P/E）|股息率|每股股利, formulas: 市盈率 = 每股价格/每股收益|股息率 = 每股股息 / 每股价格|每股股利 = 股利总额/年末普通股份总数] question(일부): \"2024年末，某科技集团发布年度财务报告，披露了其资本结构调整后的股息分配方案。该集团在第三季度通过收购两家初创企业扩大了业务范围，并优化了其在半导体行业的专利布局。根据财务报表附注显示，集团当年实际可分配利润中用于普通股股利的部分已经董事会批准。以下是从年度报告中提取的合并收益表片段及相关市场数据：\n\n| 项目名称             | 金额（元）       | 备注                        |\n|----------------------|------------------|-----------------------------|\n| 营业收入             | 2,854,796,314    | 不含非经常性损益            |\n| 贝塔系数             | 1.23             | 基于沪深300指数计算         |\n| 股利总额             | 64,125,351       | 含特别股息5,000,000元      |\n| 年末普通股份总数      | 3,249,784股      | 已考虑库存股回购影响        |\n| 市盈率               | 28.75            | 按年末收盘价计算            |\n| 现金…\" | groundTruth: 0.00259847 (출처: paper_samples/question_n3.xlsx 1행)",
+   "[prompt/one_shot.txt 예시 출력 일부] \"…某期货交易员在2025年5月16日的账户结算单如下表所示。…请计算该交易员当日的入金金额是多少元？ | 结算项目 | 金额（元） | 上日结存 | 9,587,902 | 当日盈亏 | 31,821,929 | 手续费 | 547,646.58904678元 | 出金 | 13,087,313 |\""
+  ],
+  "class": "B",
+  "class_reason": "공식 기반 금융 계산 문제로 답은 결정론적이지만 파라미터가 무작위 합성값이고 특정 실데이터 인스턴스에 묶이지 않는다. 교란 표를 문제에 넣어 '원자료에서 값을 골라 계산'하는 C-lite 요소가 있으나 규약(공식)은 의도적으로 숨기고 시험형이므로 B.",
+  "release": "GitHub Apache-2.0(생성기·샘플 xlsx·프롬프트 공개, 2025-11 생성). 전체 평가셋·논문 PDF·평가 결과는 저장소에 없음. 실제 열람: README, prompt 3종, xlsx 2종."
+ },
+ "oneline": "공식 라이브러리에서 무작위 파라미터를 뽑아 Groovy로 정답을 계산하고 LLM이 교란 정보를 섞은 중국어 서술 문제를 쓰게 하는 Ant Group의 금융 수학 벤치마크 생성기(AAAI 2026, 논문 본문 미확보).",
+ "brief": true
+}

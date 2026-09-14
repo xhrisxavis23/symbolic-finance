@@ -1,0 +1,59 @@
+{
+ "key": "moallemi_yuan",
+ "title": "A Model for Queue Position Valuation in a Limit Order Book (Moallemi & Yuan) — 큐 위치의 값을 실제로 재고, 그것이 스프레드만큼 크다는 것을 보인 연구",
+ "authors_short": "Ciamac C. Moallemi · Kai Yuan (Columbia)",
+ "venue": "워킹페이퍼 (2016-12, 2017-06 개정) · SSRN 2996221",
+ "venue_verified": "moallemi.com/ciamac/papers/queue-value-2016.pdf 200 전문 확인. 저널 게재 여부는 미확인",
+ "type": "큐 위치 가치평가 모형 + 인공주문 시뮬레이션",
+ "domain": "대형틱 미국 주식·ETF 마켓메이킹",
+ "data_scope": "**NASDAQ ITCH market-by-order**(주문 ID 있음). 대형틱 9종목 BAC·CSCO·GE·F·INTC·PFE·PBR·EEM·EFA, 2013년 8월(21~22 거래일), 값은 30 거래일 평균.",
+ "tags": [
+  "큐 위치 가치",
+  "인공주문",
+  "무한소 가정",
+  "리베이트 반영"
+ ],
+ "links": {
+  "pdf": "https://moallemi.com/ciamac/papers/queue-value-2016.pdf",
+  "ssrn": "https://papers.ssrn.com/abstract=2996221",
+  "verified": "저자 PDF 200 전문 확인"
+ },
+ "easy": {
+  "problem": "지정가 주문의 가치는 '어디에 걸었나' 만이 아니라 '줄의 몇 번째인가' 로도 정해진다. 그 줄 위치가 도대체 얼마짜리인가?",
+  "how": "실제 주문의 손익을 재면 사적 정보가 섞인다. 그래서 **무작위 시점에 인공 주문을 넣어** 실제 우선순위 규칙으로 굴린다.",
+  "analogy": "줄 서기의 가치를 재려고, 아무 이유 없이 무작위로 줄을 서 보고 결과를 기록하는 것."
+ },
+ "contributions": [
+  "방법론이 이 조사에서 가장 깔끔하다 — \"the order value cannot be measured by the profitability of the actual historical orders in the limit order book, since actual orders may have private information. In order to bypass this difficulty, instead of actual orders, we will simulate the outcome of randomly placed artificial orders… we will assume that all of the artificial orders are of infinitesimal size and hence have no market impact.\"",
+  "주문 두 종류 — **regular**(큐 맨 뒤, FIFO)와 **touch**(맨 앞). 10:00~15:30 사이 **하루 1,000회 균등 무작위 시점**에 삽입하고 실제 가격-시간 우선순위로 굴린다.",
+  "종료 조건 셋을 명시한다 — 더 좋은 가격의 주문이 오면 취소로 간주, 같은 가격의 나중 주문이 체결되면 체결로 간주, 큐가 비면 취소로 간주.",
+  "가치 = 체결가 − 펀더멘털, 펀더멘털은 **체결 1분 뒤 중간가**로 대용. **NASDAQ maker 리베이트 0.3틱** 을 포함한다.",
+  "**핵심 결론: 대형틱 종목에서 큐 가치는 매수매도 스프레드와 같은 자릿수다.** 즉 큐 위치를 무시한 백테스트는 마켓메이킹 손익을 대략 스프레드 하나만큼 잘못 말한다.",
+  "모형과 시뮬레이션이 잘 맞는다 — BAC 주문가치 0.14 vs 0.14틱, 체결확률 0.62 vs 0.60, touch 가치 0.36 vs 0.31."
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "L3 원장(MBO)에서 실제 가격-시간 우선순위로 큐를 굴린다. 주문을 무한소로 가정해 자기영향을 배제하고, 지연은 없다.",
+  "data_short": "NASDAQ ITCH MBO · 9종목 · 2013-08",
+  "fill_short": "실제 FIFO 우선순위 · 인공주문 삽입",
+  "cost_short": "NASDAQ maker 리베이트 0.3틱 포함",
+  "latency": "없다.",
+  "selfimpact": "무한소 가정으로 명시적 배제.",
+  "validation": "모형 예측 vs 시뮬레이션 교차 확인. 표본 외 시간 분할은 아니다.",
+  "metrics": "주문 가치(틱) · 체결확률 · touch 가치.",
+  "quotes": [
+   "the order value cannot be measured by the profitability of the actual historical orders in the limit order book, since actual orders may have private information. In order to bypass this difficulty, instead of actual orders, we will simulate the outcome of randomly placed artificial orders… we will assume that all of the artificial orders are of infinitesimal size and hence have no market impact."
+  ],
+  "gap": "대형틱 9종목 · 한 달. 지연 없음. 펀더멘털 대용치가 1분 뒤 중간가라는 선택이 결과에 영향을 준다."
+ },
+ "code": [
+  "공개 코드 없음"
+ ],
+ "oneline": "큐 위치의 값이 스프레드만 하다 — 큐를 안 세는 백테스트는 마켓메이킹 손익을 스프레드 하나만큼 틀린다는 뜻이다.",
+ "implications": [
+  "**우리가 큐를 세는 것의 정량적 정당화다.** '큐를 무시하면 스프레드만큼 틀린다' 는 문장을 이 논문으로 뒷받침할 수 있다.",
+  "'무작위 시점에 인공 주문을 넣어 사적 정보를 제거한다' 는 설계는 우리 발굴 단계의 대조군으로 쓸 수 있다 — 가설 없이 무작위 시점에 BID1 에 걸었을 때의 `net_bps` 분포가 우리 진짜 기준선이어야 한다. 지금 우리 기준선은 그것이 아니다.",
+  "우리는 종목-일별 `tick_size_bps` 를 이미 기록한다. 이 논문의 결론(대형틱일수록 큐 가치가 크다)을 KRX 에서 확인하려면 그 열로 층화하면 된다."
+ ],
+ "resolution": "틱·메시지"
+}

@@ -1,0 +1,26 @@
+{
+ "key": "finrl_trademaster",
+ "title": "FinRL · FinRL-Meta · TradeMaster · MacroHFT — \"HFT\" 라는 이름과 실제 해상도",
+ "authors_short": "AI4Finance Foundation · TradeMaster-NTU · Zong 외",
+ "venue": "NeurIPS 2022/2023 D&B (FinRL-Meta·TradeMaster) · KDD 2024 (MacroHFT)",
+ "links": {
+  "github": "https://github.com/AI4Finance-Foundation/FinRL",
+  "github_extra": [
+   "https://github.com/AI4Finance-Foundation/FinRL-Meta",
+   "https://github.com/TradeMaster-NTU/TradeMaster",
+   "https://github.com/ZONG0004/MacroHFT"
+  ],
+  "verified": "FinRL star 16,244 MIT · FinRL-Meta 1,932 MIT · TradeMaster 3,059 Apache-2.0 · MacroHFT star 140 라이선스 없음·README 없음. Qlib 은 동료심사 venue 가 없다"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "전부 봉 기반이다. FinRL 의 체결은 소스에서 확인된다 — `self.state[index+1]` 이 **일간 종가**다.",
+  "data_short": "일봉~분봉 (호가창 없음)",
+  "fill_short": "**종가 전량 체결**",
+  "cost_short": "고정 비율 `transaction_cost_pct`",
+  "design": "`finrl/meta/env_stock_trading/env_stocktrading.py` 의 핵심 한 줄: `sell_amount = self.state[index + 1] * sell_num_shares * (1 - self.sell_cost_pct[index])`. 호가창도, 부분체결도, 지연도, 큐도, 자기영향도 없다. `turbulence_threshold` 로 강제 청산만 있다.",
+  "gap": "**\"HFT\" 가 상표이지 해상도가 아니다.** MacroHFT(KDD 2024)는 분봉 종가 대 종가이고 √525600 으로 연환산한다. TradeMaster(NeurIPS 2023 D&B)는 마켓메이킹과 HFT 를 6개 과제 중 둘로 내세우면서 1분보다 세밀한 데이터를 제공하지 않는다(12일치 17,113행). **ElegantRL 은 RL 알고리즘 라이브러리이고 시장 시뮬레이터가 아예 없다.**"
+ },
+ "oneline": "이 계열의 '고빈도' 는 대부분 분봉이고, 체결은 종가 전량이다 — 도구를 고를 때 이름이 아니라 체결 코드를 봐야 한다.",
+ "resolution": "일봉 이상"
+}

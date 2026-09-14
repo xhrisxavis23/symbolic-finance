@@ -1,0 +1,92 @@
+{
+ "key": "intent2tx",
+ "title": "Intent2Tx: Benchmarking LLMs for Translating Natural Language Intents into Ethereum Transactions",
+ "authors_short": "Pan et al. · Peking University · Taiyuan University of Technology",
+ "venue": "arXiv 2604.27763 (Preprint)",
+ "venue_verified": "arXiv only — PDF p.1 'arXiv:2604.27763v1 [cs.AI] 30 Apr 2026', 하단 'Preprint.'; 익명 저장소(anonymous.4open.science) 사용으로 학회 심사 중으로 추정(미확인)",
+ "type": "벤치마크(자연어 의도 → 구조화 이더리움 트랜잭션 JSON 생성) + 파인튜닝 코퍼스 + 포크 실행 평가",
+ "domain": "이더리움 메인넷 DeFi 프로토콜 상호작용(Transfer·Swap·TokenLifecycle·Lending·AssetTransformation·Staking·Governance·NFT·Liquidity·Vault·Other 11개 범주)",
+ "data_scope": "단일 단계 29,921 + 다단계 1,575 인스턴스(p.3); 원천은 2025.03~2026.01 300일간 이더리움 메인넷 트랜잭션 로그 — Bitquery GraphQL로 원시 호출 1.03M건, Etherscan에서 131,273개 계약의 ABI·소스 확보, 후보 64,424건→29,921건(p.5)",
+ "tags": [
+  "intent-to-transaction",
+  "이더리움",
+  "DeFi",
+  "구조화 생성",
+  "포크 실행 평가",
+  "LLM 합성 의도",
+  "파인튜닝 코퍼스"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2604.27763",
+  "pdf": "https://arxiv.org/pdf/2604.27763",
+  "proceedings": null,
+  "github": "https://anonymous.4open.science/r/Intent2Tx_Bench-97FF/",
+  "huggingface": "https://huggingface.co/datasets/Intent2Tx/web3_intents_to_ethereum_transactions",
+  "website": null,
+  "verified": "arXiv PDF 20쪽 다운로드 OK. 익명 저장소: 루트 URL 302→api/.../file/ 401이지만 api/repo/Intent2Tx_Bench-97FF/files/?path=data 와 file/README.md 는 200 — README·data/ 파이프라인 스크립트 12개(1_bitquery_get_txs.py … 11_build_hf_multi_steps_dataset.py) 목록 확인. README가 가리키는 HF 데이터셋 Intent2Tx/web3_intents_to_ethereum_transactions(license apache-2.0, lastModified 2026-04-29, 47 downloads, 파일 hf_single_step_intent2tx.jsonl·hf_multi_steps_intent2tx.jsonl)를 datasets-server rows API로 실제 열람: single_step 29,921행·multi_step 1,575행"
+ },
+ "easy": {
+  "problem": "Web3 사용자가 'ETH를 USDC로 바꾸고 유동성 넣어줘' 같은 의도를 말하면 LLM이 계약 주소·함수·ABI 인코딩 파라미터를 정확히 만들어야 하는데, 프로토콜마다 라우터 로직이 다르고(이질성), 호출 데이터는 hex라 읽기 어렵고(가독성), 유효성이 실시간 EVM 상태에 묶인다(상태 의존)(p.1-2). 기존 Intent-Tx-18K는 hex 원시 데이터라 생성용이 아니고 EVM-QuestBench는 단계별 지시라 목표 지향 의도가 아니다(p.2).",
+  "how": "실제 메인넷 300일치 트랜잭션을 ABI로 디코딩해 {contract, contract_address, function, params{type,val}, value} 스키마로 구조화하고, Gemini-2.5-Flash에게 'Web3 사용자처럼 이 트랜잭션의 상위 목표를 역추론'하게 해 자연어 의도를 붙였다. 같은 발신자의 연속 행동을 묶어 다단계 의도 1,575개도 만들었다(p.5). 평가는 형식·논리(주소/함수/이름)·파라미터·pass@1 가중 점수와, anvil 메인넷 포크에서 실행 가능성·상태 동등성(잔액 변화 <1%)으로 한다(p.6-7).",
+  "analogy": "실제 은행 거래 기록 3만 건을 보고 '고객이 뭐라고 말했을까'를 AI가 거꾸로 써넣은 뒤, 새 모델이 그 말만 듣고 같은 거래 전표를 작성할 수 있는지, 모의 은행에서 실제로 실행해 잔액이 맞는지 보는 시험."
+ },
+ "contributions": [
+  "고수준 의도 → 읽을 수 있고 실행 가능한 트랜잭션 매핑 벤치마크: 단일 29,921·다단계 1,575, 11개 1차 범주(Transfer 29.03%·Swap 27.49%·TokenLifeCircle 21.31%·Other 7.44%·기타 14.74%, Fig.1 p.3)",
+  "4단계 추출 파이프라인(추적 수집·계약 접지 → 필터·구조화 디코딩 → 역추론 의도 합성 → 분류·다단계 합성)(Fig.2 p.5)",
+  "실행 인식 평가: 형식·논리(주소 0.4·함수 0.4·이름 0.2)·파라미터·pass@1(S_log≥0.8 ∧ S_prm=1.0)의 가중 최종 점수(0.1/0.3/0.2/0.4)와 anvil 포크 차등 상태 분석(Exec·StateEq)(p.6-7)",
+  "16개 LLM 평가: 직접 추론 pass@1은 대부분 0.05 미만, top-3 검색 보강 시 0.30~0.42(Claude Opus 4.5 0.42, Gemini 2.5 Flash 0.42)(Table 1 p.7); 실행 평가 최고 Exec 0.744(GPT 5.2, 검색), StateEq 0.706(Claude Opus 4.5, 검색)(Table 2 p.9)",
+  "Qwen3-14B LoRA 스케일링(200→28,776 인스턴스, 고정 테스트 1,145)에서 pass@1·최종 점수가 계속 상승, 교차 범주 일반화는 NFT·Vault만 개선(Fig.3 p.8, Fig.4 p.9)"
+ ],
+ "figures": [
+  {
+   "file": "figs/intent2tx_fig2.png",
+   "label": "Figure 2",
+   "page": 5,
+   "caption_ko": "4단계 데이터 구축 파이프라인: Phase 1 Bitquery API(GraphQL)와 Etherscan으로 300일간 원시 트랜잭션 호출 1.03M건과 131k 고유 주소의 ABI·소스 수집 → Phase 2 다단계 필터(성공·최상위 호출·가스)와 ABI 기반 calldata 디코딩으로 후보 64k→29,921 구조화 인스턴스(JSON: contract·function·params, '한 트랜잭션 = 한 단일 단계 의도') → Phase 3 Gemini-2.5-Flash가 Web3 사용자 역할로 '무엇을(what)' 수준의 자연어 의도 역추론 + 수동 스팟체크 → Phase 4 규칙 기반 2단 분류(예: Lending→Supply)와 발신자·시간 기준 연속 행동 묶기('then', 'and')로 다단계 합성 → 최종 단일 29,921쌍·다단계 1,575쌍.",
+   "alt": "Intent2Tx 4단계 구축 파이프라인"
+  },
+  {
+   "file": "figs/intent2tx_fig1.png",
+   "label": "Figure 1",
+   "page": 3,
+   "caption_ko": "데이터 분포: 왼쪽 1차 범주 파이(Transfer 29.03%, Swap 27.49%, TokenLifeCircle 21.31%, Other 7.44%, 나머지 14.74%를 Lending 30.26%·AssetTransformation 28.42%·Staking 27.06%·Governance 8.68%·NFT 3.12%·Liquidity 2.31%·Vault 0.14%로 세분), 오른쪽 하위범주 로그 스케일 막대(ERC20Transfer·Approve·MultiHopSwap이 최다, Liquidation·Rebalance 등 롱테일). 단일 단계 인스턴스 기준.",
+   "alt": "Intent2Tx 범주·하위범주 분포"
+  }
+ ],
+ "dataset": {
+  "construction": "Phase 1: 'ingested over 1.03 million raw Ethereum transaction calls spanning a 300-day window via the Bitquery GraphQL API' + 'extracted 131,273 unique contract addresses and retrieved their corresponding source code and ABIs from Etherscan'(p.5). Phase 2: 성공·최상위·검증 계약·충분한 가스 조건의 다단계 필터 후 'decoded the raw calldata of 64,424 candidate transactions … resulted in 29,921 high-quality, structured transaction instances'(p.5). Phase 3: 'we prompted it [gemini-2.5-flash] to act as a Web3 user and infer the high-level goal (intent) behind the structured schema'; 일반 행동은 구어체, 니치 DeFi는 기술적 정밀성 유지; 'we performed manual spot-checks on the generated intents to confirm they described the what (the goal) rather than the how'(p.5, 프롬프트 App.B.1 p.12-13). Phase 4: 규칙 기반 2단 분류(계약 메타데이터·함수 키워드), 다단계는 'grouped transactions by the initiator's (from) address and execution timestamp. Successive actions performed by the same user within a short window … were composed into complex intents using natural conjunctions (\"then\", \"and\"), resulting in 1,575 sophisticated multi-step planning tasks'(p.5). 필터링 비율: 64,424→29,921(46.4% 유지). 검증은 수동 스팟체크만(규모 미기재). 평가 시 모든 모델에 프로토콜 주소록 제공(App.B.3 p.14-15). HF 각 행에 tx_hash와 metadata(블록 시각·selector·calldata·sender·value·gas)가 남아 있어 원 트랜잭션으로 역추적 가능(HF README). README 'Notes and Limitations': 'The benchmark is derived from real historical transactions and ABI decoding; noisy samples may exist.'",
+  "size_format": "HF config default, split single_step 29,921행 / multi_step 1,575행 (합 31,496; README). 필드(양쪽 동일 스키마): instruction(시스템 지시 전문 'You are a DeFi execution planner…' + JSON 스키마), input('User intent:\\n' 접두 의도 문장), output(단일: JSON 문자열, 다단계: 액션 리스트), contract, function, primary_category, sub_category, tx_hash(실제 이더리움 트랜잭션 해시), metadata(블록 시각·selector·calldata·sender·value·gas 등 온체인 문맥). 스케일링 실험 분할은 학습 28,776/고정 테스트 1,145(p.6). JSONL 형식.",
+  "samples": [
+   "[HF Intent2Tx/web3_intents_to_ethereum_transactions · split=single_step · row 1 · Transfer/ERC20Transfer · tx_hash 0x9a1e23ba6f74dc183580f4bc73ce1ebf3227aeeb05ed3a2c4f33e2bc09111d81] input: \"User intent:\\nTransfer all my APT tokens to my friend's account 0x942a6a136f84d491134b9e03a35dafa701d7ea21.\" → output: {\"contract\": \"AdappterToken\", \"contract_address\": \"0xc314b0e758d5ff74f63e307a86ebfe183c95767b\", \"function\": \"transfer\", \"params\": {\"to\": {\"type\": \"address\", \"val\": \"0x942a6a136f84d491134b9e03a35dafa701d7ea21\"}, \"value\": {\"type\": \"uint256\", \"val\": \"4747631257570000000000000\"}}, \"value\": 0.0}",
+   "[HF · split=single_step · row 2] input: \"User intent:\\nI want to sell 260894.258902280803542530 of the token at 0x7d4a7be025652995364e0e232063abd9e8d65e6e for as much ETH as possible, and send it to 0x0d5c482e6c74a453600f3f8fb66ab924dc2ababe.\" → output: {\"contract\": \"UniswapV2Router02\", \"contract_address\": \"0x7a250d5630b4cf539739df2c5dacb4c659f2488d\", \"function\": \"swapExactTokensForETHSupportingFeeOnTransferTokens\", \"params\": {\"amountIn\": {\"type\": \"uint256\", \"val\": \"260894258902280803542530\"}, \"amountOutMin\": {\"type\": \"uint256\", \"val\": \"0\"}, \"path\": {\"type\": \"address[]\", \"val\": [\"0x7d4a7be025652995364e0e232063abd9e8d65e6e\", \"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2\"]}, \"to\": {\"type\": \"address\", …}}, …}",
+   "[HF · split=single_step · row 0] input: \"User intent:\\nSwap 0.015597799775301752 ETH for some other tokens on Uniswap through the Universal Router.\" → output: {\"contract\": \"UniversalRouter\", \"contract_address\": \"0x66a9893cc07d91d95644aedd05d03f95e1dba8af\", \"function\": \"execute\", \"params\": {\"commands\": {\"type\": \"bytes\", \"val\": \"0x0b000604\"}, \"inputs\": {\"type\": \"bytes[]\", \"val\": [\"0x0000…376a1dc2e27078\", …]}}, …}  ← 의도가 'some other tokens'로 모호하고 정답이 원시 bytes인 노이즈 사례",
+   "[HF · split=multi_step · row 0] input: \"User intent:\\nCommit a verification for Interchain Messaging, using the packet header and payload hash provided.next …\" (같은 발신자의 연속 행동을 'next'/'followed' 접속어로 이어 붙인 형태)",
+   "[논문 App.C p.15 Example 1] Input: User intent: Transfer 4.399312393802940721 LPT to 0x0D0707963952f2FBA59dD06f2B425ace40B492FE. → Output: {\"contract\": \"LivepeerToken\", \"contract_address\": \"0x58b6a8a3302369daec383334672404ee733ab239\", \"function\": \"transfer\", \"params\": {\"_to\": {\"type\": \"address\", \"val\": \"0x0d0707963952f2fba59dd06f2b425ace40b492fe\"}, \"_value\": {\"type\": \"uint256\", \"val\": \"4399312393802940721\"}}, \"value\": 0}",
+   "[논문 App.C p.16 Example 2] Input: User intent: Burn my NFT position with ID 950002. → Output: {\"contract\": \"NonfungiblePositionManager\", \"contract_address\": \"0xc36442b4a4522e871399cd717abdd847ab11fe88\", \"function\": \"burn\", \"params\": {\"tokenId\": {\"type\": \"uint256\", \"val\": \"950002\"}}, \"value\": 0}"
+  ],
+  "class": "C-lite",
+  "class_reason": "입력에 구체 개체(토큰·수신 주소·정확한 수량·데드라인)가 들어가고 정답(계약 주소·함수·uint256 인코딩 파라미터)이 결정론적이며 tx_hash·calldata 메타데이터로 원 트랜잭션에 묶여 있고 포크 실행으로 상태 동등성까지 검증한다는 점에서 C형 구조와 닮았다. 그러나 답은 원장 데이터에서 '계산한 값'이 아니라 '트랜잭션 인코딩'이고, 규약(소수점 18자리 변환 등)은 질문이 아닌 주소록·모델 지식에 의존하며, HF row 0처럼 의도가 모호하고 정답이 원시 bytes인 노이즈 사례가 섞여 있어 C-lite로 둔다.",
+  "release": "공개: HF Intent2Tx/web3_intents_to_ethereum_transactions (Apache-2.0, 비게이트, JSONL 2개 파일) 실제 행 열람; 익명 저장소(anonymous.4open.science/r/Intent2Tx_Bench-97FF)에 파이프라인·실험 코드(README·data/ 스크립트 목록 확인, 개별 파일 일부는 401). 논문 본문에는 HF 링크가 없고 익명 저장소만 기재(p.1).",
+  "contamination": "논문에 오염 논의 없음. 의도 문장은 Gemini-2.5-Flash가 생성했고 트랜잭션은 2025.03~2026.01 실거래라 최신 모델의 사전학습과 시기 중첩 가능; 스케일링 실험은 학습/테스트를 범주별 층화 분리(p.6).",
+  "evaluation": "S_fmt(JSON 유효), S_log = 0.4·[주소일치]+0.4·[함수일치]+0.2·[이름일치], S_prm(키 존재 0.4+타입 0.3+값 0.3 평균), pass@1 = [S_log≥0.8 ∧ S_prm=1.0], S_final = 0.1·S_fmt+0.3·S_log+0.2·S_prm+0.4·S_pass; 다단계는 단계 평균(p.6-7). 실행 평가: anvil 포크(원 트랜잭션 1블록 전)에서 Exec(실행 성공)·StateEq(잔액 변화 <1% 오차 일치)(p.6). 결과(Table 1 p.7): 직접 단일 최고 S_final 0.38(GPT 5.2·Gemini 2.5 Pro), 검색 단일 최고 0.70(Claude Opus 4.5·Gemini 2.5 Flash), 검색 다단계 최고 0.59(Gemini 2.5 Pro); 실행(Table 2 p.9): 검색 Exec 최고 0.744 GPT 5.2, StateEq 최고 0.706 Claude Opus 4.5, 직접 StateEq 최고 0.616 Gemini 2.5 Flash."
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작(실거래 로그 기반 합성).",
+  "q2_method": "출처 명시: Bitquery GraphQL API(원시 호출), Etherscan(ABI·소스), 이더리움 메인넷 2025.03~2026.01(p.5); 의도는 Gemini-2.5-Flash 생성.",
+  "q3_license": "HF 데이터셋 Apache-2.0(카드 메타·README 명시); 원천 Bitquery·Etherscan은 각 API 이용약관 대상.",
+  "q4_relabel": "공개 원장 데이터를 ABI 디코딩·범주 태깅·LLM 의도 부여로 재라벨링.",
+  "q5_industry": "학계(PKU·TYUT) 자체 구성; 기업 협업 언급 없음; 데이터는 HF에 공개, 코드는 익명 저장소.",
+  "q6_constraints": "제약 언급 없음. 익명 심사 중이라 저장소 일부 파일이 401이지만 데이터셋 자체는 HF에 Apache-2.0으로 공개.",
+  "q7_accept": "공개 리뷰 없음. self-claim: 최초의 의도→트랜잭션 벤치마크, 실거래 로그에서 의도-트랜잭션 쌍을 뽑는 범용 파이프라인, 포크 차등 상태 분석 기반 실행 평가와 검색·스케일링·교차 범주 분석(p.2)."
+ },
+ "review": null,
+ "limitations": "의도 문장이 LLM 역추론 산물이라 실제 사용자 표현과 다를 수 있고 검증은 수동 스팟체크뿐(규모 미기재); HF row 0처럼 'Swap … for some other tokens'로 목표가 특정되지 않는데 정답은 UniversalRouter의 원시 bytes calldata인 노이즈 사례가 존재(README도 'noisy samples may exist' 인정). 다단계 의도는 시간창 휴리스틱으로 묶어 실제 하나의 목표가 아닐 수 있다('next'/'followed'로 기계적 연결). 정답이 특정 라우터·함수 하나로 고정되어 동등한 대체 경로를 논리 점수에서 벌하며(저자도 인정, p.6), 실행 평가는 이를 보완하지만 'gold 실행 성공 인스턴스'로만 계산된다(Table 2 캡션 p.9). Transfer·Swap·Approve 편중(Fig.1 p.3). 학회 채택 여부 미확인.",
+ "oneline": "300일치 이더리움 메인넷 실거래를 ABI로 디코딩하고 Gemini-2.5-Flash로 의도를 역추론해 만든 29,921+1,575개 의도→트랜잭션 JSON 벤치마크(HF Apache-2.0 공개, tx_hash 동반); 검색 보강 시 pass@1 0.42, 포크 실행 StateEq 최고 0.706.",
+ "implications": [
+  "Intent2Tx는 '원장 → 의도'를 LLM이 역추론해 라벨을 만들었고 우리 세트는 '규약 → 원장 계산 → 값'으로 사람이 문항을 설계했다. 라벨 신뢰성 측면에서 우리는 evidence 레코드로 정답을 재계산할 수 있다는 점을 강조할 수 있다.",
+  "우리 문항 유형(토큰 순변화, run ratio 등)의 결과를 그대로 다음 행동(전송·스왑)으로 잇는 'observe→act' 결합 벤치마크에서 Intent2Tx 스키마({contract, function, params{type,val}, value})를 출력 표준으로 재사용할 수 있다.",
+  "wei 단위 uint256 변환·18자리 소수 정밀도 실패(App.D p.20)가 주요 오류로 나오므로, 우리 세트의 '토큰 최소 단위 정수' 답 규약이 실제로 모델 약점을 찌르는 설계임을 뒷받침하는 근거로 인용할 수 있다.",
+  "검색 보강(top-3 유사 사례)이 pass@1을 0.05→0.4로 끌어올린 결과는, 우리 세트에서 '유사 규약 예시 제공' 조건과 '규약 전문만 제공' 조건을 나눠 비교하는 실험 설계를 제안한다."
+ ],
+ "brief": false
+}

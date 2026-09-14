@@ -1,0 +1,24 @@
+{
+ "key": "arnott_protocol",
+ "title": "A Backtesting Protocol in the Era of Machine Learning (Arnott · Harvey · Markowitz)",
+ "authors_short": "Rob Arnott · Campbell Harvey · Harry Markowitz",
+ "venue": "Journal of Financial Data Science (2019)",
+ "links": {
+  "proceedings": "https://doi.org/10.3905/jfds.2019.1.064",
+  "verified": "Crossref 200"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "프로토콜이다.",
+  "data_short": "해당 없음",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "design": "7개 항목의 연구 프로토콜. 이 리포트에서 특히 중요한 넷 — **#2 시도한 모든 모형을 기록한다(성공·실패 모두)**, **#3 이상치·윈저화 규칙을 사전 선언하고 규칙을 하나만 시도한다**, **#4c 표본 외 분석이 비용과 데이터 수정까지 포함해 실거래를 대표하는가**, **#7 대부분의 검정이 실패할 것을 예상하라.** 그리고 #4a(실거래와의 대조 계획)와 #5b(과밀화 가정 명시).",
+  "gap": "규범이지 통계량이 아니다. 지키는지 여부는 저자의 자기보고에 달려 있다."
+ },
+ "oneline": "\"시도한 것을 전부 기록하고, 규칙은 사전에 하나만 정하고, 대부분 실패할 것을 예상하라\" — 이 리포트의 체크리스트가 여기서 나온다.",
+ "implications": [
+  "우리 사전등록서가 #2·#3·#4c 를 문서 형태로 만족한다. 남은 것은 **#2 의 '전부' 를 숫자로 세는 것**이다."
+ ],
+ "resolution": "해당 없음"
+}

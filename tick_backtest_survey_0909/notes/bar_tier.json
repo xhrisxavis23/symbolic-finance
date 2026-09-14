@@ -1,0 +1,28 @@
+{
+ "key": "bar_tier",
+ "title": "봉 기반 백테스터 계열 — backtesting.py · backtrader · zipline · vectorbt · PyBroker · bt · Freqtrade",
+ "authors_short": "각 오픈소스 프로젝트",
+ "venue": "오픈소스",
+ "links": {
+  "github": "https://github.com/kernc/backtesting.py",
+  "github_extra": [
+   "https://github.com/mementum/backtrader",
+   "https://github.com/stefan-jansen/zipline-reloaded",
+   "https://github.com/polakowo/vectorbt",
+   "https://github.com/edtechre/pybroker",
+   "https://github.com/freqtrade/freqtrade"
+  ],
+  "verified": "GitHub API 로 star·라이선스·최근 push 확인. 각 저장소의 체결 코드 직접 확인"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "전부 봉 기반이다. 지정가는 고가/저가 터치로 **전량, 지정가 그대로** 체결된다.",
+  "data_short": "봉 (일·분)",
+  "fill_short": "**고가/저가 터치 → 전량 체결**",
+  "cost_short": "고정 수수료 ± 슬리피지 상수",
+  "design": "`backtesting.py`(AGPL-3.0, star 8,947)는 `is_limit_hit = low <= order.limit`(롱) — **거래량 확인조차 없다.** `backtrader`(GPL-3.0, star 23,165, 2024-08 이후 사실상 정지)는 `_try_exec_limit` → `elif plimit >= plow: self._execute(order, ago=0, price=plimit)` 이지만 `slip_perc`/`slip_fixed`/`slip_match`/`slip_limit`/`slip_out` 과 거래량 `filler` 로 부분체결을 줄 수 있다. `zipline-reloaded`(Apache-2.0)의 `VolumeShareSlippage` 는 `price * (1 ± price_impact * volume_share²)` 에 **분봉 거래량의 2.5% 상한**(`DEFAULT_EQUITY_VOLUME_SLIPPAGE_BAR_LIMIT`)을 둔다 — 봉 계열에서 가장 쓸모 있는 사실성 장치다. `vectorbt`(star 9,041)는 `adj_price = price * (1 + slippage)`; 틱 인덱스 DataFrame 을 넣어도 결국 넘긴 가격 열에서 체결한다. `PyBroker` 는 **Apache + Commons Clause** 로 OSI 오픈소스가 아니다.",
+  "gap": "**`Freqtrade`(GPL-3.0, star 54,183)의 문서가 이 계열에서 가장 정직하다** — \"All orders are filled at the requested price (no slippage) as long as the price is within the candle's high/low range\", \"Stoploss exits happen exactly at stoploss price, even if low was lower\", \"Low happens before high for stoploss, protecting capital first\". 그리고 `--timeframe-detail`(1시간 신호 + 5분 청산 평가)을 \"전략이 백테스트 가정을 악용하고 있지 않은지 확인하는\" 마지막 단계로 권한다."
+ },
+ "oneline": "이 계열의 공통 환상은 하나다 — \"봉의 저가가 내 지정가를 스쳤으면 전량 체결\". 패시브 전략의 엣지 전부에 해당하는 크기다.",
+ "resolution": "일봉 이상"
+}

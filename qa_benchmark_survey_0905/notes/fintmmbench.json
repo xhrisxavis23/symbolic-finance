@@ -1,0 +1,89 @@
+{
+ "key": "fintmmbench",
+ "title": "Towards Temporal-Aware Multi-Modal Retrieval Augmented Generation in Finance (FinTMMBench)",
+ "authors_short": "Fengbin Zhu, Junfeng Li(공동1저자) 외 · National University of Singapore · Peking Univ. · USTC · 6Estates",
+ "venue": "ACM MM 2025 (Proceedings of the 33rd ACM International Conference on Multimedia)",
+ "venue_verified": "Crossref DOI 10.1145/3746027.3755723 'Towards Temporal-Aware Multi-Modal Retrieval Augemented Generation in Finance', container 'Proceedings of the 33rd ACM International Conference on Multimedia'(2025-10-27) · arXiv 2503.05185 코멘트 'Accepted by MM 2025'. arXiv v2 PDF 자체는 ACM 템플릿 플레이스홀더 상태(p.1)",
+ "type": "벤치마크(시간 인지 멀티모달 RAG QA) + 베이스라인 방법(TMMHybridRAG)",
+ "domain": "금융 / 주식 분석(NASDAQ-100 기업)",
+ "data_scope": "NASDAQ-100 100개사 2022년 데이터: 재무표 1,500·뉴스 3,133(Reuters 2021–2022 필터)·일별 주가 25,200건·주/월봉 차트 6,267장 = 원자료 36,100건 위 QA 5,676개(Table 1 p.3)",
+ "tags": [
+  "financial RAG",
+  "multi-modal",
+  "temporal-aware",
+  "template generation",
+  "GPT-4o-mini",
+  "NASDAQ-100",
+  "graph RAG"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2503.05185",
+  "pdf": "https://arxiv.org/pdf/2503.05185",
+  "proceedings": "https://doi.org/10.1145/3746027.3755723",
+  "github": "https://github.com/lijunfeng99/FinTMMBench",
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv abs 200, GitHub 200(QA.json 5.8MB raw 수신·5,676건 파싱, data/Chart 등 트리 확인). ACM DOI는 Crossref 메타데이터로만 확인(ACM DL 직접 열람 미실시)."
+ },
+ "easy": {
+  "problem": "주식 분석은 재무표·뉴스·주가 시계열·차트를 함께 보고, 게다가 '2022년 12월 30일' 같은 특정 시점의 값을 찾아야 한다. 기존 금융 RAG 벤치마크는 텍스트 위주이거나 시간 조건이 약해 이런 능력을 못 잰다(p.1-2).",
+  "how": "NASDAQ-100 기업의 2022년 4모달 데이터를 JSON으로 모으고, 금융 전문가와 약 100개 질문 템플릿 + CoT 가이드라인을 만든 뒤 GPT-4o-mini에 템플릿·가이드라인·관련 데이터 포인트를 넣어 질문·단계별 풀이·정답·출처 ID를 생성했다. 규칙 기반 자동 교정과 전문가 검토를 검증 정확도 85% 이상까지 반복했다(p.3-4). 시간 속성을 노드에 심은 그래프+벡터 하이브리드 RAG(TMMHybridRAG)를 베이스라인으로 제안했다.",
+  "analogy": "애플의 '2022년 12월 30일 P/E 비율'을 묻는 문제를 내려면 그날 종가(주가 파일)와 그 분기 순이익(재무표)을 각각 찾아 나눠야 한다. 이 벤치마크는 그런 '날짜 맞춰 여러 서랍을 뒤져 계산하는' 문제 5,676개를 템플릿으로 찍어낸 문제집이다."
+ },
+ "contributions": [
+  "최초의 시간 인지 멀티모달 금융 RAG 벤치마크: 4개 모달리티(표·텍스트·시계열·이미지) 코퍼스 36,100건과 QA 5,676개(Table 1 p.3), 10개 금융 분석 태스크(IE·AC·TA·LR·SC·ED·CR·CP·ST·CT) 분포 제시(Table 2 p.4)",
+  "템플릿+CoT 가이드라인 기반 GPT-4o-mini 생성과 규칙 기반 자동 교정·전문가 검토(검증 정확도·일치도 85% 기준) 파이프라인(Figure 2·3 p.3, p.4)",
+  "TMMHybridRAG: 비텍스트 데이터를 MLLM으로 텍스트화하고 시간 정보를 엔티티/관계 속성으로 넣은 벡터+그래프 하이브리드 검색(Figure 4 p.5); 전체 설정에서 EM 19.12%·F1 31.41·Acc 26.56%·LLM-judge Acc 21.53%로 최고(Table 4 p.6)",
+  "오류 분석 200건: 검색 오류 46.5%, 계산 오류 29.0%, 추론 오류 13.5%, 시간 오류 5.5%(p.7-8, Table 7 p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/fintmmbench_fig2.png",
+   "label": "Figure 2",
+   "page": 3,
+   "caption_ko": "구축 파이프라인 4단계. Step 1 이종 코퍼스 준비(재무표·뉴스·주가·기술 차트), Step 2 금융 전문가가 질문 템플릿과 CoT 가이드라인 설계, Step 3 멀티모달 LLM이 템플릿+가이드라인+데이터 포인트로 QA 쌍 생성, Step 4 자동 교정과 사람 검토로 품질 보증.",
+   "alt": "FinTMMBench 구축 4단계 파이프라인"
+  },
+  {
+   "file": "figs/fintmmbench_fig3.png",
+   "label": "Figure 3",
+   "page": 3,
+   "caption_ko": "QA 생성 입출력 예. 입력은 시스템 프롬프트, 템플릿('[Company]의 [date] P/B 비율은? 발행주식 [X] 가정'), CoT 가이드라인(총자본·주가 추출 → BPS 계산 → P/B 계산), 소스 ID가 붙은 데이터 포인트(12/29·12/30 종가, 12월 순이익 등), 3-shot 예시. 출력은 질문('Apple의 2022-12-30 P/E, 1,000,000주 가정'), 단계별 설명(EPS=29,998/1,000,000=0.029998; P/E=129.93/0.029998=4331.29), 정답 4,331.29, 참조 Source IDs.",
+   "alt": "템플릿과 CoT 가이드라인으로 QA를 생성하는 입출력 예시"
+  }
+ ],
+ "dataset": {
+  "construction": "코퍼스: 'we collect financial data of the NASDAQ-100 companies in 2022'—회사당 분기 12개+연간 3개 재무표(Alpha Vantage API), Reuters 뉴스 7만여 건 중 관련 기사 약 3,100건, 회사당 252일 주가, 주가로 생성한 주/월 캔들차트(p.2). 템플릿: 'we collaborate with financial experts to curate a set of approximately 100 different question templates' + CoT 가이드라인(p.3). 생성: 'We employ GPT-4o-mini as the multi-modal LLM for QA pair generation' — 템플릿·CoT·관련 데이터 포인트만 입력, 질문·단계별 추론·정답·참조 데이터 ID를 few-shot으로 출력(p.3). 검증: 스크립트가 '참조 ID 정확성, 각 추론 단계 등식의 좌우 일치, 단계 결과와 최종 답 일치' 규칙으로 자동 교정; 태스크 분포에 따라 표본을 뽑아 전문가 2명이 평가하고 3번째 전문가가 재검토, 'We repeat this iterative revision-review process until the verification accuracy exceeds 85% and the inter-annotator agreement between the two experts reaches 85%'(p.4). 최종 폐기율·검토 표본 수는 미보고.",
+  "size_format": "GitHub QA.json 5,676건(JSON 배열). 필드: question, answers[{answer, explanation, source[소스 ID 목록]}], uuid, type(FinancialTable 1,950 / StockPrice 1,315 / NewsSentiment 977 / NewsEvent 597 / Chart 421 / MultiPriceTable 416), subtask(예: ['Extraction','Calculation','Counterfactual','Comparison']). data/에 FinancialTable.json·News.json·StockPrice.json·Chart/*.png·schema.xlsx(템플릿)·Prompt/ 동봉(README). 평균 질문 18.88단어·답 6.87단어(Table 1 p.3).",
+  "samples": [
+   "Q: \"Which company, Charter Communications or Texas Instruments, offers a better return based on their Dividend Yield Ratios, considering Charter Communications has 100000000 shares and Texas Instruments has 1000000000 shares?\" | answer: \"Charter Communications offers a better return.\" | explanation(일부): \"The dividend payout of Charter Communications on December 31, 2022, was 111000000 USD. Given the outstanding shares of Charter Communications is 100000000, the Dividend per share for Charter is 1.11 USD.(111000000 / 100000000 = 1.11)The stock price of Charter Communications as of December 31, 2022, was 336.30 USD. The Dividend Yield Ratio for Charter is 0.33%.((1.11 / 336.30) * 100% = 0.33)The dividend payout of Texa\" | source: ['FinancialTable-aa2c30b6f35cd5182c0208ad17bbaec9', 'StockPrice-a1598088d32a98ad631fff0182899950', 'StockPrice-ba4a21d5b542c93df20e144785037cac'] | type=MultiPriceTable, subtask=['Extraction', 'Calculation', 'Counterfactual', 'Comparison', 'LogicalReasoning'] (출처: GitHub lijunfeng99/FinTMMBench QA.json uuid 5bf31cb938563845462dfb1c0a1a551c)",
+   "Q: \"Is there any positive news articles regarding Financial about CDW Corporation from 2022-06-27 to 2022-09-23?\" | answer: \"Yes\" | explanation(일부): \"Yes, there are 1 positive news articles regarding Financial about CDW Corporation from 2022-06-27 to 2022-09-23.\" | source: ['News-4a7d0bbee201d14767274a2dc0908918'] | type=NewsSentiment, subtask=['Sentiment'] (출처: GitHub lijunfeng99/FinTMMBench QA.json uuid 36f3eb051d82e3621a7d0c213348c0fc)",
+   "Q: \"How do the Dividend Yield Ratios of Charter Communications and Texas Instruments compare based on their respective payouts and stock prices?\" | answer: \"Texas Instruments has a higher Dividend Yield Ratio compared to Charter Communications.\" | explanation(일부): \"The Dividend per share for Charter Communications was calculated as 1.11 USD, and its stock price was 336.30 USD, leading to a Dividend Yield Ratio of 0.33%.((1.11 / 336.30) * 100% = 0.33)The Dividend per share for Texas Instruments was 4.30 USD, with a stock price of 163.69 USD, resulting in a Divi\" | source: ['FinancialTable-aa2c30b6f35cd5182c0208ad17bbaec9', 'StockPrice-a1598088d32a98ad631fff0182899950', 'StockPrice-ba4a21d5b542c93df20e144785037cac'] | type=MultiPriceTable, subtask=['Extraction', 'Calculation', 'Counterfactual', 'Comparison', 'LogicalReasoning'] (출처: GitHub lijunfeng99/FinTMMBench QA.json uuid dc261f9d640a84c3e61b7d3e2a2800f0)",
+   "[논문 Table 7 p.8] Q: \"What was CoStar Group’s otherCurrentAssets value on March 31, 2022?\" G: \"USD 36,183,000\" / Q: \"When did AEP experience the lowest price in September 2022?\" G: \"September 30, 2022\""
+  ],
+  "class": "C-lite",
+  "class_reason": "질문이 특정 회사·날짜/기간·가정(발행주식 수 등)을 명시하고 정답이 동봉된 원자료(재무표·주가 JSON)에서 공식으로 결정론적으로 계산되며 소스 ID로 근거가 연결되므로 계산형에 가깝다. 그러나 계산 규약(P/E·배당수익률 정의 등)은 질문이 아닌 템플릿 CoT에 숨어 있고, 원자료가 소형 단일 레코드(하루 종가·분기 표)이며, 뉴스 감성·이벤트 문항(약 28%)은 계산형이 아니다. 또 같은 데이터로 만든 이웃 문항(uuid dc261f…와 그 앞 문항)이 배당수익률 우열을 서로 반대로 답하는 등 라벨 오류로 보이는 사례가 관찰됐다.",
+  "release": "GitHub MIT 라이선스로 QA.json과 원자료(data/) 공개. QA.json 전량 다운로드·파싱 확인. HF 미공개.",
+  "contamination": "별도 오염 방지 장치 없음. 2022년 공개 시장 데이터라 사전학습 노출 가능(논문 미언급). No-Retrieval GPT-4o-mini가 EM 4.51%로 낮아 검색 없이는 못 푼다는 간접 근거(Table 4 p.6).",
+  "evaluation": "EM·F1·Acc + GPT-4o-mini 심판 Acc(p.6). No Retrieval GPT-4o-mini EM 4.51; No Visual 최고 BGE-Text F1 27.36; All 설정 TMMHybridRAG EM 19.12/F1 31.41/Acc 26.56/LLM-Acc 21.53(Table 4 p.6). 절제: 벡터 제거 시 F1 11.45, 시간정보 제거 시 28.38(Table 5 p.7). 생성 MLLM 교체 시 Gemini-2.0-Flash 18.42%, Kimi-VL-A3B 17.63%(Table 6 p.8)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 공개 API(Alpha Vantage)·Reuters 뉴스·주가로 코퍼스를 새로 모으고 QA는 템플릿+LLM으로 신규 생성(p.2-3).",
+  "q2_method": "② 데이터 출처(Alpha Vantage, Reuters), 기간(2022), 회사군(NASDAQ-100), 템플릿 수(약 100), 생성 모델(GPT-4o-mini), 검증 기준(85%)을 명시. Reuters 기사 수집 경로·전문가 인원 배경은 불명확.",
+  "q3_license": "③ 저장소 MIT. Reuters 뉴스 원문 재배포의 저작권 문제는 논문에서 다루지 않음. 6Estates(기업) 저자 참여.",
+  "q4_relabel": "④ 공개 데이터를 그대로 쓰지 않고 시간 조건이 붙은 QA를 태스크 맞춤으로 신규 생성.",
+  "q5_industry": "⑤ 대학(NUS·PKU·USTC) + 기업(6Estates) 협업; 데이터·코드 공개(GitHub).",
+  "q6_constraints": "⑥ 뉴스 저작권 잠재 제약에도 QA와 원자료(News.json)를 공개. 미공개 사유 언급 없음.",
+  "q7_accept": "⑦ 공개 리뷰 없음(ACM MM). self-claim: 최초의 시간 인지 멀티모달 금융 RAG 벤치마크, 4모달 코퍼스, 강한 베이스라인(TMMHybridRAG)."
+ },
+ "review": null,
+ "limitations": "QA가 GPT-4o-mini 템플릿 생성물이라 표현이 정형적이고, 검증이 표본 검토(85% 기준)라 개별 라벨 오류가 남아 있을 수 있다(관찰된 상충 사례 참조). 2022년 NASDAQ-100 한 해로 범위가 좁고 시간 오류 문항이 5.5%뿐이라 '시간 인지' 난도가 제한적. 평가 지표가 EM/F1 중심이라 서술형 답의 동의어 처리에 취약해 LLM 심판을 병행. 베이스라인 F1 31.41로 낮아 벤치마크 난도와 데이터 노이즈를 분리하기 어렵다.",
+ "oneline": "NASDAQ-100의 표·뉴스·주가·차트 4모달 원자료 위에 날짜가 박힌 5,676개 계산·분석 QA를 템플릿+GPT-4o-mini로 생성한 시간 인지 금융 RAG 벤치마크.",
+ "implications": [
+  "템플릿 + CoT 가이드라인 + 소스 ID가 붙은 데이터 포인트를 LLM에 주어 '질문·단계별 계산·정답·근거 ID'를 한 번에 생성하는 방식은, 우리 온체인 QA의 evidence 레코드 동봉 구조와 호환되며 문항 생산 자동화의 참고 설계가 된다.",
+  "자동 교정 규칙('각 추론 단계 등식의 좌우 일치, 단계 결과=최종 답, 참조 ID 유효')은 온체인 계산 문항의 자동 검증기 체크리스트로 바로 옮길 수 있다.",
+  "계산 규약을 템플릿에만 두고 질문에 안 쓰면(P/E 정의 등) 모델 간 정의 차이로 채점 분쟁이 생긴다. 참고 QA셋처럼 규약을 질문 본문에 명시하는 편이 낫다는 반례가 된다.",
+  "동일 원자료에서 파생된 이웃 문항의 답이 서로 모순되는 사례는, 온체인 QA에서도 '같은 evidence를 공유하는 문항 간 일관성 검사'를 품질 게이트에 넣어야 함을 시사한다."
+ ],
+ "brief": false
+}

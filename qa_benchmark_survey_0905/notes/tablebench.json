@@ -1,0 +1,70 @@
+{
+ "key": "tablebench",
+ "title": "TableBench: A Comprehensive and Complex Benchmark for Table Question Answering",
+ "authors_short": "Wu, Yang et al. · Beihang University · M-A-P · Fudan University · Beijing Information Science and Technology University",
+ "venue": "AAAI 2025 (AAAI-25, Vol.39 No.24, pp.25497–25506)",
+ "venue_verified": "dblp conf/aaai/WuYCZLDLSCSLLN25(venue AAAI 2025, pages 25497-25506, doi 10.1609/aaai.v39i24.34739), ojs.aaai.org/index.php/AAAI/article/view/34739 HTTP 200, doi.org 302→200; GitHub README 'accepted to AAAI 2025'(2025-01-21); PDF 1쪽 'Copyright © 2025, Association for the Advancement of Artificial Intelligence'; AAAI는 공개 리뷰 없음",
+ "type": "벤치마크(TableQA) + instruction corpus(TableInstruct 19,661) + 파인튜닝 모델(TableLLM)",
+ "domain": "도메인 무관 표 QA(Financial Report 32.44%, Competitions 18.10%, Motor Sports 7.17% 등 20개 토픽; p.3 Figure 3)",
+ "data_scope": "테스트 886문항 / 3,681개 표(WTQ·SQA·TabFact·FeTaQA·FinQA·AIT-QA 등 공개셋에서 8행·5열 이상 표 선별; 평균 16.71행·6.68열, 수치 셀 65.74%), 4대 범주 18 하위범주; TableInstruct 19,661(p.3 Table 1)",
+ "tags": ["table-QA", "numerical-reasoning", "data-analysis", "chart-generation", "LLM-generated-questions", "self-consistency-annotation", "Rouge-L"],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2408.09174",
+  "pdf": "https://arxiv.org/pdf/2408.09174",
+  "proceedings": "https://ojs.aaai.org/index.php/AAAI/article/view/34739",
+  "github": "https://github.com/TableBench/TableBench",
+  "huggingface": "https://huggingface.co/datasets/Multilingual-Multimodal-NLP/TableBench",
+  "website": "https://tablebench.github.io/",
+  "verified": "arXiv PDF(10쪽) 다운로드, GitHub README·HF 200, HF resolve로 TableBench.jsonl(886행) 실제 다운로드(datasets-server 뷰어는 DP/PoT 파일 컬럼 불일치로 cast error), ojs.aaai.org 200, tablebench.github.io 200"
+ },
+ "easy": {
+  "problem": "기존 TableQA 벤치마크(WTQ·SQA·TabFact)는 표의 특정 셀을 찾는 수준이라, 산업 현장에서 요구하는 다단계 수치 추론·데이터 분석·차트 생성 같은 복잡한 추론을 재지 못했다.",
+  "how": "실제 표 응용 사례를 분석해 4대 범주(사실 확인·수치 추론·데이터 분석·시각화) 18 하위범주를 정의하고, 범주별 시드 질문 1개로 GPT-4가 '자기 영감(self-inspiration)' 방식으로 질문을 늘리며 사람+GPT-4가 검증한다. 답은 TCoT·SCoT·PoT 세 LLM 에이전트의 투표로 초안을 만들고 사람이 전부 검토·수정한다. 평가는 Rouge-L(차트는 pass@1)로 30여 모델을 비교하고, TableInstruct로 TableLLM을 학습한다.",
+  "analogy": "표 하나를 주고 '평균은?' 수준이 아니라 '상관계수를 구해 결론을 내고 2019년을 예측하고 차트를 그려라'까지 요구하는 종합 엑셀 실기시험."
+ },
+ "contributions": [
+  "실무 시나리오 기반 4대 범주·18 하위범주, 886문항의 사람 주석 TableQA 벤치마크(p.2–3 Table 1); 평균 추론 단계 6.26으로 WTQ(2.1)·BIRD(3.4)보다 복잡(p.4 Figure 4)",
+  "수동+자동 결합 주석 프레임워크: 시드 기반 self-inspiration 질문 생성, 세 추론 방식(TCoT/SCoT/PoT) 투표 기반 self-consistency 답 주석, 전수 사람 검토(p.2 Figure 2, p.4)",
+  "TableInstruct 19,661문항 코퍼스와 TableLLM(7–8B)이 GPT-3.5 수준 달성(TableLLM-Qwen2-7B TCoT 38.32 vs GPT-3.5-Turbo 30.85; p.6 Table 3)",
+  "34개 LLM 평가: 최고 GPT-4-Turbo TCoT 51.32, GPT-4o PoT 42.92, 인간 85.91(p.6 Table 3); 파싱 비율과 점수 관계, 데이터 효율(60% 샘플로 90% 성능) 분석(p.7–8)"
+ ],
+ "figures": [
+  {"file": "figs/tablebench_fig1.png", "label": "Figure 2", "page": 2, "caption_ko": "주석 프레임워크 개요. STEP-1 Table Collection: WTQ·SQA·FeTaQA·TabFact·FinQA 등에서 표를 필터링해 Raw Tables 구성. STEP-2 Self-Inspiration Question Annotation: 범주당 1표·1질문·1유형의 시드 18개로 Golden Questions를 초기화하고, LLM이 [Table]·[Type]·few-shot 예시로 새 질문을 생성하면 사람+LLM이 '유형 설명을 따르고 유효한가'를 검사해 통과분은 Synthetic Questions로, 탈락은 Drop. STEP-3 Self-consistency Answer Annotation: TCoT·SCoT·PoT 세 에이전트 답을 투표로 검증하고 불일치는 Random Select 후 Human Check를 거쳐 Think Steps와 함께 TableBench에 수록.", "alt": "TableBench 3단계 주석 파이프라인: 표 수집, 자기영감 질문 생성, 자기일관성 답 주석"},
+  {"file": "figs/tablebench_fig2.png", "label": "Figure 1", "page": 1, "caption_ko": "네 범주의 대표 난제 예시. 항공사 연도별 표(Gallons Consumed, Fuel Expense, Average Price, Operating Expense Percentage, Available Seat Miles)에 대해 Fact Checking(다중홉 사실 확인: 2017·2018 연료 소비 증가가 총 연료비 증가와 대응하는가), Numerical Reasoning(2018 vs 2017 영업비용 증가분), Data Analysis(2019 영업비용 추세 예측), Visualization(연도-영업비용 선그래프 생성) 질문을 보여준다.", "alt": "TableBench 4대 범주 예시 질문(사실 확인, 수치 추론, 데이터 분석, 시각화)"}
+ ],
+ "dataset": {
+  "construction": "표 수집: \"We collect raw tabular data from existing datasets, including typical datasets such as WTQ, SQA, TabFact, FeTaQA, FinQA, AIT-QA, etc. … We select tables based on topics and size, ensuring each contains at least 8 rows and 5 columns. We focus on tables with significant numerical values\"(p.3) → 3,681개 표. 질문 주석: \"We introduce a self-inspiration question generation mechanism … we meticulously craft one seed question and a detailed definition for each category … incorporate these initial seed questions as examples into a meticulously designed prompt to guide GPT4-based agents in generating questions that adhere to specific category constraints. We limit the output to five questions in the initial rounds. These questions are manually annotated to identify new patterns and added to the seed corpus … eventually maintained at 50 questions, serving as the test set questions for TableBench\"(p.4); 50개 초과분은 30% 샘플 수동 주석 + GPT-4 검증을 거쳐 TableInstruct로. 답 주석: \"we utilize three LLM agents, each employing a distinct reasoning method (TCoT, SCoT, and PoT) to generate responses. We introduce a voting mechanism … These preliminary results are then subjected to manual review and modification to produce the final answer … we randomly select 30% of the filtered data for manual annotation … we manually annotate all answers in the TableBench with no omissions and carefully scrutinize each\"(p.4). 2025-04 테스트셋 전수 재검토 후 정정판 공개(GitHub).",
+  "size_format": "테스트 886문항(NumericalReasoning 397, DataAnalysis 343, FactChecking 96, Visualization 50; 하위범주 각 45~51), 표 3,681개. HF TableBench.jsonl 필드 id, qtype, qsubtype, table{columns[], data[][]}, question, answer; 추론 방식별 프롬프트 파일 TableBench_DP/TCoT/SCoT/PoT.jsonl(instruction, instruction_type 추가). TableInstruct 19,661은 별도 HF 저장소.",
+  "samples": [
+   "[HF TableBench.jsonl id 29ba53ce…, NumericalReasoning/Aggregation] question: \"What is the average number of tropical cyclones per season?\" answer: \"10.6\" (표 columns: season, tropical lows, tropical cyclones, severe tropical cyclones, strongest storm; 1990-91부터 시즌별 행)",
+   "[id 3a93c522…, DataAnalysis/StatisticalAnalysis] question: \"What is the median winnings for drivers who have driven a Chevrolet car?\" answer: \"155712\" (표 columns: driver, car, make, points, laps, winnings)",
+   "[id 8599c614…, DataAnalysis/CorrelationAnalysis] question: \"Is there a significant correlation between the `area (km square)` and `gdp (billion us)` of the member countries? Please provide the conclusion and cite the correlation coefficient as evidence.\" answer: \"Positive correlation, 0.94\"",
+   "[id fe23487e…, DataAnalysis/ImpactAnalysis] question: \"Which top3 factors in the table, such as 'played', 'drawn', 'lost', 'points for', 'points against', 'tries for', 'tries against', 'try bonus', and 'losing bonus', significantly contribute to the 'points' total for each club?\" answer: \"lost, points for, points against\"",
+   "[id 77f8372a…, Visualization/ChartGeneration] question: \"According to the table, draw a bar chart to illustrate record high recorded in celsius degrees.\" answer: \"y_references = [[24, 30, 36, 36, 35, 40, 44, 43, 41, 36, 32, 26]]\""
+  ],
+  "class": "C-lite",
+  "class_reason": "답이 동봉된 단일 소형 표(평균 16.7행)에서 계산되고 개체(Chevrolet, 회원국)는 표 안에서 지정되지만, 질문에 규약·문턱(예: 상관 '유의' 기준, 반올림, 영향 요인 선정 방법)이 없어 Impact·Trend·Causal 분석은 방법에 따라 답이 갈릴 수 있다. 블록 구간·이벤트 디코딩 같은 다층 규약이나 대규모 원자료도 없어 C-lite.",
+  "release": "데이터 Apache 2.0, 코드 MIT(GitHub 배지). HF에 886문항·정답 공개(TableBench.jsonl 실제 다운로드), TableInstruct도 HF 공개.",
+  "contamination": "\"We opt to manually construct a more complex set of questions to mitigate the data leak risk in LLMs rather than modifying existing datasets\"(p.3–4). 표 자체는 공개 데이터셋 출처라 노출 가능; 별도 hidden set 없음.",
+  "evaluation": "지표: Rouge-L(p.5); PoT는 실행 결과에 엄격 형식 적용; 차트는 코드 실행 후 y축 값 테스트 pass@1. GitHub(2025-04) 갱신: Fact Checking EM, Numerical Reasoning·Data Analysis 지표 재정의. 결과(p.6 Table 3): 인간 85.91; GPT-4-Turbo TCoT 51.32(최고), GPT-4o TCoT 50.39/PoT 42.92, Deepseek-Coder-V2 PoT 42.75, Qwen1.5-110B TCoT 32.81, TableLLM-Qwen2-7B TCoT 38.32; 자동 지표와 사람 평가 PCC 0.995(p.7 Table 4); GPT-4-Turbo PoT 실행 가능 코드 비율 78.67%(p.7)."
+ },
+ "seven_questions": {
+  "q1_source": "표는 기존 공개셋(WTQ·SQA·TabFact·FeTaQA·FinQA·AIT-QA)에서 수집, 질문·답은 신규 제작.",
+  "q2_method": "표 선별 기준(8행·5열·수치 중심), 시드 질문 기반 GPT-4 생성, 투표 답 주석, 전수 사람 검토까지 분명(p.3–4). 다만 하위범주별 시드 질문 원문과 주석자 수·IAA는 논문에 없음.",
+  "q3_license": "오픈소스(데이터 Apache 2.0, 코드 MIT). 원 표 데이터셋들의 라이선스 상속 관계는 논문에 언급 없음.",
+  "q4_relabel": "공개 표를 그대로 쓰되 질문·답은 task 맞춤으로 전부 새로 라벨링.",
+  "q5_industry": "학계 자체 구성(M-A-P 커뮤니티 참여), 전량 공개.",
+  "q6_constraints": "저작권·보안 제약 언급 없음. 미공개 부분 없음.",
+  "q7_accept": "공개 리뷰 없음(AAAI). 논문 self-claim: (1) 18 범주 886문항의 사람 주석 복잡 TableQA 벤치마크, (2) TableInstruct 대규모 코퍼스와 TableLLM 기준선, (3) 30+ 모델 체계적 평가와 리더보드(p.2)."
+ },
+ "review": null,
+ "limitations": "저자 명시(p.8): 질문의 추론 복잡도에 집중해 표 구조 자체의 복잡성은 다루지 않으며, 이미지 형태 표는 제외. Rouge-L이 수치·자유서술 답을 함께 채점해 지표 타당성 논란이 있었고 출판 후 GitHub에서 지표를 바꿨다. 질문 대부분이 GPT-4 생성물이고 답 초안도 LLM 투표로 만들어져 모델 편향 가능. 상관·영향·인과 분석 문항은 방법이 미지정이라 정답 유일성이 약하다.",
+ "oneline": "공개 표 3,681개 위에 시드 기반 GPT-4 생성과 사람 검수로 만든 4범주 18유형 886문항 TableQA 벤치마크로, 최고 GPT-4-Turbo 51.32 vs 인간 85.91(AAAI 2025).",
+ "implications": [
+  "규약이 질문에 없으면(예: '유의한 상관', '영향 요인 top3') 정답 유일성이 흔들리고 지표 논란(Rouge-L 교체)으로 이어졌다 — 우리 C형이 문턱·산식·자릿수를 질문에 넣는 이유를 뒷받침하는 대비 사례다.",
+  "18 하위범주 분류(Aggregation, Ranking, Counting, Time-based Calculation, Statistical Analysis 등)는 온체인 60문항의 유형 태깅(집계·순위·구간 계산·판정) 체계를 설계할 때 참고할 수 있다.",
+  "표당 16.7행의 소형 데이터라 '원자료 크기'가 난이도 축이 아니었다. 우리 셋은 1주 구간 원장(수백만 레코드)에서 계산한다는 규모 차이를 명시적 차별점으로 제시할 수 있다.",
+  "LLM 투표+사람 전수 검토라는 정답 검증 절차와 PCC 0.995의 지표-인간 일치 보고는 우리 evidence 동봉 방식과 병행해 '정답 신뢰성 보고' 형식으로 차용할 만하다."
+ ],
+ "brief": false
+}

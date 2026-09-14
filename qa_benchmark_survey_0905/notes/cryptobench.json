@@ -1,0 +1,90 @@
+{
+ "key": "cryptobench",
+ "title": "CryptoBench: A Dynamic Benchmark for Expert-Level Evaluation of LLM Agents in Cryptocurrency",
+ "authors_short": "Guo et al. · Princeton University · Pyra.ai · University of Michigan · UC Berkeley · ChainOpera AI · UCLA 등",
+ "venue": "arXiv 2512.00417 (v5, 2026-05-15)",
+ "venue_verified": "arXiv only — PDF p.1 'arXiv:2512.00417v5 [cs.CL] 15 May 2026', ICML 스타일 서식에 'Impact Statement'(p.9)가 있으나 채택 표기 없음",
+ "type": "동적(월간 갱신) 에이전트 QA 벤치마크 — 실시간 크립토 플랫폼 검색·분석",
+ "domain": "전문 크립토 애널리스트 업무: 온체인 인텔리전스(고래·KOL 지갑)·시장 데이터·DeFi 프로토콜/오라클·DEX·파생상품·MEV/AI 시그널(p.3-4)",
+ "data_scope": "월 50문항(Fig.2 p.3 'N=50'), 평가 구간 2025-10-12~11-11; 4사분면(Simple Retrieval 34%·Complex Retrieval 34%·Simple Prediction 12%·Complex Prediction 20%); 데이터 소스 On-chain Intelligence 40%·Derivatives 18%·DeFi Analytics 12%·DEX 8%·Other 22%(Fig.2 p.3); 10개 LLM × 직접/SmolAgent",
+ "tags": [
+  "동적 벤치마크",
+  "크립토 애널리스트",
+  "웹 브라우징 에이전트",
+  "LLM-as-judge",
+  "예측 태스크",
+  "온체인 인텔리전스"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2512.00417",
+  "pdf": "https://arxiv.org/pdf/2512.00417",
+  "proceedings": null,
+  "github": null,
+  "huggingface": null,
+  "website": null,
+  "verified": "arXiv PDF 14쪽 다운로드 OK. 논문 본문·초록·결론·arXiv abs 페이지에 데이터 URL 없음. 동명 저장소 github.com/xxcg322/CryptoBench(200, 라이선스 NOASSERTION, 43★, 최종 push 2025-07-30)는 정적 Q&A(dataset/MultichoiceQuestions.json 727문항, Tasks&Questions.json 230문항)이며 README에 'Since April 2025 … transitioning to more challenging agent-driven real-world task benchmarks'라고만 적혀 있어 본 논문(월간 50문항 동적 세트)과의 연결은 미확인; cryptobench.org 접속 불가(응답 없음)"
+ },
+ "easy": {
+  "problem": "WebArena·GAIA·AgentBench 같은 범용 에이전트 벤치마크는 정적 환경·과거 데이터·사실 추출 위주라, 실시간·적대적·다중 전문 플랫폼(온체인 인텔리전스, DeFi 대시보드)을 다루는 크립토 애널리스트 업무를 재지 못한다(p.1).",
+  "how": "DeFi 애널리스트·온체인 조사관·퀀트 트레이더로 구성된 전문가 팀이 문항 초안→적대적 검증자 재풀이→상급자 판정의 3단계 합의 검증을 거쳐 문항을 만들고, 자산·주소·기간을 변수로 둔 템플릿 풀에서 매달 50문항을 새로 뽑는다(p.3, p.6). 에이전트는 웹 브라우징 도구 하나로 실제 플랫폼을 탐색하고, LLM 판정자가 0~3점 루브릭(수치 ±5% 허용)으로 채점한다(p.6-7).",
+  "analogy": "매달 새로 출제되는 크립토 애널리스트 실기시험 — 문제지의 종목·지갑·날짜가 바뀌고, 수험생(에이전트)은 브라우저만 들고 실제 대시보드를 뒤져 답을 찾아야 한다."
+ },
+ "contributions": [
+  "전문가 큐레이션·동적 갱신·실제 플랫폼 실행이라는 3원칙의 최초 크립토 에이전트 벤치마크(p.1); 월 50문항, 4사분면 분류(Fig.4 p.5)",
+  "3단계 적대적 검증 프로토콜(Author→Validator→Adjudicator, 만장일치 요구)과 모호성 제거 규칙(출처 명시·지표 정의·시간 경계·±5% 허용, p.6)",
+  "10개 SOTA LLM을 직접 프롬프팅과 SmolAgent 프레임워크에서 평가: 직접 Grok-4(Web) 44.0%·GPT-5 30.0%, 에이전트 Grok-4 28.0%(Fig.1 p.2); 순위가 설정에 따라 뒤바뀜(p.7-8)",
+  "'retrieval–prediction imbalance' 발견: 단순 검색 최고 58.8%(GPT-5) vs 복합 예측 최고 28.6%(Grok-4 Web), GPT-5 복합 예측 5.9%(Table 3 p.12)",
+  "실패 모드 정성 분석: 비권위 소스 의존·오래된 캐시·다중 데이터 통합 실패·근거 없는 예측 환각(p.8, App.C.5 p.13)"
+ ],
+ "figures": [
+  {
+   "file": "figs/cryptobench_fig3.png",
+   "label": "Figure 3",
+   "page": 3,
+   "caption_ko": "상단 Figure 2: 10/12~11/11 데이터셋 통계 — 태스크 유형(단순 검색 34%·복합 검색 34%·단순 예측 12%·복합 예측 20%, N=50)과 데이터 소스(온체인 인텔리전스 40%·파생상품 18%·DeFi 분석 12%·DEX 8%·기타 22%). 하단 Figure 3: 템플릿 구축 파이프라인(전문가 통찰 → 1 문항 초안(애널리스트 업무 반영) → 2 동료 검증(명료성·관련성) → 3 상급 검토(합의) → 4 분류·템플릿화([asset], [address], [date] 변수) → 템플릿 풀)과 월간 동적 갱신 파이프라인(기존 템플릿에 새 자산·지갑·기간 대입 → 플랫폼/웹검색으로 답 가능 여부 확인 → 월간 데이터셋).",
+   "alt": "CryptoBench 데이터 통계와 템플릿 구축·월간 갱신 파이프라인"
+  },
+  {
+   "file": "figs/cryptobench_fig4.png",
+   "label": "Figure 4",
+   "page": 5,
+   "caption_ko": "4사분면 태스크 분류: 실제 데이터 소스(시장 데이터·온체인 인텔리전스·DeFi/DEX 데이터)를 LLM 에이전트가 다루며, 세로축 단순/복합 × 가로축 검색/예측으로 Simple Retrieval(단일 데이터 포인트 사실 확인), Complex Retrieval(다중 포인트 추출·교차 참조), Simple Prediction(명확한 데이터 기반 예측 판단), Complex Prediction(종합·다단계 추론·예측)을 구분.",
+   "alt": "CryptoBench 4사분면 태스크 구조도"
+  }
+ ],
+ "dataset": {
+  "construction": "'every question in CryptoBench is meticulously crafted by a committee of crypto-native professionals'(p.2-3): DeFi 애널리스트·온체인 인텔리전스 조사관·퀀트 트레이더(p.6). 3단계 검증: '(1) Generation and Ground-Truthing' — 저자가 문항과 'gold-standard' 답·단계별 풀이·1차 소스 링크 작성; '(2) Adversarial Validation' — 답을 모르는 검증자가 처음부터 풀어 비교; '(3) Final Adjudication and Standardization' — 불일치 시 상급 전문가 판정, 'A question was only included in the final dataset if it achieved unanimous consensus across all stages'(p.6). 모호성 제거: 'Source Specificity'(예: \"as reported on the protocol's official dashboard\"), 'Metric Definition', 'Temporal Bounding'(예: \"in the last 24 hours\"), 수치는 ±5% 허용(p.6). 동적 구조: 'Core entities within questions—such as token tickers, wallet addresses, transaction hashes, and timeframes—are treated as variables that can be periodically refreshed', 월간 갱신 로드맵(p.4, Fig.3 p.3). 필터링 비율·문항 작성자 수·LLM 관여 여부는 논문에 없음(문항 생성에 LLM 언급 없음; 채점만 LLM-as-judge).",
+  "size_format": "월 50문항(2025-10-12~11-11 판 기준), 각 문항에 질문·gold 답·풀이 경로·1차 소스 링크(p.6)가 있다고 서술; 실제 파일 형식·필드는 공개본이 없어 미확인. 4사분면 SR/CR/SP/CP와 데이터 소스 카테고리·투자자 초점(Retail/Institution, Fig.8 p.14) 라벨 존재.",
+  "samples": [
+   "[논문 Table 2 p.4 · Real-time Factual Retrieval 추상화 예시] \"Does address [address_hash] currently hold a ‘Key Opinion Leader’ designation according to our on-chain intelligence feed?\"",
+   "[논문 Table 2 p.4 · Historical Data Aggregation] \"What were the opening and closing market capitalizations for token [token_address] on [date]?\"",
+   "[논문 p.5 · Simple Retrieval 예시] \"What is the current 24-hour trading volume for the ETH/USDC pair on Uniswap V3 as reported by its official analytics page?\"",
+   "[논문 p.5 · Complex Retrieval 예시] \"From the list of a protocol’s top ten holders on Etherscan, identify the two wallets labeled as ‘KOL’ and retrieve their respective token balances and the percentage of total supply they hold.\"",
+   "[논문 p.5 · Complex Prediction 예시] \"Analyze the trading history of address 0x... over the past 7 days, considering its average trade size, frequency, and choice of assets, to forecast its likely number of buy and sell transactions for the upcoming week.\""
+  ],
+  "class": "C-lite",
+  "class_reason": "검색형(68%) 문항은 구체 개체(토큰 주소·지갑·날짜)와 출처·지표 정의·시간 경계를 명시하고 수치 답에 ±5% 허용오차를 두어 C형 구조를 띠지만, 원자료가 동봉되지 않고 실시간 외부 플랫폼(Etherscan·Uniswap 분석 페이지 등)에서 가져와야 하며 답이 시점에 따라 변한다. 예측형(32%)은 결정론적 답이 없다. 따라서 규약·개체 지정은 강하나 원자료 동봉·결정론성이 약한 C-lite로 둔다.",
+  "release": "논문은 'We release CryptoBench as a vital, evolving resource'(p.8-9)라 하나 데이터 URL·저장소·라이선스가 논문·arXiv 페이지 어디에도 없음 → 월간 50문항 세트의 공개 여부 미확인. 동명 GitHub xxcg322/CryptoBench는 2025-04 리더보드 기준 정적 Q&A(객관식 727·태스크 230)로 본 논문 데이터가 아니며 연결 근거 없음.",
+  "contamination": "동적 템플릿 갱신으로 'memorizing past question-answer pairs will offer diminishing returns'(p.4); 실시간 데이터 의존 자체가 오염 방어라는 주장.",
+  "evaluation": "LLM-as-a-judge 0~3점 루브릭(3 완전 정답·2 대체로 정답·1 부분·0 오답), 수치 ±5% 허용, 판정자에 원문항·에이전트 전체 추적·gold 답·루브릭 제공(p.7); Average Success Rate = Σscore/(N×3)(p.7). 결과(Fig.1 p.2, Fig.5 p.7): 직접 Grok-4(Web) 44.0%, GPT-5 30.0%, Grok-4 Fast 24.7%, GPT-OSS-120B 23.3%, Grok-4 22.7%, Qwen3-Max 20.7%, Claude 4.1 Opus 18.7%, Gemini 2.5 Pro 16.7%, Claude 4.5 Sonnet 16.7%, DeepSeek R1 12.7%; SmolAgent 설정 Grok-4 28.0%·Grok-4 Fast 22.7%·Qwen3-Max 21.3%·GPT-5 16.7%. 사분면별(Table 3 p.12) GPT-5 SR 58.8/CR 32.4/SP 6.3/CP 5.9, Grok-4(Web) 54.9/45.1/35.2/28.6."
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작(전문가 위원회 작성, 월간 갱신).",
+  "q2_method": "문항은 전문가 작성이며 답은 실시간 플랫폼(온체인 인텔리전스 집계 사이트·Etherscan·DeFi 대시보드·DEX 집계기·파생상품 플랫폼, p.4)에서 확인; 개별 플랫폼명은 대체로 미기재('our on-chain intelligence feed').",
+  "q3_license": "미확인(데이터 URL·라이선스 없음). 저자 소속에 Pyra.ai·ChainOpera AI·DeepReach.ai·Zenith Lab 등 기업 포함.",
+  "q4_relabel": "기존 데이터 재사용 없음; 전문가가 새로 작성.",
+  "q5_industry": "학계(Princeton·Michigan·Berkeley·UCLA) + 기업(Pyra.ai·ChainOpera AI 등) 협업; 데이터 공개 여부 미확인.",
+  "q6_constraints": "'dual-use implications'를 Impact Statement에서 언급(p.9); 실시간 데이터·유료 플랫폼 의존이 공개를 어렵게 할 수 있으나 미공개 사유는 명시되지 않음.",
+  "q7_accept": "공개 리뷰 없음. self-claim: 전문가 큐레이션·동적 갱신·실제 플랫폼 실행 3원칙, 4사분면 진단 체계, 검색-예측 불균형과 에이전트 프레임워크에 따른 순위 역전 발견(p.1, p.8)."
+ },
+ "review": null,
+ "limitations": "월 50문항으로 규모가 작고 사분면별 문항 수가 6~17개라 통계적 분해능이 낮다. 실시간 데이터 의존으로 gold 답이 평가 기간 안에서도 변할 수 있어 ±5% 허용과 LLM 판정에 의존한다. 데이터·코드·판정 프롬프트가 공개되지 않아(URL 없음) 재현 불가. 웹 브라우징 도구 하나만 준 에이전트 설정이라 API 기반 도구를 쓰는 실제 애널리스트 워크플로와 차이가 있으며, 'Additional quantitative results … are available upon request'(p.13)처럼 세부 결과도 비공개. 논문 초록에 오탈자('inis evolution', 'imbalancedels') 등 편집 상태가 거친 v5.",
+ "oneline": "전문가가 3단계 합의로 만든 템플릿에서 매달 50문항을 뽑아 실시간 크립토 플랫폼 위에서 LLM 에이전트를 4사분면(검색/예측 × 단순/복합)으로 평가하는 동적 벤치마크; 데이터 공개 URL은 확인되지 않음.",
+ "implications": [
+  "CryptoBench의 검색형 문항은 '개체+출처+시간 경계+허용오차'를 갖춰 우리 C형과 형식이 비슷하지만 원자료를 동봉하지 않아 재현이 불가능하다. 우리 세트는 고정 블록 구간·evidence 동봉으로 이 약점을 정면으로 해결한 사례로 대비시킬 수 있다.",
+  "'Source Specificity·Metric Definition·Temporal Bounding'(p.6) 세 규칙은 우리 문항 작성 가이드의 항목명으로 그대로 차용할 수 있고, 우리는 여기에 'Decoding Convention(topic0·indexed·int256)'과 'Decision Rule(문턱·판정)'을 추가한 확장판으로 서술할 수 있다.",
+  "Author→Validator(답 모르는 재풀이)→Adjudicator의 만장일치 검증(p.6)은 우리 60문항 검증 절차에 적용 가능한 프로토콜이며, 특히 우리 세트는 값이 결정론적이라 '재풀이 일치율'을 정량 보고할 수 있다.",
+  "데이터 미공개·월간 갱신은 외부 검증을 막는다. 우리 세트는 동일 규약 템플릿에 블록 구간만 바꿔 '갱신 가능하면서도 공개·재현 가능한' 동적 벤치마크로 확장할 수 있음을 시사점으로 제시할 수 있다."
+ ],
+ "brief": false
+}

@@ -1,0 +1,21 @@
+{
+ "key": "karpe_abides",
+ "title": "Karpe 외 (ICAIF 2020) — 다중 에이전트 시뮬레이터에 RL 을 넣었는데, 정형 사실이 하나도 안 바뀌었다",
+ "authors_short": "Michaël Karpe · Jin Fang · Zhongyao Ma · Chen Wang (UC Berkeley)",
+ "venue": "ICAIF 2020",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2006.05574",
+  "verified": "arXiv 전문"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "ABIDES 위에서 돌지만 배경 유동성이 MarketReplayAgent 의 **재생**이라 사실상 재생 백테스트다.",
+  "data_short": "NASDAQ → LOBSTER 형식 · CSCO·IBM·INTC·MSFT·YHOO · **2003-01-13~02-06**",
+  "fill_short": "ABIDES 매칭엔진 FIFO (배경은 재생)",
+  "cost_short": "**언급 없음**",
+  "design": "ExchangeAgent + MarketreplayAgent + MomentumAgent 6명 + TWAPExecutionAgent + DDQLExecutionAgent. 학습 9일 / 테스트 9일. 10:00~15:30 안정 구간만.",
+  "gap": "**저자들이 스스로 결정적 증거를 만들었다** — \"For all of the stylized facts, we observe that **adding a single new agent to a simulation does not significantly alter the result of the computation**. This means that evaluating the realism of our simulation with a single DDQLExecutionAgent is equivalent to evaluating the realism of the LOB data provided as an input.\" 이것을 긍정적으로 서술하지만, 실제로는 **배경 흐름이 에이전트에 반응하지 않는다는 직접 증거**다 — 다중 에이전트 껍데기를 써도 재생이면 재생이다. 데이터도 2003년이라 소수점 이전 시대 미시구조다."
+ },
+ "oneline": "다중 에이전트 시뮬레이터를 써도 배경이 재생이면 자기영향은 생기지 않는다 — 저자들이 정형 사실로 그것을 증명해 버렸다.",
+ "resolution": "틱·메시지"
+}

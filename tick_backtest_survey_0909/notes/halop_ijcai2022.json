@@ -1,0 +1,23 @@
+{
+ "key": "halop_ijcai2022",
+ "title": "HALOP (IJCAI 2022) — 3초 통신 지연과 취소율 규제를 목적함수에 넣은 드문 사례",
+ "authors_short": "Feiyang Pan · Tongzhe Zhang · Ling Luo · Jia He · Shuoling Liu (Huawei EI Innovation Lab)",
+ "venue": "IJCAI 2022, pp. 3912–3918",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2207.11152",
+  "proceedings": "https://doi.org/10.24963/ijcai.2022/543",
+  "verified": "Crossref 200(페이지 3912–3918) · IJCAI 프로시딩 PDF"
+ },
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "5호가 스냅샷 재생 + **지연 3초**. 큐 모델은 없다.",
+  "data_short": "CSI 300 5호가 · 학습 2010-01~2019-12 / 테스트 2020-01~06",
+  "fill_short": "지연 3초 후 체결 · **총 재고의 1/10 초과 주문은 실행하지 않음**",
+  "cost_short": "수수료·인지세 없음. 대신 취소율 50% 초과 시 −5bp 벌점",
+  "design": "10:00:00~14:30:00 의 180분을 **T = 90 구간**으로. 연속제어 PPO 가 가격변화율로 행동 부분집합을 정하고, 세분 이산 에이전트가 구체적 호가를 고른다. 원문: \"**We simulate a three second communication delay so as to make the experiment close to reality. For example, an order sent at 10:02:00 can be executed after 10:02:03.** Moreover, to avoid potential large market impact, our environment **does not execute any large order whose size is larger than 1/10 of the agent's total inventory of the day**.\"",
+  "validation": "**10년 학습 / 6개월 테스트인데 그 6개월이 2020년 1~6월, 즉 코로나 급락 구간이다.** t값 123.2 는 강하게 상관된 종목-일 에피소드에서 계산돼 유효 표본 수가 명목치와 전혀 다르다 — 유의성 진술로 신뢰할 수 없다. 시드 없음.",
+  "gap": "지연과 규제 제약을 넣은 것은 이 군에서 예외적으로 좋은데, 검증 구간과 t값이 그 장점을 상쇄한다."
+ },
+ "oneline": "지연 3초와 취소율 규제를 넣은 드문 백테스트 — 그런데 검증 구간이 코로나 급락 6개월 하나다.",
+ "resolution": "초~분봉"
+}

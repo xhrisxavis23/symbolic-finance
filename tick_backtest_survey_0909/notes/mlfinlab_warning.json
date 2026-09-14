@@ -1,0 +1,26 @@
+{
+ "key": "mlfinlab_warning",
+ "title": "mlfinlab 은 오픈소스가 아니다 — purged CV·CPCV 의 참조 구현으로 인용하면 안 되는 이유",
+ "authors_short": "Hudson & Thames",
+ "venue": "상용 구독 소프트웨어",
+ "links": {
+  "github": "https://github.com/hudson-and-thames/mlfinlab",
+  "github_extra": [
+   "https://github.com/eslazarev/purged-cross-validation",
+   "https://github.com/skfolio/skfolio",
+   "https://github.com/emoen/Machine-Learning-for-Asset-Managers"
+  ],
+  "verified": "저장소 README·LICENSE.txt·`mlfinlab/cross_validation/cross_validation.py` 를 GitHub API 로 직접 읽어 확인"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "도구다.",
+  "data_short": "해당 없음",
+  "fill_short": "해당 없음",
+  "cost_short": "**£100/월/사용자** (Business 티어)",
+  "design": "README 원문 — \"This repo is public facing and exists for the **sole purpose of providing users with an easy way to raise bugs**, feature requests, and other issues.\" 실제로 `cross_validation.py` 는 **272줄에 `pass` 문이 10개**로 모든 함수 본문이 스텁이다. `ml_get_train_times` 는 \"Advances in Financial Machine Learning, Snippet 7.1, page 106\" 를 인용하는 완전한 docstring 뒤에 `pass` 하나뿐이고, `combinatorial.py` 에도 스텁 9개, `PurgedKFold.__init__` 은 인자만 받고 아무것도 안 한다.",
+  "gap": "LICENSE.txt 가 OSI 라이선스가 아니라 **독점 구독 계약**이다(GitHub 표기 `NOASSERTION`). PyPI 에 없고, 마지막 push 가 2023-10-02 로 사실상 방치돼 있으며, **미해결 정확성 이슈 #295 — \"PurgedKFold: training events can overlap with testing events\"** 가 재현 예제와 함께 열려 있다. 즉 **정작 쓰고 싶은 그 함수에 문서화된 누출 버그가 있다.**"
+ },
+ "oneline": "\"purged K-fold 의 참조 구현은 mlfinlab\" 이라는 인용은 독자가 얻을 수도 열어 볼 수도 없는 것을 가리킨다 — `purgedcv`·`skfolio`·`RiskLabAI` 를 쓰고 공식은 quantresearch.org 를 인용하라.",
+ "resolution": "해당 없음"
+}

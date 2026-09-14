@@ -1,0 +1,26 @@
+{
+ "key": "kyle_obizhaeva",
+ "title": "Market Microstructure Invariance: Empirical Hypotheses (Kyle & Obizhaeva)",
+ "authors_short": "Albert S. Kyle · Anna A. Obizhaeva",
+ "venue": "Econometrica 84(4), 1345–1404 (2016)",
+ "links": {
+  "pdf": "https://pages.nes.ru/aobizhaeva/Kyle-Obizhaeva-ECTA-2016-Invariance-with-Supplement.pdf",
+  "proceedings": "https://doi.org/10.3982/ECTA10486",
+  "verified": "저자 PDF 200 전문 확인"
+ },
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "실제 포트폴리오 전환(portfolio transition) 집행 기록. 시뮬레이션 없음.",
+  "data_short": "**포트폴리오 전환 2,552건 · 2001–2005 · 주문 439,765건**(매수 201,401 · 매도 238,364). 벤더는 NDA 로 비공개",
+  "fill_short": "실제 체결",
+  "cost_short": "전일 종가 대비 구현부족(implementation shortfall)",
+  "design": "이 조사에서 **선택편의 문제를 가장 명료하게 진술한 문장**이 여기 있다 — \"When orders are canceled after prices move in an unfavorable direction… implementation shortfall may dramatically underestimate actual transaction costs. Portfolio transitions data are not subject to these concerns.\" 전환 주문은 반드시 끝까지 집행되므로 취소 선택편의가 없다.",
+  "validation": "주 단위 클러스터 표준오차. 선형 R² = 0.0991, 제곱근 0.1007, 무제약 0.1016. 기준 비용 10.71bp(선형) vs 14.16bp(제곱근). 주문크기 지수 α̂₀ = −0.62(SE 0.009) vs 예측 −2/3. **통계적으로는 불변성이 기각되지만 경제적 크기는 지지된다.** 저자들의 겸손 — \"the R² is equal to 0.0847 in the transaction-cost regressions with market return only… The transaction-cost models improve the R²'s by only one or two percent.\"",
+  "gap": "재현 불가(NDA)."
+ },
+ "oneline": "\"주문을 중간에 취소할 수 있으면 구현부족이 비용을 극적으로 과소평가한다\" — 백테스트에서 미체결을 버리면 안 되는 이유의 정식 진술.",
+ "implications": [
+  "**우리 `CENSORED`·`UNFILLED` 상태와 900초 강제 청산이 정확히 이 문제에 대한 답이다.** 이 문장을 인용해 우리 설계를 정당화할 수 있다."
+ ],
+ "resolution": "실집행 기록"
+}

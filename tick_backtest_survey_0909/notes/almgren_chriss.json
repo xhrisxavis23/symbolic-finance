@@ -1,0 +1,22 @@
+{
+ "key": "almgren_chriss",
+ "title": "Optimal Execution of Portfolio Transactions (Almgren & Chriss)",
+ "authors_short": "Robert Almgren · Neil Chriss",
+ "venue": "Journal of Risk 3(2), 5–39 (2000/2001)",
+ "links": {
+  "pdf": "https://www.smallake.kr/wp-content/uploads/2016/03/optliq.pdf",
+  "proceedings": "https://doi.org/10.21314/JOR.2001.041",
+  "verified": "Almgren NYU 페이지 미러 200 전문 확인"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "데이터도 백테스트도 없다. 최적해가 그 최적해를 낳은 모형 안에서 검증된다.",
+  "data_short": "**없음**",
+  "fill_short": "해당 없음",
+  "cost_short": "가정된 결정론적 함수 두 개",
+  "design": "영구충격 `g(v)=γv`, 일시충격 `h(n/τ)=ε·sgn(n)+(η/τ)n`. 보정은 명시적으로 어림값이다 — \"a common rule of thumb is that price effects become significant when we sell 10% of the daily volume\" 로 γ = 2.5×10⁻⁷. 지표는 평균–분산 효율경계, 이차효용, L-VaR, 거래 반감기.",
+  "gap": "체결·큐·지연·부분체결·역선택이 전부 없다. 실행 문헌 전체의 기준선인데 실증 검증은 이 논문에 없다."
+ },
+ "oneline": "실행 문헌의 출발점이자, 이 문헌에서 '보정' 이 종종 '지정' 을 뜻한다는 것을 보여 주는 원형.",
+ "resolution": "합성·모형"
+}

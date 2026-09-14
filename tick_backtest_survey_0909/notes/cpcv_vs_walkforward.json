@@ -1,0 +1,55 @@
+{
+ "key": "cpcv_vs_walkforward",
+ "title": "CPCV 대 워크포워드 — 유일한 통제 비교, 그리고 그 비교의 심판이 누구인가",
+ "authors_short": "Hamid Arian · Daniel Norouzi Mobarekeh · Luis Seco (RiskLab AI · Toronto) / López de Prado 외",
+ "venue": "Knowledge-Based Systems 305, 112477 (2024)",
+ "venue_verified": "DOI 10.1016/j.knosys.2024.112477 을 Crossref·OpenAlex 로 검증. ScienceDirect·ACM DL·SSRN 은 모두 403 이라 초록은 검색 결과 텍스트와 ouci.dntb.gov.ua 미러로 확인 — 전문은 열지 못했다. OpenAlex 로 인용 9편을 전수 확인한 결과 반박 논문은 없다",
+ "type": "표본 외 검증 방법 비교 (합성 통제 환경)",
+ "domain": "백테스트 검증 설계",
+ "data_scope": "Heston 확률변동성 · Merton 점프확산 · drift-burst · 국면전환 모형으로 만든 **합성 통제 환경** — 정답을 아는 상태에서 K-Fold · Purged K-Fold · Walk-Forward · CPCV 를 비교한다.",
+ "tags": [
+  "CPCV",
+  "워크포워드",
+  "합성 통제",
+  "심판의 독립성"
+ ],
+ "links": {
+  "proceedings": "https://doi.org/10.1016/j.knosys.2024.112477",
+  "github": "https://github.com/RiskLabAI/RiskLabAI.py",
+  "verified": "Crossref·OpenAlex 200. 저장소 BSD-3 확인(star 4). 출판사 전문 403"
+ },
+ "easy": {
+  "problem": "시계열 전략을 어떻게 검증해야 하나? K-fold 는 미래를 섞어 넣고, 워크포워드는 국면 하나만 시험한다. 어느 쪽이 나은지 아무도 통제 실험으로 재 본 적이 없었다.",
+  "how": "정답을 아는 합성 시장(Heston·점프·국면전환)을 만들고 네 방법을 같은 조건에서 돌려 PBO 와 DSR 로 채점한다.",
+  "analogy": "실력을 아는 선수들로 모의고사를 치러 어떤 채점 방식이 실력을 잘 골라내는지 보는 것."
+ },
+ "contributions": [
+  "초록의 결론 — CPCV 가 \"demonstrated marked superiority in mitigating overfitting risks, outperforming traditional methods like K-Fold, Purged K-Fold, and Walk-Forward, as evidenced by its **lower Probability of Backtest Overfitting (PBO)** and **superior Deflated Sharpe Ratio (DSR) Test Statistic**.\"",
+  "그리고 워크포워드에 대한 직접 지적 — \"**Walk-Forward exhibited notable shortcomings in false discovery prevention, characterized by increased temporal variability and weaker stationarity.**\" Bagged CPCV·Adaptive CPCV 변형도 제안한다.",
+  "**그러나 채점 기준(PBO·DSR)이 CPCV 를 만든 같은 연구 프로그램에서 나온 지표다.** 완전히 독립적인 검정이 아니다 — 워크포워드 쪽에서는 '승자가 채점표를 설계했다' 고 이의를 제기할 수 있다.",
+  "**López de Prado 자신의 2024년 입장은 'CPCV 가 워크포워드를 대체한다' 가 아니다** (Joubert 외, JPM 51(2)) — 워크포워드·리샘플링·몬테카를로가 **서로 다른 질문에 답하는 세 가지 보완적 유형**이라는 것이다.",
+  "워크포워드의 진짜 장점 두 가지도 그의 말로 남아 있다 — \"(1) WF has a clear historical interpretation. Its performance can be reconciled with paper trading. (2) History is a filtration; hence, using trailing data guarantees that the testing set is out-of-sample (no leakage), as long as purging has been properly implemented.\"",
+  "**아무도 다루지 않는 구조적 반론**: CPCV 는 연속하지 않은 블록으로 학습하므로, 모델이 **실전에서는 결코 건너뛰지 않을 간격을 반복해서 학습한다.** 국면과 미시구조 상태가 분~시간 단위로 지속되는 틱 빈도에서는 이것이 월 단위보다 훨씬 심각한 문제다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "검증 설계 자체를 다루는 방법론 연구다.",
+  "data_short": "합성 (Heston·점프·국면전환)",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음",
+  "validation": "합성 통제 환경에서 정답 대비 PBO·DSR 로 네 방법을 채점.",
+  "gap": "전문을 열지 못했다. 인용이 적고 독립 재현이 없다. 채점 지표가 제안자와 같은 계열이다. 그리고 틱 빈도에 대한 CPCV 의 블록 불연속 문제는 이 논문이 다루지 않는다."
+ },
+ "code": [
+  "[RiskLabAI/RiskLabAI.py](https://github.com/RiskLabAI/RiskLabAI.py) · `.jl` — BSD-3 (star 4)",
+  "대안 구현: [eslazarev/purged-cross-validation](https://github.com/eslazarev/purged-cross-validation) — MIT, 활발, `CombinatorialPurgedCV`·PSR·DSR·PBO·MinTRL·**MinBTL**·`effective_n_trials`·Optuna trial-Sharpe 기록기 포함",
+  "[skfolio](https://github.com/skfolio/skfolio) — BSD-3, star 2,365, `CombinatorialPurgedCV(n_folds, n_test_folds, purged_size, embargo_size)`"
+ ],
+ "oneline": "CPCV 가 낫다는 유일한 통제 비교가 존재하고 반박도 없지만, 채점표를 만든 쪽이 이겼다는 점과 틱 빈도의 블록 불연속 문제는 남아 있다.",
+ "implications": [
+  "**우리 검증은 워크포워드다.** 이 논문은 CPCV 를 권하지만, 우리 상황에서 워크포워드가 갖는 두 장점이 결정적이다 — (1) 실거래와 대조 가능하고, (2) 과거만 쓰므로 누출이 구조적으로 불가능하다. 틱 빈도에서 CPCV 의 불연속 블록 학습은 오히려 위험하다.",
+  "**그래서 우리 선택은 이 문헌 안에서 방어 가능하다.** 다만 López de Prado 의 2024 입장(세 유형 보완)을 인용해 '워크포워드만 쓴다' 가 아니라 '워크포워드 + 시행 횟수 보정' 으로 가는 것이 정확하다.",
+  "`purgedcv` 의 `effective_n_trials` 와 Optuna trial-Sharpe 기록기는 우리 파이프라인에 그대로 붙일 수 있다 — Optuna 를 이미 쓰고 있다."
+ ],
+ "resolution": "합성·모형"
+}

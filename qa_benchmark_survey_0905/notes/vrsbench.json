@@ -1,0 +1,32 @@
+{
+ "key": "vrsbench",
+ "title": "VRSBench: A Versatile Vision-Language Benchmark Dataset for Remote Sensing Image Understanding",
+ "authors_short": "Li, Ding, Elhoseiny · King Abdullah University of Science and Technology (KAUST)",
+ "venue": "NeurIPS 2024 Datasets & Benchmarks Track (Poster)",
+ "venue_verified": "papercopilot nips2024 목록: id kwDOxOmGE0, track 'Datasets & Benchmarks', status=Poster, rating 7;7;7, confidence 4;4;4. arXiv v2(2024-11-11)는 'Preprint. Under review' 표기. OpenReview 직접 접근 차단",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2406.12384",
+  "pdf": "https://arxiv.org/pdf/2406.12384",
+  "proceedings": "https://openreview.net/forum?id=kwDOxOmGE0",
+  "github": "https://github.com/lx709/VRSBench",
+  "huggingface": "https://huggingface.co/datasets/xiang709/VRSBench",
+  "website": "https://vrsbench.github.io",
+  "verified": "arXiv PDF OK; GitHub lx709/VRSBench 200(README, extract_patch_json.py, rs_instruction.txt); HF xiang709/VRSBench 200(cc-by-4.0) — VRSBench_EVAL_vqa.json·VRSBench_EVAL_Cap.json을 range 요청으로 실제 열람; 웹사이트·OpenReview 미확인"
+ },
+ "domain": "원격탐사(위성·항공 영상) 비전-언어: 상세 캡션·객체 지시(referring)·VQA",
+ "dataset": {
+  "construction": "DOTA-v2·DIOR 객체 검출 데이터셋의 이미지를 512×512 패치로 자르고, 기존 라벨에서 객체 범주·박스·색·위치(절대/상대)·크기·범주 내 유일성 등 속성을 추출(§2.1 p.3-4). 이 속성 JSON과 지시문을 GPT-4V에 넣어 상세 캡션·1~5개 객체 지시문·3~10개 QA쌍을 JSON으로 생성('You are an AI visual assistant tasked with analyzing remote sensing images…', p.4); 'not provided', 'unknown' 등 회피 표현이 나오면 최대 5회 재생성 후 해당 문장 삭제(§2.3). 사람 검증: 도메인 전문가 지침(불확실 요소 제거, 지시문 유일성 보장, 자답 질문 제거)에 따라 주석자가 모든 이미지를 검토, 이미지당 약 120초, 총 1,004시간·6,200 USD, 2,000장 2차 재검토(§2.4 p.4). LLM(GPT-4V) 생성 + 사람 수정 구조이며 수정 비율은 미공개.",
+  "size_format": "29,614 이미지, 29,614 캡션(평균 52단어), 52,472 객체 지시문, 123,221 QA(10유형: category·presence·quantity·color·shape·size·position·direction·scene·reasoning); train 20,264 / test 9,350 이미지(VQA 85,813/37,408, Table 2 p.7). HF: VRSBench_train.json, VRSBench_EVAL_{Cap,referring,vqa}.json(필드 image_id, question, ground_truth, dataset, question_id, type), 이미지·주석 zip",
+  "samples": [
+   "[HF VRSBench_EVAL_vqa.json 1번째] image_id \"P0003_0002.png\", question: \"What color are the large vehicles seen in the image?\", ground_truth: \"Yellow\", type: \"object color\"",
+   "[HF VRSBench_EVAL_vqa.json 2번째] image_id \"P0003_0002.png\", question: \"How many small vehicles are visible in the image?\", ground_truth: \"2\", type: \"object quantity\"",
+   "[HF VRSBench_EVAL_Cap.json 1번째] image_id \"P0003_0002.png\", question: \"Describe the image in detail\", ground_truth: \"The aerial image from GoogleEarth features a group of large yellow buses lined up on the left side, and two small vehicles, one on the top-right and another large vehicle on the bottom-right side of the image. The buses are parked in a lot adjacent to a green area and a road running roughly north-south.\"",
+   "[논문 Figure 1 p.1] Object Referring: \"The small vehicle that is the farthest to the top.\" / VQA: \"How many harbors are visible? Answer: 3\", \"Are the visible vehicles near water? Answer: No\""
+  ],
+  "class": "A",
+  "class_reason": "위성 영상의 색·개수·위치·존재 여부를 묻는 지각형 VQA로 도메인 전문 지식이 거의 필요 없고(일반인 수준), 특정 규약·계산·판정 문턱이 없다. 정답은 단어/구 단답이며 GPT-4 기반 동의어 허용 채점(README, §4.4 p.8). 결과: VQA 최고 Mini-Gemini 77.8%, GPT-4V 65.6%; 캡션 BLEU-1 LLaVA-1.5 48.1; 그라운딩 Acc@0.5 GeoChat 49.8%(Table 3-5 p.7-9).",
+  "release": "HF·GitHub 공개, 텍스트 주석 CC-BY-4.0(DOTA 이미지는 학술용 한정, README). 실제 JSON 열람 확인. 2026년 VRSBench-SAR 확장판 추가 공개(GPT-5.1 자동 생성, 사람 검증 없음, README)"
+ },
+ "oneline": "DOTA/DIOR 위성 영상 29,614장에 GPT-4V가 캡션·객체 지시·QA 12만 쌍을 생성하고 사람이 1,004시간 검증한 원격탐사 비전-언어 벤치마크(NeurIPS 2024 D&B).",
+ "brief": true
+}

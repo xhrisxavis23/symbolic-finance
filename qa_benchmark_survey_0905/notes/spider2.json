@@ -1,0 +1,96 @@
+{
+ "key": "spider2",
+ "title": "Spider 2.0: Evaluating Language Models on Real-World Enterprise Text-to-SQL Workflows",
+ "authors_short": "Lei & Chen et al. · University of Hong Kong · Salesforce Research · Sea AI Lab · Google DeepMind / Google Cloud AI Research · University of Waterloo",
+ "venue": "ICLR 2025 Oral",
+ "venue_verified": "논문 p.1 헤더 'Published as a conference paper at ICLR 2025' + OpenReview 검색 API(notes/search) 레코드 XmProj9cPs의 venue 필드 'ICLR 2025 Oral' 확인(2026-09-05). 리뷰 본문(rating·메타리뷰)은 forum API가 브라우저 검증(403)으로 막혀 미열람",
+ "type": "벤치마크(기업급 text-to-SQL 워크플로; 코드 에이전트 설정 + 자립형 text-to-SQL 설정)",
+ "domain": "기업 데이터 엔지니어링·분석 SQL (BigQuery·Snowflake 등 공개 데이터셋). 온체인 서브셋: spider2-lite에서 db=CRYPTO(BigQuery crypto_* 공개 데이터) 20문항, ETHEREUM_BLOCKCHAIN 3문항, GOOG_BLOCKCHAIN 4문항 = 27/547(4.9%)",
+ "data_scope": "Spider 2.0 632문항·213 DB / Spider 2.0-lite 547문항·158 DB / Spider 2.0-snow 547문항·152 DB; DB당 평균 743.5~812.1 컬럼, 정답 SQL 평균 144.5~161.8 토큰·6.5~7.1 함수(Table 2 p.5); 원천은 BigQuery public data·Snowflake Marketplace 등에서 모은 튜토리얼·포럼 SQL 1,021개와 Fivetran/DBT 변환 프로젝트 157개 → 547 SQL + 78 DBT 프로젝트 채택(p.3); DB 평균 5,273.42M 행(p.33)",
+ "tags": [
+  "text-to-SQL",
+  "코드 에이전트",
+  "BigQuery",
+  "Snowflake",
+  "블록체인 공개데이터",
+  "실행기반 평가",
+  "외부지식 문서"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2411.07763",
+  "pdf": "https://arxiv.org/pdf/2411.07763",
+  "proceedings": "https://openreview.net/forum?id=XmProj9cPs",
+  "github": "https://github.com/xlang-ai/Spider2",
+  "huggingface": null,
+  "website": "https://spider2-sql.github.io",
+  "verified": "arXiv PDF 다운로드 OK(45쪽, v2 2025-03-17); github.com/xlang-ai/Spider2 200(MIT, 863★); spider2-sql.github.io 200; raw.githubusercontent.com 의 spider2-lite/spider2-lite.jsonl(547행)과 resource/documents/ 의 Total_Market_Value_Change.md·ethereum_logs_and_events_overview.md·optimism_standard_bridge_contract.md 실제 열람; OpenReview는 403 챌린지로 미열람"
+ },
+ "easy": {
+  "problem": "기존 text-to-SQL 벤치마크(Spider 1.0, BIRD)는 테이블·컬럼이 적은 로컬 DB와 짧은 SQL이라 GPT-4가 이미 91.2%/73.0%를 푼다(p.1). 그러나 실제 기업의 SQL 업무는 수천 컬럼의 중첩 스키마, 여러 SQL 방언, 외부 문서·프로젝트 코드베이스, 100줄이 넘는 다단계 SQL을 요구한다(p.2).",
+  "how": "BigQuery·Snowflake 등 실제 클라우드 DB(74 BigQuery, 54 Snowflake, 30 SQLite, 40 DuckDB, 10 Postgres, 5 ClickHouse)에서 튜토리얼·포럼 SQL과 DBT 프로젝트를 모아, 유출 방지용으로 SQL을 재작성하고 8명의 저자가 질문·문맥·평가 스크립트를 수작업으로 주석했다(p.3-5). 에이전트가 코드베이스·DB·문서와 상호작용하는 Spider 2.0과, 스키마+질문→SQL만 내는 Spider 2.0-lite/snow 두 설정을 제공한다(p.2-3).",
+  "analogy": "교과서 연습문제(Spider 1.0)를 풀던 모델을 실제 회사 데이터 창고에 신입 데이터 엔지니어로 투입해, 문서와 코드를 뒤져가며 보고서 SQL을 뽑아내게 하는 시험."
+ },
+ "contributions": [
+  "632문항의 기업급 text-to-SQL 워크플로 벤치마크: 213개 DB, DB당 평균 743.5 컬럼, 정답 SQL당 148.3 토큰·7.1개 특수 함수로 BIRD(54.2 컬럼·30.9 토큰)를 크게 상회(Table 2 p.5)",
+  "두 가지 태스크 설정: 코드베이스·DB 인터페이스·문서를 주고 최종 결과를 내는 코드 에이전트 설정(Spider 2.0)과 자립형 text-to-SQL 설정(Spider 2.0-lite 547·Spider 2.0-snow 547)(p.2-3, Fig.2 p.3)",
+  "6단계 주석 파이프라인: 표면 수준 재작성 84.2%·의미 수준 재작성 42%로 유출 방지, 3인 이상 검토로 1차 검증 오류 45%→2차 5%, 평가기 red-team 검증(p.4-5)",
+  "결과: Spider-Agent+o1-preview SR 21.36%(Table 6 p.7), lite EX 최고 23.40%(o3-mini)·snow 23.77%(o1-preview)(Table 4 p.7), 기존 파서 DAIL-SQL+GPT-4o는 lite 5.68%(Table 5 p.7)",
+  "300문항 오류 분석: 잘못된 데이터 분석 35.5%(방언 함수 10.3%·고급 계산 7.5%·질의 계획 17.7%), 스키마 링킹 27.6%, JOIN 8.3%(p.8-9); 외부 문서 필요 태스크 SR 11.54% vs 불필요 26.64%(Table 8 p.8)"
+ ],
+ "figures": [
+  {
+   "file": "figs/spider2_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "왼쪽: '일일 판매활동 보고서' 질문과 text-to-SQL 워크플로 환경 — 다양한 DB 시스템·실제 앱(Salesforce 등)·복잡 스키마(8,695 컬럼 생략 표시), 문서(DB 메타데이터·외부지식·SQL 방언 문서·질의 인터페이스), dbt 코드베이스(macros/models/schema.yml 등). 오른쪽: 언어모델이 100줄 넘는 BigQuery/Snowflake SQL을 생성하고 실행 피드백을 받는 흐름.",
+   "alt": "Spider 2.0 개요: 질문→환경(DB·문서·코드베이스)→LLM SQL 생성·실행 피드백"
+  },
+  {
+   "file": "figs/spider2_fig2.png",
+   "label": "Figure 2",
+   "page": 3,
+   "caption_ko": "위: Spider 2.0-lite/snow는 질문과 자립형 DB 스키마를 받아 text-to-SQL 파서가 SQL 한 개를 출력하는 전통 설정. 아래: Spider 2.0은 LM 에이전트가 코드베이스·데이터베이스·문서와 상호작용하며 SQL/Python을 실행하고 실행 피드백·중간 결과를 거쳐 최종 결과를 내는 에이전트 설정.",
+   "alt": "두 설정 비교: text-to-SQL 파서 vs LM 에이전트"
+  }
+ ],
+ "dataset": {
+  "construction": "8명의 CS 전공 저자가 6단계로 주석(p.3-5). 1) DB·SQL 수집: 'BigQuery public data, Snowflake Marketplace data, and other platforms'에서 '>200 columns or nested schema' 기준으로 DB 선별(74 BigQuery·54 Snowflake·30 SQLite·40 DuckDB·10 Postgres·5 ClickHouse), 튜토리얼·포럼에서 50토큰 초과 실제 SQL 1,021개와 Fivetran/DBT 프로젝트 157개 수집 → 547 SQL·78 DBT 채택. 2) 유출 방지 재작성: 'annotators are required to rewrite each SQL' — 표면(답 형식·조건 파라미터·고급 계산) 84.2%, 의미(요구 확장·SQL 병합·코드 파일 변경) 42%(Table 1 p.4). 3) 문맥 구성: 외부 참고 문서·방언 문서(공식 사이트 크롤 1,039쪽·2,025 함수, Table 18 p.29)·코드베이스·답 형식 파일. 4) 자연어 지시 작성: 사람이 두 버전(에이전트용 자연스러움 vs lite용 비모호성) 작성 후 'paraphrasing for clarity with the help of LLMs'(LLM 관여는 이 문장 다듬기뿐). 5) 실행기반 집중 평가 스크립트 작성(핵심 열만 비교). 6) 품질관리: 항목당 3인 이상 검토, 1차 오류 45%→2차 5%→전량 수정, 거짓 결과를 넣어 평가기 red-team. 온체인 서브셋(lite 27문항)은 BigQuery 공개 블록체인 데이터(crypto_ethereum·bitcoin·dash·zilliqa·goog_blockchain 등)를 대상으로 하며 5문항이 외부지식 md를 동반(sf_bq083 Total_Market_Value_Change.md, sf_bq444 ethereum_logs_and_events_overview.md, sf_bq058 optimism_standard_bridge_contract.md, sf_bq450 ethereum_data_transformation.md, sf_bq416 blockchain_data_transformations.md). 예: Total_Market_Value_Change.md는 mint(0x40c10f19)/burn 판별 함수와 'SUBSTRING(input, IFMINT(input, 75, 11), 64)' 오프셋, '/ 1000000'(USDC 6자리) 변환 규약을 설명.",
+  "size_format": "spider2-lite.jsonl 547행(필드 instance_id, db, question, external_knowledge); 정답 SQL·결과·평가 스크립트는 evaluation_suite로 별도 제공; Spider 2.0 632 태스크는 README(태스크 설명)·query.py(질의 인터페이스)·bigquery_credential.json·result.csv(답 형식) 폴더 단위(App.B.5 p.27); 난이도 토큰 수 기준 Easy 160/Medium 279/Hard 193(Table 3 p.5); 답 유형 문자열·숫자 162, 표 392, DB 78(Table 3 p.5); 도메인별 외부 문서 md는 resource/documents/(69개 파일)",
+  "samples": [
+   "[spider2-lite.jsonl · instance_id=sf_bq083 · db=CRYPTO · external_knowledge=Total_Market_Value_Change.md] Can you calculate the daily change in the market value of USDC tokens (address `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48`) for 2023, based on Ethereum transactions? The change should be computed from minting (input pattern `0x40c10f19%`) and burning (input pattern `0x42966c68%`) operations. For each transaction, minting should be positive and burning negative. Extract the relevant amount from the 'input' field as a hexadecimal, convert it to millions, express it in USD format. Group the results by date and order them in descending order.",
+   "[spider2-lite.jsonl · instance_id=sf_bq444 · db=CRYPTO · external_knowledge=ethereum_logs_and_events_overview.md] Can you pull the blockchain timestamp, block number, and transaction hash for the first five mint and burn events from Ethereum logs for the address '0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8'? Please include mint events identified by the topic '0x7a53080ba414158be7ec69b987b5fb7d07dee101fe85488f0853ae16239d0bde' and burn events by '0x0c396cd989a39f4459b5fa1aed6a9a8dcdbc45908acfd67e028cd568da98982c', and order them by block timestamp from the oldest to the newest.",
+   "[spider2-lite.jsonl · instance_id=sf_bq058 · db=GOOG_BLOCKCHAIN · external_knowledge=optimism_standard_bridge_contract.md] Retrieve all finalized deposits into Optimism at block 29815485 using the Optimism Standard Bridge, including transaction hash, an Etherscan link (the complete URL), L1 and L2 token addresses, sender and receiver addresses (with leading zeroes stripped), and the deposited amount (converted from hex to decimal). Ensure data is properly formatted and parsed according to Optimism's address and token standards, and remove the prefix '0x' except transaction hash. Note that, the keccak-256 hash of the Ethereum event signature for DepositFinalized is \"0x3303facd24627943a92e9dc87cfbb34b15c49b726eec3ad3487c16be9ab8efe8\".",
+   "[spider2-lite.jsonl · instance_id=sf_bq342 · db=CRYPTO · external_knowledge=null] What is the difference between the average hourly changes in transaction values for the Ethereum token 0x68e54af74b22acaccffa04ccaad13be16ed14eac, specifically considering only transactions where the address 0x8babf0ba311aab914c00e8fda7e8558a8b66de5d was the sender or the address 0xfbd6c6b112214d949dcdfb1217153bc0a742862f was the receiver, between January 1, 2019, and December 31, 2020, when comparing 2019 to 2020?"
+  ],
+  "class": "C",
+  "class_reason": "온체인 27문항은 구체 개체(토큰·풀·브리지 주소, 블록 번호 29815485, 연도·기간)와 디코딩 규약(input 선택자 패턴, topic0 이벤트 해시, hex→decimal, 10^6/10^18 단위 변환, 앞자리 0 제거)을 질문 안에 명시하고, 답은 BigQuery 공개 원장 테이블(transactions·logs·traces·token_transfers)에서 SQL로 결정론적으로 계산되는 표/값이다. 원자료는 벤치마크에 동봉되지 않고 BigQuery/Snowflake 공개 데이터셋에 자격증명으로 접근하며, 우리 참고 세트와 달리 evidence 레코드·블록 구간 고정·out_of_scope 문항은 없다.",
+  "release": "GitHub xlang-ai/Spider2 공개(MIT); spider2-lite.jsonl·외부지식 md·평가 스위트를 raw URL로 실제 열람; 데이터 자체는 BigQuery public data·Snowflake Marketplace 공개 데이터셋(계정·비용 필요, Snowflake가 챌린지 호스팅 지원, p.11)",
+  "contamination": "원본 튜토리얼·포럼 SQL을 표면 84.2%·의미 42% 재작성해 원문과 불일치시킴(p.4); lite는 train/dev 분할이 없어 few-shot도 수동 선별(p.10); 정답은 광범위한 데이터 변환 결과라 조작·악용이 어렵다고 주장(p.15)",
+  "evaluation": "Spider 2.0: Success Rate — 사람이 쓴 문자열/표/DB 매칭 스크립트(condition_cols·ignore_order 파라미터, App.A p.15-16, Table 12 p.16). lite/snow: Execution Accuracy — 정답 결과의 모든 열이 예측 결과에 포함되면 1(식 (1)(2) p.15). 최고 성적: Spider-Agent+o1-preview SR 21.36%, Claude-3.5-Sonnet 14.87%, GPT-4o 12.34%(Table 6 p.7); lite EX o3-mini 23.40%·o1-preview 23.22%(Table 4 p.7); 전통 파서 DAIL-SQL+GPT-4o 5.68%, SFT CodeS-15B 0.73%(Table 5 p.7); oracle 함수 문서 제공 시 5.68→5.85%로 미미(Table 10 p.9)"
+ },
+ "seven_questions": {
+  "q1_source": "신규 제작. 원천 SQL·DB·DBT 프로젝트는 기존 공개 자원에서 수집했지만 SQL 재작성·질문·평가 스크립트를 새로 만들었다(p.3-4).",
+  "q2_method": "출처 명시: BigQuery public data, Snowflake Marketplace, 공식 튜토리얼·커뮤니티 포럼·오픈소스 프로젝트, Fivetran/DBT 프로젝트(p.2-3); 방언 문서는 각 DB 공식 문서 사이트 크롤(Table 18 p.29, 총 1,039쪽·2,025 함수).",
+  "q3_license": "오픈소스(GitHub MIT). DB는 공개 데이터셋이지만 클라우드 계정·비용 필요(Table 21 p.39 비용 표); Snowflake의 호스팅 지원 언급(p.11 감사글).",
+  "q4_relabel": "공개 SQL을 그대로 쓰지 않고 표면/의미 수준으로 재작성한 뒤 두 버전의 자연어 지시와 평가 스크립트를 새로 주석(재라벨링)(p.4).",
+  "q5_industry": "학계(HKU) 주도, Salesforce·Google DeepMind·Google Cloud·Sea AI Lab 연구자 공저. 기업 내부 데이터가 아닌 공개 데이터 사용, 전부 공개.",
+  "q6_constraints": "제약: 오염 방지(재작성으로 대응), 클라우드 DB 접근 비용·자격증명, TB급 데이터. 그럼에도 코드·데이터·평가 스위트 전면 공개(p.1 'Our code, baseline models, and data are available at spider2-sql.github.io').",
+  "q7_accept": "OpenReview 접근 불가로 리뷰어 평가 미확인. 논문 self-claim 기준: (1) 실제 기업급 규모(평균 800컬럼·144토큰 SQL·다중 방언), (2) 코드베이스·문서·DB 인터페이스를 갖춘 에이전트 설정, (3) 최고 모델도 21.3%에 그치는 난이도와 상세 오류 분석."
+ },
+ "review": {
+  "decision": "Accept (Oral) — OpenReview 검색 API 레코드 XmProj9cPs의 venue 필드 'ICLR 2025 Oral'로 확인. 리뷰 본문·rating은 forum API 403으로 미열람",
+  "scores": null,
+  "praised": [],
+  "concerns": [],
+  "why_accept": "미확인(OpenReview XmProj9cPs가 브라우저 검증 챌린지로 API·페이지 모두 차단됨)"
+ },
+ "limitations": "난이도를 SQL 토큰 수로만 정의한다(각주 p.6). 표 평가가 '핵심 열 포함 여부'만 보므로 불필요 열이 많거나 값이 부분적으로 틀린 결과도 통과할 여지가 있다(App.A p.15). 온체인 문항은 27/547에 불과하고 날짜 기준 구간이라 블록 구간 고정·evidence 동봉 같은 재현 장치가 없다. 클라우드 DB(BigQuery/Snowflake) 자격증명과 실행 비용이 필요하고 일부 테이블은 매일 갱신되어(p.5) 정답이 시간에 따라 흔들릴 수 있다. 공개 리뷰를 확인하지 못해 리뷰어 관점의 약점은 파악하지 못했다.",
+ "oneline": "실제 클라우드 DB·문서·코드베이스 위에서 100줄급 SQL을 요구하는 632문항 기업급 text-to-SQL 벤치마크로, 온체인 27문항은 주소·topic·input 패턴 규약을 질문에 넣어 공개 원장에서 결정론적 답을 계산하게 한다.",
+ "implications": [
+  "spider2-lite의 CRYPTO 27문항은 우리 C형 세트와 가장 가까운 공개 선례다: 주소·topic0 해시·input 선택자 패턴·10^6/10^18 단위 변환·앞자리 0 제거 같은 규약을 질문 본문에 명시하고 답을 원장 SQL로 결정론적으로 구한다. 우리 세트의 '규약 내장 질문' 설계가 text-to-SQL 커뮤니티에서도 통용되는 형식임을 보여준다.",
+  "차이점이 곧 우리 세트의 차별점이다: Spider 2.0은 정답을 실행 결과 표로 두고 열 부분매칭으로 관용 평가하며 evidence 레코드가 없고 블록 구간을 고정하지 않는다. 우리 세트는 블록 25,369,414–25,419,597 고정·evidence 동봉·out_of_scope 문항을 갖추므로 재현성·판정 명확성에서 우위를 주장할 수 있다.",
+  "외부 문서가 필요한 태스크에서 SR이 26.64%→11.54%로 급락(Table 8 p.8)한 점은 규약을 별도 md가 아니라 질문 안에 두는 우리 설계의 근거가 된다. 반대로 Spider 2.0처럼 규약 문서를 분리하는 변형(질문 간결화)을 만들면 '문서 그라운딩' 능력을 별도로 측정할 수 있다.",
+  "유출 방지용 SQL 재작성(표면/의미), 3인 검토로 오류율 45%→5% 추적, 거짓 결과로 평가기를 red-team하는 절차(p.4-5)는 우리 60문항 검증 프로토콜 문서화에 그대로 차용할 만하다."
+ ],
+ "brief": false
+}

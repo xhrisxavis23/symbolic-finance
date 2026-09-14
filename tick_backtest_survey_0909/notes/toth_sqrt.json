@@ -1,0 +1,23 @@
+{
+ "key": "toth_sqrt",
+ "title": "Anomalous Price Impact and the Critical Nature of Liquidity (Tóth 외) — 제곱근 법칙의 표준 인용, 그리고 오차막대 없음",
+ "authors_short": "Bence Tóth · Yves Lempérière · Cyril Deremble · Joachim de Lataillade · Julien Kockelkoren · Jean-Philippe Bouchaud (CFM)",
+ "venue": "Physical Review X 1, 021006 (2011)",
+ "links": {
+  "arxiv": "https://arxiv.org/abs/1105.1694",
+  "proceedings": "https://doi.org/10.1103/PhysRevX.1.021006",
+  "verified": "arXiv 전문 200"
+ },
+ "backtest": {
+  "rung": "L6",
+  "rung_reason": "CFM 자사 실거래 메타주문. 시뮬레이션이 아니다.",
+  "data_short": "**CFM 자사 선물 거래 · 2007-06~2010-12 · 약 50만 건**",
+  "fill_short": "실제 체결",
+  "cost_short": "충격 = (메타주문 첫 체결가 → 마지막 체결가) / 당일 σ, 물량은 V 로 정규화",
+  "design": "그림 1 캡션이 데이터 명세의 전부다 — \"The impact of metaorders for CFM proprietary trades on futures markets, in the period June 2007 – December 2010… The data base contains nearly 500,000 trades… For large ticks, the curve can be well fit with δ = 0.6, while for small ticks we find δ = 0.5… We have removed a small positive intercept Δ/σ = 0.0015 for Q = 0.\"",
+  "validation": "**오차막대도, 신뢰구간도, 적합도 통계도 논문 어디에도 없다.** 계약 목록도 \"a variety of futures contracts\" 가 전부다.",
+  "gap": "재현 불가. 그리고 가장 엄밀한 후속 연구(Zarinelli 외 2015, ANcerno 694만 메타주문)에서는 **로그 함수가 잔차 구조 기준으로 제곱근을 분명히 이긴다**(가중 RMSE 2.80 vs 6.70)."
+ },
+ "oneline": "\"시장충격은 제곱근\" 의 표준 인용인데, 정작 그 논문에는 오차막대가 없고 후속 연구는 로그를 지지한다.",
+ "resolution": "실집행 기록"
+}

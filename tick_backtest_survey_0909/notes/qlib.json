@@ -1,0 +1,54 @@
+{
+ "key": "qlib",
+ "title": "Microsoft Qlib — \"고빈도\" 를 표방하지만 바닥이 분봉인 AI 퀀트 플랫폼",
+ "authors_short": "Microsoft Research Asia",
+ "venue": "오픈소스 (MIT)",
+ "venue_verified": "GitHub API 로 star 48,430 · MIT · 최근 push 2026-09-02 확인. `qlib/backtest/exchange.py` 와 `qlib/rl/order_execution/`, `examples/highfreq/` 를 직접 확인",
+ "type": "AI 지향 퀀트 연구 플랫폼 (데이터·모델·백테스트·중첩 집행)",
+ "domain": "중국 A주 중심 다종목 포트폴리오",
+ "data_scope": "일봉이 기본이고 `examples/highfreq/` 가 **분봉** 데이터셋이다. `qlib/rl/order_execution/`(TWAP·PPO·OPDS, `simulator_simple.py`/`simulator_qlib.py`)도 **분봉 일중 집행**이다. 호가창은 코드 어디에도 없다.",
+ "tags": [
+  "중첩 집행",
+  "분봉",
+  "이차 충격비용",
+  "중국 A주 규칙"
+ ],
+ "links": {
+  "github": "https://github.com/microsoft/qlib",
+  "docs": "https://qlib.readthedocs.io/",
+  "verified": "GitHub API 200 · 소스 직접 확인"
+ },
+ "easy": {
+  "problem": "퀀트 연구는 데이터 정리·팩터 생성·모델 학습·백테스트가 따로 놀아서 재현이 어렵다.",
+  "how": "이 전부를 하나의 파이프라인으로 묶고, 결정 주기를 중첩할 수 있게 했다 — 주간 포트폴리오 생성 + 일간 주문 집행, 또는 일간 포트폴리오 + **분봉** 집행.",
+  "analogy": "요리 재료 손질부터 플레이팅까지 한 주방에서 하게 만든 것. 다만 재료 손질의 최소 단위가 '분' 이다."
+ },
+ "contributions": [
+  "**중첩 결정·집행 프레임워크(`NestedExecutor`/`SimulatorExecutor`, `time_per_step`)** 가 실질적으로 유용하다. 다만 이것은 *결정 주기의 중첩* 이지 호가창 충실도가 아니다.",
+  "중국 A주 고유 규칙을 넣었다 — `check_stock_suspended`(거래정지), `check_stock_limit`(상하한가), `trade_unit=100`(호가 단위 반올림).",
+  "비용에 **자기영향 이차항**이 있다: `adj_cost_ratio = impact_cost * (trade_val / total_trade_val)²`, 권장값 0.1. 다만 이것은 **비용**이지 호가창 변화가 아니다 — 다른 참가자는 이를 보지 못한다.",
+  "기본 비용 `open_cost=0.0015`, `close_cost=0.0025`, `min_cost=5.0`."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "봉(분봉이 바닥) 재생. 호가창·큐·지연이 전혀 없다. 체결은 봉의 가격 필드에서 나오고 거래량 문턱으로 자른다.",
+  "data_short": "일봉 / 분봉 (호가창 없음)",
+  "fill_short": "`get_deal_price`(종가·VWAP 류) · 거래량 문턱으로 클리핑",
+  "cost_short": "매수 0.15% · 매도 0.25% · 최소 5원 + 이차 충격비용",
+  "fill": "`trade_price = self.get_deal_price(...)` → `order.deal_amount = order.amount` 로 두고 `_clip_amount_by_volume` 으로 잘라 낸다. 큐도 부분체결 확률도 없다.",
+  "latency": "없다.",
+  "selfimpact": "**비용으로만.** 이차항이 내 비용을 올리지만 시장은 바뀌지 않는다.",
+  "validation": "사용자 몫. 롤링 학습 예제가 있으나 다중검정 장치는 없다.",
+  "metrics": "수익률·정보비율·최대낙폭 등 표준 지표.",
+  "gap": "\"high-frequency\" 라는 예제 폴더 이름이 오해를 부른다 — 실제로는 **분봉**이다. 틱 백테스트 도구로 인용하면 안 된다."
+ },
+ "code": [
+  "[microsoft/qlib](https://github.com/microsoft/qlib) — MIT · star 48,430 · push 2026-09-02"
+ ],
+ "oneline": "AI 퀀트 파이프라인으로는 최고 수준이지만, 그 '고빈도' 는 분봉이다.",
+ "implications": [
+  "우리 `framework` 가 하는 일(데이터→가설→탐색→검증→원장)과 구조가 겹친다. 다만 Qlib 은 분봉·비용상수, 우리는 틱·큐 모델이라 층이 다르다.",
+  "중국 A주의 상하한가·거래정지 처리를 명시적 체크로 둔 것은 우리도 필요하다 — 우리는 `InsufficientQuoteData` 로 거래정지를 '부재' 로 처리하는데, 상하한가는 별도로 다루지 않는다."
+ ],
+ "resolution": "일봉 이상"
+}

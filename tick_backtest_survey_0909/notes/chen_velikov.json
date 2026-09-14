@@ -1,0 +1,60 @@
+{
+ "key": "chen_velikov",
+ "title": "Zeroing In on the Expected Returns of Anomalies (Chen & Velikov) — 틱으로 비용을 재고 진짜 표본 외로 평가한 유일한 백테스트",
+ "authors_short": "Andrew Y. Chen (Federal Reserve Board) · Mihail Velikov (Penn State)",
+ "venue": "Journal of Financial and Quantitative Analysis 58(3), 968–1004 (2023)",
+ "venue_verified": "DOI 10.1017/S0022109022000874 가 200 으로 정상 해석. FEDS WP 2020-039 를 federalreserve.gov 에서 전문 확인. 출판본은 204개 아노말리·4bp, WP 는 120개·8bp 로 다르다",
+ "type": "거래비용 반영 아노말리 백테스트 + 데이터마이닝 보정",
+ "domain": "미국 주식 아노말리 순수익",
+ "data_scope": "유효스프레드 `= 2|log(P_k) − log(M_k)|` 를 **Daily TAQ(밀리·나노초, 2003-10~2016)** 에서 Holden–Jacobsen 의 DTAQ 코드로, **MTAQ·ISSM** 에서 HJ 의 월간 코드로 계산(1999년 이전 2초 지연, 1999~2002 는 1ms). 체결 단위에서 40% 초과 스프레드는 버린다. 1983년 이전은 저빈도 대용치(Gibbs·Corwin–Schultz·Abdi–Ranaldo·Fong–Holden–Trzcinka) 평균으로 역추정하며, 그 평균이 TAQ 와 상관 **90%**, ISSM 과 **94%**.",
+ "tags": [
+  "TAQ 비용",
+  "표본 내 최적화",
+  "경험적 베이즈",
+  "코드 공개"
+ ],
+ "links": {
+  "proceedings": "https://doi.org/10.1017/S0022109022000874",
+  "pdf": "https://www.federalreserve.gov/econres/feds/files/2020039pap.pdf",
+  "github": "https://github.com/velikov-mihail/AssayingAnomalies",
+  "github_extra": [
+   "https://github.com/velikov-mihail/Chen-Velikov",
+   "https://github.com/chenandrewy/hf-spreads-all"
+  ],
+  "verified": "DOI 200 · FEDS PDF 200 · 세 저장소 모두 200"
+ },
+ "easy": {
+  "problem": "논문에 나온 아노말리 수익 중 실제로 거래해서 남는 것은 얼마인가? 그리고 그 계산 자체가 또 다른 데이터마이닝이 되지 않게 하려면?",
+  "how": "비용은 틱(TAQ)에서 직접 재고, 비용을 줄이는 기법(저비용 종목 한정·부분 재조정·매수/보유 스프레드)의 파라미터는 **표본 내에서만** 최적화한 뒤, 평가는 **출판 이후이면서 2005년 이후** 구간에서만 한다.",
+  "analogy": "약효를 확인할 때, 용법을 정하는 데 쓴 환자와 효과를 재는 환자를 반드시 다르게 두는 것."
+ },
+ "contributions": [
+  "이 조사 전체에서 **비용을 실제 틱으로 재면서 동시에 진짜 시간 분할을 하는 유일한 논문**이다.",
+  "저자들이 설계 이유를 명시한다 — \"We optimize using only in-sample information for similar reasons. Our main object of interest is the mean net return in samples that are both post-publication and post-2005. Optimizing using only in-sample information ensures that our main object of interest is not affected by data-mining bias coming from optimization.\"",
+  "데이터마이닝을 두 갈래로 다룬다 — **분위수 정렬 표본 외 검정**과 **경험적 베이즈 축소 추정량**.",
+  "분해가 명료하다: 월 양방향 회전율 30% × **평균 지불 스프레드 111bp** = 수익 32bp 감소 — 출판 후 감쇠를 견디고 남은 30bp 를 정확히 지운다.",
+  "코드가 공개돼 있고 재사용 가능하다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "월간 포트폴리오 재조정 수준의 재생이다. 호가창·큐가 없다. 그러나 **비용을 틱에서 재고 검증 설계가 이 조사 전체에서 가장 엄격하다.**",
+  "data_short": "TAQ·ISSM 유효스프레드 + CRSP/Compustat",
+  "fill_short": "월간 재조정 · 유효스프레드 차감",
+  "cost_short": "**틱에서 잰 유효스프레드** (평균 지불 111bp)",
+  "validation": "**표본 내 최적화 → 출판 이후 & 2005년 이후 평가.** 분위수 정렬 표본 외 + 경험적 베이즈 축소.",
+  "metrics": "총/순 월평균 수익, 회전율, 지불 스프레드.",
+  "gap": "월간 지평이라 일중 체결 문제는 다루지 않는다."
+ },
+ "code": [
+  "[velikov-mihail/AssayingAnomalies](https://github.com/velikov-mihail/AssayingAnomalies) — MATLAB. WRDS 에서 CRSP/Compustat 을 받아 아노말리 포트폴리오를 만들고 **세 가지 거래비용 측정치**(Hasbrouck Gibbs · Chen–Velikov 저빈도 결합 · **고빈도 TAQ 스프레드 포함 전체 결합**)로 순수익 백테스트를 돌린다",
+  "[velikov-mihail/Chen-Velikov](https://github.com/velikov-mihail/Chen-Velikov) · [chenandrewy/hf-spreads-all](https://github.com/chenandrewy/hf-spreads-all)(WRDS SAS, 1983~ 유효스프레드 생성)",
+  "[openassetpricing.com](https://www.openassetpricing.com) — Chen & Zimmermann 시그널 라이브러리"
+ ],
+ "oneline": "\"비용을 어떻게 재는가\" 와 \"어디서 평가하는가\" 를 동시에 제대로 한 거의 유일한 사례.",
+ "implications": [
+  "**우리 설계와 가장 닮은 검증 철학이다.** 우리 '발굴 1일 → 검증 1일 → OOS 5일, 날짜 분리 계약' 이 이들의 '표본 내 최적화 → 출판 후·2005년 후 평가' 와 같은 발상이다. 관련연구에서 이 논문을 우리 검증 설계의 선례로 쓸 수 있다.",
+  "경험적 베이즈 축소는 우리가 아직 안 하는 것이다. 창 4개 × 전략 30개의 성과를 축소 추정하면 '어느 전략이 진짜인가' 를 시행 횟수와 함께 답할 수 있다.",
+  "'평균 지불 스프레드 111bp' 같은 숫자를 우리도 내야 한다 — 우리 원장에는 `entry_spread_bps`·`exit_spread_bps` 가 이미 있으므로 집계만 하면 된다."
+ ],
+ "resolution": "일봉 이상"
+}

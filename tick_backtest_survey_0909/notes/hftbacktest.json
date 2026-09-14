@@ -1,0 +1,72 @@
+{
+ "key": "hftbacktest",
+ "title": "hftbacktest — 큐 위치와 지연을 정면으로 모델링하는 오픈소스 HFT 백테스터",
+ "authors_short": "nkaz001 (개인 오픈소스)",
+ "venue": "오픈소스 (MIT)",
+ "venue_verified": "GitHub API 로 star 4,642 · fork 897 · 라이선스 MIT · 최근 push 2025-12-23 · 주 언어 Rust 확인(2026-09-09). 로컬 clone(HEAD 5f3ec40b, 2025-12-23)의 Rust 소스 `hftbacktest/src/backtest/models/{queue,latency,fee}.rs` 를 직접 읽고 아래 내용을 확인",
+ "type": "오픈소스 백테스트·라이브 트레이딩 엔진 (Rust 코어 + 파이썬 바인딩)",
+ "domain": "고빈도 마켓메이킹 · 지정가 집행",
+ "data_scope": "이벤트 8필드 구조체 배열(npz/npy): `ev, exch_ts, local_ts, px, qty, order_id, ival, faval`. **`exch_ts`(거래소 시각)와 `local_ts`(내가 받은 시각)를 함께 저장**하는 것이 이 엔진의 토대다 — 피드 지연 모델링이 여기서 나온다. `order_id` 는 L3 MBO 피드에만 채워진다. Databento·Tardis·Binance Futures 변환기를 제공하고, 깊이 백엔드는 `HashMapMarketDepth`·`BTreeMarketDepth`·`ROIVectorMarketDepth`. 나노초 권장.",
+ "tags": [
+  "큐 위치 모델",
+  "지연 모델",
+  "maker/taker 수수료",
+  "Rust",
+  "라이브 병행"
+ ],
+ "links": {
+  "github": "https://github.com/nkaz001/hftbacktest",
+  "docs": "https://hftbacktest.readthedocs.io/",
+  "verified": "GitHub API 200 · 로컬 clone 소스 직접 열람"
+ },
+ "easy": {
+  "problem": "지정가를 걸어 스프레드를 먹는 전략은 \"내 주문이 정말 체결됐을까\" 가 성과의 전부다. 그런데 대부분의 백테스터는 \"그 가격에 거래가 있었으면 체결\" 로 끝내서, 실제로는 안 됐을 체결을 잔뜩 만들어 낸다.",
+  "how": "주문마다 **내 앞에 남은 물량**(front queue)을 상태로 들고 다니며, 같은 가격의 체결과 잔량 변화로 그것을 깎는다. 앞 물량이 0 이하로 내려간 만큼만 체결로 인정한다. 주문 지연과 응답 지연도 따로 모델링한다.",
+  "analogy": "줄 서기 시뮬레이터. 내 앞에 몇 명이 남았는지를 계속 세고, 그 줄이 실제로 줄어들 때만 내 차례가 온다."
+ },
+ "contributions": [
+  "**큐 위치 모델을 추상 trait 으로 분리**했다(`QueueModel`): `new_order`(게시 시 앞 물량 초기화) · `trade`(같은 가격 체결이 나면 깎음) · `depth`(잔량이 변하면 조정) · `is_filled`(앞 물량이 음수가 된 만큼 체결).",
+  "거래소 모델이 두 가지다. `NoPartialFillExchange`(기본)는 (a) 내 지정가 ≥ 최우선 매도호가, (b) 내 가격 > 매도 체결가, (c) 내가 큐 맨 앞이면서 내 가격 == 매도 체결가 중 하나면 체결시킨다. `PartialFillExchange` 는 남은 체결량만큼 부분체결을 낸다. 다만 문서가 한계를 명시한다 — \"Regardless of the quantity at the best, liquidity-taking orders will be fully executed at the best.\"",
+  "가장 보수적인 `RiskAdverseQueueModel` 은 **같은 가격에 체결이 날 때만** 앞 물량을 깎고, 잔량 감소는 `front_q = min(front_q, new_qty)` 로 clamp 만 한다 — 취소가 내 뒤에서 일어났다고 본다.",
+  "`ProbQueueModel` 은 그 사이를 **확률**로 채운다. 설명되지 않은 잔량 감소 `chg` 를 앞/뒤로 나눌 때 `prob = f(back) / (f(back) + f(front))` 를 써서 `est_front = front − (1−prob)·chg + min(back − prob·chg, 0)` 로 갱신한다. `f` 로 `PowerProbQueueFunc(x^n)` · `LogProbQueueFunc(log(1+x))` 등 네 가지를 제공한다.",
+  "지연을 **주문 진입 지연(entry)** 과 **응답 지연(response)** 으로 분리했다. `ConstantLatency` 는 상수, `IntpOrderLatency` 는 실측 왕복 지연 데이터(`OrderLatencyRow`)를 시간축으로 보간한다. 진입 지연에 음수를 주면 거래소 거절을 뜻한다.",
+  "수수료는 `CommonFees(maker_fee, taker_fee)` 와 매수/매도 비대칭까지 넣는 `DirectionalFees` 로 구분한다 — 리베이트를 음수로 넣을 수 있다.",
+  "백테스트 코드와 라이브 봇이 같은 인터페이스를 쓴다(`LiveBot`). 백테스트에서 검증한 전략을 그대로 돌리는 것을 목표로 한다.",
+  "L3 MBO 피드용 `L3FIFOQueueModel` 은 \"all orders, including backtest orders, are managed in a FIFO queue based on price-time priority\" — 내 주문을 남의 주문과 같은 큐에 넣는다. 책 초기화(clear) 메시지에서는 백테스트 주문을 전부 지우며, 실제 거래소 동작과 다를 수 있음을 문서가 밝힌다."
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "실데이터 재생 + 큐 위치 + 지연 + maker/taker 수수료. 자기영향(내 주문이 남을 바꾸는 것)은 없으므로 L5 는 아니다.",
+  "data_short": "L2/L3 이벤트 (거래소·Databento·Tardis)",
+  "fill_short": "큐 위치 모델 4종 + 확률 함수",
+  "cost_short": "maker/taker · 방향별 수수료 · 리베이트",
+  "data": "이벤트 스트림을 그대로 재생한다. 피드 지연과 주문 지연을 분리해 로컬(내 봇)이 보는 시각과 거래소 시각을 다르게 유지한다 — \"내가 아직 못 본 호가\" 로 주문을 내지 못하게 하는 구조다.",
+  "design": "단일 에이전트 재생. 다만 재생의 정확도를 높이는 데 설계를 다 쓴다 — 로컬/거래소 두 시계, 큐 위치 추정, 지연 왕복.",
+  "fill": "`is_filled` 가 앞 물량이 0 아래로 내려간 양을 lot 단위로 반올림해 체결량으로 돌려준다. 부분체결이 자연스럽게 나온다. 잔량 증가는 앞 물량을 바꾸지 않는다(뒤에 붙은 것으로 본다).",
+  "cost": "`TradingValueFeeModel` 이 체결 금액에 maker/taker 요율을 곱한다. `DirectionalFees` 로 매수/매도에 다른 요율을 더할 수 있어 거래세 같은 편측 비용도 표현 가능하다.",
+  "latency": "**있다.** `ConstantLatency(entry_latency, response_latency)` 또는 실측 지연을 보간하는 `IntpOrderLatency`. 조사한 도구 중 지연을 실측 데이터로 보간하는 것은 이것이 사실상 유일하다.",
+  "selfimpact": "**없다.** 문서가 먼저 밝힌다 — \"HftBacktest is a market-data replay-based backtesting tool, which means your order cannot make any changes to the simulated market, no market impact is considered.\"",
+  "validation": "엔진이지 방법론이 아니다. 표본 분리·다중검정은 사용자 몫이다.",
+  "metrics": "equity·position·수수료 누적 등 상태를 노출하고, 지표 계산은 사용자(또는 동봉 노트북)가 한다.",
+  "quotes": [
+   "// docs: Regardless of the quantity at the best, liquidity-taking orders will be fully executed\n// at the best. Be aware that this may cause unrealistic fill simulations if you attempt to\n// execute a large quantity.",
+   "/// Provides a conservative queue position model, where your order's queue position advances only\n/// when trades occur at the same price level.\npub struct RiskAdverseQueueModel<MD>(PhantomData<MD>);",
+   "        let front = q.front_q_qty;\n        let back = prev_qty - front;\n\n        let mut prob = self.prob.prob(front, back);\n        if prob.is_infinite() {\n            prob = 1.0;\n        }\n\n        let est_front = front - (1.0 - prob) * chg + (back - prob * chg).min(0.0);\n        q.front_q_qty = est_front.min(new_qty);",
+   "/// If latency has a negative value, it indicates an order rejection by the exchange and its\n/// value represents the latency that the local experiences when receiving the rejection\n/// notification."
+  ],
+  "gap": "자기영향이 없다. 그리고 큐 모델은 어디까지나 **추정**이다 — L2 데이터만 있으면 취소와 체결을 직접 가를 수 없어서 확률 함수의 형태(`n` 값)가 결과를 흔든다. 문서도 이를 근사라고 명시한다. 또한 확률 큐 갱신은 몬테카를로 추첨이 아니라 **결정론적 기대값 갱신**이라, 한 번 돌리면 분포가 아니라 경로 하나가 나온다."
+ },
+ "code": [
+  "[nkaz001/hftbacktest](https://github.com/nkaz001/hftbacktest) — Rust 코어 + `py-hftbacktest`. MIT · star 4,642 · fork 897 · 최근 push 2025-12-23",
+  "동봉 노트북 `examples/Probability Queue Models.ipynb`, `examples/Queue-Based Market Making in Large Tick Size Assets.ipynb` 가 큐 모델 선택이 결과를 얼마나 바꾸는지 보여 준다"
+ ],
+ "limitations": "암호화폐 거래소 중심으로 커넥터가 구성돼 있고, 한국 시장 데이터는 직접 변환해 넣어야 한다. 큐 모델의 확률 함수와 지수 `n` 을 무엇으로 고를지에 대한 정답은 없다.",
+ "oneline": "\"틱을 되감았다\" 와 \"체결을 재현했다\" 를 가르는 기준선. 우리 백테스트가 같은 층에 있는지 확인할 때 대는 자 역할을 한다.",
+ "implications": [
+  "**우리 `unexplained_fill_fraction = 1.0` 은 hftbacktest 의 확률 모델에서 `1 − prob ≡ 1`, 즉 설명되지 않은 잔량 감소를 전부 내 앞에서 일어난 것으로 보는 가장 낙관적인 설정에 해당한다.** hftbacktest 의 `RiskAdverseQueueModel` 은 정반대(전부 뒤)이고, `ProbQueueModel` 은 앞/뒤 물량 비율로 그 사이를 정한다. 우리도 이 축에서 민감도를 재야 한다.",
+  "반대로 우리 hold-through 는 hftbacktest 보다 보수적이다 — 호가가 불리해져도 주문을 빼지 않으므로 역선택을 그대로 받는다. 두 축(낙관·보수)이 상쇄되는지 확인하지 않으면 순 효과를 모른다.",
+  "지연은 우리에게 없고 여기엔 있다. `ConstantLatency(entry, response)` 정도만 이식해도 “신호 틱에 즉시 게시” 가정을 검증할 수 있다.",
+  "수수료 구조도 참고할 만하다 — `DirectionalFees` 로 매도에만 붙는 거래세를 표현하면, 우리 `FEE_BPS = 23.0` 왕복 상수를 매수/매도로 쪼갤 수 있다."
+ ],
+ "resolution": "틱·메시지"
+}

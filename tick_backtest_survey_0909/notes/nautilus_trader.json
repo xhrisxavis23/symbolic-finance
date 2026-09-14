@@ -1,0 +1,66 @@
+{
+ "key": "nautilus_trader",
+ "title": "NautilusTrader — 백테스트와 실거래가 같은 코드를 쓰는 엔진, 그리고 1.223.0 에 들어온 큐 위치",
+ "authors_short": "Nautech Systems",
+ "venue": "오픈소스 (LGPL-3.0)",
+ "venue_verified": "GitHub REST API 로 star 28,684 · fork 3,745 · LGPL-3.0 · 최근 push 2026-09-09 확인. 안정판 v1.231.0(2026-08-02), v2.0.0rc4(2026-09-02). `crates/execution/src/models/{fill,fee}.rs` 와 `docs/concepts/backtesting/data-and-venues.md`, `RELEASES.md` 를 직접 확인",
+ "type": "이벤트 구동 백테스트·실거래 통합 플랫폼 (Rust 코어 + PyO3)",
+ "domain": "다자산·다거래소 (주식·선물·암호화폐·예측시장)",
+ "data_scope": "데이터 등급을 문서가 명시적으로 서열화한다 — L3 MBO → L2 MBP → L1 quote → trade → bar. 거래소 `book_type` 은 `L1_MBP`(기본)·`L2_MBP`·`L3_MBO`. 나노초. 어댑터 약 20종 + Databento·Tardis.",
+ "tags": [
+  "큐 위치(1.223+)",
+  "지연 4종",
+  "수수료 모델 최다",
+  "실거래 동일 코드",
+  "LGPL"
+ ],
+ "links": {
+  "github": "https://github.com/nautechsystems/nautilus_trader",
+  "docs": "https://nautilustrader.io/docs",
+  "verified": "GitHub API 200 · 소스와 문서 직접 확인"
+ },
+ "easy": {
+  "problem": "백테스트용 코드와 실거래용 코드가 갈라지면, 잘 나온 백테스트가 실거래에서 그대로 재현되지 않는다. 어디서 갈라졌는지도 알 수 없다.",
+  "how": "Rust 코어에 이벤트 구동 커널을 두고, 백테스트 거래소를 **매칭 엔진**으로 구현했다. 전략 코드는 이벤트를 받아 주문을 내는 것뿐이라 백테스트든 실거래든 같은 코드가 돈다.",
+  "analogy": "비행 시뮬레이터와 실제 조종석의 계기 배치를 똑같이 만든 것. 연습한 손버릇이 그대로 통한다."
+ },
+ "contributions": [
+  "**\"같은 전략·집행 코드가 백테스트와 실거래에서 그대로 돈다\"** 를 구조로 구현했다. 이 조사에서 실거래 병행 주장이 가장 강한 도구다. 동시에 차이를 숨기지 않고 `docs/concepts/live.md#backtest-and-live-differences` 로 따로 문서화한다 — 거래소 규칙, 전송 실패(명령 결과를 모름), 시각·교차 순서(\"the runner does not define one global FIFO order\"), 외부 주문, 대사(reconciliation).",
+  "데이터 해상도의 한계를 문서가 못 박는다 — \"Nautilus cannot generate higher granularity data (L2 or L3) from lower-level data such as quotes, trades, or bars.\" `L2_MBP` 를 지정해 놓고 봉을 넣으면 **주문이 영영 체결되지 않는 것처럼 보인다**고 경고한다.",
+  "**큐 위치 추적이 1.223.0 에 들어왔다**(L1 quote 기반은 1.224.0, v2 의 L3 주문별 델타 수정은 1.231.0). `queue_position=True` + `trade_execution=True` 로 켠다: 접수 시 같은 가격의 표시 잔량을 스냅샷 → 같은 방향 체결이 앞 물량을 깎음 → 0 이 되면 체결 자격 → 큐를 넘긴 체결량만 내 것으로.",
+  "L3 MBO 에서는 주문 단위로 정확히 처리한다 — \"A per-order DELETE advances the queue by that order's remaining tracked size. A size decrease advances the queue by the difference. A size increase keeps the larger order ahead.\"",
+  "체결 모델을 11종 열거형(`FillModelAny`)으로 제공한다: `DefaultFillModel` · `BestPriceFillModel` · `OneTickSlippageFillModel` · `ProbabilisticFillModel` · `TwoTierFillModel` · `ThreeTierFillModel` · `LimitOrderPartialFillModel` · `SizeAwareFillModel` · `CompetitionAwareFillModel` · `VolumeSensitiveFillModel` · `MarketHoursFillModel`.",
+  "수수료 모델이 이 조사에서 가장 완비돼 있다 — `MakerTakerFeeModel` · `FixedFeeModel` · `PerContractFeeModel` · `ProbabilityPriceFeeModel`(예측시장) · `CappedOptionFeeModel` · `TieredNotionalOptionFeeModel`."
+ ],
+ "backtest": {
+  "rung": "L4",
+  "rung_reason": "1.223.0 이후 `queue_position=True` 로 큐 위치를 추적하고 지연을 네 갈래로 모델링한다. 다만 L2 에서 **내 앞의 취소를 확률로 나누는 모델이 없어** hftbacktest 의 보수적 등급(RiskAdverse)에 해당한다. 그 이전 버전은 큐 추적이 아예 없으므로 L2~L3.",
+  "data_short": "L3/L2/L1/trade/bar (ns)",
+  "fill_short": "queue_position=True (1.223+) · 체결 모델 11종",
+  "cost_short": "maker/taker · 고정·계약당·계단형",
+  "data": "기록된 호가·체결을 **불변**으로 다룬다 — \"The backtest matching engine treats recorded order book and trade data as immutable. Simulated fills do not edit the historical book.\"",
+  "design": "단일 에이전트 재생 + 매칭 엔진. L2/L3 에서는 시장가가 호가를 갉아먹고 지정가는 교차 가격을 취하거나 대기한다. L1 에서는 결정론적 1틱 잔여 규칙 + 확률적 슬리피지를 쓴다.",
+  "fill": "체결 틱이 패시브 체결을 일으키고(`trade_execution=True` 기본), `min(order.leaves_qty, trade.size)` 로 제한한다. 별도 스위치 `liquidity_consumption=True` 는 레벨별 소비량을 추적해 \"같은 표시 잔량이 한 번의 반복에서 여러 주문을 체결시키는\" 문제를 막는다. **문서가 남은 낙관을 스스로 적어 둔다** — `NO_AGGRESSOR` 체결은 양쪽 큐를 모두 줄여서 실제보다 일찍 체결시킬 수 있다.",
+  "cost": "상품 단위 maker/taker 요율. 옵션 상한·계단형 명목가까지 있다.",
+  "latency": "`StaticLatencyModel(base, insert, update, delete)` — 기본 지연에 연산별 지연이 **가산**된다(base 100ms + insert 200ms = 300ms). 삽입/수정/취소를 분리한 것은 hftbacktest 보다 세밀하다. 반면 **실측 지연을 보간하는 모델이 없고**, 피드 지연 개념도 없다.",
+  "selfimpact": "**없다.** 문서가 명시한다 — \"Historical data cannot show how a simulated order would have interacted with other market participants.\"",
+  "validation": "엔진이다. 표본 분리·다중검정은 사용자 몫.",
+  "metrics": "포트폴리오·체결·수수료 이벤트를 모두 남기고 리포트를 생성한다.",
+  "quotes": [
+   "Nautilus cannot generate higher granularity data (L2 or L3) from lower-level data such as quotes, trades, or bars.\nIf you specify `L2_MBP` or `L3_MBO` as the venue's `book_type`, quotes and bars will not update the book … otherwise orders may appear as though they are never filled.",
+   "1. On acceptance, a LIMIT order snapshots same-side displayed size at its price.\n2. Correct-side trades at that price reduce the quantity ahead.\n3. The order becomes fill-eligible when the quantity ahead reaches zero.\n4. Only trade volume beyond the cleared queue is available to fill on that tick."
+  ],
+  "gap": "L2 에서 내 앞의 **취소**를 확률로 다루지 않는다(잔량 갱신 시 앞 물량을 표시 잔량으로 clamp 할 뿐). 실측 기반 지연 모델이 없다. 자기영향 없음. 그리고 **1.223.0 이전 버전에는 큐 추적이 전혀 없다** — 버전 확인이 필수다."
+ },
+ "code": [
+  "[nautechsystems/nautilus_trader](https://github.com/nautechsystems/nautilus_trader) — LGPL-3.0 · star 28,684 · fork 3,745 · v1.231.0 / v2.0.0rc4 · push 2026-09-09"
+ ],
+ "limitations": "LGPL-3.0 이라 정적 링크·임베딩 시 라이선스 검토가 필요하다(hftbacktest 의 MIT 와 실무적으로 다르다). 큐 추적은 지정가 전용이고, 주문마다 큐 추정이 독립이다.",
+ "oneline": "다자산·실거래 병행이 필요하면 여기, 암호화폐 L2 마켓메이킹 체결 재현이 목적이면 hftbacktest — 두 도구의 분업이 명확하다.",
+ "implications": [
+  "우리 정본 프로필이 \"백테스트와 실거래가 같은 정의를 쓰게\" 하려면 이 설계가 참고가 된다. 지금 우리는 백테스트만 있고 실행부가 없다.",
+  "`liquidity_consumption` 아이디어는 우리에게도 필요하다 — 같은 종목·같은 틱에서 여러 결정이 동시에 열릴 때 같은 잔량을 두 번 쓰지 않는지 확인해야 한다.",
+  "\"L2 를 지정하고 봉을 넣으면 주문이 영영 체결되지 않는다\" 는 경고는 데이터 등급과 체결 모델을 함께 잠가야 한다는 뜻이다. 우리 `execution_profile` 이 데이터 스키마 버전(`backtest_tick_array_cache.v2_continuous`)과 함께 지문화되는 것이 같은 문제의 다른 해법이다."
+ ],
+ "resolution": "틱·메시지"
+}

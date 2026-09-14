@@ -1,0 +1,91 @@
+{
+ "key": "fdabench",
+ "title": "FDABench: A Benchmark for Data Agents on Analytical Queries over Heterogeneous Data",
+ "authors_short": "Wang et al. · Nanyang Technological University · National University of Singapore · Huawei",
+ "venue": "KDD 2026 (ACM SIGKDD '26, Jeju, Aug 9–13 2026)",
+ "venue_verified": "arXiv 2509.02473 comments 'Accepted to KDD'26'; PDF v3(2026-08-15) 헤더 'KDD '26, August 09–13, 2026, Jeju Island, Republic of Korea', ACM ISBN 979-8-4007-2259-2/2026/08, DOI 10.1145/3770855.3817454(doi.org→dl.acm.org 302 리다이렉트 확인, ACM 페이지는 403으로 본문 미확인); KDD는 공개 리뷰 없음",
+ "type": "벤치마크(데이터 에이전트, 이종 데이터 분석 질의: 단일선택·다중선택·보고서) + 데이터셋 생성 프레임워크(PUDDING) + 평가 프레임워크",
+ "domain": "도메인 무관(BIRD·Spider·Spider2·DABstep의 139개 DB + 학술 논문 PDF·산업 문서·이미지·오디오·비디오 등 1,600+ 비정형 파일, 50개 도메인)",
+ "data_scope": "Full 2,007 tasks(Report 668 / Single-Choice 579 / Multiple-Choice 760; Easy 396 / Medium 666 / Hard 945; 139 DB; p.5 Table 2), Lite 289(single 116 / multiple 49 / report 117); 후보 4,127 중 48.6% 채택",
+ "tags": [
+  "data-agent",
+  "heterogeneous-data",
+  "text-to-SQL+RAG",
+  "multiple-choice",
+  "report-generation",
+  "LLM-judge-rubric",
+  "DAG-tool-evaluation",
+  "agentic-dataset-construction"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2509.02473",
+  "pdf": "https://arxiv.org/pdf/2509.02473",
+  "proceedings": "https://doi.org/10.1145/3770855.3817454",
+  "github": "https://github.com/fdabench/FDAbench",
+  "huggingface": "https://huggingface.co/datasets/FDAbench2026/Fdabench-Lite",
+  "website": "https://fdabench.github.io/",
+  "verified": "arXiv PDF(12쪽) 다운로드, GitHub README·HF Lite README 200, datasets-server rows(single/multiple/report 각 3행) 실제 수신, doi.org 302 확인(ACM 본문 403) · huggingface 보조 링크: https://huggingface.co/datasets/FDAbench2026/FDAbench-Full"
+ },
+ "easy": {
+  "problem": "데이터 에이전트는 DB 질의 결과와 문서·웹·이미지 등 외부 지식을 합쳐 분석 질문에 답해야 하는데, 기존 벤치마크는 관계형 DB(text-to-SQL)나 문서(RAG) 한쪽만 다루고, 개방형 보고서는 LLM 심판에만 기대 평가가 불안정했다.",
+  "how": "BIRD·Spider·Spider2·DABstep에서 SQL 질의+DB를 씨앗으로 골라, PUDDING 에이전트가 웹 검색·벡터 검색·파일 검색을 트리 탐색하며 문항 초안을 만들고(가지별 자기반성으로 가지치기), 6명의 도메인 전문가가 수락/수정/거절한다. 답은 단일선택·다중선택(정확일치)과 보고서(SQL 정확성·외부 통합·논리·완결성 루브릭, LLM 심판)로 표준화하고, 도구 호출 DAG로 중간 추론도 채점한다.",
+  "analogy": "기출 SQL 문제(씨앗)에 최신 논문·뉴스 검색 결과를 붙여 '계산 결과를 외부 보고서 수치와 비교해 맞는 진술을 모두 고르라'는 확장 문제를 자동으로 만들고 교수가 검수하는 출제 공장."
+ },
+ "contributions": [
+  "6개 데이터 모달리티(DB·문서·웹·이미지·비디오·오디오)와 3개 과제 유형(SC·MC·Report)을 갖춘 2,007 tasks, 139 DB(p.2, p.5 Table 2)",
+  "PUDDING: 상태 그래프 기반 에이전트 탐색 + 가지별 자기반성(Prune/Continue/Sufficient) + 전문가 반복 검증으로 4,127 후보 중 2,007 채택(48.6%); 구성요소 제거 시 채택률 24.5%까지 하락(p.4–5, p.9 Table 9)",
+  "교차 시스템 평가 프레임워크: Planning·Tool-use·Reflection·Multi-agent 4개 워크플로, 지표 EX_SC/EX_MC·Rubric Score·Tool Orchestration Score(DAG)·Tool F1·SR·지연·비용(p.5–6)",
+  "12개 LLM × 4 워크플로, 6개 일반 분석 에이전트·3개 시맨틱 연산자 프레임워크·4개 RAG 평가; GPT-5가 EX 0.61~0.63으로 선두, Tool-use는 SR 0.669→0.656으로 견고하나 EX는 낮음(p.6–8 Table 3–7)",
+  "사람 vs LLM 심판 일치도: Report Krippendorff α 0.76(사람-사람 0.81), SC 0.93, MC 0.85(p.9 Table 10)"
+ ],
+ "figures": [
+  {
+   "file": "figs/fdabench_fig1.png",
+   "label": "Figure 2",
+   "page": 3,
+   "caption_ko": "FDABench 아키텍처. 왼쪽 Construction Phase: BIRD/Spider/Spider2/DABstep에서 데이터 수집→이종 데이터·씨앗 DB→Context Grounding→Stateful Graph·Demonstration을 갖춘 PUDDING Agent→Expert Verification(Revise 루프)→FDABench. 중앙: Relational DB·Web·Vector DB·Demonstration DB 도구. 오른쪽 Evaluation Phase: 대상 데이터 에이전트(General Agent, RAG, Sem Operators)가 Single/Multi-Choice/Report 문항을 풀고 Evaluation Suite(DAG, Choices, Rubric)와 지표(EX, SR, TOS, RS, Token Cost)로 채점.",
+   "alt": "FDABench 구축 단계(PUDDING+전문가 검증)와 평가 단계(에이전트 유형·평가 지표) 개요"
+  },
+  {
+   "file": "figs/fdabench_fig2.png",
+   "label": "Figure 1",
+   "page": 1,
+   "caption_ko": "데이터 에이전트의 분석 질의 예. 사용자 질의('2017년 매출이 가장 높은 트래픽 소스는? 차이는? 통계 결과·최신 연구·이커머스 성장 패턴과의 연결…')에 대해 에이전트가 DB 질의(Direct traffic 118015.76), 웹 검색(2017년 미국 디지털 광고 매출 880억 달러), 내부 PDF 보고서(상위 10% 사용자가 거래량의 85–90% 통제)를 차례로 호출해 최종 보고서를 합성한다.",
+   "alt": "FDABench 분석 질의 예시: DB·웹·PDF를 순차 호출해 보고서를 만드는 데이터 에이전트"
+  }
+ ],
+ "dataset": {
+  "construction": "① 씨앗: \"We start from four vetted benchmarks (BIRD, Spider, Spider2, and DABstep) containing 23,900+ queries, and manually select 4,127 candidates that reflect realistic analytical workloads\"(p.4). 비정형 코퍼스 1,600+ 파일(학술 문헌·산업 문서·기술 규격·멀티미디어·기업 사례)을 청크·임베딩해 FAISS 인덱스에 저장, 검색 결과는 frozen으로 고정(p.4). ② PUDDING: 씨앗 (D_i, q, s*)에서 데모 SQL을 실행해 Base State를 만들고, 반복마다 web_search/vector_search/file_search 후보 가지를 생성, 가지별 자기반성이 Prune/Continue/Sufficient 판정(p.4). ③ 전문가: \"six domain experts, following BIRD standards, validate that tasks necessitate joint reasoning over D and K, verify gold answers through independent SQL execution … Each expert issues an ACCEPT, REVISE, or REJECT decision\"(p.4–5). ④ 단일 소스 충분성 테스트로 DB만·문서만으로 풀리는 과제 제거, 난이도는 BIRD 기준으로 라벨(Krippendorff α>0.78), 도구 호출 로그를 Task DAG로, 루브릭을 함께 생성(p.5). 결과 4,127→2,007(48.6%), 보고서 과제의 93%가 3개 이상 모달리티, 63%가 상호 교차 의존(p.5). 문항 문면·선택지·보고서 정답은 LLM(PUDDING 에이전트, 기본 모델은 명시 안 됨)이 초안을 쓰고 전문가가 검수하는 구조. v1.1(2026-08)에서 다중선택 49문항의 문면·선택지·정답을 수정(정답 개수 힌트 제거, 선택지 스타일 신호 균형; HF README).",
+  "size_format": "Full 2,007(HF FDAbench2026/FDAbench-Full), Lite 289(HF Fdabench-Lite: configs single 116 / multiple 49 / report 117, split train, jsonl). 공통 필드 task_id, instance_id, db, level(easy/medium/hard), database_type(bird/Spider2-lite 등), question_type, tools_available[], gold_subtasks[](tool, input, expected_SQL, expected_result, depends_on), query, frozen_web_search, frozen_vector_search; SC/MC는 options{A..D 또는 A..H}, correct_answer[]; report는 ground_truth_report, sql_result, rubric{evaluation_dimensions{SQL_ACCURACY 0.25, EXTERNAL_INTEGRATION 0.25, …}}, dag{nodes, edges}. 원 DB는 BIRD/Spider2 등에서 별도 취득.",
+  "samples": [
+   "[HF Fdabench-Lite/single, FDA0699, db Brazilian_E_Commerce(Spider2-lite), level hard] query: \"What is the highest monthly delivered orders volume in the year with the lowest annual delivered orders volume among 2016, 2017, and 2018? Considering data quality assessment methodologies similar to those used in the TSCAN model evaluation for merchant order volume prediction, if we calculate the reliability coefficient by taking the natural logarithm and multiplying by the standard deviation factor used in uplift modeling, what data reliability score emerges?\" options: A \"4.82 - This reliability score indicates moderate data consistency…\", B \"6.15 - …\", C \"5.32 - This reliability score indicates high data consistency suitable for advanced predictive modeling with strong confidence intervals for strategic decision-making in competitive market environments.\", D \"7.28 - …\"; correct_answer [\"C\"]; gold_subtasks.execute_sql.expected_result \"output 205\"",
+   "[single, FDA0700, Brazilian_E_Commerce, hard] query: \"Please identify the top three customers, based on their customer_unique_id, who have the highest number of delivered orders, and provide the average payment value, city, and state for each of these customers. Based on this customer analysis and considering geographic market penetration strategies, what is the ratio of the highest average payment value to the sum of the two São Paulo customers' average payment values, multiplied by 100 to express market concentration intensity?\" options A \"238.7 - indicating high market concentration…\", B \"95.7 - …\", C \"312.4 - …\", D \"178.3 - …\"; correct_answer [\"A\"]; expected_SQL: \"WITH customer_orders AS ( SELECT c.customer_unique_id, COUNT(o.order_id) AS Total_Orders_By_Customers, AVG(p.payment_value) AS Average_Payment_By_Customer, c.customer_city, c.customer_state FROM olist_customers c JOIN olist_orders o ON c.customer_id = o.customer_id JOIN olist_order_payments p ON o.order_id = p.order_id WHERE o.order_status = 'delivered' GROUP BY … ) SELECT … ORDER BY Total_Orders_By_Customers DESC LIMIT 3;\"",
+   "[multiple, FDA1418, db professional_basketball(bird), level easy] query: \"Before signing off the season review, compare the percentage of teams ranked number 1 in our team records with levels reported by the retrieved sports studies. Select all that apply.\" options: A \"Our ranked-number-one percentage sits below the 56% level at which 2401.15161v2.pdf reports winning teams were more likely to have higher S than the losing side.\", B \"Our ranked-number-one percentage sits below the 82% average Top-1 accuracy reported for team-identity prediction in 2501.10299v1.pdf.\", D \"The team-success study 2401.15161v2.pdf reports that winning teams had more evenly distributed player performances.\", E \"Our ranked-number-one percentage sits above the 56% level …\", F \"The team-identity study 2501.10299v1.pdf reports average Top-2 accuracy of 88% alongside its average Top-1 accuracy of 82%.\" (G, H 생략); correct_answer [\"A\",\"B\",\"D\",\"F\"]; gold SQL \"SELECT CAST(SUM(CASE WHEN rank = 1 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(name) FROM teams\" expected_result [[18.5546875]]",
+   "[report, FDA0002, db soccer_2016(bird), level hard] query: \"Analyze the historical evolution of wicket-based victory margins across IPL seasons and compare these patterns with recent T20 World Cup and international bilateral series data to identify whether franchise league bowling strategies have influenced national team chase success rates. Determine which specific team combinations and venue conditions correlate most strongly with high-wicket victory margins, and assess whether emerging analytical frameworks in cricket strategy literature support or contradict the statistical trends you uncover.\" gold SQL: \"SELECT COUNT(T1.Match_Id) FROM Match AS T1 INNER JOIN Win_By AS T2 ON T1.Win_Type = T2.Win_Id WHERE T2.Win_type = 'wickets'\"; rubric SQL_ACCURACY(weight 0.25): \"The SQL query must correctly identify and count exactly 307 wicket-based victories from the cricket database…\""
+  ],
+  "class": "C-lite",
+  "class_reason": "SC/MC 문항은 구체 DB·연도·개체를 지정하고 핵심 값은 gold SQL로 결정론적으로 계산되지만(예: 205, 18.55…), 그 위에 '자연로그 × uplift 표준편차 계수' 같은 규약이 불명확한 후처리나 외부 문서(PDF의 56%·82%)와의 비교를 얹어 정답이 선택지 문면과의 대조로 정해지며, 선택지 자체가 해석문을 포함한다. Report 문항(33%)은 개방형으로 LLM 루브릭 채점이라 B~개방형에 가깝다. 원자료(DB)는 별도 취득해야 하고 증거는 gold_subtasks에 SQL·결과 형태로 일부 동봉된다.",
+  "release": "MIT(HF 카드 license: mit, GitHub 배지). Lite 289·Full 2,007 문항과 정답·루브릭·DAG·frozen 검색 결과를 HF에 공개(datasets-server 열람 확인). DB는 BIRD/Spider2 등 원 벤치마크에서 취득 필요; 비정형 코퍼스는 FDAbench2026/FDABench-File.",
+  "contamination": "frozen_web_search·frozen_vector_search로 검색 결과를 고정해 재현성 확보(p.4). 씨앗이 공개 벤치마크(BIRD·Spider 등)의 SQL이라 사전학습 노출 가능성이 있으나 논문에 오염 방어(hidden set 등) 언급 없음. v1.1에서 선택지 힌트·스타일 신호 제거로 요행 차단(HF README).",
+  "evaluation": "지표: EX_SC/EX_MC(정확일치), Rubric Score(SQL_ACC 정확문자열+LLM 대체, EXT_INTEG·LOG_REASON·COMPLETE {0,0.5,1} LLM 심판 Gemini-3-Flash, 가중 0.25), TOS(DAG 커버리지×도구 사용 품질), Tool F1, SR, 지연, 외부 호출, 비용(p.5–6, p.9). 결과: 일반 에이전트(DeepSeek-V3.2 기반) EX_SC 0.64→0.33(DeepAnalyze Easy→Hard), AOP RS 0.49~0.56(p.6 Table 3); 12개 LLM×4 워크플로에서 GPT-5 EX 0.61(Planning)~0.63(Reflection), Tool-use SR 0.669(Easy)→0.656(Hard)로 가장 견고(p.8 Table 6–7); RAG 중 CARROT이 최고 RS를 GraphRAG 비용의 1/3로 달성(p.7 Table 5)."
+ },
+ "seven_questions": {
+  "q1_source": "기존 공개 벤치마크(BIRD, Spider, Spider2, DABstep)의 DB·SQL을 씨앗으로 쓰고 문항·선택지·보고서·외부 문서 결합은 신규 제작.",
+  "q2_method": "씨앗 선별 4,127건, PUDDING 탐색·자기반성, 전문가 6인 수락/수정/거절, 단일 소스 충분성 테스트, 채택률 48.6%까지 절차는 분명(p.4–5). 기본 LLM 모델명은 본문에 미기재(기술 보고서 참조), 비정형 파일 1,600+의 개별 출처 목록은 미확인.",
+  "q3_license": "MIT 오픈소스. 씨앗 벤치마크 라이선스(BIRD CC BY-SA 4.0 등)와의 관계는 논문에 언급 없음.",
+  "q4_relabel": "공개 데이터를 그대로 쓰지 않고 task 맞춤 재라벨링·확장(SQL 질의→SC/MC/Report 문항, 루브릭·DAG 주석 추가).",
+  "q5_industry": "학계(NTU·NUS) + Huawei 저자 협업이나 기업 데이터는 쓰지 않고 공개 DB로 자체 구성, 전량 공개.",
+  "q6_constraints": "저작권·보안 제약 언급 없음. 검색 결과를 frozen으로 동봉하면서 원 웹 문서의 저작권 처리는 미기재.",
+  "q7_accept": "공개 리뷰 없음(KDD). 논문 self-claim: (1) 6 모달리티·3 과제 유형·다중 세분 평가를 갖춘 포괄적 벤치마크, (2) 확장 가능한 PUDDING 구축 프레임워크(48.6% 채택), (3) 12 모델·4 워크플로·13 시스템 광범위 실험과 설계 교훈(p.2)."
+ },
+ "review": null,
+ "limitations": "SC 문항이 '자연로그×계수' 같은 규약 불명확한 유사 분석 프레임을 얹어 답이 선택지 대조로만 결정되는 경우가 있고, 선택지에 해석문이 붙어 스타일 단서로 풀릴 위험이 있다(v1.1에서 MC 49문항 수정). Report 과제는 LLM 심판 루브릭(사람-LLM α 0.76)에 의존한다. 씨앗이 공개 벤치마크라 오염 방어가 없다. PUDDING의 기본 LLM·프롬프트 세부는 기술 보고서로 미룸. DB는 원 벤치마크에서 따로 받아야 한다.",
+ "oneline": "BIRD·Spider·DABstep의 SQL 씨앗에 웹·문서·멀티미디어 근거를 에이전트(PUDDING)가 붙이고 전문가가 검수해 만든 2,007개 SC/MC/보고서 데이터 에이전트 벤치마크(KDD 2026).",
+ "implications": [
+  "SQL 결정론 값(205, 18.55%) 위에 규약 불명확한 후처리를 얹으면 답의 결정론성이 깨져 선택지 대조에 기대게 된다는 반면교사 — 우리 C형은 문턱·산식(ratio=|Σdelta|/Σ|delta|, 0.05)을 질문 안에 명시해 값 자체를 채점하므로 이 약점이 없음을 강조할 수 있다.",
+  "gold_subtasks(도구·SQL·expected_result·depends_on)와 Task DAG로 중간 단계까지 채점하는 설계는 우리 evidence 레코드를 '단계별 근거'로 구조화할 때 참고할 만하다(예: 이벤트 디코딩→필터→집계 단계별 기대 결과).",
+  "frozen 검색 결과 동봉은 외부 의존을 고정하는 재현성 장치다. 온체인 셋은 블록 구간 고정으로 이미 결정론적이지만, 가격·메타데이터(토큰 decimals 등) 외부 참조가 있으면 스냅샷으로 동봉해야 한다.",
+  "공개 벤치마크 씨앗 재사용은 오염 논쟁을 부른다. 우리 셋은 최신 블록 구간(25,369,414~)에서 새로 계산한 값이라는 점을 오염 방어 논거로 명시할 수 있다."
+ ],
+ "brief": false
+}

@@ -1,0 +1,57 @@
+{
+ "key": "holden_jacobsen",
+ "title": "Liquidity Measurement Problems in Fast, Competitive Markets — 모든 틱 백테스트가 조용히 기대고 있는 측정 계층",
+ "authors_short": "Craig Holden · Stacey Jacobsen (Indiana · SMU)",
+ "venue": "Journal of Finance 69(4), 1747–1785 (2014)",
+ "venue_verified": "DOI 10.1111/jofi.12127. 저자 PDF(host.kelley.iu.edu) 200(605,464B) 전문 확인. 코드 zip 은 SMU 경로에서 200(216,726B)",
+ "type": "데이터 품질·측정 편의 연구",
+ "domain": "TAQ 기반 유동성 측정",
+ "data_scope": "100개 기업, 2008-04~06, **체결 33,754,779건**. MTAQ(초 단위, NBBO 파일 없음) vs DTAQ(밀리초 + 공식 SIP NBBO) 대조.",
+ "tags": [
+  "MTAQ vs DTAQ",
+  "체결 부호 판정",
+  "측정 편의",
+  "코드 공개"
+ ],
+ "links": {
+  "pdf": "https://host.kelley.iu.edu/cholden/Holden%20and%20Jacobsen%20(2014).pdf",
+  "proceedings": "https://doi.org/10.1111/jofi.12127",
+  "data": "https://www.smu.edu/-/media/site/cox/faculty/classmaterials/holden_jacobsen_code.zip",
+  "verified": "PDF 200 · 코드 zip 200. 논문에 인쇄된 두 URL 은 모두 죽었고 SMU 경로가 살아 있다"
+ },
+ "easy": {
+  "problem": "틱데이터로 스프레드나 체결 방향을 계산할 때, 어떤 데이터셋을 어떤 규칙으로 쓰느냐가 결과를 얼마나 바꾸나?",
+  "how": "같은 100종목·3개월을 초 단위 MTAQ 와 밀리초 DTAQ 로 각각 계산해 차이를 잰다.",
+  "analogy": "같은 물건을 눈금이 다른 두 자로 재 보고 얼마나 어긋나는지 확인하는 것."
+ },
+ "contributions": [
+  "편의의 크기가 충격적이다 — 퍼센트 유효스프레드 **+54%**, 퍼센트 가격충격 **+109%**, 퍼센트 호가스프레드 **−47%**, NBBO 밖 체결 **8배**, 음수 호가스프레드 **37배**.",
+  "**방향이 뒤집힌다는 점이 핵심이다.** 순진한 MTAQ 백테스트는 자기 거래비용을 과대평가하면서 동시에 게시 스프레드는 과소평가한다.",
+  "관행 조사 자체가 발견이다(각주 27) — 2006~2011 JF/JFE/RFS 의 MTAQ 사용 논문 **28편 중 7편이 Prior Second, 3편이 Same Second, 5편이 5초 전 호가, 나머지는 아무 말도 없다.** DTAQ 를 쓴 논문은 없었다.",
+  "체결 부호 **일치율**(정확도가 아니다 — 여기엔 정답이 없다): Lee–Ready 88.4% → 보정 후 **90.4%**, EMO 91.7% → 93.2%. 불일치가 거의 대칭이라 **절대 주문 불균형은 사실상 불편(12.6% vs 12.6%)** 이지만 개별 체결 부호와 스프레드 수준은 그렇지 않다.",
+  "최선의 MTAQ 보정은 호가스프레드 격차를 없애고 유효스프레드 격차를 91% 줄이지만 **체결의 13.9% 를 버려야** 한다."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "전략 시뮬레이션이 아니다. 그러나 모든 틱 백테스트의 입력이 되는 측정 계층을 다룬다.",
+  "data_short": "TAQ 100종목 · 2008 Q2 · 3,375만 체결",
+  "fill_short": "해당 없음",
+  "cost_short": "해당 없음 (비용 **측정** 이 주제)",
+  "validation": "기업×일 이중 클러스터 표준오차 + 100,000회 추첨 errors-in-variables 시뮬레이션.",
+  "quotes": [
+   "Regarding research that studies 2008 and years thereafter and that is based on NBBO quotes using MTAQ with no adjustments… any estimates of the quoted spread, effective spread, realized spread, price impact, frequency of trades outside the NBBO, frequency of locked and crossed markets, and buy/sell classification are likely to be strongly biased, whereas estimates of depth and absolute order imbalance are likely to be unbiased."
+  ],
+  "gap": "미국 통합시장(NBBO) 전용이다. 단일 거래소 원장(KRX·ITCH)에는 다른 문제가 있다 — Jurkatis(2022)가 같은 보정을 ITCH 에 쓰면 **오히려 나빠진다**(Interpolated Time 정확도 약 73%)고 보고한다."
+ },
+ "code": [
+  "[holden_jacobsen_code.zip](https://www.smu.edu/-/media/site/cox/faculty/classmaterials/holden_jacobsen_code.zip) — SAS, DTAQ+MTAQ 정리 코드",
+  "관련: [jktis/Trade-Classification-Algorithms](https://github.com/jktis/Trade-Classification-Algorithms) (Jurkatis 2022, ITCH 정답 기준 체결 부호 판정)"
+ ],
+ "oneline": "틱 백테스트의 가장 큰 위험은 체결 모형이 아니라 그 앞의 측정 계층에 있다 — 그리고 그 편의는 방향까지 뒤집힌다.",
+ "implications": [
+  "**우리는 이 문제의 상당 부분을 구조적으로 피한다.** KRX 원장은 단일 거래소 호가·체결이 한 파일에 있고 `askbid_type` 으로 주도 방향이 **주어진다** — Lee–Ready 같은 추정 규칙이 필요 없다. 이것은 방법론적 강점이며 명시할 가치가 있다.",
+  "대신 우리에게는 다른 측정 문제가 있다 — 호가 격자에 체결을 누적하는 방식, 세션 경계(15:20 종가 단일가 제외), 거래정지 종목(`InsufficientQuoteData`). 이 논문의 태도(측정 규칙을 명시하고 그 영향을 재기)를 그대로 적용해야 한다.",
+  "\"28편 중 대부분이 규칙을 안 밝힌다\" 는 관행 조사는 우리가 프로필을 sha256 으로 굳히는 이유를 뒷받침한다."
+ ],
+ "resolution": "틱·메시지"
+}

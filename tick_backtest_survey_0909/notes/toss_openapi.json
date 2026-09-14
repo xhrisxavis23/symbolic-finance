@@ -1,0 +1,20 @@
+{
+ "key": "toss_openapi",
+ "title": "토스증권 Open API (2026-05)",
+ "authors_short": "토스증권 공식",
+ "venue": "공식 REST API (개발자 포털)",
+ "links": {
+  "website": "https://corp.tossinvest.com/ko/open-api",
+  "verified": "공식 안내 페이지 및 다수 2차 자료로 확인. GitHub 공식 저장소는 확인하지 못함"
+ },
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "백테스트 코드·엔진 공개 없음. 표준 REST 로 시세·주문·조건주문을 제공하는 API 서비스다.",
+  "data_short": "KRX·미국주식 시세 (해상도 미확인)",
+  "fill_short": "해당 없음",
+  "cost_short": "2026-06 까지 국내주식 수수료 면제 프로모션",
+  "design": "2026년 5월 사전신청을 시작한 개인 투자자용 REST OpenAPI. 서버 `https://openapi.tossinvest.com`. 심사·승인 대기 없이 설정 화면에서 client_id·client_secret 을 즉시 발급받는 점이 특징이다."
+ },
+ "oneline": "발급 문턱을 가장 낮춘 국내 API지만, 백테스트는 여전히 사용자 몫이다.",
+ "resolution": "해당 없음"
+}

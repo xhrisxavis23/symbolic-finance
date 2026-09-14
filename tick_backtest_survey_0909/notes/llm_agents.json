@@ -1,0 +1,69 @@
+{
+ "key": "llm_agents",
+ "title": "LLM 트레이딩 에이전트 4편 (FinAgent · TradingAgents · FinCon · FinMem) — 전부 일봉, 전부 비용 0, 전부 단일 창",
+ "authors_short": "Zhang 외 (KDD 2024) · Xiao 외 (ICML 2025 워크숍) · Yu 외 (NeurIPS 2024) · Yu 외 (AAAI Symposium)",
+ "venue": "KDD 2024 / ICML 2025 워크숍 / NeurIPS 2024 poster / AAAI Symposium Series (3쪽)",
+ "venue_verified": "FinAgent: DOI 10.1145/3637528.3671801, KDD '24 pp.4314–4325. TradingAgents: icml.cc/virtual/2025/49302 를 직접 열어 \"Poster in Workshop\" 임을 확인 — 본회의가 아니다. FinCon: OpenReview v2 API 가 venue \"NeurIPS 2024 poster\" 반환, forum dG1HwKMYbC. FinMem: DOI 10.1609/aaaiss.v3i1.31290, AAAI Symposium Series pp.595–597 — 3쪽짜리이고 AAAI 본회의가 아니다",
+ "type": "LLM 다중 에이전트 트레이딩",
+ "domain": "미국 대형주 일간 매매",
+ "data_scope": "FinAgent: AAPL·AMZN·GOOGL·MSFT·TSLA·ETHUSD, **398 거래일(2022-06-01~2024-01-01), 일봉 OHLC + 차트 이미지 398장 + 뉴스 약 8~10만 건**, 학습 2022-06~2023-06 / 테스트 2023-06~2024-01. TradingAgents: **2024-01-01~03-29, 약 60 거래일**, AAPL·NVDA·MSFT·META·GOOG. FinCon: 학습 2022-01-03~10-04 / 테스트 2022-10-05~2023-06-10, 8종목. FinMem: 일간 수정종가 + 6개월 학습, 5종목.",
+ "tags": [
+  "일봉",
+  "비용 0",
+  "단일 창",
+  "시드 없음"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2402.18485",
+  "proceedings": "https://doi.org/10.1145/3637528.3671801",
+  "github": "https://github.com/TauricResearch/TradingAgents",
+  "github_extra": [
+   "https://github.com/The-FinAI/FinCon",
+   "https://github.com/pipiku915/FinMem-LLM-StockTrading"
+  ],
+  "verified": "TradingAgents star 103,491(Apache-2.0) · FinCon star 68(LICENSE 404) · FinMem star 956(MIT). FinAgent 은 논문에 저장소 URL 이 없고 `Open-Finance-Lab/FinAgent` 는 404"
+ },
+ "easy": {
+  "problem": "LLM 이 뉴스·공시·차트를 읽고 매매 판단을 내릴 수 있을까?",
+  "how": "분석가·연구원·트레이더·리스크매니저 같은 역할을 LLM 에이전트로 나눠 토론시키고, 매일 BUY/SELL/HOLD 하나를 내게 한다.",
+  "analogy": "투자위원회 회의를 LLM 으로 재현한 것. 다만 회의 결과가 실제로 체결되는지는 아무도 확인하지 않는다."
+ },
+ "contributions": [
+  "네 편 모두 **일봉**이다. 이 리포트의 다른 어떤 군보다도 해상도가 낮은데, 종종 '고빈도' 문헌과 나란히 인용된다.",
+  "**TradingAgents 는 거래비용을 한 번도 언급하지 않는다** — 전문에서 transaction cost · trading cost · commission · slippage 를 찾으면 **0건**이다. 'cost' 가 나오는 곳은 LLM 이 생성한 리포트 안의 \"debt servicing costs\"·\"dollar-cost averaging\" 뿐이다.",
+  "**FinAgent 은 비용 문제를 정확히 알고 있는데 자기에게는 적용하지 않는다.** MACD **기준선**을 비판하며 적는다 — \"Limitation 3: High turnover rate results in high transaction fee… In financial markets where transaction fees are considerable, like the stock market, frequent trading by MACD can significantly lower profit margins.\"",
+  "**FinMem 의 포지션 사이징은 1주다** — \"FINMEM is asked to select from three distinct actions for a **single share** of a specific stock\". 보고된 누적수익률의 경제적 의미가 사실상 없다.",
+  "**저장소 별 수와 평가 엄밀성이 반비례한다.** TradingAgents 는 **star 103,491** 로 이 조사 전체에서 가장 인기 있는 저장소인데, 60 거래일 · 5개 상관 높은 대형주 · 비용 0 · 시드 없음이다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "일봉 재생. 체결 모형·포지션 사이징·비용·지연이 없다. FinMem 은 1주 단위라 사실상 방향 맞히기다.",
+  "data_short": "**일봉** · 60~400 거래일 · 5~8 대형주",
+  "fill_short": "일간 가격에 즉시 체결 (사이징 없음/1주)",
+  "cost_short": "**전부 0**",
+  "design": "매일 BUY/SELL/HOLD 하나. FinCon 만 포트폴리오 가중치 최적화를 붙였고 그것도 일간 재조정이다.",
+  "cost": "네 편 모두 자기 결과에 비용을 적용하지 않는다.",
+  "latency": "없다.",
+  "selfimpact": "없다.",
+  "validation": "**단일 시간 분할, 시드·온도 반복 없음.** FinAgent 의 테스트 창(2023-06~2024-01)은 대형 기술주 강세장이고, TradingAgents 의 창(2024 Q1)에서 NVDA 는 약 80% 올랐다.",
+  "metrics": "누적수익 CR · 연환산 ARR · 샤프 · Calmar · Sortino · MDD.",
+  "quotes": [
+   "Limitation 3: High turnover rate results in high transaction fee. A significant drawback of the MACD strategy is its tendency to generate a high turnover rate… leading to substantial transaction costs.   — FinAgent, 기준선을 비판하며"
+  ],
+  "gap": "체결·비용·지연·사이징·시드·표본 외 어느 것도 없다. 강세장 한 구간의 대형주 5~8개로 얻은 숫자다."
+ },
+ "code": [
+  "[TauricResearch/TradingAgents](https://github.com/TauricResearch/TradingAgents) — **star 103,491**, Apache-2.0",
+  "[The-FinAI/FinCon](https://github.com/The-FinAI/FinCon) — star 68, **LICENSE 없음**",
+  "[pipiku915/FinMem-LLM-StockTrading](https://github.com/pipiku915/FinMem-LLM-StockTrading) — star 956, MIT",
+  "**FinAgent 은 저장소 없음** (`Open-Finance-Lab/FinAgent` 404)"
+ ],
+ "limitations": "venue 표기가 과장돼 인용되는 경우가 많다 — TradingAgents 는 ICML 워크숍 포스터이고, FinMem 은 AAAI Symposium Series 3쪽이다.",
+ "oneline": "가장 널리 회자되는 AI 트레이딩 연구들이 이 조사에서 백테스트 사실성이 가장 낮다 — 그리고 인기와 엄밀성이 반비례한다.",
+ "implications": [
+  "**LLM 이 가설을 만든다는 점에서 우리 워크플로와 표면적으로 닮았지만, 결정적으로 다르다.** 우리는 LLM 이 만든 가설을 큐 모델·23bps·날짜 분리·사전등록을 통과시킨 뒤에야 성과로 인정한다. 이들은 LLM 의 출력을 곧바로 수익률로 환산한다.",
+  "관련연구에서 이 대비를 명시하면 우리 설계의 위치가 분명해진다 — \"LLM 을 쓰는 것\" 이 아니라 \"LLM 의 출력을 무엇으로 검증하는가\" 가 차이다.",
+  "우리 `path_alignment` 의 낙관 편향 추적(예측 유리 3 vs 실제 유리 2)은 LLM 출력의 체계적 낙관을 잡는 장치다. 이 군에는 그런 장치가 없다."
+ ],
+ "resolution": "일봉 이상"
+}

@@ -1,0 +1,55 @@
+{
+ "key": "deepscalper",
+ "title": "DeepScalper (CIKM 2022) — 호가창을 상태로 쓰지만 체결은 분봉 종가",
+ "authors_short": "Shuo Sun · Wanqi Xue · Rundong Wang · Xu He · Junlei Zhu · Jian Li · Bo An (NTU 등)",
+ "venue": "CIKM 2022, pp. 1858–1867",
+ "venue_verified": "DOI 10.1145/3511808.3557283 Crossref 검증(페이지 1858–1867). arXiv 2201.09058",
+ "type": "위험인지 강화학습 일중 트레이딩",
+ "domain": "중국 지수선물·국채선물 일중",
+ "data_scope": "**분봉 OHLCV + 5호가 스냅샷**, 6개 자산. 지수선물 IC·IF: 학습 2019-05~12 / 테스트 2020-01~04. 국채선물 T01·T02·TF01·TF02: 학습 2017-11-29~2020-04-29 / 테스트 2020-04-30~07-17. **테스트 창이 자산당 약 50 거래일**이고 지수선물 쪽은 코로나 급락 구간이다.",
+ "tags": [
+  "5호가를 특징으로만",
+  "분봉 종가 체결",
+  "5배 레버리지",
+  "시드 5개"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2201.09058",
+  "proceedings": "https://doi.org/10.1145/3511808.3557283",
+  "github": "https://github.com/TradeMaster-NTU/TradeMaster",
+  "verified": "Crossref 200 · 논문에 코드 URL 없음. 구현은 이후 TradeMaster 안에 들어갔다"
+ },
+ "easy": {
+  "problem": "일중 짧은 기회를 잡으려면 미시구조 정보가 필요한데, 그 정보로 학습한 에이전트는 위험 관리를 못 한다.",
+  "how": "호가창 5단계 시퀀스를 미시 상태로 넣고, 사후판단(hindsight) 보너스와 보조 과제로 위험을 학습시킨다.",
+  "analogy": "짧은 파도를 타는 법을 배우되, 넘어졌을 때의 기억도 함께 학습에 넣는 것."
+ },
+ "contributions": [
+  "이 군에서 **호가창을 실제 입력으로 쓰는 몇 안 되는 논문**이다 — 과거 5호가 가격·수량 시퀀스가 미시 상태로 들어간다.",
+  "다만 **체결은 분봉 종가다.** 보상 `r_t = (p^c_{t+1} − p^c_t)×pos_t − δ×p^c_t×|pos_t − pos_{t−1}|` 에서 `p^c` 가 종가다. 호가창은 특징으로만 쓰이고 체결에는 관여하지 않는다.",
+  "**수수료율을 명시한다** — 지수선물 δ = 2.3×10⁻⁵, 국채선물 3×10⁻⁶, \"which is consistent with the real-world scenario\". 그리고 **5배 고정 레버리지**를 건다.",
+  "**시드 5개 + 표준편차 + Wilcoxon 부호순위 검정(p < 0.01)** 으로 보고한다 — 이 군에서 상위권 규율이다.",
+  "지표가 넓다 — 총수익 TR · 샤프 · Calmar(기대수익/MDD) · Sortino."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "분봉 종가 체결. 호가창은 상태 특징일 뿐 체결·큐에 쓰이지 않는다.",
+  "data_short": "분봉 OHLCV + 5호가 · 6 자산",
+  "fill_short": "**분봉 종가**에 즉시 체결",
+  "cost_short": "δ = 2.3e-5 / 3e-6 + **5배 레버리지**",
+  "design": "\"Time is discretized into 1 min interval and we assume that the agent can only long/short a financial future at the end of each minute.\" 최대 보유 포지션 50.",
+  "latency": "없다.",
+  "selfimpact": "없다.",
+  "validation": "**시드 5개 + 표준편차 + Wilcoxon 검정.** 다만 단일 시간 분할이고 테스트 창이 매우 짧다.",
+  "metrics": "TR · SR · CR · SoR + 순자산 곡선.",
+  "gap": "테스트 창이 자산당 약 50일이고 하나는 코로나 급락 구간이다. 5배 레버리지가 수익률과 체결 가정 민감도를 함께 증폭한다. 비용 민감도 스윕이 없다."
+ },
+ "code": [
+  "논문에 코드 URL 없음. 구현은 [TradeMaster-NTU/TradeMaster](https://github.com/TradeMaster-NTU/TradeMaster)(Apache-2.0, star 3,059) 안에"
+ ],
+ "oneline": "호가창을 입력으로 쓰면서 체결은 분봉 종가로 하는 조합 — 이 군에서 가장 흔한 절충이다.",
+ "implications": [
+  "\"호가창을 썼다\" 와 \"호가창에서 체결시켰다\" 를 구분해 적는 것이 중요하다. 우리 리포트의 사다리가 정확히 이 구분을 위한 것이다."
+ ],
+ "resolution": "초~분봉"
+}

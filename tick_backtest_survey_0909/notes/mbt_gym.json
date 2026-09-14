@@ -1,0 +1,21 @@
+{
+ "key": "mbt_gym",
+ "title": "mbt_gym — 모형 기반 마켓메이킹 RL 환경 (재생이 아니다)",
+ "authors_short": "Jerome · Sánchez-Betancourt · Savani · Herdegen",
+ "venue": "ICAIF 2023 · 오픈소스 BSD-3",
+ "links": {
+  "github": "https://github.com/JJJerome/mbt_gym",
+  "verified": "GitHub API 200 · star 177 · BSD-3 · push 2024-01-08"
+ },
+ "backtest": {
+  "rung": "L1",
+  "rung_reason": "데이터를 재생하지 않는다. Avellaneda–Stoikov 계열 모형을 시뮬레이션한다.",
+  "data_short": "합성 (포아송·호크스 도착)",
+  "fill_short": "호가 깊이의 함수인 체결 확률 — `ExponentialFillFunction: exp(−k·depth)`",
+  "cost_short": "없음",
+  "design": "체결 함수 `Exponential`·`Triangular`·`Power`·`ExogenousMm`, 도착 모형 `Poisson`·`PoissonNonLinear`·`Hawkes`, 중간가 모형 선택 가능. 벡터화 환경으로 RL 학습이 빠르다.",
+  "gap": "실제 전략 검증 도구가 **아니다.** 정답을 아는 모형 안에서 최적제어 정책을 시험하는 용도로는 정확한 도구다 — 용도를 혼동하면 안 된다."
+ },
+ "oneline": "\"모형이 옳다면 내 정책이 최적인가\" 를 묻는 도구지, \"이 전략이 시장에서 통했는가\" 를 묻는 도구가 아니다.",
+ "resolution": "합성·모형"
+}

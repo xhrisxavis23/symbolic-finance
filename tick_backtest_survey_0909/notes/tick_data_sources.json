@@ -1,0 +1,64 @@
+{
+ "key": "tick_data_sources",
+ "title": "틱 데이터 공급원 지도 — LOBSTER · Databento · Tardis · Binance · Polygon(Massive) · Kaiko",
+ "authors_short": "데이터 공급자 문서 실측 조사",
+ "venue": "1차 자료 조사",
+ "venue_verified": "각 공급자의 문서·스키마·저장소를 직접 열어 확인(2026-09-09). Binance 는 S3 버킷을 직접 열거하고 표본을 내려받아 열 구성을 확인",
+ "type": "데이터 공급원 비교",
+ "domain": "틱/호가창 데이터 유통",
+ "data_scope": "L3(주문 ID 있음) · L2(가격대별 집계) · L1(최우선호가) 세 등급으로 갈라 각 공급원이 무엇을 주는지 확인",
+ "tags": [
+  "L3 vs L2",
+  "이중 타임스탬프",
+  "재현성",
+  "가격"
+ ],
+ "links": {
+  "website": "https://lobsterdata.com",
+  "github": "https://github.com/databento/dbn",
+  "github_extra": [
+   "https://github.com/databento/databento-python",
+   "https://github.com/tardis-dev/tardis-machine",
+   "https://github.com/binance/binance-public-data",
+   "https://github.com/massive-com/client-python",
+   "https://github.com/Leo4815162342/dukascopy-node"
+  ],
+  "verified": "모든 저장소 200. lobsterdata.com 은 SPA 라 문서는 php.lobsterdata.com 에서 확인"
+ },
+ "easy": {
+  "problem": "\"틱 데이터로 백테스트했다\" 는 말은 데이터 등급을 밝히지 않으면 아무 뜻이 없다. 큐를 세려면 주문 ID 가 필요하고, 지연을 모델링하려면 거래소 시각과 내가 받은 시각이 둘 다 필요하다.",
+  "how": "각 공급원의 실제 스키마를 열어 세 가지를 확인했다 — 주문 ID 가 있는가(L3), 타임스탬프가 두 개인가, 해상도가 얼마인가.",
+  "analogy": "같은 '고화질' 이라도 480p 와 4K 가 다른 것. 필요한 작업이 무엇이냐에 따라 최소 화질이 정해진다."
+ },
+ "contributions": [
+  "**LOBSTER** — NASDAQ Historical TotalView-ITCH 재구성. 종목-일마다 CSV 두 개. 메시지 파일은 `Time, Event Type, Order ID, Size, Price, Direction` 이고 이벤트 타입 7종(1 신규지정가 · 2 부분취소 · 3 전체삭제 · 4 가시 지정가 체결 · **5 히든 지정가 체결** · 6 크로스/단일가 · 7 거래정지). **진짜 L3 다.** 2007-06-27부터 이틀 전까지, 최대 200 레벨. 무료 표본은 AMZN/AAPL/GOOG/INTC/MSFT 등. 접근은 기관 정액제(기관당 10명, 계정당 100GB)이고 **실제 가격은 비공개 가격표 뒤에 있다.**",
+  "**Databento** — `MBO` 스키마의 `MboMsg` 가 `order_id`, 1e-9 고정소수점 `price`, `action`(Add/Cancel/Modify/cleaR/Trade/Fill/None), `ts_recv`(수집서버 수신 나노초), `ts_in_delta`(매칭엔진 송신 오프셋)를 갖는다. **거래소 시각과 로컬 시각 쌍이 있어 hftbacktest 가 그대로 먹는다.** DBN 은 Apache-2.0 공개 포맷.",
+  "**Tardis.dev** — 암호화폐 50개 이상 거래소. `incremental_book_L2` 스키마가 `exchange, symbol, timestamp, local_timestamp, is_snapshot, side, price, amount` 이고 `amount` 는 **델타가 아니라 갱신된 총량**(0이면 레벨 삭제). **두 타임스탬프 모두 마이크로초.** 암호화폐 거래소는 MBO 를 공개하지 않으므로 **L2 가 상한**이다 — hftbacktest 의 확률 큐 모델이 존재하는 이유가 정확히 이것이다. 매월 1일자는 API 키 없이 무료.",
+  "**Binance 공개 아카이브** — S3 버킷을 직접 열거한 결과: 현물은 `aggTrades/`·`klines/`·`trades/` 뿐으로 **호가 데이터가 아예 없다.** USD-M 선물에는 `bookDepth/`·`bookTicker/` 가 있는데, `bookDepth` 는 호가창이 아니라 중간가 ±1~5% 구간의 집계 깊이를 약 30초마다 찍은 것(`timestamp, percentage, depth, notional`)이라 체결 시뮬레이션에 쓸 수 없다. `bookTicker` 만 진짜다 — `update_id, best_bid_price, best_bid_qty, best_ask_price, best_ask_qty, transaction_time, event_time`, BTCUSDT 하루 1,850만 행, 밀리초, **최우선호가만**. 현물 타임스탬프는 2025-01-01부터 마이크로초.",
+  "**Polygon.io → Massive 로 개명**(polygon.io/docs 가 massive.com/docs 로 301, `polygon-io/client-python` 이 `massive-com/client-python` 으로 이동). 나노초 체결과 **최우선 NBBO 호가**를 주지만 미국 주식 L2/L3 상품이 없다.",
+  "**Kaiko** — 암호화폐 기관용. L2 는 \"at least one order book snapshot per minute\" — **분당 1회 스냅샷으로는 체결 시뮬레이션이 불가능하다.** 공개 가격 지표는 월 $1,000(L1)~$2,500(L2).",
+  "**Dukascopy** — 무료 FX 틱(호가만, 거래량은 합성). `.bi5` LZMA. L1 · 단일 브로커 호가 · 깊이 없음."
+ ],
+ "backtest": {
+  "rung": "L0",
+  "rung_reason": "데이터 자체이므로 백테스트 등급이 아니다. 다만 어떤 등급의 백테스트가 가능한지를 이 층이 결정한다.",
+  "data_short": "L3(LOBSTER·Databento) / L2(Tardis) / L1(Binance·Massive·Dukascopy)",
+  "fill_short": "—",
+  "cost_short": "—",
+  "gap": "**L4 이상의 백테스트를 하려면 L3 또는 최소한 이중 타임스탬프가 붙은 L2 가 필요하다.** 무료로 구할 수 있는 것은 L1 이거나 분당 스냅샷이라 큐를 세울 수 없다."
+ },
+ "code": [
+  "[databento/dbn](https://github.com/databento/dbn) (Apache-2.0, star 170) · [databento/databento-python](https://github.com/databento/databento-python) (Apache-2.0, star 297)",
+  "[tardis-dev/tardis-machine](https://github.com/tardis-dev/tardis-machine) (MPL-2.0, star 310) · [tardis-dev/tardis-python](https://github.com/tardis-dev/tardis-python) (MPL-2.0, star 147)",
+  "[binance/binance-public-data](https://github.com/binance/binance-public-data) (star 2,481, 라이선스 없음) · [massive-com/client-python](https://github.com/massive-com/client-python) (MIT, star 1,505)",
+  "[Leo4815162342/dukascopy-node](https://github.com/Leo4815162342/dukascopy-node) (MIT, star 899)"
+ ],
+ "limitations": "LOBSTER·Kaiko 의 실제 가격은 공개돼 있지 않아 확인하지 못했다.",
+ "oneline": "체결 시뮬레이션의 상한은 알고리즘이 아니라 데이터 등급이 정한다 — 그리고 무료로 얻을 수 있는 것은 대부분 L1 이다.",
+ "implications": [
+  "**우리 KRX 원장은 L2 이고 타임스탬프가 하나뿐이다.** `data_type==12` 는 10호가 가격·잔량이라 Tardis 의 `incremental_book_L2` 와 같은 등급이고 주문 ID 가 없다. 그리고 로더가 쓰는 `local_time` 은 `HHMMSSffffff` 로 패킹된 **단일 시각**이다 — Databento 의 `ts_recv`/`ts_in_delta` 나 Tardis 의 `timestamp`/`local_timestamp` 같은 **거래소 시각 · 수신 시각 쌍이 없다.** 따라서 피드 지연은 데이터에서 뽑을 수 없고, 지연을 넣으려면 상수 가정으로 시작할 수밖에 없다.",
+  "해외 연구와 비교할 때 우리 데이터 등급을 명시해야 한다. L3(LOBSTER·Databento)를 쓴 연구와 직접 비교하면 우리 큐 추정의 필요성이 설명된다.",
+  "재현성 전략도 여기서 나온다 — 원장을 못 주면 **스키마 + 합성 표본 + 코드**를 주는 것이 표준(ABO 의 HFT-Races 가 그렇게 했다)."
+ ],
+ "resolution": "해당 없음"
+}

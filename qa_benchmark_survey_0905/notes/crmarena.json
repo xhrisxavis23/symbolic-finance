@@ -1,0 +1,90 @@
+{
+ "key": "crmarena",
+ "title": "CRMArena: Understanding the Capacity of LLM Agents to Perform Professional CRM Tasks in Realistic Environments",
+ "authors_short": "Kung-Hsiang Huang 외 8인 · Salesforce AI Research",
+ "venue": "NAACL 2025 Main (Long Papers)",
+ "venue_verified": "ACL Anthology 2025.naacl-long.194 (HTTP 200, 제목 일치) · Crossref DOI 10.18653/v1/2025.naacl-long.194 · arXiv 코멘트 'NAACL 2025'. 후속작 CRMArena-Pro(arXiv 2505.18878)는 OpenReview EPlpe3Fx1x에 'Accepted by TMLR'로 표시",
+ "type": "에이전트 환경 벤치마크(합성 CRM 샌드박스 + 질의 인스턴스)",
+ "domain": "비즈니스 / CRM(고객 서비스) 업무",
+ "data_scope": "Salesforce Service Cloud 스키마 기반 16개 객체를 LLM(gpt-4o)으로 합성한 가상 신발회사 Org(4년치, 케이스 977·주문 2,071·제품 500 등, Table 8 p.13) 위에 9개 태스크 × 130개 = 1,170 질의(p.6)",
+ "tags": [
+  "CRM",
+  "LLM agent",
+  "function calling",
+  "synthetic data",
+  "Salesforce",
+  "SOQL/SOSL",
+  "expert validation"
+ ],
+ "links": {
+  "arxiv": "https://arxiv.org/abs/2411.02305",
+  "pdf": "https://arxiv.org/pdf/2411.02305",
+  "proceedings": "https://aclanthology.org/2025.naacl-long.194/",
+  "github": "https://github.com/SalesforceAIResearch/CRMArena",
+  "huggingface": "https://huggingface.co/datasets/Salesforce/CRMArena",
+  "website": null,
+  "verified": "arXiv abs/pdf, ACL Anthology, GitHub, HF(CRMArena·CRMArenaPro) 모두 HTTP 200; HF datasets-server로 1,170행 전량 수신(config CRMArena, split test). CRMArena-Pro: arXiv 2505.18878 200, HF Salesforce/CRMArenaPro 200(splits b2b/b2c/b2b_interactive/b2c_interactive)"
+ },
+ "easy": {
+  "problem": "기업 CRM(예: Salesforce)에서 상담원·분석가·매니저가 실제로 하는 일을 LLM 에이전트가 해낼 수 있는지 재는 벤치마크가 없었다. 실제 고객 데이터는 프라이버시 때문에 쓸 수 없고, 기존 업무 벤치마크(WorkBench, τ-bench 등)는 객체·의존관계가 너무 단순했다(p.1).",
+  "how": "Salesforce Service Cloud 스키마를 따라 16개 객체를 LLM으로 합성하되 잠재변수(ShoppingHabit, Skill 등)로 인과 패턴을 심고, 실제 Salesforce Org에 업로드해 UI/API로 접근하게 했다. 14개 시드 질의 템플릿에 변수를 채우고 정답은 생성 DB에서 함수로 계산한 뒤 LLM이 표현을 바꿔 1,170개 질의를 만들었다(p.5-6). 전문가 10명이 현실성을 검증하고, Act/ReAct/Function-Calling 3가지 프레임워크로 LLM을 평가했다.",
+  "analogy": "진짜 회사 데이터 대신 '정교하게 꾸민 세트장'을 실제 Salesforce 위에 지어 놓고, AI 상담원에게 '지난 2분기 처리시간이 가장 짧은 상담원은?' 같은 실제 업무 질문을 던져 채점하는 모의 근무 평가다."
+ },
+ "contributions": [
+  "9개 CRM 태스크(3 페르소나)와 1,170개 질의로 구성된 에이전트 벤치마크 제안. 실제 Salesforce Org에 배포되어 UI/API 접근 가능(p.1-2, p.6)",
+  "16개 객체·객체당 1.31 의존관계로 기존 벤치마크(WorkBench 5/0, τ-bench 3/0.67, WorkArena 7/0.86)보다 복잡한 환경(Table 1 p.3); 잠재변수·미니배치 생성·중복제거·형식/내용 검증기를 갖춘 데이터 생성 파이프라인(p.4-5, Figure 8 p.15)",
+  "전문가 10명 연구: 90%가 Org를 Realistic 이상, 객체는 77% 이상이 Realistic 이상으로 평가(p.7, Figure 4 p.6)",
+  "실험: ReAct 최고 o1 57.7%, Function Calling 최고 o1 64.3%(Table 2 p.8); 약한 모델은 수작업 함수를 주면 오히려 성능이 떨어짐(p.7, Table 4 p.9); pass^k가 k 증가에 따라 급락해 일관성 부족(Figure 5 p.9)",
+  "5개 태스크에 30% 비율로 '답 없음(False presupposition)' 질의를 넣어 None 출력 여부를 평가(p.6, Table 5 p.12)"
+ ],
+ "figures": [
+  {
+   "file": "figs/crmarena_fig1.png",
+   "label": "Figure 1",
+   "page": 2,
+   "caption_ko": "전체 기여 개요. 좌상단 CRM 데이터 생성(LLM 프롬프팅 + Service Cloud 스키마 + 잠재변수 → 중복제거·내용/형식 검증기 → 생성 DB), 좌하단 Salesforce Org 업로드, 우상단 질의 인스턴스 생성(시드 질의 → 변수 채우기 → 파이썬으로 정답 계산 → 패러프레이즈 → 9 태스크 1,170 인스턴스), 우하단 LLM×에이전틱 프레임워크(Act/ReAct/FC) 벤치마킹과 도메인 전문가 검증 흐름을 한 장에 담았다.",
+   "alt": "CRMArena 구축·평가 파이프라인 개요"
+  },
+  {
+   "file": "figs/crmarena_fig2.png",
+   "label": "Figure 2",
+   "page": 4,
+   "caption_ko": "9개 태스크를 페르소나별로 배치한 예시 질문 그림. Service Manager(New Case Routing, Handle Time Understanding, Transfer Count Understanding), Service Agent(Named Entity Disambiguation, Policy Violation Identification, Knowledge QA), Service Analyst(Top Issue Identification, Monthly Trend Analysis, Best Region Identification) 각각에 '지난 6개월 처리시간이 가장 짧은 상담원은?' 같은 대표 질의가 붙어 있다.",
+   "alt": "CRMArena 9개 태스크와 예시 질의"
+  }
+ ],
+ "dataset": {
+  "construction": "(1) 환경: 회사명·설명·스키마·객체 규모를 입력으로 gpt-4o가 JSON 형태로 객체 항목을 배치 크기 10의 미니배치로 생성하고, 이전 생성분을 프롬프트에 넣어 중복을 막은 뒤 문자열 정확일치로 2차 중복제거; 형식 검증기(필수 필드)와 내용 검증기(예: NED 태스크용 애매한 제품명이 원명과 너무 멀거나 다른 구매 제품과 너무 비슷하지 않은지 LLM이 확인)를 통과 못하면 재생성(p.4-5, 각주 4 'We utilize gpt-4o as the LLM for data synthesis and content verification'). 잠재변수(SHOPPINGHABIT, SKILL 등)는 생성 DB에만 있고 Org에는 업로드하지 않는다(p.5). (2) 질의: KQA는 지식문서마다 LLM으로 QA 생성; 나머지 8태스크는 'four-step process: (1) seed query construction, (2) ground-truth computation, (3) ID mapping, and (4) query paraphrasing'(p.5). 저자가 수작업으로 14개 시드 질의(Table 6 p.13)를 만들고 [YEAR]/[PRODUCT]/[NCASES] 등 변수를 무작위로 채운 뒤, 정답은 생성 DB 위에서 함수로 계산(잠재변수 활용)하고 Org ID로 매핑, 마지막에 LLM이 패러프레이즈(Table 9 p.14). (3) 5개 태스크에 False Presupposition형 답 없는 질의를 30%씩 포함, 태스크당 130개, 총 1,170개(p.6). (4) 전문가 10명(User Interviews 플랫폼, 'Several times a day' Salesforce 사용자)이 5개 질의를 직접 풀고 현실성을 평가(p.6, Appendix F p.14-15).",
+  "size_format": "HF Salesforce/CRMArena config CRMArena split test 1,170행(태스크별 130행). 필드: idx, query, answer, task, reward_metric(exact_match 1,040 / fuzzy_match 130=KQA), metadata{required(오늘 날짜·Contact Id·정책 문구), optional(분기·계절 정의 등 Domain Details)}. 별도 config 'schema'. 원본 파일 crmarena_w_metadata.json. 샌드박스 Org 접근 자격은 GitHub 저장소를 통해 제공(README 확인은 미실시).",
+  "samples": [
+   "[task=monthly_trend_analysis, reward=exact_match] query: \"Is there a specific month in the past three quarters when the All-Around Yoga Tank cases we received were significantly higher than in other months? The associated product Id is 01tWs000002wQXGIA2. Return only the month name.\" | required: \"- Today's date: 2022-08-20\" | answer: \"March\" (출처: HF Salesforce/CRMArena config CRMArena split test, idx 130)",
+   "[task=handle_time, reward=exact_match] query: \"Find the agent with the shortest handle time who managed more than one case in Winter 2021. Return only the Id of the agent.\" | required: \"## Handle Time Policy\n- Definition: The duration taken to close a case. Specifically, it is the time from when a case is opened to when it is closed.\n- In the queries that specify 'agents managed/queries x cases' -- this filter applies to the first agent that \" | answer: \"005Ws000001xSR9IAM\" (출처: HF Salesforce/CRMArena config CRMArena split test, idx 650)",
+   "[task=best_region_identification, reward=exact_match] query: \"Which states have the quickest case closures in the past 5 months? Return only the two-letter abbreviation of the most matching state (eg. CA).\" | required: \"- Today's date: 2024-09-22\" | answer: \"OR\" (출처: HF Salesforce/CRMArena config CRMArena split test, idx 1040)",
+   "[task=case_routing, reward=exact_match] query: \"Use the case routing policy to determine the most suitable agent for the given case. Return only the Id of the agent.\n## Given Case\n- Case Subject: Unable to Cancel Order for Women's Fitness Leggings\n- Case Description: I recently placed an order for Women's Fitness Leggings and I'm trying to cancel it. Despite being within the cancellation window, the online system won't let me proceed with the cancellation. Could you please help me cancel this order?\" | required: \"## Case Routing Policy\nThe case routing policy determines the best agent to assign the given new case based on the following criteria\n- Issue Expertise: The agent who has closed the most cases associated with the issue most similar to the given case.\n- Product\" | answer: \"005Ws000001xadBIAQ\" (출처: HF Salesforce/CRMArena config CRMArena split test, idx 390)"
+  ],
+  "class": "C",
+  "class_reason": "질문에 구체 개체(제품 Id·Contact Id·상담원)·기간(오늘 날짜 기준 '지난 5개월', 'Winter 2021')이 명시되고, metadata.required/optional에 처리시간 정의·라우팅 정책·분기/계절 정의 같은 판정 규약이 문장으로 동봉된다. 정답은 샌드박스 DB에서 함수로 결정론적으로 계산된 ID/월 이름이며 exact match로 채점된다. 다만 원자료는 파일로 동봉되지 않고 Salesforce Org API(SOQL/SOSL)로 질의해야 하고, 데이터가 합성이며 답이 수치가 아닌 ID인 점이 참고 QA셋과 다르다.",
+  "release": "코드·벤치마크 GitHub 공개(라이선스 'Other'로 표시), HF 데이터셋 카드 라이선스 cc-by-nc-4.0. HF datasets-server로 1,170행 실제 열람. Org 접근은 저자 제공 자격 필요(본 검토에서는 미접속).",
+  "contamination": "실데이터가 아닌 LLM 합성 데이터이며 잠재변수는 Org에 미업로드(p.5). 별도의 오염 방지 장치는 논문에 없음. 윤리 절에서 합성 데이터의 편향·PII를 수작업 검사했다고 기술(p.10).",
+  "evaluation": "KQA는 F1, 나머지는 exact match(p.7). ReAct: o1 57.7%, gpt-4o 38.2%; Function Calling: o1(prompt) 64.3%, gpt-4o 54.4%, llama3.1-405b(prompt) 51.3%(Table 2 p.8). 비용: FC gpt-4o 인스턴스당 $0.305, 6.8턴(Table 3 p.8). 함수 제거 실험(Table 4 p.9), pass^k 일관성(Figure 5 p.9), 답 없는 질의 성능(Table 5 p.12)."
+ },
+ "seven_questions": {
+  "q1_source": "① 신규 제작: 실데이터 없이 Salesforce Service Cloud 스키마를 본떠 LLM(gpt-4o)으로 합성한 Org와 템플릿 기반 질의(p.4-6).",
+  "q2_method": "② 생성 절차(스키마·잠재변수·미니배치·중복제거·검증기)와 시드 질의 14개, 정답 계산 함수, ID 매핑, 패러프레이즈까지 명시(p.4-6, Appendix B-D). 시드 질의 전체 목록(Table 6)과 함수 목록(Table 7) 공개.",
+  "q3_license": "③ 오픈소스(GitHub) + HF cc-by-nc-4.0. Salesforce SDO(Simple Demo Org)를 샌드박스로 사용(p.5)—Salesforce 소속 저자의 자체 인프라.",
+  "q4_relabel": "④ 공개 데이터 재라벨링이 아니라 전량 신규 합성 + 태스크별 정답 함수 계산.",
+  "q5_industry": "⑤ Salesforce AI Research 자체 구성. 기업 데이터는 사용하지 않았고(프라이버시), 합성 데이터와 Org 접근을 공개.",
+  "q6_constraints": "⑥ 실제 고객 데이터의 프라이버시 제약 때문에 합성으로 우회(p.1, p.10). 합성이므로 공개 가능했고, 편향·PII 수작업 점검을 명시(p.10).",
+  "q7_accept": "⑦ 공개 리뷰 없음(NAACL). 논문 self-claim: 전문가 검증된 현실적 태스크, 높은 객체 연결성(Table 1), 최신 에이전트도 65% 미만이라는 도전성(p.2)."
+ },
+ "review": null,
+ "limitations": "고객서비스 3개 페르소나만 다루고 영업 등 다른 페르소나는 없음(p.10). 각 CASE가 ISSUE·PRODUCT에 반드시 연결된 단순화 설정(p.5). 합성 데이터라 실제 기업 데이터의 노이즈·불완전성을 반영하지 못하며, 전문가 일부는 '데이터가 비어 보인다'고 지적(Table 14 p.21). 정답이 ID·월 이름 등 단일 값이라 부분점수가 없고, 후속작 CRMArena-Pro(arXiv 2505.18878)는 19개 태스크·B2B/B2C·다중턴·기밀성 평가로 확장하면서 단일턴 58%·다중턴 35% 성공률을 보고(해당 논문 p.1).",
+ "oneline": "Salesforce 스키마를 본뜬 합성 CRM Org 위에서 규약이 명시된 9개 업무 질의 1,170개를 정답 함수로 만들어 LLM 에이전트를 채점하는 전문가 검증 벤치마크.",
+ "implications": [
+  "정답을 '원자료 위의 함수'로 계산하고 규약(처리시간 정의·분기 정의·라우팅 정책)을 metadata에 문장으로 동봉하는 설계는 우리 온체인 C형 QA의 evidence/규약 동봉 방식과 같은 계열이며, 규약을 질문 본문이 아닌 별도 필드로 분리한 점을 참고할 만하다.",
+  "'답 없음(False presupposition)' 질의를 태스크당 30% 섞어 None을 요구하는 방식은 우리 out_of_scope/indeterminate 문항 비율 설계의 선례가 된다.",
+  "시드 템플릿 14개 + 변수 채우기 + LLM 패러프레이즈로 1,170개를 만든 규모화 방식과, 정답을 잠재변수가 보이는 생성 DB에서 계산한 뒤 공개 DB의 ID로 매핑하는 2단계 구조는 블록 구간·주소를 무작위 표집해 문항을 늘릴 때 그대로 응용 가능하다.",
+  "에이전트가 SOQL/SOSL로 직접 질의하는 설정(ReAct)과 사람이 짠 함수(FC)를 비교한 결과, 강한 모델만 함수 이득을 본다는 발견(Table 4)은 온체인 QA에서도 SQL 직접 실행 vs. 디코딩 헬퍼 제공을 별도 트랙으로 평가할 근거가 된다."
+ ],
+ "brief": false
+}

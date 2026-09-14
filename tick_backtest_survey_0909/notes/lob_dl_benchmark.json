@@ -1,0 +1,77 @@
+{
+ "key": "lob_dl_benchmark",
+ "title": "DeepLOB · FI-2010 · 그리고 그 위에 쌓인 10년 — 재현 연구가 밝혀낸 딥러닝 호가창 문헌의 구조적 결함",
+ "authors_short": "Zhang·Zohren·Roberts (DeepLOB) · Ntakaris 외 (FI-2010) · Prata 외 (LOBCAST) · Briola·Bartolucci·Aste · Berti·Kasneci",
+ "venue": "IEEE TSP 2019 (DeepLOB) · Artificial Intelligence Review 2024 (Prata) · Quantitative Finance 2025 (Briola)",
+ "venue_verified": "Prata 외는 저널(Artificial Intelligence Review) 논문이고 KDD 워크숍이 아니다. LOBFrame 은 Quantitative Finance 이며 저자는 Briola·Bartolucci·Aste. TransLOB 은 동료심사를 거친 적이 없고 단독저자다. DeepLOB-Seq2Seq/multi-horizon 도 게재 venue 가 없다 — 이 군은 인용 관행 자체가 부정확하다",
+ "type": "호가창 가격방향 분류 딥러닝 계보 + 그 재현 연구",
+ "domain": "LOB 중간가 방향 예측",
+ "data_scope": "FI-2010: 핀란드 소형 5종목 **10일**, 10호가, 10 이벤트마다 표본, z-score 정규화, 6-2-2 일 분할, 전역 문턱 θ = 0.002. 후속 연구들은 LOBSTER(NASDAQ)와 자체 수집 데이터로 옮겨 갔다.",
+ "tags": [
+  "FI-2010",
+  "재현 실패",
+  "체결 없이 F1",
+  "시드 분산",
+  "거래가능성 p_T"
+ ],
+ "links": {
+  "github": "https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books",
+  "github_extra": [
+   "https://github.com/matteoprata/LOBCAST",
+   "https://github.com/FinancialComputingUCL/LOBFrame",
+   "https://github.com/LeonardoBerti00/TLOB",
+   "https://github.com/lorenzolucchese/deepOBs"
+  ],
+  "data": "https://etsin.fairdata.fi/dataset/73eb48d7-4dbc-4a10-a52a-da745b47a649",
+  "verified": "저장소 전부 200. DeepLOB·LOBCAST·LOBFrame·TLOB 은 LICENSE 파일이 없다(공식적으로 재사용 권한 없음). FI-2010 공식 배포는 CC BY 4.0"
+ },
+ "easy": {
+  "problem": "호가창 스냅샷으로 다음 중간가가 오를지 내릴지 맞힐 수 있나? DeepLOB(2019)이 CNN+LSTM 으로 이걸 잘 한다고 보였고, 그 뒤 수십 편이 같은 벤치마크(FI-2010) 위에서 F1 을 몇 점씩 올렸다.",
+  "how": "재현 연구들이 그 F1 들을 같은 조건에서 다시 돌려 봤다. 그리고 \"F1 이 올라가면 돈이 되는가\" 를 따로 정의해 재 봤다.",
+  "analogy": "같은 시험지로 10년간 점수 경쟁을 했는데, 시험지를 바꿔 보니 다들 비슷하게 못 봤고, 애초에 그 점수가 실력과 무관했다는 것이 드러난 상황."
+ },
+ "contributions": [
+  "**DeepLOB(IEEE TSP 2019)** 은 중간가 기준으로만 평가한다 — \"we use mid-prices without transaction costs… compare gross profits before fees\". 체결도 큐도 비용도 없다.",
+  "**FI-2010 의 진짜 결함은 흔히 알려진 룩어헤드 정규화가 아니다.** 배포 데이터가 **되돌릴 수 없게 사전 정규화**돼 있어(\"the original LOB cannot be backtracked\") **누출 감사가 원리적으로 불가능하다** — 증거가 출판 시점에 파괴됐다. 여기에 이질적인 5종목에 전역 문턱 θ = 0.002 하나, 지평에 따라 클래스 구성이 18/63/19% → 37/25/38% 로 표류, 그리고 **약 15편이 같은 고정 3일 테스트셋을 튜닝**하는 집단적 테스트셋 과적합이 겹친다.",
+  "**Prata 외(AI Review 2024, LOBCAST)** 가 이것을 정량화했다. 15개 모델을 시드 5개로 재현하니 **시드 간 F1 표준편차가 CNN1 13.1 · CNN2 17.3 · DLA 12.1 · TLONBoF 10.5 포인트**였다 — 이 문헌 상당수가 보고하는 1~3 F1 포인트 개선은 통계적으로 무의미하다. 하이퍼파라미터 탐색에서 **약 절반의 실행이 발산(F1 ≤ 33%)** 했고, LOBSTER 로 옮기자 성능이 **48~61% F1 대역으로 붕괴**했다.",
+  "**Briola·Bartolucci·Aste(QF 2025)** 는 아예 백테스트를 거부하고 **거래가능성 지표 p_T**(올바른 왕복 거래를 체결할 확률)를 정의했다. 결과: 문턱 없이 **0.01~0.15**, 신뢰도 0.5 이상으로 거르면 **정확히 0** — 그런데 같은 구간에서 **MCC 는 계속 올라간다.** 분류 지표와 거래가능성이 반대로 움직인다는 직접 증거다.",
+  "**Berti & Kasneci(2025)** 는 라벨 문턱을 **평균 스프레드**로 놓았다. 그러자 F1 이 약 60 에서 **31~41 로 붕괴**하고 INTC 는 **99.99% 가 '변화 없음'** 으로 분류됐다 — 즉 기존 문턱이 스프레드보다 작은 움직임을 예측 대상으로 삼고 있었다."
+ ],
+ "backtest": {
+  "rung": "L2",
+  "rung_reason": "대부분 백테스트 자체가 없다 — 중간가 방향의 F1 을 보고하고 끝낸다. 거래를 흉내 내는 경우에도 중간가 또는 다음 시가에 즉시 전량 체결이다.",
+  "data_short": "FI-2010(10일·5종목) → LOBSTER",
+  "fill_short": "**체결 없음.** 중간가 방향 F1 로 대체",
+  "cost_short": "**없음** (\"no transaction fees\" 명시)",
+  "data": "FI-2010 은 10일이다. 그 위에서 10년간 순위 경쟁이 벌어졌다.",
+  "design": "지도학습 분류. 향후 k 이벤트 뒤 중간가 이동을 상승/보합/하락 3분류로 라벨링한다.",
+  "fill": "없다. 있는 경우에도 중간가 또는 다음 시가.",
+  "cost": "없다. Prata 외가 명시한다 — \"we make the assumption of no transaction fees\".",
+  "latency": "없다.",
+  "selfimpact": "없다.",
+  "validation": "**대부분 단일 분할 · 단일 시드.** 라벨 창이 k 이벤트로 겹치는데 **purged CV 나 embargo 를 쓴 논문이 이 조사 전체에 하나도 없다.** 예외적으로 Prata(시드 5 + 표준편차), Lucchese 외(롤링 창 11개 + Model Confidence Set), Zhang & Zohren(JFDS 2020, 5년마다 재학습).",
+  "metrics": "정확도·F1·MCC. Briola 의 p_T 와 Lucchese 의 MCS 만이 예외다.",
+  "quotes": [
+   "we use mid-prices without transaction costs… compare gross profits before fees   — DeepLOB",
+   "we make the assumption of no transaction fees   — Prata 외 (LOBCAST)",
+   "already pre-processed (filtered, normalized, and labelled) so that the original LOB cannot be backtracked   — FI-2010"
+  ],
+  "gap": "체결·큐·비용·지연이 전부 없고, 정규화 누출을 감사할 수 없으며, 시드 분산이 보고된 개선폭보다 크다. 그리고 대표 저장소들(DeepLOB·LOBCAST·LOBFrame·TLOB)에 **라이선스 파일이 없다.**"
+ },
+ "code": [
+  "[zcakhaa/DeepLOB…](https://github.com/zcakhaa/DeepLOB-Deep-Convolutional-Neural-Networks-for-Limit-Order-Books) — star 606, **라이선스 없음**. FI-2010 데모만",
+  "[matteoprata/LOBCAST](https://github.com/matteoprata/LOBCAST) — Prata 외 재현 벤치마크. star 123, **라이선스 없음** (`v0-LOBCAST` 브랜치 사용)",
+  "[FinancialComputingUCL/LOBFrame](https://github.com/FinancialComputingUCL/LOBFrame) — Briola 외. star 258, **LICENSE 404**",
+  "[lorenzolucchese/deepOBs](https://github.com/lorenzolucchese/deepOBs) — 롤링 창 + Model Confidence Set. star 67, BSD-3",
+  "[FI-2010 공식 배포](https://etsin.fairdata.fi/dataset/73eb48d7-4dbc-4a10-a52a-da745b47a649) — CC BY 4.0"
+ ],
+ "limitations": "Prata 의 후속 벤치마크(LOB-2021/LOB-2022)도 FI-2010 의 레시피(10호가·10이벤트마다·z-score·6-2-2 분할)를 그대로 물려받았다 — 일반화 붕괴가 그 설계 *안에서* 측정된 것이지 설계 자체를 시험한 것은 아니다.",
+ "oneline": "10일짜리 데이터셋 위에서 10년간 F1 순위를 다퉜고, 재현해 보니 시드 분산이 개선폭보다 컸으며, 거래가능성은 0이었다.",
+ "implications": [
+  "**우리가 분류 정확도를 목적함수로 쓰지 않는 것이 옳다는 가장 직접적인 근거다.** Briola 의 p_T(0.01~0.15, 문턱 걸면 0)와 우리 실측 체결률(16.93%)은 같은 것을 재는 서로 다른 방식이다.",
+  "**Berti & Kasneci 의 '라벨 문턱을 스프레드로' 는 우리가 이미 하고 있다** — `spread_to_round_trip_cost_ratio` 문턱과 gross −120bps 손절이 그 역할이다. 다만 우리는 이것을 라벨이 아니라 진입 게이트로 쓴다. 대조로 인용할 만하다.",
+  "**시드 분산 보고는 우리에게 없다.** Optuna 시드는 고정하지만 시드를 바꿔 재실행한 분산을 내지 않는다. Prata 의 10~17 F1 포인트 사례를 보면, 우리도 `net_bps_total` 의 시드 간 분산을 한 번은 재야 한다.",
+  "겹치는 라벨 창에 purged CV 를 쓴 논문이 없다는 사실은 우리에게도 해당한다 — 다만 우리는 라벨이 아니라 **날짜 자체를 분리**하므로 구조적으로 더 안전하다."
+ ],
+ "resolution": "틱·메시지"
+}
