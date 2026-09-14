@@ -1,0 +1,15 @@
+[07:01:36] [replay] 재생 411종목 × 27계약 1436s
+[07:01:59] [replay] 판정: 교사 자체도 정본 계약에서 벌지 못한다
+[07:01:59] [replay]   T2M:abs: 거래 부족 · scorable 0 · total 0 · bps/decision nan [None, None]
+[07:01:59] [replay]   T2M:q0.70: 손실 · scorable 114061 · total -73066 · bps/decision -0.641 [-0.7546723772184433, -0.5387378972985923]
+[07:01:59] [replay]   T2M:q0.85: 손실 · scorable 81327 · total -55859 · bps/decision -0.687 [-0.8267644304310496, -0.5642395920265547]
+[07:01:59] [replay]   T2M:q0.95: 손실 · scorable 46305 · total -36928 · bps/decision -0.797 [-1.0124617980420945, -0.5939835594983713]
+[07:01:59] [replay]   T3D:abs: 거래 부족 · scorable 0 · total 0 · bps/decision nan [None, None]
+[07:01:59] [replay]   T3D:q0.70: 손실 · scorable 113400 · total -74315 · bps/decision -0.655 [-0.7705462220276525, -0.5508705853209754]
+[07:01:59] [replay]   T3D:q0.85: 손실 · scorable 78901 · total -53650 · bps/decision -0.680 [-0.8173430174035461, -0.5531455935376045]
+[07:01:59] [replay]   T3D:q0.95: 손실 · scorable 46103 · total -31041 · bps/decision -0.673 [-0.8834478665761518, -0.49071583661195267]
+[07:01:59] [replay]   RDG:abs: 판정 불가 · scorable 305 · total -1760 · bps/decision -5.769 [-20.415866334993996, 2.6259828706401325]
+[07:01:59] [replay]   RDG:q0.70: 손실 · scorable 112945 · total -68321 · bps/decision -0.605 [-0.7164875897723909, -0.5032837110338026]
+[07:01:59] [replay]   RDG:q0.85: 손실 · scorable 77376 · total -50975 · bps/decision -0.659 [-0.8008540540772181, -0.5211626832230639]
+[07:01:59] [replay]   RDG:q0.95: 손실 · scorable 43692 · total -31866 · bps/decision -0.729 [-0.9354470665978831, -0.5320304247846138]
+[07:02:00] [git] commit rc=0 
