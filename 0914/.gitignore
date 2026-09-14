@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pid
+# 교사 점수·재생 원장은 용량 때문에 커밋하지 않는다(요약 JSON 은 커밋한다)
+stage2/scores/
+stage2/out/**/*.parquet
+*.npz
