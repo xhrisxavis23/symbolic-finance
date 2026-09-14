@@ -1,0 +1,181 @@
+{
+  "generated_at": "2026-09-10 07:29:18",
+  "seed": 20260910,
+  "results": {
+    "A_l2_form": {
+      "null": {
+        "scenario": "A1_null_no_relation",
+        "true_slope": 0.0,
+        "noise_sd": 1.0,
+        "result": {
+          "ok": true,
+          "law": "L2",
+          "row_r2_point": -0.0005361720336152231,
+          "binned_r2_point": -0.8658457994693305,
+          "amplification_factor": null,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": -0.000545570249134486,
+          "row_r2_ci_low": -0.0013925870028851817,
+          "row_r2_ci_high": 4.803162439028771e-05,
+          "binned_r2_median": -0.3570765346028073,
+          "binned_r2_ci_low": -1.3026186512106712,
+          "binned_r2_ci_high": 0.016508434143151972
+        },
+        "eligible": false
+      },
+      "weak": {
+        "scenario": "A2_weak_real_signal",
+        "true_slope": 0.05,
+        "noise_sd": 1.0,
+        "result": {
+          "ok": true,
+          "law": "L2",
+          "row_r2_point": 0.002675509042838975,
+          "binned_r2_point": 0.7987090117262092,
+          "amplification_factor": 298.52599970235997,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": 0.002577567900362898,
+          "row_r2_ci_low": 0.0012834378385447847,
+          "row_r2_ci_high": 0.003887341033648836,
+          "binned_r2_median": 0.5889380858495081,
+          "binned_r2_ci_low": 0.36589955684634,
+          "binned_r2_ci_high": 0.7478666139778726
+        },
+        "eligible": true
+      },
+      "strong": {
+        "scenario": "A3_strong_real_signal",
+        "true_slope": 2.0,
+        "noise_sd": 0.5,
+        "result": {
+          "ok": true,
+          "law": "L2",
+          "row_r2_point": 0.939923710005395,
+          "binned_r2_point": 0.9999541384032022,
+          "amplification_factor": 1.0638673413158848,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": 0.9399481478355037,
+          "row_r2_ci_low": 0.9387964424698063,
+          "row_r2_ci_high": 0.9411772045556877,
+          "binned_r2_median": 0.9998802681069134,
+          "binned_r2_ci_low": 0.9997834565699718,
+          "binned_r2_ci_high": 0.9999326614558651
+        },
+        "eligible": true
+      }
+    },
+    "B_l4_form_ecological_confound": {
+      "confound_only": {
+        "scenario": "B1_confound_only_no_within_signal",
+        "within_coef": 0.0,
+        "confound_sd": 0.6,
+        "noise_sd": 0.3,
+        "result": {
+          "ok": true,
+          "law": "L4",
+          "row_r2_point": -0.005805320946853376,
+          "binned_r2_point": -4.014294048934753,
+          "amplification_factor": null,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": -0.009705033523937812,
+          "row_r2_ci_low": -0.09839119692483954,
+          "row_r2_ci_high": -8.632519015410179e-05,
+          "binned_r2_median": -4.632649502327998,
+          "binned_r2_ci_low": -53.051769997484044,
+          "binned_r2_ci_high": -0.046606126606392136
+        },
+        "eligible": false
+      },
+      "confound_plus_signal": {
+        "scenario": "B2_confound_plus_real_within_signal",
+        "within_coef": 1.0,
+        "confound_sd": 0.6,
+        "noise_sd": 0.3,
+        "result": {
+          "ok": true,
+          "law": "L4",
+          "row_r2_point": 0.38274763991044314,
+          "binned_r2_point": 0.9933657672601686,
+          "amplification_factor": 2.595354389363708,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": 0.3790515820265704,
+          "row_r2_ci_low": 0.31159487926851753,
+          "row_r2_ci_high": 0.44609155503100917,
+          "binned_r2_median": 0.9833370112596045,
+          "binned_r2_ci_low": 0.8629774361821251,
+          "binned_r2_ci_high": 0.9974928683386105
+        },
+        "eligible": true
+      }
+    },
+    "C_negative_control_on_real_signal": {
+      "within_symbol": {
+        "result": {
+          "ok": true,
+          "law": "L2",
+          "row_r2_point": -0.00016256621058774456,
+          "binned_r2_point": -0.245702043167366,
+          "amplification_factor": null,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": -0.00018468194697873752,
+          "row_r2_ci_low": -0.0006536423558695104,
+          "row_r2_ci_high": 3.1860301801361845e-05,
+          "binned_r2_median": -0.09918726608634776,
+          "binned_r2_ci_low": -0.35333140741879987,
+          "binned_r2_ci_high": 0.025917770317693146
+        },
+        "eligible": false
+      },
+      "global": {
+        "result": {
+          "ok": true,
+          "law": "L2",
+          "row_r2_point": -0.00021334839603426303,
+          "binned_r2_point": -0.3034207411289389,
+          "amplification_factor": null,
+          "n_symbols_reference": 60,
+          "n_rows_reference": 18000,
+          "n_boot_used": 400,
+          "n_boot_requested": 400,
+          "row_r2_median": -0.00025116307342631927,
+          "row_r2_ci_low": -0.0006805600029233972,
+          "row_r2_ci_high": 8.545198480154326e-05,
+          "binned_r2_median": -0.15362469950493574,
+          "binned_r2_ci_low": -0.4504771568661618,
+          "binned_r2_ci_high": 0.04726641840451746
+        },
+        "eligible": false
+      }
+    }
+  },
+  "checks": {
+    "A1_null_not_eligible": true,
+    "A2_weak_signal_detected_eligible": true,
+    "A2_weak_signal_small_magnitude": true,
+    "A3_strong_signal_near_one": true,
+    "B1_confound_only_not_eligible": true,
+    "B2_confound_plus_signal_eligible": true,
+    "C_within_symbol_kills_real_signal": true,
+    "C_global_kills_real_signal": true
+  },
+  "all_checks_passed": true,
+  "total_seconds": 26.10234498977661
+}
