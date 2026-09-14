@@ -1,0 +1,70 @@
+{
+ "schema": "0914_stage2_scores.v1",
+ "date": "20260319",
+ "features": [
+  "ask_depth_concentration",
+  "bid_depth_concentration",
+  "bid_l1_depth_over_qbar",
+  "book_imbalance",
+  "book_imbalance_velocity",
+  "deep_depth_imbalance_6_10",
+  "microprice_velocity_over_spread",
+  "microprice_velocity_zscore",
+  "mid_return_100t_over_spread",
+  "mid_return_20t_over_spread",
+  "mid_return_5t_over_spread",
+  "ofi_depth_5_zscore",
+  "ofi_l1_over_qbar",
+  "ofi_over_qbar_10",
+  "ofi_over_qbar_5",
+  "queue_imbalance_best",
+  "signed_aggr_flow_100",
+  "signed_aggr_flow_20",
+  "spread_to_round_trip_cost_ratio"
+ ],
+ "n_symbols": 411,
+ "n_scored": 411,
+ "n_ticks": 3854714,
+ "skipped": {},
+ "alignment_failures": [],
+ "c1": {
+  "T2M": {
+   "max_abs_diff": 0.005802273750305176,
+   "rows": 3849436
+  },
+  "T3D": {
+   "max_abs_diff": 0.016654133796691895,
+   "rows": 3849436
+  },
+  "RDG": {
+   "max_abs_diff": 1.7763568394002505e-15,
+   "rows": 3849436
+  }
+ },
+ "c1_tol": 1e-05,
+ "stored_eval1_rows": 3849436,
+ "c1_pass": false,
+ "fake_symbols": [
+  "000100",
+  "000180",
+  "000320",
+  "000430",
+  "000440",
+  "000680",
+  "000815",
+  "000860",
+  "000890",
+  "000970",
+  "000990",
+  "001120",
+  "001130",
+  "001200",
+  "001380",
+  "001520",
+  "001540",
+  "001820",
+  "001940",
+  "002025"
+ ],
+ "seconds": 154.1143400669098
+}
