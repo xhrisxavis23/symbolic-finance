@@ -58,6 +58,7 @@ R²          =  전체 행의 제곱오차                                      
 | `PROGRESS.md` | 진행 기록 (30분 점검 포함) |
 | `RESULTS-STAGE1.md` | 1단계 결과 — 라벨 기준, 보정표 |
 | `RESULTS-STAGE2.md` | 2단계 결과 — 정본 계약 판정, 비교군, 코호트, 사전 예측 대조 |
+| `symbolic_distillation_0914_report.html` | 진행보드 게시용 보고서 (항목 `a2adef9ecfc4` 첨부, 0911 보고서 양식) |
 
 ## 코드와 산출물
 
@@ -71,6 +72,8 @@ R²          =  전체 행의 제곱오차                                      
 | `stage2/inject.py` | 교사 점수 주입 (vendor 무수정) |
 | `stage2/checks.py` → `out/checks.json` | C3 주입 경로 동등성 · C4 신호 독립 대조 |
 | `stage2/run_replay.py` → `out/main/summary.json` | 정본 재생 27계약 · 요약 · 판정 |
+| `board/report_body.html` · `build_report.py` | 보고서 본문과 빌드(목차 링크 · 태그 짝 점검) |
+| `board/upload_attachment.py` | 진행보드 첨부 추가 — 비밀번호는 환경변수로만, 올린 뒤 서버 대조 |
 | `logs/` | 실행 로그 |
 
 교사 점수(`stage2/scores/`, 272MB)와 재생 원장 parquet 는 용량 때문에 커밋하지 않았다.
