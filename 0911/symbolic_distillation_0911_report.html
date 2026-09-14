@@ -261,7 +261,7 @@
     <span class="b">질문: 딥러닝 교사의 설명력이 낮은 것은 데이터가 부족해서인가, 종목이 섞여 있어서인가</span><span class="b">진행보드 직전 게시(0902) 이후 세 폴더 — 0909 검증 장치 수정 · 0910 본 실험 · 0911 규모·종목군 진단</span><span class="b">KRX 틱 20260316~19 · 주식 2,507종목 · 3일 70,001,560행</span><span class="b">판정 기준은 전부 결과를 보기 전에 커밋(사전등록)</span><span class="b">봉인 날짜 20260420 이후 미개봉</span>
     <span class="b">2026-09-14</span>
   </div>
-  <nav class="nav"><a href="#start">시작</a><a href="#since">0909·0910 요약</a><a href="#glance">한눈에</a><a href="#full">3일 전체 학습</a><a href="#groups">틱 크기별 종목군</a><a href="#curve">데이터 양 곡선</a><a href="#checks">검증 장치 · 잡은 결함</a><a href="#verdict">종합 판정</a><a href="#next">남은 질문</a><a href="#files">자료 위치</a><a href="#caveats">한계</a></nav>
+  <nav class="nav"><a href="#start">시작</a><a href="#since">0909·0910 요약</a><a href="#formulas">증류된 진입 수식 · 경제성</a><a href="#glance">한눈에</a><a href="#full">3일 전체 학습</a><a href="#groups">틱 크기별 종목군</a><a href="#curve">데이터 양 곡선</a><a href="#checks">검증 장치 · 잡은 결함</a><a href="#verdict">종합 판정</a><a href="#next">남은 질문</a><a href="#files">자료 위치</a><a href="#caveats">한계</a></nav>
 </div></header>
 <main class="wrap">
 
@@ -327,7 +327,7 @@
   <tr><th>1</th><td class="num">0.0150</td><td><code>tanh((호가불균형 + 공격적주문흐름20 + 스프레드비용비)/16.48) − 1.064</code></td></tr>
   <tr><th>2</th><td class="num">0.0151</td><td><code>tanh(호가불균형 + 큐불균형·공격적주문흐름20 + 공격적주문흐름100 + 스프레드비용비)·0.1385 − 1.0886</code></td></tr>
   </tbody></table></div>
-  <p>읽으면 <b>"사겠다는 쪽이 많고, 최근 사들이는 체결이 몰렸고, 비용 대비 스프레드가 유리할 때 산다"</b> — 경제적으로 말이 되고, 두 시드가 독립적으로 같은 형태에 도달했다.</p>
+  <p>읽으면 <b>"사겠다는 쪽이 많고, 최근 사들이는 체결이 몰렸고, 비용 대비 스프레드가 유리할 때 산다"</b> — 경제적으로 말이 되고, 두 시드가 독립적으로 같은 형태에 도달했다. 정확한 원식 · 실행 조건 · 후보 전체 · 체결 단위 경제성은 <a href="#formulas">증류된 진입 수식과 경제성 분석</a>에 있다.</p>
   <div class="table-scroll"><table><thead><tr><th>의사결정당 손익 (bps)</th><th>저마찰 (학습층)</th><th>중간 (선택층)</th><th>고마찰 (봉인층)</th></tr></thead><tbody>
   <tr><th>시드 0</th><td class="num">−2.444</td><td class="num">−1.829</td><td class="num">−1.772</td></tr>
   <tr><th>시드 1</th><td class="num">−0.980</td><td class="num">−0.576</td><td class="num"><b>−0.415</b></td></tr>
@@ -343,6 +343,172 @@
   <div class="warn"><b>뒤늦게 드러난 구멍.</b> 교사가 저마찰층 가용 행 8,151,756 중 <b>198,007 행(2.4%)</b> 만 봤다.
   R² 0.015 가 모델 탓인지 데이터 부족 탓인지 가를 수 없었다. 같은 시기 조사한 LOBFrame(Briola 외, <i>Quantitative Finance</i> 2025)은 같은 DeepLOB 으로
   큰 틱 종목은 예측력이 유지되고(MCC 0.29 → 0.26) 작은 틱 종목은 거의 무작위(0.11 → 0.01)임을 보였다. → <b>0911 의 두 질문이 여기서 나왔다.</b></div>
+</section>
+
+<section id="formulas" class="paper g1">
+  <h2>증류된 진입 수식과 경제성 분석<span class="vtag">0910 본 실험 · 시드 3개 · 원자료 0910/run/state (후보·선택·곡선·백테스트 원장) · 집계 스크립트 0911/board/formula_economics.py</span></h2>
+  <div class="warn"><b>먼저 밝혀 둔다 — 이 수식들은 0910 의 하루치 교사에서 증류했다.</b> 교사는 3/16 저마찰 837종목 09:00–12:00 에서 뽑은 약 20만 행으로 학습했다(안 본 종목 R² 0.015).
+  0911 은 교사의 설명력만 진단했고 <b>3일 교사로 다시 증류하지 않았다.</b> 그러므로 아래 경제성은 "0910 교사 → 수식 → 정본 백테스트" 의 결과다.</div>
+
+  <div class="easy"><div class="ezhead">쉽게 말하면</div>
+    <p><b>수식이 무엇을 하나?</b> 매 틱마다 시장 상태 몇 개를 더한 점수를 계산하고, 그 점수가 <b>같은 종목의 직전 100틱 점수 중 상위 5%</b>를 넘으면 매수 주문을 낸다.
+    시드 1·2 가 고른 점수는 거의 같다 — <b>"사겠다는 호가가 많고(호가불균형) + 최근 사들이는 체결이 몰렸고(공격적 주문흐름) + 스프레드가 비용 대비 넓다(스프레드비용비)"</b>.</p>
+    <p><b>얼마나 벌었나?</b> 수수료를 빼기 전에는 체결 1건당 약 +3bp 로 방향을 맞힌다(기준선들은 0 이하). 그러나 왕복 수수료가 23bp 라 체결 1건당 약 −20bp 를 잃는다.</p>
+    <div class="analogy"><b>비유.</b> 앞면이 아주 조금 더 자주 나오는 동전을 찾았는데, 한 번 걸 때마다 판돈에서 큰 수수료를 떼는 도박장인 셈이다. 동전은 진짜로 조금 치우쳐 있지만(체결당 +3bp) 수수료(23bp)를 이길 만큼은 아니다.</div>
+  </div>
+
+  <div class="deepbar">수식이 매매 규칙이 되는 과정</div>
+  <div class="schema"><span class="y">PySR 수식 f(x)</span>       예) tanh(A + B + C + D)·0.13854784 − 1.0886018        <span class="small">교사(DeepLOB)의 예측을 흉내 낸 식</span>
+   <span class="c">↓ 단조 껍질 벗기기</span>   −1.0886(offset) · ×0.1385(scale) · tanh  — 전부 증가함수라 순위가 같다
+<span class="y">실행 식 g(x)</span>         A + B + C + D                                     <span class="small">백테스트가 실제로 계산하는 점수</span>
+   <span class="c">↓ 임계 붙이기</span>       g(x<sub>t</sub>) &gt; [같은 종목 g 의 직전 100틱 (t−100 … t−1) 의 q 분위],  q ∈ {0.70, 0.85, 0.95}
+<span class="g">진입</span>                 BID1 지정가 매수 · 10초 / 100틱 대기 (신호가 꺼져도 유지)
+<span class="g">청산</span>                 ASK1 지정가 매도(60초 대기) · 최고 ASK1 대비 −30bp 추적 손절 · gross −120bp 손절 · 최대 900초
+<span class="m">비용</span>                 왕복 23bp (스프레드는 체결가에 이미 반영)</div>
+  <p class="small">청산·비용은 정본 프로필 CANONICAL_QUEUE_V9 가 고정한다. 분위 임계를 쓰기 때문에 수식의 상수(offset·scale)는 매매에 영향이 없고, 변수들의 <b>조합 방식</b>만 의미가 있다.
+  같은 이유로 PySR 계수가 달라도 실행 식이 같으면 백테스트 결과가 똑같다(아래 표의 e004 = e014, e007 = e016).</p>
+
+  <div class="deepbar">수식에 쓰인 변수</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:250px">변수 (수식 속 이름)</th><th>정의</th><th style="width:90px">범위</th><th>경제적 의미</th></tr></thead><tbody>
+  <tr><th><code>book_imbalance</code> 호가불균형</th><td>(BID1 잔량 − ASK1 잔량) / (BID1 + ASK1 잔량)</td><td>[−1, 1]</td><td>게시된 매수·매도 유동성의 비대칭. 양수면 사려는 쪽이 많다</td></tr>
+  <tr><th><code>queue_imbalance_best</code> 큐불균형</th><td>BID1 잔량 / (BID1 + ASK1 잔량)</td><td>[0, 1]</td><td>호가불균형의 단조 변환(2q−1). 단독 임계 대상은 금지, 다른 항의 가중치로만 쓴다</td></tr>
+  <tr><th><code>signed_aggr_flow_20</code> 공격적 주문흐름 20</th><td>최근 20틱 (매수 주도 − 매도 주도 체결량) / (합)</td><td>[−1, 1]</td><td>시장가로 사들이는 쪽이 우세한가. 체결이 없으면 0</td></tr>
+  <tr><th><code>signed_aggr_flow_100</code> 공격적 주문흐름 100</th><td>최근 100틱, 같은 정의</td><td>[−1, 1]</td><td>더 긴 구간의 매수·매도 주도 편향</td></tr>
+  <tr><th><code>spread_to_round_trip_cost_ratio</code> 스프레드비용비</th><td>스프레드(bp) / 왕복 비용 23bp</td><td>0 이상</td><td>지금 스프레드가 수수료의 몇 배인가. 1 이면 스프레드 = 23bp</td></tr>
+  <tr><th><code>deep_depth_imbalance_6_10</code> 깊은 호가불균형</th><td>6~10호가 (매수 잔량 합 − 매도 잔량 합) / (합)</td><td>[−1, 1]</td><td>최우선호가보다 깊은 곳의 방향 비대칭</td></tr>
+  <tr><th><code>microprice_velocity_over_spread</code> 마이크로프라이스 속도</th><td>(잔량가중 가격의 직전 틱 대비 변화, bp) / 스프레드(bp)</td><td>실수</td><td>가격이 방금 어느 쪽으로 움직였는가</td></tr>
+  <tr><th><code>book_imbalance_velocity</code> 호가불균형 속도 (영점 기준선)</th><td>호가불균형의 직전 틱 대비 차</td><td>[−2, 2]</td><td>비교용 기준선. 정보가 거의 없다고 본 신호</td></tr>
+  </tbody></table></div>
+
+  <div class="deepbar">시드별로 고른 수식 (선택 종목층에서 총 순손익 최대 → 고마찰층에서 최종 평가)</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:118px">시드</th><th>PySR 원식</th><th style="width:130px">벗긴 껍질</th><th>백테스트가 실행한 진입 조건 (q = 0.95)</th><th style="width:70px">복잡도</th></tr></thead><tbody>
+  <tr><th>0<br><span class="small">후보 14 · 번역 성공 1</span></th><td><code>microprice_velocity_over_spread</code></td><td>없음</td><td><code>microprice_velocity_over_spread</code> &gt; 직전 100틱 95% 분위</td><td class="num">1</td></tr>
+  <tr><th>1<br><span class="small">후보 14 · 번역 성공 9</span></th><td><code>tanh((book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio)/16.481377) − 1.063918</code></td><td>offset · tanh · scale</td><td><code>book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> &gt; 직전 100틱 95% 분위</td><td class="num">11</td></tr>
+  <tr><th>2<br><span class="small">후보 14 · 번역 성공 8</span></th><td><code>tanh(book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio)·0.13854784 − 1.0886018</code></td><td>offset · scale · tanh</td><td><code>book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> &gt; 직전 100틱 95% 분위</td><td class="num">14</td></tr>
+  <tr><th>나이브</th><td colspan="2">사전 지정 기준선</td><td><code>book_imbalance</code> &gt; 직전 100틱 95% 분위</td><td class="num">—</td></tr>
+  <tr><th>영점</th><td colspan="2">사전 지정 기준선</td><td><code>book_imbalance_velocity</code> &gt; 직전 100틱 95% 분위</td><td class="num">—</td></tr>
+  </tbody></table></div>
+  <p class="small">PySR 설정: 연산자 + − × ÷ · sqrt · tanh · abs · square, 반복 200, 최대 복잡도 18, 결정론 모드. 입력 19개 무차원 특징(위 변수 + 정규화 주문흐름·스프레드로 나눈 가격 변화 등). 수식 탐색은 교사가 학습한 같은 20만 행에서 교사의 경로 예측을 흉내 냈다.</p>
+  <div class="schema"><span class="c">시드 2 진입 조건 — 백테스트 DSL 원문</span>
+{"op": "compare", "comparator": "&gt;", "value": "UNRESOLVED:theta_score",   <span class="small">← theta = rolling_prior_100_ticks_quantile(q)</span>
+ "input": {"op": "add",
+   "left": {"op": "add",
+     "left": {"op": "add",
+       "left":  {"op": "multiply", "left": {"op": "primitive", "primitive_id": "signed_aggr_flow_20"},
+                                   "right": {"op": "primitive", "primitive_id": "queue_imbalance_best"}},
+       "right": {"op": "primitive", "primitive_id": "book_imbalance"}},
+     "right": {"op": "primitive", "primitive_id": "spread_to_round_trip_cost_ratio"}},
+   "right": {"op": "primitive", "primitive_id": "signed_aggr_flow_100"}}}</div>
+
+  <div class="deepbar">번역되지 못한 후보 — 시드 0 이 가장 나빴던 진짜 이유</div>
+  <p>시드 0 의 후보 14개 중 13개가 백테스트 DSL 로 옮겨지지 못했다. 그중 10개가 <code>−11.571544/(book_imbalance + signed_aggr_flow_100 + 11.530237)</code>,
+  <code>−16.081614/(book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio + 15.329111)</code> 같은 <b>음의 상수 ÷ (변수 합 + 양의 상수)</b> 꼴이었다(8개는 호가불균형·주문흐름·스프레드비용비 등 여러 변수의 합, 2개는 큐불균형 하나)
+  — DSL 에는 산술 안에 숫자를 놓을 자리가 없어 거부됐다. 그런데 분자가 음수이고 분모가 양수라 이 꼴은 괄호 안의 합에 대해 <b>증가함수</b>이고, 분위 임계로 쓰면 시드 1·2 가 고른 합과 같은 순위를 낸다.
+  <b>시드 0 도 같은 계열의 수식을 찾았는데 번역기가 막았고</b>, 남은 유일한 후보(마이크로프라이스 속도)가 기준선보다 나빴다. 교사 문제가 아니라 번역기 한계다.
+  나머지 거부 사유: 상수만 남은 식(시드 0·1·2 합 5개), 큐불균형 단독 임계(1개), 깊은 곳의 상수배 <code>0.3229·mid_return_20t_over_spread</code> 등(시드 2, 2개).</p>
+
+  <div class="deepbar">모든 번역 성공 후보의 선택 단계 성적 — 중간마찰 834종목, 12:00–13:00</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:62px">계약</th><th style="width:64px">시드</th><th>실행 식 <span class="small">(PySR 원식)</span></th><th style="width:48px">복잡도</th><th style="width:170px">결정당 손익 bp<br><span class="small">q 0.70 / 0.85 / 0.95</span></th><th style="width:60px">체결 <span class="small">q0.95</span></th><th style="width:80px">총 순손익 <span class="small">q0.95</span></th><th style="width:70px">방향 오류 <span class="small">q0.95</span></th></tr></thead><tbody>
+  <tr><th>e000</th><td>0 ★</td><td><code>microprice_velocity_over_spread</code></td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e001</th><td>1</td><td>e000 과 같은 식</td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e002</th><td>1</td><td><code>signed_aggr_flow_20</code> <span class="small">(signed_aggr_flow_20/16.907553 − 1.0188909)</span></td><td class="num">7</td><td class="num">−0.982 / −1.069 / −1.220</td><td class="num">3,162</td><td class="num">−80,726</td><td class="num">79.9%</td></tr>
+  <tr><th>e003</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_20</code> <span class="small">(tanh((…)/16.275808) − 1.0204525)</span></td><td class="num">10</td><td class="num">−0.725 / −0.680 / −0.713</td><td class="num">2,540</td><td class="num">−60,216</td><td class="num">74.2%</td></tr>
+  <tr><th>e004</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">((…)/18.90462 − 1.0539246)</span></td><td class="num">11</td><td class="num">−0.641 / −0.592 / −0.584</td><td class="num">2,539</td><td class="num">−50,923</td><td class="num">68.7%</td></tr>
+  <tr><th>e005</th><td>1 ★</td><td><code>book_imbalance + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh((…)/16.481377) − 1.063918)</span></td><td class="num">11</td><td class="num">−0.615 / −0.580 / −0.576</td><td class="num">2,498</td><td class="num"><b>−47,800</b></td><td class="num">68.5%</td></tr>
+  <tr><th>e006</th><td>1</td><td><code>book_imbalance + deep_depth_imbalance_6_10 + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio</code> <span class="small">((…)/19.204815 − 1.063918)</span></td><td class="num">12</td><td class="num">−0.684 / −0.626 / −0.576</td><td class="num">2,546</td><td class="num">−48,927</td><td class="num">69.7%</td></tr>
+  <tr><th>e007</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_20)</code> <span class="small">((…)/17.484331 − 1.0568297)</span></td><td class="num">12</td><td class="num">−0.609 / −0.589 / −0.565</td><td class="num">2,537</td><td class="num">−48,915</td><td class="num">68.9%</td></tr>
+  <tr><th>e008</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(deep_depth_imbalance_6_10 + signed_aggr_flow_20)</code> <span class="small">((…)/16.261276 − 1.0676535)</span></td><td class="num">14</td><td class="num">−0.643 / −0.599 / −0.584</td><td class="num">2,528</td><td class="num">−49,362</td><td class="num">69.2%</td></tr>
+  <tr><th>e009</th><td>1</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_20 + tanh(deep_depth_imbalance_6_10))</code> <span class="small">(tanh((…)/16.187672) − 1.0667877)</span></td><td class="num">16</td><td class="num">−0.640 / −0.603 / −0.584</td><td class="num">2,526</td><td class="num">−49,273</td><td class="num">69.4%</td></tr>
+  <tr><th>e010</th><td>2</td><td>e000 과 같은 식</td><td class="num">1</td><td class="num">−1.061 / −1.256 / −1.829</td><td class="num">5,254</td><td class="num">−159,976</td><td class="num">85.5%</td></tr>
+  <tr><th>e011</th><td>2</td><td><code>signed_aggr_flow_100</code> <span class="small">(tanh(signed_aggr_flow_100·0.091815494) − 1.038035)</span></td><td class="num">8</td><td class="num">−1.030 / −1.070 / −1.164</td><td class="num">4,313</td><td class="num">−121,697</td><td class="num">83.1%</td></tr>
+  <tr><th>e012</th><td>2</td><td><code>book_imbalance + signed_aggr_flow_100</code> <span class="small">((…)·0.083205365 − 1.0411993)</span></td><td class="num">9</td><td class="num">−0.701 / −0.695 / −0.746</td><td class="num">2,741</td><td class="num">−69,991</td><td class="num">75.2%</td></tr>
+  <tr><th>e013</th><td>2</td><td><code>signed_aggr_flow_100 + tanh(book_imbalance)</code> <span class="small">((…)·0.09386577 − 1.0404555)</span></td><td class="num">10</td><td class="num">−0.714 / −0.707 / −0.748</td><td class="num">2,819</td><td class="num">−72,151</td><td class="num">76.2%</td></tr>
+  <tr><th>e014</th><td>2</td><td>e004 와 같은 실행 식 <span class="small">((…)·0.058926456 − 1.0840377)</span></td><td class="num">11</td><td class="num">−0.641 / −0.592 / −0.584</td><td class="num">2,539</td><td class="num">−50,923</td><td class="num">68.7%</td></tr>
+  <tr><th>e015</th><td>2</td><td><code>book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh(…)·0.1410824 − 1.0991353)</span></td><td class="num">11</td><td class="num">−0.584 / −0.573 / −0.587</td><td class="num">2,532</td><td class="num">−50,670</td><td class="num">69.0%</td></tr>
+  <tr><th>e016</th><td>2</td><td>e007 과 같은 실행 식 <span class="small">(tanh(…)·0.12482372 − 1.084626)</span></td><td class="num">13</td><td class="num">−0.609 / −0.589 / −0.565</td><td class="num">2,537</td><td class="num">−48,915</td><td class="num">68.9%</td></tr>
+  <tr><th>e017</th><td>2 ★</td><td><code>book_imbalance + queue_imbalance_best·signed_aggr_flow_20 + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio</code> <span class="small">(tanh(…)·0.13854784 − 1.0886018)</span></td><td class="num">14</td><td class="num">−0.597 / −0.567 / <b>−0.528</b></td><td class="num">2,468</td><td class="num"><b>−45,575</b></td><td class="num">68.4%</td></tr>
+  <tr><th>e018</th><td>나이브</td><td><code>book_imbalance</code></td><td class="num">—</td><td class="num">−0.669 / −0.710 / −0.781</td><td class="num">2,525</td><td class="num">−64,130</td><td class="num">74.0%</td></tr>
+  <tr><th>e019</th><td>영점</td><td><code>book_imbalance_velocity</code></td><td class="num">—</td><td class="num">−0.968 / −1.084 / −1.240</td><td class="num">4,364</td><td class="num">−121,593</td><td class="num">81.3%</td></tr>
+  </tbody></table></div>
+  <p class="small">★ = 시드의 1순위(사전등록 규칙: 거래 ≥ 200 중 총 순손익 최대). 방향 오류 = 체결 중 "방향이 계속 틀림" 비율. 18개 후보의 서로 다른 실행 식 14개.
+  <b>"호가불균형 + 공격적 주문흐름 + 스프레드비용비" 를 더하는 계열</b>이 전부 −0.53 ~ −0.59 로 몰려 있고, 단일 변수(주문흐름만 · 가격 속도만)는 −1.16 ~ −1.83 으로 확연히 나쁘다.
+  60개 계약 중 총 순손익이 양수인 것은 <b>하나도 없다.</b></p>
+
+  <div class="deepbar">층별 결과 — 학습층 → 선택층 → 최종 평가층 (q = 0.95 동결)</div>
+  <div class="table-scroll"><table><thead><tr><th rowspan="2">수식</th><th colspan="3">저마찰 837종목 (학습층)</th><th colspan="3">중간마찰 834종목 (선택층)</th><th colspan="3">고마찰 836종목 (최종 평가층)</th></tr>
+  <tr><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th><th>결정 · 체결</th><th>결정당</th><th>총 순손익</th></tr></thead><tbody>
+  <tr><th>시드 0</th><td class="num">115,538 · 10,652</td><td class="num">−2.444</td><td class="num">−279,575</td><td class="num">87,983 · 5,254</td><td class="num">−1.829</td><td class="num">−159,976</td><td class="num">52,810 · 2,290</td><td class="num">−1.772</td><td class="num">−93,372</td></tr>
+  <tr><th>시드 1</th><td class="num">124,115 · 6,097</td><td class="num">−0.980</td><td class="num">−120,325</td><td class="num">83,454 · 2,498</td><td class="num">−0.576</td><td class="num">−47,800</td><td class="num">46,634 · 1,031</td><td class="num"><b>−0.415</b></td><td class="num">−19,301</td></tr>
+  <tr><th>시드 2</th><td class="num">130,116 · 6,242</td><td class="num">−0.974</td><td class="num">−125,322</td><td class="num">86,642 · 2,468</td><td class="num">−0.528</td><td class="num">−45,575</td><td class="num">47,984 · 1,039</td><td class="num"><b>−0.460</b></td><td class="num">−22,015</td></tr>
+  <tr><th>나이브</th><td class="num">125,828 · 6,212</td><td class="num">−1.193</td><td class="num">−148,567</td><td class="num">82,556 · 2,525</td><td class="num">−0.781</td><td class="num">−64,130</td><td class="num">47,713 · 1,073</td><td class="num">−0.797</td><td class="num">−37,998</td></tr>
+  <tr><th>영점</th><td class="num">136,072 · 9,491</td><td class="num">−1.773</td><td class="num">−239,698</td><td class="num">98,364 · 4,364</td><td class="num">−1.240</td><td class="num">−121,593</td><td class="num">55,333 · 1,961</td><td class="num">−1.222</td><td class="num">−67,538</td></tr>
+  </tbody></table></div>
+  <p class="small">결정 = 신호가 켜져 주문을 낸 횟수, 체결 = 지정가가 실제로 체결된 횟수. 결정의 90% 이상은 체결되지 않아 손익 0 으로 끝난다. 최종 평가층 13:00 이후만: 시드 1 −0.335 · 시드 2 −0.306 · 나이브 −0.539 · 영점 −0.962 · 시드 0 −1.331 bp/결정.</p>
+
+  <div class="deepbar">체결 1건 단위 경제성 — 수수료 전(gross)과 후(net), 종목 단위 부트스트랩 95% 구간</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:120px">층 · 수식</th><th>체결 (체결률)</th><th><span class="term" tabindex="0" data-tip="수수료를 빼기 전 체결 1건의 손익(bp). 체결가 기준이라 스프레드는 이미 반영돼 있다.">gross</span> / 체결</th><th><span class="term" tabindex="0" data-tip="gross 에서 왕복 수수료 23bp 를 뺀 체결 1건의 손익(bp).">net</span> / 체결</th><th>gross 중앙값</th><th>수수료를 넘긴 체결</th><th>방향 오류</th><th>보유 중앙</th><th>진입 스프레드 중앙</th></tr></thead><tbody>
+  <tr><th>저마찰 · 시드 1</th><td class="num">6,097 (4.9%)</td><td class="num"><b>+3.26</b> [+2.12, +4.46]</td><td class="num">−19.74 [−20.99, −18.59]</td><td class="num">0.0</td><td class="num">22.6%</td><td class="num">65.0%</td><td class="num">175초</td><td class="num">17.1bp</td></tr>
+  <tr><th>저마찰 · 시드 2</th><td class="num">6,242 (4.8%)</td><td class="num"><b>+2.92</b> [+1.79, +4.39]</td><td class="num">−20.08 [−21.31, −18.77]</td><td class="num">0.0</td><td class="num">22.3%</td><td class="num">65.1%</td><td class="num">182초</td><td class="num">17.0bp</td></tr>
+  <tr><th>저마찰 · 나이브</th><td class="num">6,212 (4.9%)</td><td class="num">−0.92 [−2.53, +0.55]</td><td class="num">−23.92 [−25.48, −22.41]</td><td class="num">−7.7</td><td class="num">21.1%</td><td class="num">68.9%</td><td class="num">183초</td><td class="num">15.9bp</td></tr>
+  <tr><th>저마찰 · 영점</th><td class="num">9,491 (7.0%)</td><td class="num">−2.26 [−3.39, −1.26]</td><td class="num">−25.26 [−26.39, −24.21]</td><td class="num">−9.0</td><td class="num">19.3%</td><td class="num">76.5%</td><td class="num">241초</td><td class="num">15.7bp</td></tr>
+  <tr><th>저마찰 · 시드 0</th><td class="num">10,652 (9.2%)</td><td class="num">−3.25 [−4.22, −2.31]</td><td class="num">−26.25 [−27.16, −25.31]</td><td class="num">−11.0</td><td class="num">18.6%</td><td class="num">80.7%</td><td class="num">256초</td><td class="num">15.6bp</td></tr>
+  <tr><th>고마찰 · 시드 1</th><td class="num">1,031 (2.2%)</td><td class="num"><b>+4.28</b> [−0.47, +9.11]</td><td class="num">−18.72 [−23.76, −14.19]</td><td class="num">0.0</td><td class="num">29.4%</td><td class="num">69.8%</td><td class="num">112초</td><td class="num">64.3bp</td></tr>
+  <tr><th>고마찰 · 시드 2</th><td class="num">1,039 (2.2%)</td><td class="num"><b>+1.81</b> [−3.48, +7.46]</td><td class="num">−21.19 [−26.40, −16.15]</td><td class="num">0.0</td><td class="num">28.9%</td><td class="num">70.5%</td><td class="num">115초</td><td class="num">65.9bp</td></tr>
+  <tr><th>고마찰 · 나이브</th><td class="num">1,073 (2.2%)</td><td class="num">−12.41 [−17.86, −7.63]</td><td class="num">−35.41 [−40.67, −30.00]</td><td class="num">−15.1</td><td class="num">22.5%</td><td class="num">78.4%</td><td class="num">141초</td><td class="num">45.8bp</td></tr>
+  <tr><th>고마찰 · 영점</th><td class="num">1,961 (3.5%)</td><td class="num">−11.44 [−15.06, −7.81]</td><td class="num">−34.44 [−38.07, −30.89]</td><td class="num">−14.2</td><td class="num">20.4%</td><td class="num">82.6%</td><td class="num">162초</td><td class="num">47.1bp</td></tr>
+  <tr><th>고마찰 · 시드 0</th><td class="num">2,290 (4.3%)</td><td class="num">−17.77 [−21.17, −14.46]</td><td class="num">−40.77 [−44.13, −37.61]</td><td class="num">−18.3</td><td class="num">17.9%</td><td class="num">84.2%</td><td class="num">180초</td><td class="num">43.6bp</td></tr>
+  </tbody></table></div>
+  <p class="small">체결률 = 체결 / 결정. 수수료를 넘긴 체결 = net &gt; 0 인 체결 비율. 고마찰·시드 1 체결 1,031건의 결과 분해: 방향이 계속 틀림 69.8% · 수익 남김 14.1% · 방향은 맞았으나 비용 못 넘김 12.8% · 초반 오르다 뒤집힘 3.3%.
+  청산 사유 상위: 추적 손절 뒤 재호가·시간 초과로 BID1 청산 44.2% · 추적 뒤 ASK1 재호가 청산 18.7% · 추적 시간 초과 14.9% · 최대 보유 900초 8.7% · 손절(−120bp) 5.5%.</p>
+
+  <div class="deepbar">체결되는 순간에는 신호가 이미 식어 있다 — 결정 시점 → 체결 시점의 중앙값</div>
+  <div class="table-scroll"><table><thead><tr><th style="width:150px">층 · 수식</th><th>공격적 주문흐름 20</th><th>호가불균형</th><th>스프레드 (bp)</th></tr></thead><tbody>
+  <tr><th>저마찰 · 시드 1</th><td class="num">0.894 → <b>0.818</b></td><td class="num">0.646 → <b>0.568</b></td><td class="num">16.2 → 15.6</td></tr>
+  <tr><th>저마찰 · 시드 2</th><td class="num">0.848 → <b>0.772</b></td><td class="num">0.663 → <b>0.597</b></td><td class="num">15.8 → 15.2</td></tr>
+  <tr><th>저마찰 · 나이브</th><td class="num">0.072 → −0.067</td><td class="num">0.904 → 0.895</td><td class="num">14.0 → 12.4</td></tr>
+  <tr><th>고마찰 · 시드 1</th><td class="num">0.846 → <b>0.614</b></td><td class="num">0.606 → <b>0.381</b></td><td class="num">60.6 → <b>70.5</b></td></tr>
+  <tr><th>고마찰 · 시드 2</th><td class="num">0.813 → <b>0.546</b></td><td class="num">0.646 → <b>0.441</b></td><td class="num">59.0 → <b>69.2</b></td></tr>
+  <tr><th>고마찰 · 나이브</th><td class="num">−0.045 → −0.212</td><td class="num">0.948 → 0.927</td><td class="num">37.3 → 34.7</td></tr>
+  </tbody></table></div>
+  <div class="callout"><b>해석.</b> 진입은 BID1 에 지정가로 걸어 두고 누군가 팔아 줄 때 체결된다. 그래서 체결은 <b>매수 우위가 약해져 파는 쪽이 BID1 을 칠 때</b> 몰린다
+  — 결정 시점에 0.85 였던 공격적 매수 흐름이 체결 시점에는 0.61, 호가불균형은 0.61 → 0.38 로 떨어져 있다(고마찰층). 신호가 가장 강한 순간에는 체결이 안 되고,
+  신호가 식은 순간에 체결되는 <span class="term" tabindex="0" data-tip="지정가 주문이 불리한 순간에 골라서 체결되는 현상. 내 매수 호가를 누군가 치는 것은 대개 그 사람이 가격이 내릴 것을 알 때다.">역선택</span>이다.
+  고마찰층에서는 스프레드가 넓어진 순간(60 → 70bp)에 체결되는 경향도 보인다. 이것은 원장에서 본 서술이며, 진입 방식을 바꿔 확인한 인과는 아니다.</div>
+
+  <div class="deepbar">종목군별 체결 단위 경제성 — 0911 의 틱 크기 · 거래대금 3분위를 0910 원장에 붙인 서술</div>
+  <div class="two-col">
+    <div class="table-scroll"><table><thead><tr><th>고마찰층</th><th>체결</th><th>gross</th><th>net</th></tr></thead><tbody>
+    <tr><th>시드 1 · 큰틱</th><td class="num">53</td><td class="num">+3.07</td><td class="num">−19.93</td></tr>
+    <tr><th>시드 1 · 중간틱</th><td class="num">430</td><td class="num"><b>+10.91</b></td><td class="num">−12.09</td></tr>
+    <tr><th>시드 1 · 작은틱</th><td class="num">543</td><td class="num">−0.80</td><td class="num">−23.80</td></tr>
+    <tr><th>시드 1 · 고유동</th><td class="num">327</td><td class="num"><b>+17.00</b></td><td class="num"><b>−6.00</b></td></tr>
+    <tr><th>시드 1 · 중유동</th><td class="num">472</td><td class="num">+4.25</td><td class="num">−18.75</td></tr>
+    <tr><th>시드 1 · 저유동</th><td class="num">227</td><td class="num">−13.86</td><td class="num">−36.86</td></tr>
+    <tr><th>시드 2 · 고유동</th><td class="num">337</td><td class="num">+13.27</td><td class="num">−9.73</td></tr>
+    <tr><th>시드 2 · 중간틱</th><td class="num">426</td><td class="num">+7.96</td><td class="num">−15.04</td></tr>
+    <tr><th>나이브 · 고유동</th><td class="num">364</td><td class="num">−2.54</td><td class="num">−25.54</td></tr>
+    </tbody></table></div>
+    <div class="table-scroll"><table><thead><tr><th>저마찰층 (시드 1)</th><th>체결</th><th>gross</th><th>net</th></tr></thead><tbody>
+    <tr><th>큰틱</th><td class="num">4,270</td><td class="num">+2.27</td><td class="num">−20.73</td></tr>
+    <tr><th>중간틱</th><td class="num">1,339</td><td class="num">+5.37</td><td class="num">−17.63</td></tr>
+    <tr><th>작은틱</th><td class="num">449</td><td class="num">+5.77</td><td class="num">−17.23</td></tr>
+    <tr><th>고유동</th><td class="num">5,422</td><td class="num">+3.53</td><td class="num">−19.47</td></tr>
+    <tr><th>중유동</th><td class="num">565</td><td class="num">+0.31</td><td class="num">−22.69</td></tr>
+    <tr><th>저유동</th><td class="num">71</td><td class="num">+2.74</td><td class="num">−20.26</td></tr>
+    </tbody></table></div>
+  </div>
+  <p class="small">종목군 경계는 0911 에서 3/16 기준으로 정한 것이다. 고마찰층은 작은틱·저유동 종목이 많아 칸마다 체결 수가 크게 다르다 — 구간을 내지 않은 서술이며 판정에 쓰지 않는다.
+  <b>순손익이 양수인 칸은 없다.</b> 가장 가까운 곳은 고마찰층 고유동(49종목) 시드 1 의 −6.0bp.</p>
+
+  <ol class="contrib">
+    <li><b>방향 신호는 있다.</b> 시드 1·2 수식은 수수료 전 체결당 +2.9 ~ +3.3bp 이고 저마찰층(체결 6천여 건)에서는 종목 단위 구간이 0 위에 있다. 나이브·영점·시드 0 은 0 이하다. 고마찰층(체결 1천여 건)에서는 구간이 0 을 포함한다.</li>
+    <li><b>크기는 수수료의 7분의 1이다.</b> 흑자가 되려면 체결당 gross 가 평균 23bp 를 넘어야 하는데 +3bp 다. gross 중앙값은 정확히 0(진입가에 그대로 청산)이고, 수수료를 넘기는 체결은 22~29% 뿐이다.</li>
+    <li><b>지정가 진입이 신호를 깎는다.</b> 체결은 신호가 식은 순간에 몰린다(역선택). 손실의 약 70% 가 "방향이 계속 틀림" 인 이유와 같은 방향의 증거다.</li>
+    <li><b>수식 계열은 안정적이다.</b> 서로 다른 시드가 같은 합(호가불균형 + 주문흐름 + 스프레드비용비)에 도달했고, 그 계열의 변형 10여 개가 선택 단계에서 −0.53 ~ −0.59bp/결정으로 거의 같다. 시드 0 도 같은 계열을 찾았으나 번역기에서 막혔다.</li>
+    <li><b>종목군으로 좁혀도 흑자는 없다.</b> 고마찰층 고유동 종목에서 −6bp 가 가장 가깝다 — 0911 의 "틱 크기로 쉬운 탈출구는 없다" 와 같은 결론이다.</li>
+  </ol>
+  <div class="oneline"><b>한 줄.</b> 증류된 진입 수식은 <b>"매수 호가가 두껍고, 사들이는 체결이 몰렸고, 스프레드가 넓을 때 산다"</b> 이다.
+  수수료 전에는 체결당 +3bp 로 방향을 맞히지만 <b>왕복 23bp 의 7분의 1</b>이고, 지정가가 체결되는 순간에는 이미 매수세가 식어 있다.</div>
 </section>
 
 <section id="glance">
@@ -586,14 +752,15 @@
 </section>
 
 <section id="verdict">
-  <h2>종합 판정 — 여섯 가지 사실</h2>
+  <h2>종합 판정 — 일곱 가지 사실</h2>
   <div class="table-scroll"><table><thead><tr><th style="width:270px">사실</th><th>근거</th></tr></thead><tbody>
   <tr><th>① 증류 장치는 작동한다</th><td>데이터에 실제로 있는 법칙은 찾고 없는 법칙은 못 찾는다(직접 측정과 5개 전부 일치). 마이크로프라이스 법칙을 소수 오차 수준의 대칭(1e-15)으로 되찾았고, 본 실험의 수식은 경제적으로 말이 되며 시드 간 재현된다.</td></tr>
   <tr><th>② 교사의 설명력이 천장이다</th><td>안 본 종목·안 본 날 R² 0.01~0.03, 종목별 중앙값 0.04. 본 실험 손실의 70% 가 방향 오류 — 비용·임계 조정으로 고칠 종류가 아니다.</td></tr>
-  <tr><th>③ 데이터를 늘리면 오른다 — 조금</th><td>3일·22배로 +0.0031 [+0.0021, +0.0058] (상대 +34%). 학습 방식을 맞추면 +0.0046. 그러나 같은 날짜 안의 행 수 곡선은 50만~500만 행에서 포화한다.</td></tr>
-  <tr><th>④ 틱 크기로 쉬운 탈출구는 없다</th><td>판정 애매. 가장 나쁜 종목군도 0 보다 크고 순서가 틱 크기를 따르지 않는다. 가장 나은 큰틱·고유동도 0.026(3일 교사 0.033) 수준이다.</td></tr>
-  <tr><th>⑤ 전체 R² 는 꼬리가 두꺼운 소수 종목이 좌우한다</th><td>평가 ① 변동의 48% 가 한 종목. 사전등록 지표(모든 행 R²)는 바꾸지 않았고, 다른 지표는 서술로만 붙였다.</td></tr>
-  <tr><th>⑥ DeepLOB 의 가치는 강건성이다</th><td>같은 입력의 선형 모델과 최고점은 비슷하지만 새 종목에서 +0.011 [+0.003, +0.016] 덜 무너진다.</td></tr>
+  <tr><th>③ 증류된 수식은 방향을 맞히지만 수수료의 7분의 1</th><td>시드 1·2 진입 수식(호가불균형 + 공격적 주문흐름 + 스프레드비용비)은 수수료 전 체결당 +2.9 ~ +3.3bp 로 저마찰층 종목 단위 구간이 0 위에 있다. 왕복 23bp 에 한참 못 미쳐 체결당 약 −20bp, 60개 계약 전부 손실. 지정가가 체결되는 순간 매수 신호가 식어 있는 역선택이 크다(<a href="#formulas">수식 절</a>).</td></tr>
+  <tr><th>④ 데이터를 늘리면 오른다 — 조금</th><td>3일·22배로 +0.0031 [+0.0021, +0.0058] (상대 +34%). 학습 방식을 맞추면 +0.0046. 그러나 같은 날짜 안의 행 수 곡선은 50만~500만 행에서 포화한다.</td></tr>
+  <tr><th>⑤ 틱 크기로 쉬운 탈출구는 없다</th><td>판정 애매. 가장 나쁜 종목군도 0 보다 크고 순서가 틱 크기를 따르지 않는다. 가장 나은 큰틱·고유동도 0.026(3일 교사 0.033) 수준이다.</td></tr>
+  <tr><th>⑥ 전체 R² 는 꼬리가 두꺼운 소수 종목이 좌우한다</th><td>평가 ① 변동의 48% 가 한 종목. 사전등록 지표(모든 행 R²)는 바꾸지 않았고, 다른 지표는 서술로만 붙였다.</td></tr>
+  <tr><th>⑦ DeepLOB 의 가치는 강건성이다</th><td>같은 입력의 선형 모델과 최고점은 비슷하지만 새 종목에서 +0.011 [+0.003, +0.016] 덜 무너진다.</td></tr>
   </tbody></table></div>
   <div class="oneline"><b>한 줄 결론.</b> 모델을 바꾸지 않고 확인할 수 있는 것은 다 확인했다 — <b>데이터 부족도 종목 혼합도 R² 0.015 의 주원인이 아니다.</b>
   0910 의 결론(이 예측력으로는 수수료 23bp 를 넘기 어렵다)은 그대로다. 수식으로 옮길 교사로는 3일 교사가 가장 낫다.</div>
@@ -605,6 +772,7 @@
   <tr><th>3일 교사로 다시 증류한 수식의 백테스트 성과</th><td>0911 은 교사까지만 쟀다. 수식 추출·정본 백테스트는 0910 의 하루치 교사로만 했다.</td></tr>
   <tr><th>증류가 기여하는가</th><td>증류를 뺀 비교를 본 실험 규모에서 돌린 적이 없다. 0902 에서는 빼는 쪽이 나은 경우가 있었다.</td></tr>
   <tr><th>봉인 날짜 성적</th><td>20260420 이후는 한 번도 열지 않았다. 시험일도 3/19 하루뿐이라 날짜 간 변동을 모른다.</td></tr>
+  <tr><th>지정가 진입의 역선택 크기</th><td>진입 방식은 정본 계약으로 고정했다. 체결 시점에 신호가 식어 있는 현상이 손익을 얼마나 깎는지는 진입 방식을 바꿔 잰 적이 없다.</td></tr>
   <tr><th>체결확률 헤드 보정</th><td>0910 게이트 실패 원인. 문턱 0.25 가 이 규모에 맞는지 결과 전에 재야 한다.</td></tr>
   <tr><th>날짜 다양성 vs 행 수</th><td>3일 전체가 오른 이유를 가르지 못했다. 학습률 3e-4 는 30 epoch 에서 잘렸다.</td></tr>
   </tbody></table></div>
@@ -624,6 +792,8 @@
   <tr><th><code>0911/PREREG-GROUPS.md</code> · <code>PREREG-MINIBATCH.md</code></th><td>사전등록 원문과 부록 A~E</td></tr>
   <tr><th><code>0911/RESULTS-GROUPS.md</code> · <code>RESULTS-MINIBATCH.md</code></th><td>종목군 분석 · 3일 전체 학습 결과와 분석</td></tr>
   <tr><th><code>0911/groups/out/</code></th><td>판정·서술 수치 JSON, 미니배치 1·2단계(<code>mb_gate/</code>, <code>mb_full/</code>)</td></tr>
+  <tr><th><code>0911/board/formula_economics.py</code> · <code>.json</code></th><td>증류 수식 · 선택 단계 60계약 · 층별 결과 · 체결 단위 경제성 집계 (0910 원장 읽기 전용)</td></tr>
+  <tr><th><code>0910/run/state/</code></th><td>0910 후보 수식(seed_*.json) · 선택(select.json) · 층별 곡선(curve.json) · 백테스트 원장(replay_L · replay_H)</td></tr>
   <tr><th><code>0911/scale/data/</code></th><td>데이터 양 곡선(인내 10·30), GPU 메모리 실측</td></tr>
   <tr><th><code>0909/JOURNEY.md</code> · <code>0910/ANALYSIS.md</code> · <code>0910/MODEL-CANDIDATES.md</code></th><td>검증 장치 수정 과정 · 본 실험 분석 · 다음 모델 후보 조사</td></tr>
   </tbody></table></div>
@@ -637,6 +807,7 @@
     <li>3일 교사와 200만 행 교사는 학습 방식(미니배치 vs 전체 배치)도 다르다 — 보조 비교로 방향이 같음을 확인했지만 완전히 분리되지는 않는다.</li>
     <li>릿지 규제가 후보의 가장 약한 끝에서 골라졌다. 더 약한 규제가 나았을 수 있다(후보 범위는 바꾸지 않았다).</li>
     <li>GPU 학습은 비트 단위로 재현되지 않는다(작은 규모에서 CPU 와 같은 해로 가는 것만 확인).</li>
+    <li><b>경제성 분석의 수식은 0910 하루치 교사에서 나왔다.</b> 체결 단위 구간은 종목 단위 부트스트랩이고, 종목군별 경제성 표는 체결 수가 칸마다 달라 구간 없이 서술만 했다.</li>
     <li>0910 에서 알고 감수한 구멍 둘 — 증류 수식 쪽 가짜 데이터 검사가 관문 조건이 아니고, 자격 검사가 곡선 관계를 못 본다 — 은 여전히 열려 있다.</li>
   </ul>
 </section>
