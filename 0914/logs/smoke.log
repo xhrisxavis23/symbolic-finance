@@ -1,0 +1,3 @@
+[06:37:03] [replay] 재생 3종목 × 27계약 22s
+[06:37:04] [smoke] {"contracts_without_rows": ["RDG:abs", "T2M:abs", "T3D:abs"], "statuses": ["CENSORED", "FILLED", "UNFILLED"], "errors": 0}
+[06:37:04] [smoke] missing 0 · 계약별 행 {'RDG:q0.70': 990, 'T2M:q0.70': 979, 'null:q0.70': 938, 'seed0:q0.70': 900, 'T3D:q0.70': 886, 'seed1:q0.70': 883, 'seed2:q0.70': 882, 'naive:q0.70': 836, 'T2M:q0.85': 739, 'RDG:q0.85': 699, 'T3D:q0.85': 672, 'null:q0.85': 660, 'seed0:q0.85': 632, 'naive:q0.85': 600, 'seed1:q0.85': 582, 'seed2:q0.85': 559, 'T2M:q0.95': 440, 'seed0:q0.95': 432, 'null:q0.95': 422, 'T3D:q0.95': 400, 'seed2:q0.95': 379, 'naive:q0.95': 379, 'RDG:q0.95': 373, 'seed1:q0.95': 343}
