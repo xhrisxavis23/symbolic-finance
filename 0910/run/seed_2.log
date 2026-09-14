@@ -1,0 +1,24 @@
+
+=== 2026-09-10 09:27:20 시작 ===
+[09:27:22] [seed] seed=2 시작
+[09:27:32] [seed] L=837 M=834 H=836
+[09:32:06] [load] symbols loaded=837 skipped=0 rows=8,151,756 features=19 window=(32400.0, 43200.0)
+[09:33:56] [load] symbols loaded=834 skipped=0 rows=694,361 features=19 window=(43200.0, 46800.0)
+[09:34:26] [seed] L on-manifold fit rows=198,014 (usable=8,151,756)
+[09:34:29] [seed] M on-manifold select rows=197,970 (usable=694,361)
+[09:35:00] [seed] 윈도우 생성 완료 L=(8151756, 304) M=(694361, 304)
+[09:56:19] [seed] 교사 학습 완료 1278.3s stopped_epoch=150 best_epoch=50
+[09:56:26] [gate] 통과 beats_constant: correlation=0.12475070943675394, threshold=0.05
+[09:56:26] [gate] 실패 fill_calibration: max_abs_gap=0.4027317445519151, threshold=0.25
+[09:56:26] [gate] 통과 adverse_selection_sign: top_decile_mean_y_path=-1.127452484080525, top_decile_size=19798, why=양수면 큐 모델 낙관 또는 라벨 누수를 의심한다
+[09:56:26] [gate] 게이트 전체 판정: 실패
+/home/dgu/.local/lib/python3.10/site-packages/juliacall/__init__.py:61: UserWarning: torch was imported before juliacall. This may cause a segfault. To avoid this, import juliacall before importing torch. For updates, see https://github.com/pytorch/pytorch/issues/78829.
+  warnings.warn(
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 9개 — Pareto 비교에는 재계산 값만 쓴다
+[10:28:34] [seed] SR 적합 완료 1923.4s 후보=14
+[10:28:36] [seed] 컴파일 성공 8/14 (57%) 탈락 3
+[10:28:36] [seed] seed=2 완료 3673.6s -> /home/dgu/tick/symbolic/0910/run/state/seed_2.json
+[10:28:36] [git] commit rc=0 [master db7116a] E1 실행: 시드 2 교사+SR+컴파일 완료 (게이트=실패, 컴파일 8/14)
+ Author: E1 실행 파이프라인 <noreply@anthropic.com>
+ 1 file changed, 401 insertions(+)
+ create mode 100644 run/state/seed_2.json 

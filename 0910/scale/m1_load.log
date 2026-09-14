@@ -1,0 +1,32 @@
+[stock_symbols] 2570 in 0.09s
+[liquidity_stats] 2507 in 7.83s
+[assign_strata] 2507 in 0.02s
+[100/2507] elapsed=21.3s rss=1058MB last=001795 n_rows=509
+[200/2507] elapsed=36.3s rss=1348MB last=003960 n_rows=2026
+[300/2507] elapsed=63.1s rss=1756MB last=006260 n_rows=42726
+[400/2507] elapsed=85.3s rss=1855MB last=010060 n_rows=36086
+[500/2507] elapsed=104.5s rss=1974MB last=014950 n_rows=2033
+[600/2507] elapsed=117.8s rss=2104MB last=023800 n_rows=1581
+[700/2507] elapsed=137.8s rss=2425MB last=032860 n_rows=1064
+[800/2507] elapsed=156.1s rss=2488MB last=038460 n_rows=6214
+[900/2507] elapsed=180.1s rss=2783MB last=047400 n_rows=6376
+[1000/2507] elapsed=192.4s rss=2800MB last=054800 n_rows=929
+[1100/2507] elapsed=207.1s rss=2962MB last=066590 n_rows=2366
+[1200/2507] elapsed=220.0s rss=3068MB last=078890 n_rows=3606
+[1300/2507] elapsed=238.8s rss=3281MB last=089590 n_rows=7610
+[1400/2507] elapsed=253.3s rss=3407MB last=099750 n_rows=1144
+[1500/2507] elapsed=267.1s rss=3511MB last=117730 n_rows=7512
+[1600/2507] elapsed=279.1s rss=3618MB last=140430 n_rows=1305
+[1700/2507] elapsed=291.8s rss=3794MB last=188260 n_rows=25481
+[1800/2507] elapsed=302.5s rss=3831MB last=215380 n_rows=16225
+[1900/2507] elapsed=317.1s rss=4011MB last=247540 n_rows=57810
+[2000/2507] elapsed=334.9s rss=4212MB last=282880 n_rows=3832
+[2100/2507] elapsed=348.1s rss=4293MB last=317240 n_rows=2320
+[2200/2507] elapsed=368.5s rss=4507MB last=354320 n_rows=20583
+[2300/2507] elapsed=387.1s rss=4633MB last=396270 n_rows=5755
+[2400/2507] elapsed=404.1s rss=4806MB last=452450 n_rows=3604
+[2500/2507] elapsed=424.5s rss=5013MB last=489500 n_rows=5186
+[2507/2507] elapsed=426.4s rss=5020MB last=499790 n_rows=9788
+[load_loop] loaded=2507 skipped=0 in 426.5s
+[done] total_rows=23,091,003 maskable=23,058,167 features=19 rss=11682MB wall=450.4s
+[saved] /home/dgu/tick/symbolic/0910/scale/data/m1_load_full.json

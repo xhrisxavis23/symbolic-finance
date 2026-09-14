@@ -1,0 +1,179 @@
+{
+  "schema": "e1_stage_seed.v1",
+  "seed": 0,
+  "n_symbols_L": 837,
+  "n_symbols_M": 834,
+  "n_fit_rows": 198059,
+  "n_select_rows": 198059,
+  "n_usable_L": 8151756,
+  "n_usable_M": 694361,
+  "feature_names": [
+    "ask_depth_concentration",
+    "bid_depth_concentration",
+    "bid_l1_depth_over_qbar",
+    "book_imbalance",
+    "book_imbalance_velocity",
+    "deep_depth_imbalance_6_10",
+    "microprice_velocity_over_spread",
+    "microprice_velocity_zscore",
+    "mid_return_100t_over_spread",
+    "mid_return_20t_over_spread",
+    "mid_return_5t_over_spread",
+    "ofi_depth_5_zscore",
+    "ofi_l1_over_qbar",
+    "ofi_over_qbar_10",
+    "ofi_over_qbar_5",
+    "queue_imbalance_best",
+    "signed_aggr_flow_100",
+    "signed_aggr_flow_20",
+    "spread_to_round_trip_cost_ratio"
+  ],
+  "teacher_fit_seconds": 1461.049922466278,
+  "teacher_early_stop": {
+    "enabled": true,
+    "stopped_epoch": 180,
+    "best_epoch": 80,
+    "best_select_r2": 0.015330048954762532,
+    "triggered": true
+  },
+  "gate_passed": false,
+  "gate_checks": {
+    "beats_constant": {
+      "passed": true,
+      "correlation": 0.13489411967444576,
+      "threshold": 0.05
+    },
+    "fill_calibration": {
+      "passed": false,
+      "max_abs_gap": 0.3730836016967483,
+      "threshold": 0.25
+    },
+    "adverse_selection_sign": {
+      "passed": true,
+      "top_decile_mean_y_path": -1.1283257741320492,
+      "top_decile_size": 19806,
+      "why": "양수면 큐 모델 낙관 또는 라벨 누수를 의심한다"
+    }
+  },
+  "sr_fit_seconds": 1880.5786604881287,
+  "sr_diagnostics": {
+    "backend": "pysr",
+    "seed": 0,
+    "deterministic": true,
+    "parallelism": "serial",
+    "fit_seconds": 1861.1871616840363,
+    "niterations": 200,
+    "maxsize": 18,
+    "complexity_of_constants": 2,
+    "binary_operators": [
+      "+",
+      "-",
+      "*",
+      "/"
+    ],
+    "unary_operators": [
+      "sqrt",
+      "tanh",
+      "abs",
+      "square"
+    ],
+    "excluded_operators": {
+      "log": "to_catalog._walk 가 최외곽이든 깊이든 명시적으로 거부한다 (인수 양수성 미보장)",
+      "sign": "to_catalog._walk 에 sympy.sign 에 대응하는 노드가 없다"
+    },
+    "n_rows_total": 198059,
+    "n_rows_valid": 198059,
+    "n_equations_from_pysr": 14,
+    "n_candidates_kept": 14,
+    "n_discarded_free_symbols": 0,
+    "n_discarded_other": 0,
+    "output_directory": "/tmp/pysr_7zt72_s6"
+  },
+  "n_candidates": 14,
+  "n_compiled": 1,
+  "n_compile_failed": 13,
+  "compile_failure_reasons": [
+    {
+      "stage": "translate",
+      "reason": "상수만으로 된 가지는 진입식이 될 수 없다. 상수는 임계로 흡수한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-1.7448748/queue_imbalance_best 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-6.2424116/(queue_imbalance_best + 5.655931) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "check",
+      "reason": "$.input: queue_imbalance_best 는 임계 조건의 대상이 될 수 없다 (derived_duplicate). 대신 book_imbalance 를 쓴다. 규칙: book_imbalance의 단조 변환이라 별도 축으로 쓰지 않음. 다른 식의 재료로는 쓸 수 있다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-11.571544/(book_imbalance + signed_aggr_flow_100 + 11.530237) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "상수만으로 된 가지는 진입식이 될 수 없다. 상수는 임계로 흡수한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-11.912283/(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + 11.157163) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-16.081614/(book_imbalance + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio + 15.329111) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-16.706322/(book_imbalance + deep_depth_imbalance_6_10 + signed_aggr_flow_100 + signed_aggr_flow_20 + spread_to_round_trip_cost_ratio + 15.745357) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-12.549275/(book_imbalance + spread_to_round_trip_cost_ratio + tanh(signed_aggr_flow_100 + signed_aggr_flow_20) + 11.783916) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-14.093093/(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(deep_depth_imbalance_6_10 + signed_aggr_flow_20) + 13.228114) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-13.381875/(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(tanh(deep_depth_imbalance_6_10 + signed_aggr_flow_20)) + 12.542009) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    },
+    {
+      "stage": "translate",
+      "reason": "-13.393946/(book_imbalance + signed_aggr_flow_100 + spread_to_round_trip_cost_ratio + tanh(tanh(deep_depth_imbalance_6_10) + tanh(signed_aggr_flow_20)) + 12.529224) 의 분자가 상수뿐이다 — Catalog 에는 산술 안에 수치 리터럴을 놓을 노드가 없어 분자만 상수인 나눗셈(c/x 꼴)은 옮길 수 없다. 분자에 feature 가 최소 하나 있어야 한다"
+    }
+  ],
+  "compiled_entries": [
+    {
+      "ast": {
+        "op": "compare",
+        "input": {
+          "op": "ratio",
+          "numerator": {
+            "op": "primitive",
+            "primitive_id": "microprice_velocity"
+          },
+          "denominator": {
+            "op": "primitive",
+            "primitive_id": "spread_bps"
+          },
+          "zero_policy": "nan"
+        },
+        "comparator": ">",
+        "value": "UNRESOLVED:theta_score"
+      },
+      "thresholds": {
+        "theta_score": "rolling_prior_100_ticks_quantile"
+      },
+      "normal_form": "Symbol('microprice_velocity_over_spread')",
+      "shells": [],
+      "complexity": 1,
+      "in_sample_score": -104.00423369893224,
+      "expr_str": "microprice_velocity_over_spread"
+    }
+  ],
+  "total_elapsed_seconds": 3805.393434524536
+}

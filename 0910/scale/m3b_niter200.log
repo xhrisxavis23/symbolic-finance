@@ -1,0 +1,7 @@
+[pool] symbols=300 rows=3,406,368
+[select] n_fit=198071
+/home/dgu/.local/lib/python3.10/site-packages/juliacall/__init__.py:61: UserWarning: torch was imported before juliacall. This may cause a segfault. To avoid this, import juliacall before importing torch. For updates, see https://github.com/pytorch/pytorch/issues/78829.
+  warnings.warn(
+[pysr] complexity_of 재계산이 PySR 값과 다른 후보 13개 — Pareto 비교에는 재계산 값만 쓴다
+[pysr200] n_fit=198071 wall=1740.5s internal=1722.8s candidates=15
+[saved] /home/dgu/tick/symbolic/0910/scale/data/m3b_pysr_niter200.json

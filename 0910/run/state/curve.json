@@ -1,0 +1,306 @@
+{
+  "schema": "e1_stage_curve.v1",
+  "L_symbols": 837,
+  "M_symbols": 834,
+  "H_symbols": 836,
+  "curve_L_M_H": {
+    "seed0": {
+      "L": {
+        "total_net_bps": -279574.78069218347,
+        "bps_per_decision": -2.4442200756428765,
+        "scorable": 114382,
+        "decisions": 115538,
+        "fills": 10652,
+        "unfilled": 103730,
+        "censored": 1156,
+        "cohort_NET_RECOVERY": 447,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 76,
+        "cohort_COST_INSUFFICIENT": 1533,
+        "cohort_PERSISTENT_ADVERSE": 8596
+      },
+      "M": {
+        "total_net_bps": -159976.12805532818,
+        "bps_per_decision": -1.8285911809355575,
+        "scorable": 87486,
+        "decisions": 87983
+      },
+      "H": {
+        "total_net_bps": -93372.29714169691,
+        "bps_per_decision": -1.771770344244723,
+        "scorable": 52700,
+        "decisions": 52810,
+        "fills": 2290,
+        "unfilled": 50410,
+        "censored": 110,
+        "cohort_NET_RECOVERY": 150,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 31,
+        "cohort_COST_INSUFFICIENT": 180,
+        "cohort_PERSISTENT_ADVERSE": 1929
+      }
+    },
+    "seed1": {
+      "L": {
+        "total_net_bps": -120324.64289443252,
+        "bps_per_decision": -0.9796987647936989,
+        "scorable": 122818,
+        "decisions": 124115,
+        "fills": 6097,
+        "unfilled": 116721,
+        "censored": 1297,
+        "cohort_NET_RECOVERY": 515,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 124,
+        "cohort_COST_INSUFFICIENT": 1495,
+        "cohort_PERSISTENT_ADVERSE": 3963
+      },
+      "M": {
+        "total_net_bps": -47799.74699914026,
+        "bps_per_decision": -0.5755261275692954,
+        "scorable": 83054,
+        "decisions": 83454
+      },
+      "H": {
+        "total_net_bps": -19300.805572035333,
+        "bps_per_decision": -0.4152943641104967,
+        "scorable": 46475,
+        "decisions": 46634,
+        "fills": 1031,
+        "unfilled": 45444,
+        "censored": 159,
+        "cohort_NET_RECOVERY": 145,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 34,
+        "cohort_COST_INSUFFICIENT": 132,
+        "cohort_PERSISTENT_ADVERSE": 720
+      }
+    },
+    "seed2": {
+      "L": {
+        "total_net_bps": -125322.02100868241,
+        "bps_per_decision": -0.9737228136552276,
+        "scorable": 128704,
+        "decisions": 130116,
+        "fills": 6242,
+        "unfilled": 122462,
+        "censored": 1412,
+        "cohort_NET_RECOVERY": 493,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 129,
+        "cohort_COST_INSUFFICIENT": 1556,
+        "cohort_PERSISTENT_ADVERSE": 4064
+      },
+      "M": {
+        "total_net_bps": -45575.177573051114,
+        "bps_per_decision": -0.5283037264892846,
+        "scorable": 86267,
+        "decisions": 86642
+      },
+      "H": {
+        "total_net_bps": -22015.390943680795,
+        "bps_per_decision": -0.4597170737263421,
+        "scorable": 47889,
+        "decisions": 47984,
+        "fills": 1039,
+        "unfilled": 46850,
+        "censored": 95,
+        "cohort_NET_RECOVERY": 141,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 32,
+        "cohort_COST_INSUFFICIENT": 134,
+        "cohort_PERSISTENT_ADVERSE": 732
+      }
+    },
+    "naive": {
+      "L": {
+        "total_net_bps": -148566.86777877779,
+        "bps_per_decision": -1.1929440634888773,
+        "scorable": 124538,
+        "decisions": 125828,
+        "fills": 6212,
+        "unfilled": 118326,
+        "censored": 1290,
+        "cohort_NET_RECOVERY": 396,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 96,
+        "cohort_COST_INSUFFICIENT": 1437,
+        "cohort_PERSISTENT_ADVERSE": 4283
+      },
+      "M": {
+        "total_net_bps": -64130.09995701056,
+        "bps_per_decision": -0.7807794384558605,
+        "scorable": 82136,
+        "decisions": 82556
+      },
+      "H": {
+        "total_net_bps": -37997.678798212146,
+        "bps_per_decision": -0.7974831321638749,
+        "scorable": 47647,
+        "decisions": 47713,
+        "fills": 1073,
+        "unfilled": 46574,
+        "censored": 66,
+        "cohort_NET_RECOVERY": 106,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 32,
+        "cohort_COST_INSUFFICIENT": 94,
+        "cohort_PERSISTENT_ADVERSE": 841
+      }
+    },
+    "null": {
+      "L": {
+        "total_net_bps": -239697.99231368362,
+        "bps_per_decision": -1.7730059419769042,
+        "scorable": 135193,
+        "decisions": 136072,
+        "fills": 9491,
+        "unfilled": 125702,
+        "censored": 879,
+        "cohort_NET_RECOVERY": 448,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 100,
+        "cohort_COST_INSUFFICIENT": 1680,
+        "cohort_PERSISTENT_ADVERSE": 7263
+      },
+      "M": {
+        "total_net_bps": -121593.02238431631,
+        "bps_per_decision": -1.2397836614902353,
+        "scorable": 98076,
+        "decisions": 98364
+      },
+      "H": {
+        "total_net_bps": -67537.51530239373,
+        "bps_per_decision": -1.2222657322714952,
+        "scorable": 55256,
+        "decisions": 55333,
+        "fills": 1961,
+        "unfilled": 53295,
+        "censored": 77,
+        "cohort_NET_RECOVERY": 141,
+        "cohort_EARLY_RECOVERY_LATE_REVERSAL": 33,
+        "cohort_COST_INSUFFICIENT": 168,
+        "cohort_PERSISTENT_ADVERSE": 1619
+      }
+    }
+  },
+  "H_intraday_after_1300": [
+    {
+      "contract_id": "e000:q0.95",
+      "decisions": 19268,
+      "scorable": 19163,
+      "fills": 652,
+      "unfilled": 18511,
+      "censored": 105,
+      "total_net_bps": -25506.12048258273,
+      "bps_per_decision": -1.3310087398936874,
+      "positive": false,
+      "cohort_NET_RECOVERY": 39,
+      "cohort_EARLY_RECOVERY_LATE_REVERSAL": 6,
+      "cohort_COST_INSUFFICIENT": 52,
+      "cohort_PERSISTENT_ADVERSE": 555,
+      "prefix": "e000",
+      "label": "seed0",
+      "resolved_q": 0.95,
+      "quantile": 0.95
+    },
+    {
+      "contract_id": "e001:q0.95",
+      "decisions": 17596,
+      "scorable": 17442,
+      "fills": 287,
+      "unfilled": 17155,
+      "censored": 154,
+      "total_net_bps": -5839.55403350466,
+      "bps_per_decision": -0.3347984195335776,
+      "positive": false,
+      "cohort_NET_RECOVERY": 42,
+      "cohort_EARLY_RECOVERY_LATE_REVERSAL": 12,
+      "cohort_COST_INSUFFICIENT": 30,
+      "cohort_PERSISTENT_ADVERSE": 203,
+      "prefix": "e001",
+      "label": "seed1",
+      "resolved_q": 0.95,
+      "quantile": 0.95
+    },
+    {
+      "contract_id": "e002:q0.95",
+      "decisions": 17965,
+      "scorable": 17875,
+      "fills": 296,
+      "unfilled": 17579,
+      "censored": 90,
+      "total_net_bps": -5466.143975440536,
+      "bps_per_decision": -0.3057982643603097,
+      "positive": false,
+      "cohort_NET_RECOVERY": 45,
+      "cohort_EARLY_RECOVERY_LATE_REVERSAL": 11,
+      "cohort_COST_INSUFFICIENT": 33,
+      "cohort_PERSISTENT_ADVERSE": 207,
+      "prefix": "e002",
+      "label": "seed2",
+      "resolved_q": 0.95,
+      "quantile": 0.95
+    },
+    {
+      "contract_id": "e003:q0.95",
+      "decisions": 17378,
+      "scorable": 17319,
+      "fills": 297,
+      "unfilled": 17022,
+      "censored": 59,
+      "total_net_bps": -9337.575475621416,
+      "bps_per_decision": -0.5391521147653684,
+      "positive": false,
+      "cohort_NET_RECOVERY": 30,
+      "cohort_EARLY_RECOVERY_LATE_REVERSAL": 8,
+      "cohort_COST_INSUFFICIENT": 31,
+      "cohort_PERSISTENT_ADVERSE": 228,
+      "prefix": "e003",
+      "label": "naive",
+      "resolved_q": 0.95,
+      "quantile": 0.95
+    },
+    {
+      "contract_id": "e004:q0.95",
+      "decisions": 19674,
+      "scorable": 19601,
+      "fills": 560,
+      "unfilled": 19041,
+      "censored": 73,
+      "total_net_bps": -18852.98697918259,
+      "bps_per_decision": -0.961838017406387,
+      "positive": false,
+      "cohort_NET_RECOVERY": 32,
+      "cohort_EARLY_RECOVERY_LATE_REVERSAL": 8,
+      "cohort_COST_INSUFFICIENT": 58,
+      "cohort_PERSISTENT_ADVERSE": 462,
+      "prefix": "e004",
+      "label": "null",
+      "resolved_q": 0.95,
+      "quantile": 0.95
+    }
+  ],
+  "seed_verdicts": {
+    "seed0": {
+      "pass": false,
+      "gate_passed": false,
+      "H_total_net_bps_positive": false,
+      "H_scorable_sufficient": true,
+      "beats_null_on_H": false,
+      "H_total_net_bps": -93372.29714169691,
+      "null_H_total_net_bps": -67537.51530239373
+    },
+    "seed1": {
+      "pass": false,
+      "gate_passed": false,
+      "H_total_net_bps_positive": false,
+      "H_scorable_sufficient": true,
+      "beats_null_on_H": true,
+      "H_total_net_bps": -19300.805572035333,
+      "null_H_total_net_bps": -67537.51530239373
+    },
+    "seed2": {
+      "pass": false,
+      "gate_passed": false,
+      "H_total_net_bps_positive": false,
+      "H_scorable_sufficient": true,
+      "beats_null_on_H": true,
+      "H_total_net_bps": -22015.390943680795,
+      "null_H_total_net_bps": -67537.51530239373
+    }
+  },
+  "all_three_seeds_pass": false,
+  "final_claim": "성공 주장 불가 — 3개 시드 중 전부가 통과하지 못했다 (R37-1)"
+}

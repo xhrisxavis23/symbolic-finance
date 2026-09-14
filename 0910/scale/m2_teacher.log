@@ -1,0 +1,14 @@
+[select] n=50,000 -> 0.16s rss=560MB
+[select] n=500,000 -> 1.60s rss=838MB
+[select] n=5,000,000 -> 16.59s rss=3591MB
+[select] n=23,091,003 -> 77.76s rss=14660MB
+[window] n=50,000 -> 0.08s output=0.12GB rss=14660MB
+[window] n=500,000 -> 0.82s output=1.22GB rss=14660MB
+[window] n=2,000,000 -> 3.03s output=4.86GB rss=14660MB
+[window] n=5,000,000 -> 9.22s output=12.16GB rss=14660MB
+[window-extrapolation] slope=1.849e-06s/row -> full universe est 43s, output size 56.2GB
+[teacher] n_fit=5,000 shallow=2.65s (0.1327s/epoch) deeplob=2.37s (0.1185s/epoch) window_prep=0.02s rss=14660MB
+[teacher] n_fit=50,000 shallow=0.28s (0.0141s/epoch) deeplob=29.36s (1.4682s/epoch) window_prep=0.08s rss=14660MB
+[teacher] n_fit=200,000 shallow=0.65s (0.0327s/epoch) deeplob=127.58s (6.3789s/epoch) window_prep=0.29s rss=14660MB
+[teacher] n_fit=1,000,000 shallow=6.03s (0.3017s/epoch) deeplob=678.59s (33.9296s/epoch) window_prep=1.50s rss=26452MB
+[saved] /home/dgu/tick/symbolic/0910/scale/data/m2_teacher_scale.json

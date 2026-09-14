@@ -1,0 +1,9 @@
+[universe] 2570 symbols total, heaviest included=True
+[compile] entries=1
+[replay] n_symbols=10 -> 101.1s ledger_rows=1,744 attempts=1
+[replay] n_symbols=50 -> 104.7s ledger_rows=8,625 attempts=1
+[replay] n_symbols=200 -> 110.5s ledger_rows=34,541 attempts=1
+[replay] n_symbols=500 -> 151.0s ledger_rows=88,325 attempts=1
+[replay] n_symbols=1000 -> 162.5s ledger_rows=173,665 attempts=1
+[replay] n_symbols=2570 -> 262.8s ledger_rows=440,680 attempts=1
+[saved] /home/dgu/tick/symbolic/0910/scale/data/m4_replay_scale.json
