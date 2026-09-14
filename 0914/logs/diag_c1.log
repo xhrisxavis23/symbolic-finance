@@ -1,0 +1,20 @@
+[06:30:54] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[06:30:54] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+/opt/conda/envs/lab/lib/python3.10/site-packages/torch/backends/__init__.py:42: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  return self.getter()
+[06:30:58] [diag] 000100 n=18683
+[06:30:59] [diag] 003690 n=13905
+[06:30:59] [diag] 010955 n=4309
+[06:31:02] [diag] 028050 n=29780
+[06:31:02] [diag] 040300 n=1502
+[06:31:02] [diag] 063570 n=2357
+[06:31:06] [diag] 088350 n=47436
+[06:31:07] [diag] 111710 n=392
+[06:31:07] [diag] 187220 n=1804
+[06:31:08] [diag] 256840 n=8128
+[06:31:08] [diag] 318410 n=1348
+[06:31:08] [diag] 406820 n=2103
+[06:31:08] [diag] T2M vs 저장: full max 1.50e-03 · b4096 max 1.50e-03 · b65536 max 1.50e-03 · full_repeat max 1.50e-03 · full_notf32 max 1.61e-03
+[06:31:08] [diag] T2M 자기 잡음: b4096 max 9.68e-04 · b65536 max 0.00e+00 · full_repeat max 0.00e+00 · full_notf32 max 1.94e-03
+[06:31:08] [diag] T3D vs 저장: full max 3.51e-03 · b4096 max 3.95e-03 · b65536 max 3.51e-03 · full_repeat max 3.51e-03 · full_notf32 max 1.12e-03
+[06:31:08] [diag] T3D 자기 잡음: b4096 max 4.12e-03 · b65536 max 0.00e+00 · full_repeat max 0.00e+00 · full_notf32 max 2.72e-03
