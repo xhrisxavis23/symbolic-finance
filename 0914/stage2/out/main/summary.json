@@ -1,0 +1,2031 @@
+{
+ "schema": "0914_stage2_summary.v1",
+ "date": "20260319",
+ "n_symbols": 411,
+ "n_boot": 10000,
+ "seed": 0,
+ "bonferroni_level": 0.9958333333333333,
+ "min_scorable": 200,
+ "ledger_rows": 1902700,
+ "status_counts": {
+  "UNFILLED": 1831450,
+  "FILLED": 61150,
+  "CENSORED": 10100
+ },
+ "missing": {
+  "n": 0,
+  "by_contract": {},
+  "top_reasons": []
+ },
+ "contracts": {
+  "T2M:abs": {
+   "label": "T2M",
+   "group": "teacher",
+   "rule": "ABS",
+   "q": null,
+   "decisions": 0,
+   "scorable": 0,
+   "fills": 0,
+   "unfilled": 0,
+   "censored": 0,
+   "total_net_bps": 0.0,
+   "bps_per_decision": NaN,
+   "positive": false,
+   "cohort_NET_RECOVERY": 0,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 0,
+   "cohort_COST_INSUFFICIENT": 0,
+   "cohort_PERSISTENT_ADVERSE": 0,
+   "bps_per_decision_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "net_per_fill": null,
+   "gross_per_fill": null,
+   "net_per_fill_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "fill_rate": null,
+   "holding_seconds_median": null,
+   "symbols_with_decisions": 0,
+   "cohort_share": null,
+   "verdict": "거래 부족"
+  },
+  "T2M:q0.70": {
+   "label": "T2M",
+   "group": "teacher",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 114707,
+   "scorable": 114061,
+   "fills": 2996,
+   "unfilled": 111065,
+   "censored": 646,
+   "total_net_bps": -73065.50066308884,
+   "bps_per_decision": -0.6405826764896752,
+   "positive": false,
+   "cohort_NET_RECOVERY": 164,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 30,
+   "cohort_COST_INSUFFICIENT": 472,
+   "cohort_PERSISTENT_ADVERSE": 2330,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7142896636605698,
+     -0.5693783033668108
+    ],
+    "ci_bonf": [
+     -0.7546723772184433,
+     -0.5387378972985923
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -24.387683799428853,
+   "gross_per_fill": -1.3876837994288518,
+   "net_per_fill_boot": {
+    "ci95": [
+     -26.33619209959637,
+     -22.35468057125871
+    ],
+    "ci_bonf": [
+     -27.33323069661407,
+     -21.45793581718364
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -3.3361920995963694,
+     0.6453194287412886
+    ],
+    "ci_bonf": [
+     -4.333230696614068,
+     1.542064182816363
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.02626664679425921,
+   "holding_seconds_median": 262.26943550000215,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05473965287049399,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.010013351134846462,
+    "COST_INSUFFICIENT": 0.157543391188251,
+    "PERSISTENT_ADVERSE": 0.7777036048064085
+   },
+   "verdict": "손실"
+  },
+  "T2M:q0.85": {
+   "label": "T2M",
+   "group": "teacher",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 81675,
+   "scorable": 81327,
+   "fills": 2381,
+   "unfilled": 78946,
+   "censored": 348,
+   "total_net_bps": -55859.24429066422,
+   "bps_per_decision": -0.6868474712046948,
+   "positive": false,
+   "cohort_NET_RECOVERY": 140,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 38,
+   "cohort_COST_INSUFFICIENT": 430,
+   "cohort_PERSISTENT_ADVERSE": 1773,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7799151057886798,
+     -0.6007054639659751
+    ],
+    "ci_bonf": [
+     -0.8267644304310496,
+     -0.5642395920265547
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -23.460413393811095,
+   "gross_per_fill": -0.46041339381109553,
+   "net_per_fill_boot": {
+    "ci95": [
+     -25.854279471251473,
+     -21.060822962810175
+    ],
+    "ci_bonf": [
+     -27.074163168053765,
+     -19.9333171815799
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -2.854279471251476,
+     1.9391770371898254
+    ],
+    "ci_bonf": [
+     -4.074163168053762,
+     3.066682818420105
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.029276869920198702,
+   "holding_seconds_median": 222.85333200000605,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05879882402351953,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.015959680806383873,
+    "COST_INSUFFICIENT": 0.18059638807223855,
+    "PERSISTENT_ADVERSE": 0.744645107097858
+   },
+   "verdict": "손실"
+  },
+  "T2M:q0.95": {
+   "label": "T2M",
+   "group": "teacher",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 46502,
+   "scorable": 46305,
+   "fills": 1752,
+   "unfilled": 44553,
+   "censored": 197,
+   "total_net_bps": -36927.63369311282,
+   "bps_per_decision": -0.7974869602227149,
+   "positive": false,
+   "cohort_NET_RECOVERY": 147,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 48,
+   "cohort_COST_INSUFFICIENT": 350,
+   "cohort_PERSISTENT_ADVERSE": 1207,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.9467815989342013,
+     -0.6591555346251198
+    ],
+    "ci_bonf": [
+     -1.0124617980420945,
+     -0.5939835594983713
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -21.07741649150275,
+   "gross_per_fill": 1.9225835084972505,
+   "net_per_fill_boot": {
+    "ci95": [
+     -24.447496500656786,
+     -17.850725610733008
+    ],
+    "ci_bonf": [
+     -26.360303155357773,
+     -16.30616749450567
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -1.447496500656787,
+     5.149274389266993
+    ],
+    "ci_bonf": [
+     -3.3603031553577694,
+     6.693832505494331
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.037836086815678655,
+   "holding_seconds_median": 183.67909300000247,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.0839041095890411,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.0273972602739726,
+    "COST_INSUFFICIENT": 0.1997716894977169,
+    "PERSISTENT_ADVERSE": 0.6889269406392694
+   },
+   "verdict": "손실"
+  },
+  "T3D:abs": {
+   "label": "T3D",
+   "group": "teacher",
+   "rule": "ABS",
+   "q": null,
+   "decisions": 0,
+   "scorable": 0,
+   "fills": 0,
+   "unfilled": 0,
+   "censored": 0,
+   "total_net_bps": 0.0,
+   "bps_per_decision": NaN,
+   "positive": false,
+   "cohort_NET_RECOVERY": 0,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 0,
+   "cohort_COST_INSUFFICIENT": 0,
+   "cohort_PERSISTENT_ADVERSE": 0,
+   "bps_per_decision_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "net_per_fill": null,
+   "gross_per_fill": null,
+   "net_per_fill_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     null,
+     null
+    ],
+    "ci_bonf": [
+     null,
+     null
+    ],
+    "nan_reps": 10000
+   },
+   "fill_rate": null,
+   "holding_seconds_median": null,
+   "symbols_with_decisions": 0,
+   "cohort_share": null,
+   "verdict": "거래 부족"
+  },
+  "T3D:q0.70": {
+   "label": "T3D",
+   "group": "teacher",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 114097,
+   "scorable": 113400,
+   "fills": 2935,
+   "unfilled": 110465,
+   "censored": 697,
+   "total_net_bps": -74314.56778713087,
+   "bps_per_decision": -0.6553312856008013,
+   "positive": false,
+   "cohort_NET_RECOVERY": 171,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 42,
+   "cohort_COST_INSUFFICIENT": 473,
+   "cohort_PERSISTENT_ADVERSE": 2249,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7321907593999286,
+     -0.5826354118086589
+    ],
+    "ci_bonf": [
+     -0.7705462220276525,
+     -0.5508705853209754
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -25.32012531077713,
+   "gross_per_fill": -2.3201253107771285,
+   "net_per_fill_boot": {
+    "ci95": [
+     -27.434449123960693,
+     -23.244194782680466
+    ],
+    "ci_bonf": [
+     -28.419474294483027,
+     -22.20679297649731
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -4.434449123960693,
+     -0.2441947826804656
+    ],
+    "ci_bonf": [
+     -5.419474294483025,
+     0.7932070235026908
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.02588183421516755,
+   "holding_seconds_median": 259.6840710000033,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05826235093696763,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.014310051107325384,
+    "COST_INSUFFICIENT": 0.16115843270868824,
+    "PERSISTENT_ADVERSE": 0.7662691652470187
+   },
+   "verdict": "손실"
+  },
+  "T3D:q0.85": {
+   "label": "T3D",
+   "group": "teacher",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 79234,
+   "scorable": 78901,
+   "fills": 2321,
+   "unfilled": 76580,
+   "censored": 333,
+   "total_net_bps": -53650.47189900592,
+   "bps_per_decision": -0.6799720142837976,
+   "positive": false,
+   "cohort_NET_RECOVERY": 154,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 49,
+   "cohort_COST_INSUFFICIENT": 413,
+   "cohort_PERSISTENT_ADVERSE": 1705,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7730927021571098,
+     -0.5926470418315316
+    ],
+    "ci_bonf": [
+     -0.8173430174035461,
+     -0.5531455935376045
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -23.115239939252874,
+   "gross_per_fill": -0.11523993925287333,
+   "net_per_fill_boot": {
+    "ci95": [
+     -25.56172494518544,
+     -20.753556419573613
+    ],
+    "ci_bonf": [
+     -26.66949713176176,
+     -19.571079056903564
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -2.5617249451854422,
+     2.2464435804263907
+    ],
+    "ci_bonf": [
+     -3.669497131761756,
+     3.428920943096438
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.029416610689344876,
+   "holding_seconds_median": 214.83281599999464,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.06635071090047394,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.02111158983196898,
+    "COST_INSUFFICIENT": 0.17794054286945282,
+    "PERSISTENT_ADVERSE": 0.7345971563981043
+   },
+   "verdict": "손실"
+  },
+  "T3D:q0.95": {
+   "label": "T3D",
+   "group": "teacher",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 46248,
+   "scorable": 46103,
+   "fills": 1662,
+   "unfilled": 44441,
+   "censored": 145,
+   "total_net_bps": -31041.254125341515,
+   "bps_per_decision": -0.6733022607062775,
+   "positive": false,
+   "cohort_NET_RECOVERY": 156,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 51,
+   "cohort_COST_INSUFFICIENT": 358,
+   "cohort_PERSISTENT_ADVERSE": 1097,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.8115115966021833,
+     -0.5435055866393935
+    ],
+    "ci_bonf": [
+     -0.8834478665761518,
+     -0.49071583661195267
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -18.67704821019345,
+   "gross_per_fill": 4.322951789806552,
+   "net_per_fill_boot": {
+    "ci95": [
+     -22.04758449517106,
+     -15.321440733975637
+    ],
+    "ci_bonf": [
+     -23.656412603076756,
+     -13.79368576003057
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     0.9524155048289452,
+     7.678559266024363
+    ],
+    "ci_bonf": [
+     -0.6564126030767558,
+     9.20631423996943
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.036049714769103965,
+   "holding_seconds_median": 174.46775549999802,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.09386281588447654,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.030685920577617327,
+    "COST_INSUFFICIENT": 0.21540312876052947,
+    "PERSISTENT_ADVERSE": 0.6600481347773767
+   },
+   "verdict": "손실"
+  },
+  "RDG:abs": {
+   "label": "RDG",
+   "group": "teacher",
+   "rule": "ABS",
+   "q": null,
+   "decisions": 305,
+   "scorable": 305,
+   "fills": 19,
+   "unfilled": 286,
+   "censored": 0,
+   "total_net_bps": -1759.5371708983369,
+   "bps_per_decision": -5.76897433081422,
+   "positive": false,
+   "cohort_NET_RECOVERY": 6,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 5,
+   "cohort_COST_INSUFFICIENT": 1,
+   "cohort_PERSISTENT_ADVERSE": 7,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -15.107756173731424,
+     1.128433014556026
+    ],
+    "ci_bonf": [
+     -20.415866334993996,
+     2.6259828706401325
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -92.6072195209651,
+   "gross_per_fill": -69.6072195209651,
+   "net_per_fill_boot": {
+    "ci95": [
+     -225.70996874637615,
+     23.476732720535388
+    ],
+    "ci_bonf": [
+     -297.78509866441647,
+     55.21803987752394
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -202.70996874637612,
+     46.47673272053539
+    ],
+    "ci_bonf": [
+     -274.78509866441647,
+     78.21803987752394
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.06229508196721312,
+   "holding_seconds_median": 15.132395000000542,
+   "symbols_with_decisions": 130,
+   "cohort_share": {
+    "NET_RECOVERY": 0.3157894736842105,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.2631578947368421,
+    "COST_INSUFFICIENT": 0.05263157894736842,
+    "PERSISTENT_ADVERSE": 0.3684210526315789
+   },
+   "verdict": "판정 불가"
+  },
+  "RDG:q0.70": {
+   "label": "RDG",
+   "group": "teacher",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 113596,
+   "scorable": 112945,
+   "fills": 2840,
+   "unfilled": 110105,
+   "censored": 651,
+   "total_net_bps": -68320.58745791102,
+   "bps_per_decision": -0.6049013896844573,
+   "positive": false,
+   "cohort_NET_RECOVERY": 157,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 35,
+   "cohort_COST_INSUFFICIENT": 462,
+   "cohort_PERSISTENT_ADVERSE": 2186,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.6774322494966453,
+     -0.5340159550227648
+    ],
+    "ci_bonf": [
+     -0.7164875897723909,
+     -0.5032837110338026
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -24.056544879546134,
+   "gross_per_fill": -1.0565448795461396,
+   "net_per_fill_boot": {
+    "ci95": [
+     -26.105633679187505,
+     -21.94328243497386
+    ],
+    "ci_bonf": [
+     -27.062463236595686,
+     -20.969101541810367
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -3.105633679187502,
+     1.0567175650261362
+    ],
+    "ci_bonf": [
+     -4.0624632365956845,
+     2.030898458189631
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.025144982070919475,
+   "holding_seconds_median": 256.6782875000026,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05528169014084507,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.01232394366197183,
+    "COST_INSUFFICIENT": 0.16267605633802817,
+    "PERSISTENT_ADVERSE": 0.7697183098591549
+   },
+   "verdict": "손실"
+  },
+  "RDG:q0.85": {
+   "label": "RDG",
+   "group": "teacher",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 77712,
+   "scorable": 77376,
+   "fills": 2233,
+   "unfilled": 75143,
+   "censored": 336,
+   "total_net_bps": -50974.80333474734,
+   "bps_per_decision": -0.6587934674155725,
+   "positive": false,
+   "cohort_NET_RECOVERY": 158,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 46,
+   "cohort_COST_INSUFFICIENT": 376,
+   "cohort_PERSISTENT_ADVERSE": 1653,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7589528810103171,
+     -0.5628291695155871
+    ],
+    "ci_bonf": [
+     -0.8008540540772181,
+     -0.5211626832230639
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -22.827945962717124,
+   "gross_per_fill": 0.1720540372828764,
+   "net_per_fill_boot": {
+    "ci95": [
+     -25.33759719784254,
+     -20.150560863522617
+    ],
+    "ci_bonf": [
+     -26.5187595145648,
+     -18.904690607568337
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -2.337597197842544,
+     2.8494391364773803
+    ],
+    "ci_bonf": [
+     -3.5187595145648007,
+     4.095309392431664
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.028859077750206782,
+   "holding_seconds_median": 211.4596539999984,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.07075682937751904,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.020600089565606806,
+    "COST_INSUFFICIENT": 0.1683833407971339,
+    "PERSISTENT_ADVERSE": 0.7402597402597403
+   },
+   "verdict": "손실"
+  },
+  "RDG:q0.95": {
+   "label": "RDG",
+   "group": "teacher",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 43878,
+   "scorable": 43692,
+   "fills": 1620,
+   "unfilled": 42072,
+   "censored": 186,
+   "total_net_bps": -31865.51176184081,
+   "bps_per_decision": -0.7293214263902044,
+   "positive": false,
+   "cohort_NET_RECOVERY": 146,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 49,
+   "cohort_COST_INSUFFICIENT": 345,
+   "cohort_PERSISTENT_ADVERSE": 1080,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.8706525186225642,
+     -0.5892492758810028
+    ],
+    "ci_bonf": [
+     -0.9354470665978831,
+     -0.5320304247846138
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -19.670068988790625,
+   "gross_per_fill": 3.3299310112093767,
+   "net_per_fill_boot": {
+    "ci95": [
+     -22.925541146962736,
+     -16.289245632607262
+    ],
+    "ci_bonf": [
+     -24.47359881663861,
+     -14.641148185386918
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     0.07445885303726546,
+     6.710754367392735
+    ],
+    "ci_bonf": [
+     -1.4735988166386154,
+     8.358851814613086
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.037077725899478164,
+   "holding_seconds_median": 178.5628969999998,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.09012345679012346,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.030246913580246913,
+    "COST_INSUFFICIENT": 0.21296296296296297,
+    "PERSISTENT_ADVERSE": 0.6666666666666666
+   },
+   "verdict": "손실"
+  },
+  "naive:q0.70": {
+   "label": "naive",
+   "group": "baseline",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 110825,
+   "scorable": 110177,
+   "fills": 2749,
+   "unfilled": 107428,
+   "censored": 648,
+   "total_net_bps": -75269.66142757714,
+   "bps_per_decision": -0.6831703661161326,
+   "positive": false,
+   "cohort_NET_RECOVERY": 139,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 34,
+   "cohort_COST_INSUFFICIENT": 429,
+   "cohort_PERSISTENT_ADVERSE": 2147,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7638718474788466,
+     -0.6085052522016325
+    ],
+    "ci_bonf": [
+     -0.8062924234721518,
+     -0.5760338205486648
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -27.380742607339812,
+   "gross_per_fill": -4.3807426073398155,
+   "net_per_fill_boot": {
+    "ci95": [
+     -29.55930060799029,
+     -25.277887102560605
+    ],
+    "ci_bonf": [
+     -30.58586205909487,
+     -24.375557260458628
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -6.5593006079902905,
+     -2.2778871025606016
+    ],
+    "ci_bonf": [
+     -7.5858620590948735,
+     -1.3755572604586292
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.024950761048131643,
+   "holding_seconds_median": 257.36666900000273,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05056384139687159,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.012368133866860677,
+    "COST_INSUFFICIENT": 0.1560567479083303,
+    "PERSISTENT_ADVERSE": 0.7810112768279375
+   }
+  },
+  "naive:q0.85": {
+   "label": "naive",
+   "group": "baseline",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 77188,
+   "scorable": 76872,
+   "fills": 2212,
+   "unfilled": 74660,
+   "censored": 316,
+   "total_net_bps": -61499.2030913715,
+   "bps_per_decision": -0.8000208540349086,
+   "positive": false,
+   "cohort_NET_RECOVERY": 129,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 28,
+   "cohort_COST_INSUFFICIENT": 387,
+   "cohort_PERSISTENT_ADVERSE": 1668,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.9105213076292269,
+     -0.6981138712389038
+    ],
+    "ci_bonf": [
+     -0.9621081244957064,
+     -0.6562430078959389
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -27.802533043115506,
+   "gross_per_fill": -4.802533043115506,
+   "net_per_fill_boot": {
+    "ci95": [
+     -30.50578822136292,
+     -25.33331213771996
+    ],
+    "ci_bonf": [
+     -31.81491213081896,
+     -24.271129440472933
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -7.5057882213629155,
+     -2.3333121377199544
+    ],
+    "ci_bonf": [
+     -8.814912130818952,
+     -1.271129440472928
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.028775106670829432,
+   "holding_seconds_median": 218.97323900000265,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05831826401446655,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.012658227848101266,
+    "COST_INSUFFICIENT": 0.17495479204339964,
+    "PERSISTENT_ADVERSE": 0.7540687160940326
+   }
+  },
+  "naive:q0.95": {
+   "label": "naive",
+   "group": "baseline",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 45469,
+   "scorable": 45279,
+   "fills": 1549,
+   "unfilled": 43730,
+   "censored": 190,
+   "total_net_bps": -39213.27807879379,
+   "bps_per_decision": -0.8660367516684068,
+   "positive": false,
+   "cohort_NET_RECOVERY": 101,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 36,
+   "cohort_COST_INSUFFICIENT": 322,
+   "cohort_PERSISTENT_ADVERSE": 1090,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.005908769308017,
+     -0.7361809476958355
+    ],
+    "ci_bonf": [
+     -1.0737991949245516,
+     -0.6768238157111254
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -25.31522148405022,
+   "gross_per_fill": -2.3152214840502197,
+   "net_per_fill_boot": {
+    "ci95": [
+     -28.383678914752846,
+     -22.23548593747555
+    ],
+    "ci_bonf": [
+     -29.98013101767235,
+     -20.926204491433836
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -5.383678914752848,
+     0.7645140625244509
+    ],
+    "ci_bonf": [
+     -6.980131017672349,
+     2.07379550856616
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.03421011948143731,
+   "holding_seconds_median": 170.32271599999513,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.06520335700451904,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.023240800516462233,
+    "COST_INSUFFICIENT": 0.2078760490639122,
+    "PERSISTENT_ADVERSE": 0.7036797934151066
+   }
+  },
+  "null:q0.70": {
+   "label": "null",
+   "group": "baseline",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 115129,
+   "scorable": 114460,
+   "fills": 3956,
+   "unfilled": 110504,
+   "censored": 669,
+   "total_net_bps": -115661.22264667123,
+   "bps_per_decision": -1.0104946937504038,
+   "positive": false,
+   "cohort_NET_RECOVERY": 161,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 31,
+   "cohort_COST_INSUFFICIENT": 442,
+   "cohort_PERSISTENT_ADVERSE": 3322,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.1036259835570188,
+     -0.925557891309506
+    ],
+    "ci_bonf": [
+     -1.1442386388395691,
+     -0.8917043359930008
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -29.236911690260676,
+   "gross_per_fill": -6.236911690260674,
+   "net_per_fill_boot": {
+    "ci95": [
+     -30.970741238447236,
+     -27.639453551186126
+    ],
+    "ci_bonf": [
+     -31.887661461715492,
+     -26.831270574615555
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -7.970741238447242,
+     -4.639453551186125
+    ],
+    "ci_bonf": [
+     -8.887661461715496,
+     -3.831270574615556
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.0345622925039315,
+   "holding_seconds_median": 327.0160790000009,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.040697674418604654,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.007836198179979777,
+    "COST_INSUFFICIENT": 0.11172901921132457,
+    "PERSISTENT_ADVERSE": 0.839737108190091
+   }
+  },
+  "null:q0.85": {
+   "label": "null",
+   "group": "baseline",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 86838,
+   "scorable": 86404,
+   "fills": 3553,
+   "unfilled": 82851,
+   "censored": 434,
+   "total_net_bps": -103951.9753242686,
+   "bps_per_decision": -1.2030921638381162,
+   "positive": false,
+   "cohort_NET_RECOVERY": 128,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 39,
+   "cohort_COST_INSUFFICIENT": 454,
+   "cohort_PERSISTENT_ADVERSE": 2932,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.3282343050513963,
+     -1.0903168781302317
+    ],
+    "ci_bonf": [
+     -1.3936598610225028,
+     -1.0433976312244058
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -29.257521903818912,
+   "gross_per_fill": -6.257521903818911,
+   "net_per_fill_boot": {
+    "ci95": [
+     -31.381530985843384,
+     -27.315364725295893
+    ],
+    "ci_bonf": [
+     -32.46157831639863,
+     -26.473266241873297
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -8.38153098584338,
+     -4.315364725295898
+    ],
+    "ci_bonf": [
+     -9.461578316398622,
+     -3.4732662418733
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.041120781445303456,
+   "holding_seconds_median": 304.8558970000013,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.03602589361103293,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.010976639459611595,
+    "COST_INSUFFICIENT": 0.1277793414016324,
+    "PERSISTENT_ADVERSE": 0.825218125527723
+   }
+  },
+  "null:q0.95": {
+   "label": "null",
+   "group": "baseline",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 52120,
+   "scorable": 51925,
+   "fills": 2559,
+   "unfilled": 49366,
+   "censored": 195,
+   "total_net_bps": -69107.44202102447,
+   "bps_per_decision": -1.3309088497067785,
+   "positive": false,
+   "cohort_NET_RECOVERY": 146,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 37,
+   "cohort_COST_INSUFFICIENT": 401,
+   "cohort_PERSISTENT_ADVERSE": 1975,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.5055246101188138,
+     -1.1667988656228672
+    ],
+    "ci_bonf": [
+     -1.6068322020912067,
+     -1.0947853149339568
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -27.005643619001358,
+   "gross_per_fill": -4.005643619001357,
+   "net_per_fill_boot": {
+    "ci95": [
+     -29.480366382387672,
+     -24.538660188892365
+    ],
+    "ci_bonf": [
+     -30.580135108067566,
+     -23.353947529694445
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -6.480366382387671,
+     -1.538660188892362
+    ],
+    "ci_bonf": [
+     -7.580135108067565,
+     -0.35394752969444326
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.04928261916225325,
+   "holding_seconds_median": 247.69918499999767,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.057053536537710045,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.014458772958186792,
+    "COST_INSUFFICIENT": 0.15670183665494333,
+    "PERSISTENT_ADVERSE": 0.7717858538491599
+   }
+  },
+  "seed0:q0.70": {
+   "label": "seed0",
+   "group": "formula0910",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 110924,
+   "scorable": 110138,
+   "fills": 4065,
+   "unfilled": 106073,
+   "censored": 786,
+   "total_net_bps": -120020.10649428595,
+   "bps_per_decision": -1.0897247679664235,
+   "positive": false,
+   "cohort_NET_RECOVERY": 148,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 25,
+   "cohort_COST_INSUFFICIENT": 432,
+   "cohort_PERSISTENT_ADVERSE": 3460,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.1906785871031886,
+     -0.9960834245218406
+    ],
+    "ci_bonf": [
+     -1.2402362904254571,
+     -0.9547162807516993
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -29.525241450008846,
+   "gross_per_fill": -6.525241450008847,
+   "net_per_fill_boot": {
+    "ci95": [
+     -31.216763911494088,
+     -27.857526043878003
+    ],
+    "ci_bonf": [
+     -31.971083963865613,
+     -26.999077859796575
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -8.216763911494093,
+     -4.857526043877999
+    ],
+    "ci_bonf": [
+     -8.971083963865619,
+     -3.999077859796573
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.0369082423868238,
+   "holding_seconds_median": 339.53380299999844,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.036408364083640836,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.006150061500615006,
+    "COST_INSUFFICIENT": 0.10627306273062731,
+    "PERSISTENT_ADVERSE": 0.8511685116851169
+   }
+  },
+  "seed0:q0.85": {
+   "label": "seed0",
+   "group": "formula0910",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 82172,
+   "scorable": 81685,
+   "fills": 3743,
+   "unfilled": 77942,
+   "censored": 487,
+   "total_net_bps": -108412.09721845898,
+   "bps_per_decision": -1.327197125769223,
+   "positive": false,
+   "cohort_NET_RECOVERY": 134,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 34,
+   "cohort_COST_INSUFFICIENT": 447,
+   "cohort_PERSISTENT_ADVERSE": 3128,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -1.4484196649884538,
+     -1.2151465466693714
+    ],
+    "ci_bonf": [
+     -1.5092717120904817,
+     -1.164587941828719
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -28.96395864773149,
+   "gross_per_fill": -5.963958647731494,
+   "net_per_fill_boot": {
+    "ci95": [
+     -30.731692742272735,
+     -27.233942282030196
+    ],
+    "ci_bonf": [
+     -31.588581104235452,
+     -26.482272732506114
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -7.731692742272734,
+     -4.233942282030199
+    ],
+    "ci_bonf": [
+     -8.588581104235455,
+     -3.4822727325061185
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.045822366407541164,
+   "holding_seconds_median": 324.09377700000186,
+   "symbols_with_decisions": 407,
+   "cohort_share": {
+    "NET_RECOVERY": 0.03580016029922522,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.009083622762489982,
+    "COST_INSUFFICIENT": 0.11942292278920652,
+    "PERSISTENT_ADVERSE": 0.8356932941490782
+   }
+  },
+  "seed0:q0.95": {
+   "label": "seed0",
+   "group": "formula0910",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 44674,
+   "scorable": 44372,
+   "fills": 3039,
+   "unfilled": 41333,
+   "censored": 302,
+   "total_net_bps": -89841.184067598,
+   "bps_per_decision": -2.0247269464436584,
+   "positive": false,
+   "cohort_NET_RECOVERY": 134,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 37,
+   "cohort_COST_INSUFFICIENT": 376,
+   "cohort_PERSISTENT_ADVERSE": 2492,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -2.237813882179002,
+     -1.824572715159986
+    ],
+    "ci_bonf": [
+     -2.3397498294724537,
+     -1.7314158436187974
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -29.562745662256667,
+   "gross_per_fill": -6.562745662256665,
+   "net_per_fill_boot": {
+    "ci95": [
+     -31.618800433793616,
+     -27.58118867379215
+    ],
+    "ci_bonf": [
+     -32.529588512775874,
+     -26.71321483508057
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -8.61880043379361,
+     -4.581188673792148
+    ],
+    "ci_bonf": [
+     -9.52958851277587,
+     -3.713214835080571
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.06848913729378887,
+   "holding_seconds_median": 282.7207720000006,
+   "symbols_with_decisions": 407,
+   "cohort_share": {
+    "NET_RECOVERY": 0.044093451793353076,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.01217505758473182,
+    "COST_INSUFFICIENT": 0.12372490950970715,
+    "PERSISTENT_ADVERSE": 0.8200065811122079
+   }
+  },
+  "seed1:q0.70": {
+   "label": "seed1",
+   "group": "formula0910",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 106696,
+   "scorable": 105952,
+   "fills": 2794,
+   "unfilled": 103158,
+   "censored": 744,
+   "total_net_bps": -71835.21262321416,
+   "bps_per_decision": -0.6779977029524139,
+   "positive": false,
+   "cohort_NET_RECOVERY": 156,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 39,
+   "cohort_COST_INSUFFICIENT": 414,
+   "cohort_PERSISTENT_ADVERSE": 2185,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7632481720336061,
+     -0.5991328580160254
+    ],
+    "ci_bonf": [
+     -0.8038237924365711,
+     -0.5640343073236996
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -25.710527066289963,
+   "gross_per_fill": -2.7105270662899628,
+   "net_per_fill_boot": {
+    "ci95": [
+     -27.896221558350362,
+     -23.572692987760163
+    ],
+    "ci_bonf": [
+     -28.927243168909975,
+     -22.690674393268743
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -4.896221558350366,
+     -0.5726929877601667
+    ],
+    "ci_bonf": [
+     -5.927243168909975,
+     0.30932560673125264
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.026370431893687707,
+   "holding_seconds_median": 252.43626750000112,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.05583392984967788,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.01395848246241947,
+    "COST_INSUFFICIENT": 0.1481746599856836,
+    "PERSISTENT_ADVERSE": 0.782032927702219
+   }
+  },
+  "seed1:q0.85": {
+   "label": "seed1",
+   "group": "formula0910",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 74895,
+   "scorable": 74479,
+   "fills": 2148,
+   "unfilled": 72331,
+   "censored": 416,
+   "total_net_bps": -49888.91285648584,
+   "bps_per_decision": -0.6698386505791678,
+   "positive": false,
+   "cohort_NET_RECOVERY": 147,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 38,
+   "cohort_COST_INSUFFICIENT": 394,
+   "cohort_PERSISTENT_ADVERSE": 1569,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7719578941130404,
+     -0.5704636421444614
+    ],
+    "ci_bonf": [
+     -0.8192625536553663,
+     -0.5301475091678155
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -23.22575086428577,
+   "gross_per_fill": -0.22575086428577337,
+   "net_per_fill_boot": {
+    "ci95": [
+     -25.829506786841115,
+     -20.453093464860405
+    ],
+    "ci_bonf": [
+     -26.98403506200712,
+     -19.20583167427437
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -2.8295067868411086,
+     2.546906535139593
+    ],
+    "ci_bonf": [
+     -3.9840350620071128,
+     3.7941683257256282
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.028840344258113024,
+   "holding_seconds_median": 219.7932189999956,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.06843575418994413,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.017690875232774673,
+    "COST_INSUFFICIENT": 0.18342644320297952,
+    "PERSISTENT_ADVERSE": 0.7304469273743017
+   }
+  },
+  "seed1:q0.95": {
+   "label": "seed1",
+   "group": "formula0910",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 44827,
+   "scorable": 44620,
+   "fills": 1567,
+   "unfilled": 43053,
+   "censored": 207,
+   "total_net_bps": -30922.97175800533,
+   "bps_per_decision": -0.6930293984313162,
+   "positive": false,
+   "cohort_NET_RECOVERY": 139,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 52,
+   "cohort_COST_INSUFFICIENT": 311,
+   "cohort_PERSISTENT_ADVERSE": 1065,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.8116239925180131,
+     -0.5724896316713776
+    ],
+    "ci_bonf": [
+     -0.863352931334508,
+     -0.5065022274627211
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -19.73386838417698,
+   "gross_per_fill": 3.2661316158230176,
+   "net_per_fill_boot": {
+    "ci95": [
+     -22.607457712574764,
+     -16.613570835967863
+    ],
+    "ci_bonf": [
+     -23.78480599112274,
+     -15.068660796037205
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     0.3925422874252375,
+     6.386429164032136
+    ],
+    "ci_bonf": [
+     -0.7848059911227423,
+     7.931339203962794
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.03511878081577768,
+   "holding_seconds_median": 180.3325330000007,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.08870453095086152,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.03318442884492661,
+    "COST_INSUFFICIENT": 0.198468410976388,
+    "PERSISTENT_ADVERSE": 0.6796426292278238
+   }
+  },
+  "seed2:q0.70": {
+   "label": "seed2",
+   "group": "formula0910",
+   "rule": "Q70",
+   "q": 0.7,
+   "decisions": 108640,
+   "scorable": 108023,
+   "fills": 2756,
+   "unfilled": 105267,
+   "censored": 617,
+   "total_net_bps": -69247.76180816196,
+   "bps_per_decision": -0.6410464605515673,
+   "positive": false,
+   "cohort_NET_RECOVERY": 166,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 49,
+   "cohort_COST_INSUFFICIENT": 436,
+   "cohort_PERSISTENT_ADVERSE": 2105,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.718544925051321,
+     -0.5674756513091708
+    ],
+    "ci_bonf": [
+     -0.7573369578946508,
+     -0.5362716866418834
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -25.12618352981203,
+   "gross_per_fill": -2.126183529812032,
+   "net_per_fill_boot": {
+    "ci95": [
+     -27.076294002052798,
+     -23.161253471453282
+    ],
+    "ci_bonf": [
+     -27.957666403277408,
+     -22.317382735207374
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -4.076294002052802,
+     -0.1612534714532837
+    ],
+    "ci_bonf": [
+     -4.957666403277407,
+     0.6826172647926274
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.025513085176305045,
+   "holding_seconds_median": 246.93549899999925,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.0602322206095791,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.017779390420899856,
+    "COST_INSUFFICIENT": 0.15820029027576196,
+    "PERSISTENT_ADVERSE": 0.7637880986937591
+   }
+  },
+  "seed2:q0.85": {
+   "label": "seed2",
+   "group": "formula0910",
+   "rule": "Q85",
+   "q": 0.85,
+   "decisions": 76951,
+   "scorable": 76623,
+   "fills": 2143,
+   "unfilled": 74480,
+   "censored": 328,
+   "total_net_bps": -47045.00608809057,
+   "bps_per_decision": -0.6139802159676673,
+   "positive": false,
+   "cohort_NET_RECOVERY": 158,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 44,
+   "cohort_COST_INSUFFICIENT": 383,
+   "cohort_PERSISTENT_ADVERSE": 1558,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7089760187824239,
+     -0.5237095304433546
+    ],
+    "ci_bonf": [
+     -0.7512727837321513,
+     -0.4853079520315137
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -21.952872649598962,
+   "gross_per_fill": 1.0471273504010414,
+   "net_per_fill_boot": {
+    "ci95": [
+     -24.504541664303886,
+     -19.2952260147943
+    ],
+    "ci_bonf": [
+     -25.81102011911676,
+     -18.108888862315645
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     -1.5045416643038818,
+     3.704773985205701
+    ],
+    "ci_bonf": [
+     -2.811020119116758,
+     4.891111137684358
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.027968103572034508,
+   "holding_seconds_median": 207.21600700000272,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.07372841810545963,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.02053196453569762,
+    "COST_INSUFFICIENT": 0.1787214185720952,
+    "PERSISTENT_ADVERSE": 0.7270181987867476
+   }
+  },
+  "seed2:q0.95": {
+   "label": "seed2",
+   "group": "formula0910",
+   "rule": "Q95",
+   "q": 0.95,
+   "decisions": 47398,
+   "scorable": 47176,
+   "fills": 1558,
+   "unfilled": 45618,
+   "censored": 222,
+   "total_net_bps": -28630.340050092986,
+   "bps_per_decision": -0.6068835859354965,
+   "positive": false,
+   "cohort_NET_RECOVERY": 135,
+   "cohort_EARLY_RECOVERY_LATE_REVERSAL": 55,
+   "cohort_COST_INSUFFICIENT": 338,
+   "cohort_PERSISTENT_ADVERSE": 1030,
+   "bps_per_decision_boot": {
+    "ci95": [
+     -0.7305579057174392,
+     -0.4850955606879367
+    ],
+    "ci_bonf": [
+     -0.7856049882877588,
+     -0.4295005748139073
+    ],
+    "nan_reps": 0
+   },
+   "net_per_fill": -18.37634149556674,
+   "gross_per_fill": 4.623658504433258,
+   "net_per_fill_boot": {
+    "ci95": [
+     -21.742144072334614,
+     -15.027399280450815
+    ],
+    "ci_bonf": [
+     -23.04262493934114,
+     -13.053611028870563
+    ],
+    "nan_reps": 0
+   },
+   "gross_per_fill_boot": {
+    "ci95": [
+     1.2578559276653871,
+     7.972600719549185
+    ],
+    "ci_bonf": [
+     -0.042624939341143385,
+     9.946388971129434
+    ],
+    "nan_reps": 0
+   },
+   "fill_rate": 0.033025267084958454,
+   "holding_seconds_median": 185.779748500001,
+   "symbols_with_decisions": 408,
+   "cohort_share": {
+    "NET_RECOVERY": 0.08664955070603338,
+    "EARLY_RECOVERY_LATE_REVERSAL": 0.03530166880616174,
+    "COST_INSUFFICIENT": 0.21694480102695765,
+    "PERSISTENT_ADVERSE": 0.6611039794608472
+   }
+  }
+ },
+ "teacher_verdicts": {
+  "T2M:abs": "거래 부족",
+  "T2M:q0.70": "손실",
+  "T2M:q0.85": "손실",
+  "T2M:q0.95": "손실",
+  "T3D:abs": "거래 부족",
+  "T3D:q0.70": "손실",
+  "T3D:q0.85": "손실",
+  "T3D:q0.95": "손실",
+  "RDG:abs": "판정 불가",
+  "RDG:q0.70": "손실",
+  "RDG:q0.85": "손실",
+  "RDG:q0.95": "손실"
+ },
+ "answer": "교사 자체도 정본 계약에서 벌지 못한다",
+ "comparisons_same_q": {
+  "T2M:q0.70 − naive:q0.70": {
+   "diff": 0.042587689626457426,
+   "ci95": [
+    -0.008220421873425995,
+    0.09638137612890296
+   ]
+  },
+  "T2M:q0.70 − null:q0.70": {
+   "diff": 0.36991201726072864,
+   "ci95": [
+    0.3045233105090168,
+    0.4381445555408822
+   ]
+  },
+  "T2M:q0.70 − seed0:q0.70": {
+   "diff": 0.44914209147674833,
+   "ci95": [
+    0.3796621977107897,
+    0.5212833657931444
+   ]
+  },
+  "T2M:q0.70 − seed1:q0.70": {
+   "diff": 0.037415026462738754,
+   "ci95": [
+    -0.02250367701701168,
+    0.10385290629278411
+   ]
+  },
+  "T2M:q0.70 − seed2:q0.70": {
+   "diff": 0.0004637840618921807,
+   "ci95": [
+    -0.05300366334802641,
+    0.05846190899253411
+   ]
+  },
+  "T2M:q0.85 − naive:q0.85": {
+   "diff": 0.11317338283021383,
+   "ci95": [
+    0.0360283075744091,
+    0.19393643746739
+   ]
+  },
+  "T2M:q0.85 − null:q0.85": {
+   "diff": 0.5162446926334214,
+   "ci95": [
+    0.42888009527386894,
+    0.6086148971147837
+   ]
+  },
+  "T2M:q0.85 − seed0:q0.85": {
+   "diff": 0.6403496545645282,
+   "ci95": [
+    0.5481988774214709,
+    0.7353331983957528
+   ]
+  },
+  "T2M:q0.85 − seed1:q0.85": {
+   "diff": -0.017008820625527,
+   "ci95": [
+    -0.09068317553031581,
+    0.05632005109553428
+   ]
+  },
+  "T2M:q0.85 − seed2:q0.85": {
+   "diff": -0.07286725523702753,
+   "ci95": [
+    -0.14955926148977158,
+    0.0021971800429490774
+   ]
+  },
+  "T2M:q0.95 − naive:q0.95": {
+   "diff": 0.06854979144569184,
+   "ci95": [
+    -0.07695827230397242,
+    0.21350340599822246
+   ]
+  },
+  "T2M:q0.95 − null:q0.95": {
+   "diff": 0.5334218894840635,
+   "ci95": [
+    0.408290551850877,
+    0.6640487171721569
+   ]
+  },
+  "T2M:q0.95 − seed0:q0.95": {
+   "diff": 1.2272399862209435,
+   "ci95": [
+    1.0576733165837968,
+    1.4017963313049302
+   ]
+  },
+  "T2M:q0.95 − seed1:q0.95": {
+   "diff": -0.10445756179139876,
+   "ci95": [
+    -0.22674233867547666,
+    0.008560538212365085
+   ]
+  },
+  "T2M:q0.95 − seed2:q0.95": {
+   "diff": -0.1906033742872184,
+   "ci95": [
+    -0.3046771193280658,
+    -0.08437173407271177
+   ]
+  },
+  "T3D:q0.70 − naive:q0.70": {
+   "diff": 0.027839080515331238,
+   "ci95": [
+    -0.023387364722266015,
+    0.08093389696786024
+   ]
+  },
+  "T3D:q0.70 − null:q0.70": {
+   "diff": 0.35516340814960246,
+   "ci95": [
+    0.29286277068372585,
+    0.4223835819474567
+   ]
+  },
+  "T3D:q0.70 − seed0:q0.70": {
+   "diff": 0.43439348236562214,
+   "ci95": [
+    0.36569776268438337,
+    0.5043462619141548
+   ]
+  },
+  "T3D:q0.70 − seed1:q0.70": {
+   "diff": 0.022666417351612567,
+   "ci95": [
+    -0.03926113002032029,
+    0.08407333819689004
+   ]
+  },
+  "T3D:q0.70 − seed2:q0.70": {
+   "diff": -0.014284825049234007,
+   "ci95": [
+    -0.0660711112188397,
+    0.03524366039914478
+   ]
+  },
+  "T3D:q0.85 − naive:q0.85": {
+   "diff": 0.12004883975111103,
+   "ci95": [
+    0.0418040329182221,
+    0.2018026125234536
+   ]
+  },
+  "T3D:q0.85 − null:q0.85": {
+   "diff": 0.5231201495543186,
+   "ci95": [
+    0.42988411270255217,
+    0.6219987817302081
+   ]
+  },
+  "T3D:q0.85 − seed0:q0.85": {
+   "diff": 0.6472251114854254,
+   "ci95": [
+    0.5487022943876014,
+    0.7471814855819681
+   ]
+  },
+  "T3D:q0.85 − seed1:q0.85": {
+   "diff": -0.010133363704629805,
+   "ci95": [
+    -0.0933142143135923,
+    0.07385209780557106
+   ]
+  },
+  "T3D:q0.85 − seed2:q0.85": {
+   "diff": -0.06599179831613033,
+   "ci95": [
+    -0.14700303488988026,
+    0.01244666980835649
+   ]
+  },
+  "T3D:q0.95 − naive:q0.95": {
+   "diff": 0.19273449096212925,
+   "ci95": [
+    0.05603834051692434,
+    0.33176019962945597
+   ]
+  },
+  "T3D:q0.95 − null:q0.95": {
+   "diff": 0.657606589000501,
+   "ci95": [
+    0.5191424754353912,
+    0.811804932139926
+   ]
+  },
+  "T3D:q0.95 − seed0:q0.95": {
+   "diff": 1.3514246857373808,
+   "ci95": [
+    1.1686428084723923,
+    1.5423244070246254
+   ]
+  },
+  "T3D:q0.95 − seed1:q0.95": {
+   "diff": 0.019727137725038646,
+   "ci95": [
+    -0.08949212465383818,
+    0.12855601459826527
+   ]
+  },
+  "T3D:q0.95 − seed2:q0.95": {
+   "diff": -0.066418674770781,
+   "ci95": [
+    -0.16513126005423745,
+    0.033815395657698956
+   ]
+  },
+  "RDG:q0.70 − naive:q0.70": {
+   "diff": 0.0782689764316753,
+   "ci95": [
+    0.026907205235456495,
+    0.1316886220818289
+   ]
+  },
+  "RDG:q0.70 − null:q0.70": {
+   "diff": 0.4055933040659465,
+   "ci95": [
+    0.34114418246184874,
+    0.4758078232471504
+   ]
+  },
+  "RDG:q0.70 − seed0:q0.70": {
+   "diff": 0.4848233782819662,
+   "ci95": [
+    0.41758371315979176,
+    0.5551205626072685
+   ]
+  },
+  "RDG:q0.70 − seed1:q0.70": {
+   "diff": 0.07309631326795663,
+   "ci95": [
+    0.02054301865457273,
+    0.12601458352582573
+   ]
+  },
+  "RDG:q0.70 − seed2:q0.70": {
+   "diff": 0.03614507086711005,
+   "ci95": [
+    -0.010488583920527528,
+    0.08427989451494457
+   ]
+  },
+  "RDG:q0.85 − naive:q0.85": {
+   "diff": 0.1412273866193361,
+   "ci95": [
+    0.051314971961828375,
+    0.23756918609339586
+   ]
+  },
+  "RDG:q0.85 − null:q0.85": {
+   "diff": 0.5442986964225437,
+   "ci95": [
+    0.44855047467562553,
+    0.646029578953663
+   ]
+  },
+  "RDG:q0.85 − seed0:q0.85": {
+   "diff": 0.6684036583536505,
+   "ci95": [
+    0.5651758391034333,
+    0.7735114806932679
+   ]
+  },
+  "RDG:q0.85 − seed1:q0.85": {
+   "diff": 0.011045183163595262,
+   "ci95": [
+    -0.045028336480021455,
+    0.06733336958065587
+   ]
+  },
+  "RDG:q0.85 − seed2:q0.85": {
+   "diff": -0.04481325144790527,
+   "ci95": [
+    -0.10106551616477182,
+    0.012430295119789535
+   ]
+  },
+  "RDG:q0.95 − naive:q0.95": {
+   "diff": 0.1367153252782024,
+   "ci95": [
+    -0.0029644625670490624,
+    0.2777974814548884
+   ]
+  },
+  "RDG:q0.95 − null:q0.95": {
+   "diff": 0.6015874233165741,
+   "ci95": [
+    0.4552572442382243,
+    0.7623739415815112
+   ]
+  },
+  "RDG:q0.95 − seed0:q0.95": {
+   "diff": 1.295405520053454,
+   "ci95": [
+    1.1213172686190924,
+    1.4785543994512536
+   ]
+  },
+  "RDG:q0.95 − seed1:q0.95": {
+   "diff": -0.036292027958888196,
+   "ci95": [
+    -0.15569871219520814,
+    0.08125172436149589
+   ]
+  },
+  "RDG:q0.95 − seed2:q0.95": {
+   "diff": -0.12243784045470785,
+   "ci95": [
+    -0.23676701811395007,
+    -0.012028592361731353
+   ]
+  }
+ },
+ "seconds": 1459.9773828983307
+}

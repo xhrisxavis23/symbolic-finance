@@ -1,0 +1,164 @@
+{
+ "T2M:abs": {
+  "label": "T2M",
+  "group": "teacher",
+  "rule": "ABS",
+  "q": null
+ },
+ "T2M:q0.70": {
+  "label": "T2M",
+  "group": "teacher",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "T2M:q0.85": {
+  "label": "T2M",
+  "group": "teacher",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "T2M:q0.95": {
+  "label": "T2M",
+  "group": "teacher",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "T3D:abs": {
+  "label": "T3D",
+  "group": "teacher",
+  "rule": "ABS",
+  "q": null
+ },
+ "T3D:q0.70": {
+  "label": "T3D",
+  "group": "teacher",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "T3D:q0.85": {
+  "label": "T3D",
+  "group": "teacher",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "T3D:q0.95": {
+  "label": "T3D",
+  "group": "teacher",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "RDG:abs": {
+  "label": "RDG",
+  "group": "teacher",
+  "rule": "ABS",
+  "q": null
+ },
+ "RDG:q0.70": {
+  "label": "RDG",
+  "group": "teacher",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "RDG:q0.85": {
+  "label": "RDG",
+  "group": "teacher",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "RDG:q0.95": {
+  "label": "RDG",
+  "group": "teacher",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "naive:q0.70": {
+  "label": "naive",
+  "group": "baseline",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "naive:q0.85": {
+  "label": "naive",
+  "group": "baseline",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "naive:q0.95": {
+  "label": "naive",
+  "group": "baseline",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "null:q0.70": {
+  "label": "null",
+  "group": "baseline",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "null:q0.85": {
+  "label": "null",
+  "group": "baseline",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "null:q0.95": {
+  "label": "null",
+  "group": "baseline",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "seed0:q0.70": {
+  "label": "seed0",
+  "group": "formula0910",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "seed0:q0.85": {
+  "label": "seed0",
+  "group": "formula0910",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "seed0:q0.95": {
+  "label": "seed0",
+  "group": "formula0910",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "seed1:q0.70": {
+  "label": "seed1",
+  "group": "formula0910",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "seed1:q0.85": {
+  "label": "seed1",
+  "group": "formula0910",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "seed1:q0.95": {
+  "label": "seed1",
+  "group": "formula0910",
+  "rule": "Q95",
+  "q": 0.95
+ },
+ "seed2:q0.70": {
+  "label": "seed2",
+  "group": "formula0910",
+  "rule": "Q70",
+  "q": 0.7
+ },
+ "seed2:q0.85": {
+  "label": "seed2",
+  "group": "formula0910",
+  "rule": "Q85",
+  "q": 0.85
+ },
+ "seed2:q0.95": {
+  "label": "seed2",
+  "group": "formula0910",
+  "rule": "Q95",
+  "q": 0.95
+ }
+}

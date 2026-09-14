@@ -1,0 +1,14 @@
+[06:26:06] [scores] 저장 예측 평가 ① 3,849,436행 · 411 종목
+[06:26:13] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[06:26:14] GPU 확인: NVIDIA RTX PRO 6000 Blackwell Server Edition dcd70e26-59e0-7835-941a-4a0aabb186fa
+[06:26:14] [scores] 교사 적재 T2M·T3D (GPU NVIDIA RTX PRO 6000 Blackwell Server Edition), 릿지 α=0.001
+[06:26:34] [scores] 50/411 종목, 틱 391,302 (43s)
+[06:26:53] [scores] 100/411 종목, 틱 960,391 (62s)
+[06:27:19] [scores] 150/411 종목, 틱 1,587,252 (89s)
+[06:27:34] [scores] 200/411 종목, 틱 2,006,281 (104s)
+[06:27:44] [scores] 250/411 종목, 틱 2,369,230 (114s)
+[06:27:54] [scores] 300/411 종목, 틱 2,717,005 (124s)
+[06:28:09] [scores] 350/411 종목, 틱 3,255,323 (138s)
+[06:28:22] [scores] 400/411 종목, 틱 3,775,083 (151s)
+[06:28:24] [scores] C1 실패: {'T2M': {'max_abs_diff': 0.005802273750305176, 'rows': 3849436}, 'T3D': {'max_abs_diff': 0.016654133796691895, 'rows': 3849436}, 'RDG': {'max_abs_diff': 1.7763568394002505e-15, 'rows': 3849436}} · 건너뜀 0 · 정렬 실패 0
+[06:28:24] [git] commit rc=0 
