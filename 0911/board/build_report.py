@@ -17,7 +17,7 @@ TEMPLATE_CSS = os.path.join(HERE, "template.css")
 SOURCE_HTML = os.path.join(HERE, "..", "..", "tick_backtest_survey_0909", "틱데이터_백테스트_심층분석_0909.html")
 BODY = os.path.join(HERE, "report_body.html")
 OUT = os.path.join(HERE, "..", "symbolic_distillation_0911_report.html")
-TITLE = "시장 미시구조 심볼릭 증류 — 3일 전체 학습 · 틱 크기별 종목군 · 데이터 양 곡선 (0909~0911)"
+TITLE = "시장 미시구조 심볼릭 증류 — 교사 자체 경제성 · 3일 전체 학습 · 틱 크기별 종목군 · 데이터 양 곡선 (0909~0914)"
 
 if not os.path.exists(TEMPLATE_CSS):
     src = open(SOURCE_HTML, encoding="utf-8").read()
