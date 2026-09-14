@@ -172,10 +172,9 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
-    scores = json.loads((C.OUT / "scores_manifest.json").read_text())
     checks = json.loads((C.OUT / "checks.json").read_text())
-    if not (scores.get("c1_pass") and checks.get("c3_pass") and checks.get("c4_pass")):
-        raise SystemExit("실행 전 점검(C1·C3·C4)을 통과하지 않았다 — 재생하지 않는다")
+    if not (C.c1_passed() and checks.get("c3_pass") and checks.get("c4_pass")):
+        raise SystemExit("실행 전 점검(C1′·C3·C4)을 통과하지 않았다 — 재생하지 않는다")
     inject.install()
     symbols = C.eval_symbols()
 

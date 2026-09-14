@@ -90,9 +90,8 @@ def c3(symbols: list[str]) -> dict:
 
 def main() -> None:
     t0 = time.time()
-    scores = json.loads((C.OUT / "scores_manifest.json").read_text())
-    if not scores.get("c1_pass"):
-        raise SystemExit("C1 을 통과하지 않았다 — C3·C4 를 돌리지 않는다")
+    if not C.c1_passed():
+        raise SystemExit("C1(또는 부록 A 의 C1′)을 통과하지 않았다 — C3·C4 를 돌리지 않는다")
     inject.install()
     symbols = C.eval_symbols()
     r4 = c4(symbols[:C.C4_SYMBOLS])

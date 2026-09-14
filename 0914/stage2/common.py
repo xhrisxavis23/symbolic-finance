@@ -101,6 +101,14 @@ def q_template(input_ast: dict) -> dict:
     return contract_template(compare_q(input_ast), PARAM)
 
 
+def c1_passed() -> bool:
+    """C1(원문) 또는 C1′(부록 A.3) 통과."""
+    import json
+    scores = json.loads((OUT / "scores_manifest.json").read_text())
+    amended = OUT / "c1_amended.json"
+    return bool(scores.get("c1_pass") or (amended.exists() and json.loads(amended.read_text()).get("pass")))
+
+
 def git_commit(paths: list[str], message: str) -> None:
     """산출물을 0914 저장소에 커밋한다. 실패해도 실행을 막지 않는다."""
     body = (message + "\n\nCo-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>\n"
